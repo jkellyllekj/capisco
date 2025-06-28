@@ -7,7 +7,32 @@ body {
 }
 .lesson-img {
   width: 100%;
+  height: 200px;
   margin: 1em 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+}
+.lesson-img.seasons {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+}
+.lesson-img.vocab {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+.lesson-img.dialogue {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+.lesson-img.grammar {
+  background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+}
+.lesson-img.extra {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
 }
 .quiz-block {
   border: 1px solid #ccc;
