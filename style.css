@@ -1,4 +1,22 @@
-html {
-  height: 100%;
+
+body {
+  font-family: sans-serif;
+  padding: 1em;
+  max-width: 800px;
+  margin: auto;
+}
+.lesson-img {
   width: 100%;
+  margin: 1em 0;
+}
+.quiz-block {
+  border: 1px solid #ccc;
+  padding: 1em;
+  margin-top: 1em;
+}
+.hidden {
+  display: none;
+}
+.quiz-btn {
+  margin-top: 1em;
 }

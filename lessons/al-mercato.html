@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Al Mercato - Italian Lesson</title>
+  <link href="../style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <header>
+    <h1>Capitolo 1 – Al Mercato</h1>
+    <a href="../index.html">← Back to Lessons</a>
+  </header>
+
+  <main>
+    <!-- Study guide section -->
+    <section class="study-guide">
+      <h2>Study Guide</h2>
+      <p>This is where your lesson content will go. You can add:</p>
+      <ul>
+        <li>Vocabulary words</li>
+        <li>Grammar points</li>
+        <li>Example sentences</li>
+        <li>Cultural notes</li>
+      </ul>
+      
+      <!-- Placeholder image -->
+      <img src="../public/images/mercato-placeholder.jpg" alt="Italian market scene" class="lesson-img">
+      
+      <button class="quiz-btn" onclick="toggleQuiz('quiz1')">Quiz Me</button>
+    </section>
+
+    <!-- Quiz block -->
+    <div id="quiz1" class="quiz-block hidden">
+      <h3>Quiz Question 1</h3>
+      <p>What does "mercato" mean in English?</p>
+      <ul>
+        <li><input type="radio" name="q1" value="store"> Store</li>
+        <li><input type="radio" name="q1" value="market"> Market</li>
+        <li><input type="radio" name="q1" value="restaurant"> Restaurant</li>
+      </ul>
+    </div>
+  </main>
+
+  <script src="../script.js"></script>
+</body>
+</html>
