@@ -58,6 +58,19 @@
           <li><i class="fas fa-leaf"></i> L'autunno – autumn</li>
           <li><i class="fas fa-snowflake"></i> L'inverno – winter</li>
         </ul>
+        <button class="quiz-btn" onclick="toggleQuiz('quiz0')">
+          <i class="fas fa-question-circle"></i> Quiz Me on Seasons
+        </button>
+        <div id="quiz0" class="quiz-block hidden">
+          <div class="quiz-question">
+            <p>What is the Italian word for "summer"?</p>
+            <input type="text" placeholder="Your answer..." class="quiz-input" />
+          </div>
+          <div class="quiz-question">
+            <p>How would you say "I prefer spring" in Italian?</p>
+            <input type="text" placeholder="Your answer..." class="quiz-input" />
+          </div>
+        </div>
       </div>
     </section>
 
@@ -66,33 +79,67 @@
         <h2><i class="fas fa-apple-alt"></i> Vocabolario del Mercato</h2>
       </div>
       <div class="content-card">
-        <div class="lesson-visual food">
-          <div class="food-grid">
-            <div class="food-item">
-              <i class="fas fa-bread-slice"></i>
-              <span>Panini</span>
-            </div>
-            <div class="food-item">
-              <i class="fas fa-fish"></i>
-              <span>Pesce</span>
-            </div>
-            <div class="food-item">
-              <i class="fas fa-cheese"></i>
-              <span>Formaggio</span>
-            </div>
-            <div class="food-item">
-              <i class="fas fa-seedling"></i>
-              <span>Verdure</span>
-            </div>
+        <div class="lesson-visual market">
+          <div class="market-scene">
+            <i class="fas fa-store-alt market-icon"></i>
+            <span>Il Mercato Italiano</span>
           </div>
         </div>
-        <ul class="vocab-list">
-          <li><i class="fas fa-bread-slice"></i> Panini – bread rolls</li>
-          <li><i class="fas fa-apple-alt"></i> Cocomero – watermelon</li>
-          <li><i class="fas fa-fish"></i> Pesce – fish</li>
-          <li><i class="fas fa-seedling"></i> Patate – potatoes</li>
-          <li><i class="fas fa-cheese"></i> Formaggio – cheese</li>
-        </ul>
+        <div class="vocab-categories">
+          <div class="vocab-category">
+            <h4><i class="fas fa-bread-slice"></i> Pane e Cereali</h4>
+            <ul class="vocab-list">
+              <li>Panini – bread rolls</li>
+              <li>Pane – bread</li>
+              <li>Pasta – pasta</li>
+              <li>Riso – rice</li>
+            </ul>
+          </div>
+          
+          <div class="vocab-category">
+            <h4><i class="fas fa-apple-alt"></i> Frutta</h4>
+            <ul class="vocab-list">
+              <li>Cocomero – watermelon</li>
+              <li>Pesche – peaches</li>
+              <li>Mele – apples</li>
+              <li>Banane – bananas</li>
+              <li>Arance – oranges</li>
+              <li>Uva – grapes</li>
+            </ul>
+          </div>
+          
+          <div class="vocab-category">
+            <h4><i class="fas fa-carrot"></i> Verdura</h4>
+            <ul class="vocab-list">
+              <li>Patate – potatoes</li>
+              <li>Pomodori – tomatoes</li>
+              <li>Carote – carrots</li>
+              <li>Insalata – lettuce</li>
+              <li>Cipolle – onions</li>
+            </ul>
+          </div>
+          
+          <div class="vocab-category">
+            <h4><i class="fas fa-fish"></i> Pesce e Carne</h4>
+            <ul class="vocab-list">
+              <li>Pesce – fish</li>
+              <li>Salmone – salmon</li>
+              <li>Pollo – chicken</li>
+              <li>Manzo – beef</li>
+            </ul>
+          </div>
+          
+          <div class="vocab-category">
+            <h4><i class="fas fa-cheese"></i> Latticini</h4>
+            <ul class="vocab-list">
+              <li>Formaggio – cheese</li>
+              <li>Parmigiano – parmesan</li>
+              <li>Mozzarella – mozzarella</li>
+              <li>Latte – milk</li>
+              <li>Burro – butter</li>
+            </ul>
+          </div>
+        </div>
         <button class="quiz-btn" onclick="toggleQuiz('quiz1')">
           <i class="fas fa-question-circle"></i> Quiz Me on Vocabulary
         </button>
@@ -114,21 +161,73 @@
         <h2><i class="fas fa-comments"></i> Espressioni Utili</h2>
       </div>
       <div class="content-card">
-        <ul class="vocab-list">
-          <li><i class="fas fa-hand-point-right"></i> Vorrei… – I would like…</li>
-          <li><i class="fas fa-euro-sign"></i> Quanto costa? – How much does it cost?</li>
-          <li><i class="fas fa-weight"></i> Un chilo di… – A kilo of…</li>
-        </ul>
+        <div class="expressions-grid">
+          <div class="expression-category">
+            <h4><i class="fas fa-shopping-cart"></i> Chiedere e Comprare</h4>
+            <ul class="vocab-list">
+              <li>Vorrei… – I would like…</li>
+              <li>Quanto costa? – How much does it cost?</li>
+              <li>Quanto costano? – How much do they cost?</li>
+              <li>Posso assaggiare? – Can I taste it?</li>
+              <li>Quanto ne vuole? – How much do you want?</li>
+              <li>Questo è tutto – That's all</li>
+            </ul>
+          </div>
+          
+          <div class="expression-category">
+            <h4><i class="fas fa-balance-scale"></i> Quantità</h4>
+            <ul class="vocab-list">
+              <li>Un chilo di… – A kilo of…</li>
+              <li>Mezzo chilo – Half a kilo</li>
+              <li>Tre etti – 300 grams</li>
+              <li>Un etto – 100 grams</li>
+              <li>Una dozzina – A dozen</li>
+              <li>Un pezzo – One piece</li>
+            </ul>
+          </div>
+          
+          <div class="expression-category">
+            <h4><i class="fas fa-thumbs-up"></i> Qualità</h4>
+            <ul class="vocab-list">
+              <li>È fresco? – Is it fresh?</li>
+              <li>Lo preferisce fresco o stagionato? – Do you prefer it fresh or aged?</li>
+              <li>È maturo? – Is it ripe?</li>
+              <li>È di stagione? – Is it in season?</li>
+              <li>È locale? – Is it local?</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="practice-scenarios">
+          <h4><i class="fas fa-theater-masks"></i> Scenari di Pratica</h4>
+          <div class="scenario">
+            <strong>Comprare Pesce:</strong>
+            <p><em>"Vorrei del salmone. È fresco? Quanto costa al chilo? Ne vorrei mezzo chilo, per favore."</em></p>
+          </div>
+          <div class="scenario">
+            <strong>Comprare Frutta:</strong>
+            <p><em>"Queste pesche sono mature? Posso assaggiarne una? Bene, ne prendo un chilo."</em></p>
+          </div>
+          <div class="scenario">
+            <strong>Comprare Formaggio:</strong>
+            <p><em>"Vorrei del parmigiano. Lo preferisce giovane o stagionato? Stagionato, per favore. Tre etti."</em></p>
+          </div>
+        </div>
+        
         <button class="quiz-btn" onclick="toggleQuiz('quiz2')">
-          <i class="fas fa-question-circle"></i> Quiz Me on Phrases
+          <i class="fas fa-question-circle"></i> Quiz Me on Expressions
         </button>
         <div id="quiz2" class="quiz-block hidden">
           <div class="quiz-question">
-            <p>How do you say "How much does it cost?" in Italian?</p>
+            <p>How do you ask "Can I taste it?" in Italian?</p>
             <input type="text" class="quiz-input" />
           </div>
           <div class="quiz-question">
-            <p>Translate: "Can I taste it?"</p>
+            <p>You want 300 grams of cheese. What do you say?</p>
+            <input type="text" class="quiz-input" />
+          </div>
+          <div class="quiz-question">
+            <p>How do you ask if the fish is fresh?</p>
             <input type="text" class="quiz-input" />
           </div>
         </div>

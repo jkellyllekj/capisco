@@ -329,6 +329,98 @@ footer {
   color: #667eea;
 }
 
+.market-scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.market-icon {
+  font-size: 4rem;
+  color: #667eea;
+}
+
+.market-scene span {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.vocab-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.vocab-category {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+  border-left: 4px solid #667eea;
+}
+
+.vocab-category h4 {
+  margin: 0 0 1rem 0;
+  color: #667eea;
+  font-size: 1.1rem;
+}
+
+.expressions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.expression-category {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+  border-left: 4px solid #28a745;
+}
+
+.expression-category h4 {
+  margin: 0 0 1rem 0;
+  color: #28a745;
+  font-size: 1.1rem;
+}
+
+.practice-scenarios {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  border-left: 4px solid #ffc107;
+}
+
+.practice-scenarios h4 {
+  margin: 0 0 1rem 0;
+  color: #856404;
+}
+
+.scenario {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border-left: 3px solid #ffc107;
+}
+
+.scenario strong {
+  color: #856404;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.scenario p {
+  margin: 0;
+  font-style: italic;
+  color: #333;
+}
+
 .dialogue-container {
   background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
   border-radius: 12px;
