@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,127 +8,228 @@
   <link rel="stylesheet" href="../style.css" />
   <script defer src="../script.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <style>
-    .lesson-img {
-      width: 200px;
-      height: 150px;
-      background-color: #eee;
-      border: 1px solid #ccc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 10px;
-      font-family: sans-serif;
-      color: #888;
-    }
-
-    .dialogue {
-      background-color: #d4edda;
-      color: #155724;
-    }
-  </style>
 </head>
-<body>
-  <header>
-    <h1>Capitolo 1 – Al Mercato</h1>
-    <a href="../index.html">← Back to Home</a>
+<body class="lesson-page">
+  <header class="lesson-header">
+    <div class="lesson-nav">
+      <a href="../index.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Home
+      </a>
+      <div class="lesson-progress">
+        <span class="chapter-indicator">Chapter 1 of 4</span>
+      </div>
+    </div>
+    <div class="lesson-title">
+      <h1><i class="fas fa-shopping-basket"></i> Al Mercato</h1>
+      <p class="lesson-subtitle">Learn essential vocabulary for shopping at the market</p>
+    </div>
   </header>
 
-  <main class="container">
-    <section>
-      <h2>La Mia Stagione Preferita</h2>
-      <div class="lesson-img">Seasons ☀️🍁❄️🌸</div>
-      <p><strong>Quale stagione preferisci? Perché?</strong></p>
-      <ul>
-        <li><i class="fas fa-seedling"></i> La primavera – spring</li>
-        <li><i class="fas fa-sun"></i> L'estate – summer</li>
-        <li><i class="fas fa-leaf"></i> L'autunno – autumn</li>
-        <li><i class="fas fa-snowflake"></i> L'inverno – winter</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Vocabolario del Mercato</h2>
-      <div class="lesson-img">🥖Cibo 🍅</div>
-      <div class="lesson-img">🥦Cibo 🥕</div>
-      <ul>
-        <li>Panini – bread rolls</li>
-        <li>Cocomero – watermelon</li>
-        <li>Pesce – fish</li>
-        <li>Patate – potatoes</li>
-        <li>Formaggio – cheese</li>
-        <!-- Add more from your vocab list -->
-      </ul>
-      <button class="quiz-btn" onclick="toggleQuiz('quiz1')">Quiz Me on Vocabulary</button>
-      <div id="quiz1" class="quiz-block hidden">
-        <p>What is the Italian word for cheese?</p>
-        <input type="text" placeholder="Your answer..." />
-        <p>Translate: “I would like some peaches.”</p>
-        <input type="text" placeholder="Your answer..." />
+  <main class="lesson-container">
+    <section class="lesson-section">
+      <div class="section-header">
+        <h2><i class="fas fa-calendar-alt"></i> La Mia Stagione Preferita</h2>
+      </div>
+      <div class="content-card">
+        <div class="lesson-visual seasons">
+          <div class="visual-grid">
+            <div class="season-item">
+              <i class="fas fa-seedling season-icon spring"></i>
+              <span>Primavera</span>
+            </div>
+            <div class="season-item">
+              <i class="fas fa-sun season-icon summer"></i>
+              <span>Estate</span>
+            </div>
+            <div class="season-item">
+              <i class="fas fa-leaf season-icon autumn"></i>
+              <span>Autunno</span>
+            </div>
+            <div class="season-item">
+              <i class="fas fa-snowflake season-icon winter"></i>
+              <span>Inverno</span>
+            </div>
+          </div>
+        </div>
+        <p class="question-prompt"><strong>Quale stagione preferisci? Perché?</strong></p>
+        <ul class="vocab-list">
+          <li><i class="fas fa-seedling"></i> La primavera – spring</li>
+          <li><i class="fas fa-sun"></i> L'estate – summer</li>
+          <li><i class="fas fa-leaf"></i> L'autunno – autumn</li>
+          <li><i class="fas fa-snowflake"></i> L'inverno – winter</li>
+        </ul>
       </div>
     </section>
 
-    <section>
-      <h2>Espressioni Utili</h2>
-      <ul>
-        <li>Vorrei… – I would like…</li>
-        <li>Quanto costa? – How much does it cost?</li>
-        <li>Un chilo di… – A kilo of…</li>
-      </ul>
-      <button class="quiz-btn" onclick="toggleQuiz('quiz2')">Quiz Me on Phrases</button>
-      <div id="quiz2" class="quiz-block hidden">
-        <p>How do you say “How much does it cost?” in Italian?</p>
-        <input type="text" />
-        <p>Translate: “Can I taste it?”</p>
-        <input type="text" />
+    <section class="lesson-section">
+      <div class="section-header">
+        <h2><i class="fas fa-apple-alt"></i> Vocabolario del Mercato</h2>
+      </div>
+      <div class="content-card">
+        <div class="lesson-visual food">
+          <div class="food-grid">
+            <div class="food-item">
+              <i class="fas fa-bread-slice"></i>
+              <span>Panini</span>
+            </div>
+            <div class="food-item">
+              <i class="fas fa-fish"></i>
+              <span>Pesce</span>
+            </div>
+            <div class="food-item">
+              <i class="fas fa-cheese"></i>
+              <span>Formaggio</span>
+            </div>
+            <div class="food-item">
+              <i class="fas fa-seedling"></i>
+              <span>Verdure</span>
+            </div>
+          </div>
+        </div>
+        <ul class="vocab-list">
+          <li><i class="fas fa-bread-slice"></i> Panini – bread rolls</li>
+          <li><i class="fas fa-apple-alt"></i> Cocomero – watermelon</li>
+          <li><i class="fas fa-fish"></i> Pesce – fish</li>
+          <li><i class="fas fa-seedling"></i> Patate – potatoes</li>
+          <li><i class="fas fa-cheese"></i> Formaggio – cheese</li>
+        </ul>
+        <button class="quiz-btn" onclick="toggleQuiz('quiz1')">
+          <i class="fas fa-question-circle"></i> Quiz Me on Vocabulary
+        </button>
+        <div id="quiz1" class="quiz-block hidden">
+          <div class="quiz-question">
+            <p>What is the Italian word for cheese?</p>
+            <input type="text" placeholder="Your answer..." class="quiz-input" />
+          </div>
+          <div class="quiz-question">
+            <p>Translate: "I would like some peaches."</p>
+            <input type="text" placeholder="Your answer..." class="quiz-input" />
+          </div>
+        </div>
       </div>
     </section>
 
-    <section>
-      <h2>Dialogo d'Esempio</h2>
-      <div class="lesson-img dialogue">💬 Market Conversation 🏪</div>
-      <blockquote>
-        Vorrei del parmigiano. <br/>
-        Lo preferisce fresco o stagionato? <br/>
-        Mah… fresco. <br/>
-        Quanto ne vuole? <br/>
-        Tre etti.
-      </blockquote>
-      <p><strong>Extra:</strong> Use of <code>ne</code> for quantities.</p>
-      <button class="quiz-btn" onclick="toggleQuiz('quiz3')">Quiz Me on Dialogue</button>
-      <div id="quiz3" class="quiz-block hidden">
-        <p>Translate: “I want 300 grams of parmesan.”</p>
-        <input type="text" />
-        <p>What does “ne” refer to?</p>
-        <input type="text" />
+    <section class="lesson-section">
+      <div class="section-header">
+        <h2><i class="fas fa-comments"></i> Espressioni Utili</h2>
+      </div>
+      <div class="content-card">
+        <ul class="vocab-list">
+          <li><i class="fas fa-hand-point-right"></i> Vorrei… – I would like…</li>
+          <li><i class="fas fa-euro-sign"></i> Quanto costa? – How much does it cost?</li>
+          <li><i class="fas fa-weight"></i> Un chilo di… – A kilo of…</li>
+        </ul>
+        <button class="quiz-btn" onclick="toggleQuiz('quiz2')">
+          <i class="fas fa-question-circle"></i> Quiz Me on Phrases
+        </button>
+        <div id="quiz2" class="quiz-block hidden">
+          <div class="quiz-question">
+            <p>How do you say "How much does it cost?" in Italian?</p>
+            <input type="text" class="quiz-input" />
+          </div>
+          <div class="quiz-question">
+            <p>Translate: "Can I taste it?"</p>
+            <input type="text" class="quiz-input" />
+          </div>
+        </div>
       </div>
     </section>
 
-    <section>
-      <h2>Grammatica – Pronomi e "Ne"</h2>
-      <div class="lesson-img">Grammar ✏️</div>
-      <ul>
-        <li>Lo / La / Li / Le – direct object pronouns</li>
-        <li>Ne – of it / of them</li>
-      </ul>
+    <section class="lesson-section">
+      <div class="section-header">
+        <h2><i class="fas fa-comment-dots"></i> Dialogo d'Esempio</h2>
+      </div>
+      <div class="content-card">
+        <div class="dialogue-container">
+          <div class="dialogue-visual">
+            <i class="fas fa-store dialogue-icon"></i>
+            <span>Market Conversation</span>
+          </div>
+          <blockquote class="dialogue-text">
+            <div class="dialogue-line customer">
+              <i class="fas fa-user"></i>
+              <span>Vorrei del parmigiano.</span>
+            </div>
+            <div class="dialogue-line vendor">
+              <i class="fas fa-user-tie"></i>
+              <span>Lo preferisce fresco o stagionato?</span>
+            </div>
+            <div class="dialogue-line customer">
+              <i class="fas fa-user"></i>
+              <span>Mah… fresco.</span>
+            </div>
+            <div class="dialogue-line vendor">
+              <i class="fas fa-user-tie"></i>
+              <span>Quanto ne vuole?</span>
+            </div>
+            <div class="dialogue-line customer">
+              <i class="fas fa-user"></i>
+              <span>Tre etti.</span>
+            </div>
+          </blockquote>
+        </div>
+        <p class="grammar-note"><strong>Extra:</strong> Use of <code>ne</code> for quantities.</p>
+        <button class="quiz-btn" onclick="toggleQuiz('quiz3')">
+          <i class="fas fa-question-circle"></i> Quiz Me on Dialogue
+        </button>
+        <div id="quiz3" class="quiz-block hidden">
+          <div class="quiz-question">
+            <p>Translate: "I want 300 grams of parmesan."</p>
+            <input type="text" class="quiz-input" />
+          </div>
+          <div class="quiz-question">
+            <p>What does "ne" refer to?</p>
+            <input type="text" class="quiz-input" />
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section>
-      <h2>Vocaboli Extra</h2>
-      <div class="lesson-img">Extra Words 📝</div>
-      <ul>
-        <li>In abito – in a suit</li>
-        <li>Passi – steps</li>
-        <li>Cinquanta – fifty</li>
-        <li>Dieci mila – ten thousand</li>
-        <li>Passeggiare – to walk</li>
-        <li>Alberi – trees</li>
-      </ul>
+    <section class="lesson-section">
+      <div class="section-header">
+        <h2><i class="fas fa-grammar"></i> Grammatica – Pronomi e "Ne"</h2>
+      </div>
+      <div class="content-card">
+        <div class="grammar-visual">
+          <i class="fas fa-language grammar-icon"></i>
+          <span>Grammar Rules</span>
+        </div>
+        <ul class="vocab-list">
+          <li><i class="fas fa-arrow-right"></i> Lo / La / Li / Le – direct object pronouns</li>
+          <li><i class="fas fa-arrow-right"></i> Ne – of it / of them</li>
+        </ul>
+      </div>
     </section>
+
+    <section class="lesson-section">
+      <div class="section-header">
+        <h2><i class="fas fa-plus-circle"></i> Vocaboli Extra</h2>
+      </div>
+      <div class="content-card">
+        <ul class="vocab-list">
+          <li><i class="fas fa-user-tie"></i> In abito – in a suit</li>
+          <li><i class="fas fa-walking"></i> Passi – steps</li>
+          <li><i class="fas fa-sort-numeric-up"></i> Cinquanta – fifty</li>
+          <li><i class="fas fa-sort-numeric-up"></i> Dieci mila – ten thousand</li>
+          <li><i class="fas fa-walking"></i> Passeggiare – to walk</li>
+          <li><i class="fas fa-tree"></i> Alberi – trees</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="lesson-navigation">
+      <a href="../index.html" class="nav-button prev">
+        <i class="fas fa-arrow-left"></i> Back to Chapters
+      </a>
+      <span class="nav-spacer"></span>
+      <button class="nav-button next disabled">
+        Next Lesson <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
   </main>
 
-  <footer>
-    <p>Lesson 1: Al Mercato – LiveLoveLearnItalian</p>
+  <footer class="lesson-footer">
+    <p>Chapter 1: Al Mercato – Italian Conversation Lessons</p>
   </footer>
 </body>
 </html>
