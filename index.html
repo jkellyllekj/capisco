@@ -1,18 +1,127 @@
-<!DOCTYPE html>
-<html>
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>replit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Italian Conversation Lessons</title>
   <link href="style.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
-<body>
-  Hello world
+<body class="home-page">
+  <header class="main-header">
+    <h1><i class="fas fa-graduation-cap"></i> Italian Conversation Lessons</h1>
+    <p class="subtitle">Learn Italian through practical conversations and real-world scenarios</p>
+  </header>
+
+  <main class="container">
+    <section class="course-intro">
+      <h2>Welcome to Your Italian Journey</h2>
+      <p>This course focuses on practical Italian conversation skills through immersive lessons. Each chapter introduces new vocabulary, grammar concepts, and dialogue examples that you'll encounter in everyday situations.</p>
+    </section>
+
+    <section class="chapters-list">
+      <h2><i class="fas fa-book-open"></i> Course Chapters</h2>
+      
+      <div class="chapter-grid">
+        <div class="chapter-card available">
+          <div class="chapter-number">1</div>
+          <div class="chapter-content">
+            <h3><i class="fas fa-shopping-basket"></i> Al Mercato</h3>
+            <p>Learn essential vocabulary for shopping at the market, including food items, quantities, and polite expressions for purchasing.</p>
+            <div class="chapter-topics">
+              <span class="topic-tag">Food Vocabulary</span>
+              <span class="topic-tag">Seasons</span>
+              <span class="topic-tag">Pronouns</span>
+            </div>
+            <a href="lessons/al-mercato.html" class="chapter-link">
+              <i class="fas fa-play"></i> Start Lesson
+            </a>
+          </div>
+        </div>
+
+        <div class="chapter-card coming-soon">
+          <div class="chapter-number">2</div>
+          <div class="chapter-content">
+            <h3><i class="fas fa-utensils"></i> Al Ristorante</h3>
+            <p>Master restaurant conversations, ordering food, and dining etiquette in Italian.</p>
+            <div class="chapter-topics">
+              <span class="topic-tag">Restaurant Vocabulary</span>
+              <span class="topic-tag">Food Ordering</span>
+              <span class="topic-tag">Polite Requests</span>
+            </div>
+            <span class="coming-soon-label">
+              <i class="fas fa-clock"></i> Coming Soon
+            </span>
+          </div>
+        </div>
+
+        <div class="chapter-card coming-soon">
+          <div class="chapter-number">3</div>
+          <div class="chapter-content">
+            <h3><i class="fas fa-map-marked-alt"></i> In Città</h3>
+            <p>Navigate the city, ask for directions, and explore urban Italian vocabulary.</p>
+            <div class="chapter-topics">
+              <span class="topic-tag">Directions</span>
+              <span class="topic-tag">Transportation</span>
+              <span class="topic-tag">City Locations</span>
+            </div>
+            <span class="coming-soon-label">
+              <i class="fas fa-clock"></i> Coming Soon
+            </span>
+          </div>
+        </div>
+
+        <div class="chapter-card coming-soon">
+          <div class="chapter-number">4</div>
+          <div class="chapter-content">
+            <h3><i class="fas fa-home"></i> In Famiglia</h3>
+            <p>Discuss family, relationships, and home life in Italian.</p>
+            <div class="chapter-topics">
+              <span class="topic-tag">Family Members</span>
+              <span class="topic-tag">Home Vocabulary</span>
+              <span class="topic-tag">Daily Routines</span>
+            </div>
+            <span class="coming-soon-label">
+              <i class="fas fa-clock"></i> Coming Soon
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="course-features">
+      <h2><i class="fas fa-star"></i> What You'll Learn</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <i class="fas fa-comments"></i>
+          <h3>Real Conversations</h3>
+          <p>Practice with authentic dialogue examples from everyday situations</p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-language"></i>
+          <h3>Essential Vocabulary</h3>
+          <p>Build your vocabulary with practical words and phrases you'll actually use</p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-puzzle-piece"></i>
+          <h3>Grammar in Context</h3>
+          <p>Learn grammar naturally through real-world examples and usage</p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-headphones"></i>
+          <h3>Interactive Practice</h3>
+          <p>Test your knowledge with built-in quizzes and exercises</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 Italian Conversation Lessons - Buona fortuna con i tuoi studi!</p>
+  </footer>
+
   <script src="script.js"></script>
-
-  <a href="lessons/al-mercato.html">Go to Al Mercato Lesson</a>
 </body>
-
 </html>
