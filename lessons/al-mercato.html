@@ -1,48 +1,113 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Al Mercato - Italian Lesson</title>
-  <link href="../style.css" rel="stylesheet" type="text/css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lesson: Al Mercato</title>
+  <link rel="stylesheet" href="../style.css" />
+  <script defer src="../script.js"></script>
 </head>
 <body>
   <header>
     <h1>Capitolo 1 – Al Mercato</h1>
-    <a href="../index.html">← Back to Lessons</a>
+    <a href="../index.html">← Back to Home</a>
   </header>
 
-  <main>
-    <!-- Study guide section -->
-    <section class="study-guide">
-      <h2>Study Guide</h2>
-      <p>This is where your lesson content will go. You can add:</p>
+  <main class="container">
+    <section>
+      <h2>La Mia Stagione Preferita</h2>
+      <img src="../public/images/20250625_172010.jpg" alt="Stagioni" class="lesson-img"/>
+      <p><strong>Quale stagione preferisci? Perché?</strong></p>
       <ul>
-        <li>Vocabulary words</li>
-        <li>Grammar points</li>
-        <li>Example sentences</li>
-        <li>Cultural notes</li>
+        <li>La primavera – spring</li>
+        <li>L’estate – summer</li>
+        <li>L’autunno – autumn</li>
+        <li>L’inverno – winter</li>
       </ul>
-      
-      <!-- Placeholder image -->
-      <img src="../public/images/mercato-placeholder.jpg" alt="Italian market scene" class="lesson-img">
-      
-      <button class="quiz-btn" onclick="toggleQuiz('quiz1')">Quiz Me</button>
     </section>
 
-    <!-- Quiz block -->
-    <div id="quiz1" class="quiz-block hidden">
-      <h3>Quiz Question 1</h3>
-      <p>What does "mercato" mean in English?</p>
+    <section>
+      <h2>Vocabolario del Mercato</h2>
+      <img src="../public/images/20250625_173026.jpg" alt="Cibo vocabolario" class="lesson-img"/>
+      <img src="../public/images/20250625_173034.jpg" alt="Cibo vocabolario 2" class="lesson-img"/>
       <ul>
-        <li><input type="radio" name="q1" value="store"> Store</li>
-        <li><input type="radio" name="q1" value="market"> Market</li>
-        <li><input type="radio" name="q1" value="restaurant"> Restaurant</li>
+        <li>Panini – bread rolls</li>
+        <li>Cocomero – watermelon</li>
+        <li>Pesce – fish</li>
+        <li>Patate – potatoes</li>
+        <li>Formaggio – cheese</li>
+        <!-- Add more from your vocab list -->
       </ul>
-    </div>
+      <button class="quiz-btn" onclick="toggleQuiz('quiz1')">Quiz Me on Vocabulary</button>
+      <div id="quiz1" class="quiz-block hidden">
+        <p>What is the Italian word for cheese?</p>
+        <input type="text" placeholder="Your answer..." />
+        <p>Translate: “I would like some peaches.”</p>
+        <input type="text" placeholder="Your answer..." />
+      </div>
+    </section>
+
+    <section>
+      <h2>Espressioni Utili</h2>
+      <ul>
+        <li>Vorrei… – I would like…</li>
+        <li>Quanto costa? – How much does it cost?</li>
+        <li>Un chilo di… – A kilo of…</li>
+      </ul>
+      <button class="quiz-btn" onclick="toggleQuiz('quiz2')">Quiz Me on Phrases</button>
+      <div id="quiz2" class="quiz-block hidden">
+        <p>How do you say “How much does it cost?” in Italian?</p>
+        <input type="text" />
+        <p>Translate: “Can I taste it?”</p>
+        <input type="text" />
+      </div>
+    </section>
+
+    <section>
+      <h2>Dialogo d’Esempio</h2>
+      <img src="../public/images/20250625_175019.jpg" alt="Dialogo al mercato" class="lesson-img"/>
+      <blockquote>
+        Vorrei del parmigiano. <br/>
+        Lo preferisce fresco o stagionato? <br/>
+        Mah… fresco. <br/>
+        Quanto ne vuole? <br/>
+        Tre etti.
+      </blockquote>
+      <p><strong>Extra:</strong> Use of <code>ne</code> for quantities.</p>
+      <button class="quiz-btn" onclick="toggleQuiz('quiz3')">Quiz Me on Dialogue</button>
+      <div id="quiz3" class="quiz-block hidden">
+        <p>Translate: “I want 300 grams of parmesan.”</p>
+        <input type="text" />
+        <p>What does “ne” refer to?</p>
+        <input type="text" />
+      </div>
+    </section>
+
+    <section>
+      <h2>Grammatica – Pronomi e "Ne"</h2>
+      <img src="../public/images/20250625_174839.jpg" alt="Pronouns whiteboard" class="lesson-img"/>
+      <ul>
+        <li>Lo / La / Li / Le – direct object pronouns</li>
+        <li>Ne – of it / of them</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Vocaboli Extra</h2>
+      <img src="../public/images/20250625_174748.jpg" alt="Extra vocab whiteboard" class="lesson-img"/>
+      <ul>
+        <li>In abito – in a suit</li>
+        <li>Passi – steps</li>
+        <li>Cinquanta – fifty</li>
+        <li>Dieci mila – ten thousand</li>
+        <li>Passeggiare – to walk</li>
+        <li>Alberi – trees</li>
+      </ul>
+    </section>
   </main>
 
-  <script src="../script.js"></script>
+  <footer>
+    <p>Lesson 1: Al Mercato – LiveLoveLearnItalian</p>
+  </footer>
 </body>
 </html>
