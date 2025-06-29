@@ -1386,16 +1386,32 @@ footer {
 /* Quiz Question Separation */
 .answered-question {
   transition: all 0.8s ease !important;
-  opacity: 0.8 !important;
+  opacity: 0.85 !important;
   border-left: 4px solid #28a745 !important;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
   border-radius: 12px !important;
   padding: 1rem !important;
+  margin-bottom: 1.5rem !important;
   pointer-events: none;
+  position: relative;
+}
+
+.answered-question::after {
+  content: "✓ Completed";
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #28a745;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .answered-question .quiz-feedback {
   display: block !important;
+  margin-top: 1rem !important;
 }
 
 .quiz-separator {

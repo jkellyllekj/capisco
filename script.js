@@ -101,12 +101,12 @@ class QuizSystem {
     if (containerId) {
       const askedSet = this.askedQuestions.get(containerId);
       const correctSet = this.correctAnswers.get(containerId);
-      
+
       // For seasons (only 4 items) - avoid matching if all are correct
       if (topic === 'seasons' && selectedType === 'matching' && correctSet.size >= 4) {
         selectedType = Math.random() < 0.5 ? 'multipleChoice' : 'fillBlank';
       }
-      
+
       // For small vocabulary sets, avoid repeated matching
       if ((data.vocabulary && data.vocabulary.length <= 6) && selectedType === 'matching' && correctSet.size >= data.vocabulary.length) {
         selectedType = Math.random() < 0.5 ? 'multipleChoice' : 'fillBlank';
@@ -130,7 +130,7 @@ class QuizSystem {
     if (vocab.length < 4) return null;
 
     let availableVocab = vocab;
-    
+
     // Filter out recently asked questions if we have enough options
     if (containerId && this.askedQuestions.has(containerId)) {
       const askedSet = this.askedQuestions.get(containerId);
@@ -207,7 +207,7 @@ class QuizSystem {
     if (phrases.length === 0) return null;
 
     let availablePhrases = phrases;
-    
+
     // Filter out recently asked questions
     if (containerId && this.askedQuestions.has(containerId)) {
       const askedSet = this.askedQuestions.get(containerId);
@@ -358,12 +358,12 @@ class QuizSystem {
 
   selectOption(answer, button) {
     const currentQuestion = button.closest('.quiz-question');
-    
+
     // Check if this question has already been answered
     if (currentQuestion.querySelector('.quiz-option.correct, .quiz-option.incorrect')) {
       return; // Prevent re-answering
     }
-    
+
     currentQuestion.querySelectorAll('.quiz-option.selected').forEach(opt => opt.classList.remove('selected'));
     button.classList.add('selected');
     this.selectedAnswer = answer;
@@ -391,7 +391,7 @@ class QuizSystem {
       selectedButton.classList.add('correct');
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct! The answer is "${this.currentQuiz.correct}"</div>`;
       this.score++;
-      
+
       // Track correct answer
       if (this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
         this.correctAnswers.get(containerId).add(this.currentQuiz.correctItem.italian);
@@ -408,17 +408,17 @@ class QuizSystem {
 
     this.totalQuestions++;
     feedback.style.display = 'block';
-    
-    // Mark question as answered to prevent multiple submissions
+
+    // Mark question as answered
     currentQuestion.classList.add('answered');
 
-    setTimeout(() => this.generateNextQuestion(), 3000);
+    setTimeout(() => this.generateNextQuestion(), 2000);
   }
 
   checkMatching() {
     const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
     if (!currentQuestion) return;
-    
+
     const matchedItems = currentQuestion.querySelectorAll('.match-item.matched');
     const totalItems = currentQuestion.querySelectorAll('.match-item.italian').length;
     const feedback = currentQuestion.querySelector('.quiz-feedback');
@@ -440,7 +440,7 @@ class QuizSystem {
     if (isFullyMatched) {
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect! All matches are correct!</div>`;
       this.score++;
-      
+
       // Track all correct matches
       if (this.correctAnswers.has(containerId) && this.currentQuiz.selectedVocab) {
         this.currentQuiz.selectedVocab.forEach(item => {
@@ -455,17 +455,17 @@ class QuizSystem {
     this.totalQuestions++;
     feedback.style.display = 'block';
     checkButton.style.display = 'none';
-    
+
     // Mark question as answered
     currentQuestion.classList.add('answered');
 
-    setTimeout(() => this.generateNextQuestion(), 3000);
+    setTimeout(() => this.generateNextQuestion(), 2000);
   }
 
   checkFillBlank() {
     const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
     if (!currentQuestion) return;
-    
+
     const input = currentQuestion.querySelector('.fill-blank');
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const checkButton = currentQuestion.querySelector('.quiz-check');
@@ -488,7 +488,7 @@ class QuizSystem {
       input.classList.add('correct');
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct! The answer is "${this.currentQuiz.correct}"</div>`;
       this.score++;
-      
+
       // Track correct answer
       if (this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
         this.correctAnswers.get(containerId).add(this.currentQuiz.correctItem.italian);
@@ -500,11 +500,11 @@ class QuizSystem {
 
     this.totalQuestions++;
     feedback.style.display = 'block';
-    
+
     // Mark question as answered
     currentQuestion.classList.add('answered');
 
-    setTimeout(() => this.generateNextQuestion(), 3000);
+    setTimeout(() => this.generateNextQuestion(), 2000);
   }
 
   generateNextQuestion() {
@@ -526,9 +526,9 @@ class QuizSystem {
     const topicIndex = containerId.replace('quiz', '');
     const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
     const topic = topics[topicIndex] || 'seasons';
-    
+
     let nextQuiz = this.generateQuiz(topic, 'mixed', containerId);
-    
+
     // If quiz generation returns null (e.g., avoided repetitive matching), try a different type
     if (!nextQuiz) {
       nextQuiz = this.generateQuiz(topic, 'multipleChoice', containerId);
@@ -596,7 +596,7 @@ class QuizSystem {
     }
 
     container.insertAdjacentHTML('beforeend', html);
-    
+
     this.currentQuiz = quiz;
 
     if (quiz.type === 'matching') {
