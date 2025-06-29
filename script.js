@@ -358,6 +358,12 @@ class QuizSystem {
 
   selectOption(answer, button) {
     const currentQuestion = button.closest('.quiz-question');
+    
+    // Check if this question has already been answered
+    if (currentQuestion.querySelector('.quiz-option.correct, .quiz-option.incorrect')) {
+      return; // Prevent re-answering
+    }
+    
     currentQuestion.querySelectorAll('.quiz-option.selected').forEach(opt => opt.classList.remove('selected'));
     button.classList.add('selected');
     this.selectedAnswer = answer;
@@ -409,6 +415,11 @@ class QuizSystem {
     const currentQuestion = checkButton.closest('.quiz-question');
     const containerId = currentQuestion.closest('.quiz-block').id;
 
+    // Disable all match items to prevent further interaction
+    document.querySelectorAll('.match-item').forEach(item => {
+      item.style.pointerEvents = 'none';
+    });
+
     const isFullyMatched = matchedItems.length === totalItems * 2;
 
     if (isFullyMatched) {
@@ -423,7 +434,7 @@ class QuizSystem {
       }
     } else {
       const correctMatches = matchedItems.length / 2;
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> You matched ${correctMatches} out of ${totalItems} correctly.</div>`;
+      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> You matched ${correctMatches} out of ${totalItems} correctly. Keep practicing!</div>`;
     }
 
     this.totalQuestions++;
@@ -439,14 +450,25 @@ class QuizSystem {
     const isCorrect = answer === this.currentQuiz.correct;
     const feedback = document.querySelector('.quiz-feedback');
     const checkButton = document.querySelector('.quiz-check');
+    const currentQuestion = checkButton.closest('.quiz-question');
+    const containerId = currentQuestion.closest('.quiz-block').id;
+
+    // Disable input and button to prevent re-answering
+    input.disabled = true;
+    checkButton.disabled = true;
 
     if (isCorrect) {
       input.classList.add('correct');
-      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Excellent!</div>`;
+      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct! The answer is "${this.currentQuiz.correct}"</div>`;
       this.score++;
+      
+      // Track correct answer
+      if (this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
+        this.correctAnswers.get(containerId).add(this.currentQuiz.correctItem.italian);
+      }
     } else {
       input.classList.add('incorrect');
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> The correct answer is "${this.currentQuiz.correct}".</div>`;
+      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect. The correct answer is "${this.currentQuiz.correct}"</div>`;
     }
 
     this.totalQuestions++;
@@ -460,10 +482,10 @@ class QuizSystem {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
-    // Remove all previous questions except the most recent
+    // Remove all previous questions except the most recent one
     const allQuestions = currentContainer.querySelectorAll('.quiz-question');
     if (allQuestions.length > 1) {
-      // Keep only the last question and remove all others except the very last one
+      // Remove all but the last two questions
       for (let i = 0; i < allQuestions.length - 1; i++) {
         if (i < allQuestions.length - 2) {
           allQuestions[i].remove();
