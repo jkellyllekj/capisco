@@ -437,12 +437,23 @@ footer {
 }
 
 .lesson-title h1 i {
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.1);
-  padding: 0.5rem;
-  border-radius: 12px;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6), 0 1px 4px rgba(255,255,255,0.9);
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)) drop-shadow(0 1px 3px rgba(255,255,255,0.8));
+  color: #ffffff;
+  background: linear-gradient(145deg, #ff6b6b, #feca57);
+  padding: 1rem;
+  border-radius: 20px;
+  text-shadow: 
+    0 4px 8px rgba(0,0,0,0.8),
+    0 2px 4px rgba(0,0,0,0.6),
+    0 0 20px rgba(255,255,255,0.3);
+  filter: 
+    drop-shadow(0 8px 16px rgba(0,0,0,0.4))
+    drop-shadow(0 4px 8px rgba(255,107,107,0.6))
+    drop-shadow(0 0 30px rgba(254,202,87,0.4));
+  box-shadow: 
+    0 8px 32px rgba(0,0,0,0.3),
+    inset 0 2px 0 rgba(255,255,255,0.3),
+    inset 0 -2px 0 rgba(0,0,0,0.1);
+  border: 2px solid rgba(255,255,255,0.2);
 }
 
 .lesson-subtitle {
@@ -479,19 +490,23 @@ footer {
 
 .section-header h2 i {
   color: #ffffff;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  padding: 0.5rem;
-  border-radius: 12px;
+  background: linear-gradient(145deg, #667eea, #764ba2);
+  padding: 0.75rem;
+  border-radius: 16px;
   text-shadow: 
-    0 3px 6px rgba(0,0,0,0.8),
-    0 0 12px rgba(255,255,255,0.6),
-    2px 2px 4px rgba(0,0,0,0.9),
-    0 0 20px rgba(99, 102, 241, 0.5);
+    0 4px 8px rgba(0,0,0,0.9),
+    0 2px 4px rgba(0,0,0,0.7),
+    0 0 16px rgba(255,255,255,0.4);
+  filter: 
+    drop-shadow(0 6px 12px rgba(0,0,0,0.5))
+    drop-shadow(0 3px 6px rgba(102,126,234,0.6))
+    drop-shadow(0 0 24px rgba(118,75,162,0.4));
   box-shadow: 
-    0 4px 12px rgba(0,0,0,0.4),
-    0 0 20px rgba(99, 102, 241, 0.3),
-    inset 0 1px 0 rgba(255,255,255,0.4),
-    0 8px 32px rgba(99, 102, 241, 0.2);
+    0 6px 20px rgba(0,0,0,0.3),
+    inset 0 2px 0 rgba(255,255,255,0.3),
+    inset 0 -2px 0 rgba(0,0,0,0.2),
+    0 0 40px rgba(102,126,234,0.2);
+  border: 2px solid rgba(255,255,255,0.15);
 }
 
 .content-card {
@@ -601,27 +616,42 @@ footer {
 
 /* Quiz Styles */
 .quiz-btn {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(145deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
   color: white;
   border: none;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  font-weight: 600;
+  padding: 1.25rem 2.5rem;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 1.1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  gap: 0.75rem;
+  box-shadow: 
+    0 8px 24px rgba(102,126,234,0.4),
+    0 4px 12px rgba(118,75,162,0.3),
+    inset 0 2px 0 rgba(255,255,255,0.2);
+  text-shadow: 
+    0 2px 4px rgba(0,0,0,0.6),
+    0 1px 2px rgba(0,0,0,0.4);
+  filter: 
+    drop-shadow(0 4px 8px rgba(0,0,0,0.3))
+    drop-shadow(0 0 20px rgba(102,126,234,0.2));
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .quiz-btn i {
   color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-  filter: drop-shadow(0 1px 2px rgba(255,255,255,0.7));
+  text-shadow: 
+    0 3px 6px rgba(0,0,0,0.8),
+    0 1px 3px rgba(0,0,0,0.6),
+    0 0 12px rgba(255,255,255,0.3);
+  filter: 
+    drop-shadow(0 3px 6px rgba(0,0,0,0.6))
+    drop-shadow(0 1px 3px rgba(255,255,255,0.8))
+    drop-shadow(0 0 16px rgba(99,102,241,0.4));
 }
 
 /* Matching Game Styles */

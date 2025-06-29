@@ -38,11 +38,11 @@ class QuizSystem {
     this.totalQuestions = 0;
     this.questionsAnswered = 0;
     this.autoNextEnabled = true;
-    this.recentQuizTypes = []; // Track recent quiz types for variety
-    this.maxRecentTypes = 3; // Don't repeat same type within last 3 questions
-    this.spacedRepetition = new Map(); // Track word performance for spaced repetition
-    this.difficultyLevel = 'improver'; // starter, improver, scholar
-    this.currentKeyboardInput = ''; // For keyboard shortcuts
+    this.recentQuizTypes = [];
+    this.maxRecentTypes = 3;
+    this.spacedRepetition = new Map();
+    this.difficultyLevel = 'improver';
+    this.currentKeyboardInput = '';
     this.quizData = {
       seasons: {
         vocabulary: [
@@ -95,13 +95,12 @@ class QuizSystem {
       },
       expressions: {
         expressions: [
-          // Asking and Buying
           { italian: 'Vorrei...', english: 'I would like...', category: 'asking' },
           { italian: 'Quanto costa?', english: 'How much does it cost?', category: 'asking' },
           { italian: 'Quanto costano?', english: 'How much do they cost?', category: 'asking' },
           { italian: 'Posso assaggiare?', english: 'Can I taste it?', category: 'asking' },
           { italian: 'Quanto ne vuole?', english: 'How much do you want?', category: 'asking' },
-          { italian: 'Questo є tutto', english: 'That\'s all', category: 'asking' },
+          { italian: 'Questo è tutto', english: 'That\'s all', category: 'asking' },
           // Quantities
           { italian: 'Un chilo di...', english: 'A kilo of...', category: 'quantity' },
           { italian: 'Mezzo chilo', english: 'Half a kilo', category: 'quantity' },
@@ -165,8 +164,8 @@ class QuizSystem {
         correctCount: 0,
         incorrectCount: 0,
         lastSeen: Date.now(),
-        interval: 1, // Days before showing again
-        easiness: 2.5 // Spaced repetition easiness factor
+        interval: 1,
+        easiness: 2.5
       });
     }
 
@@ -179,7 +178,7 @@ class QuizSystem {
       item.easiness = Math.min(item.easiness + 0.1, 3.0);
     } else {
       item.incorrectCount++;
-      item.interval = 1; // Reset interval for incorrect answers
+      item.interval = 1;
       item.easiness = Math.max(item.easiness - 0.2, 1.3);
     }
 
