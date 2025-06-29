@@ -1,4 +1,3 @@
-
 class QuizSystem {
   constructor() {
     this.currentQuiz = null;
@@ -95,6 +94,30 @@ class QuizSystem {
           { italian: 'fresco', english: 'fresh' },
           { italian: 'stagionato', english: 'aged' }
         ]
+      },
+      extraVocabulary: {
+        vocabulary: [
+          { italian: 'abito', english: 'suit', category: 'clothing' },
+          { italian: 'passi', english: 'steps', category: 'movement' },
+          { italian: 'cinquanta', english: 'fifty', category: 'numbers' },
+          { italian: 'dieci mila', english: 'ten thousand', category: 'numbers' },
+          { italian: 'passeggiare', english: 'to walk', category: 'verbs' },
+          { italian: 'alberi', english: 'trees', category: 'nature' }
+        ]
+      },
+      grammar: {
+        vocabulary: [
+          { italian: 'ne', english: 'of it/them', note: 'Pronoun referring to quantity' },
+          { italian: 'lo', english: 'it (masculine)', note: 'Direct object pronoun' },
+          { italian: 'la', english: 'it (feminine)', note: 'Direct object pronoun' },
+          { italian: 'li', english: 'them (masculine)', note: 'Direct object pronoun' },
+          { italian: 'le', english: 'them (feminine)', note: 'Direct object pronoun' }
+        ],
+        phrases: [
+          { italian: 'Ne voglio un po\'', english: 'I want some of it' },
+          { italian: 'Lo prendo', english: 'I take it' },
+          { italian: 'La preferisco', english: 'I prefer it' }
+        ]
       }
     };
     this.selectedMatches = new Map();
@@ -105,12 +128,12 @@ class QuizSystem {
     if (!data) return null;
 
     const allQuizTypes = ['multipleChoice', 'matching', 'fillBlank', 'flashcard', 'letterPicker', 'wordOrder', 'audioQuiz'];
-    
+
     let selectedType = type;
     if (type === 'mixed') {
       // Filter out recently used types for variety
       const availableTypes = allQuizTypes.filter(qType => !this.recentQuizTypes.includes(qType));
-      
+
       if (availableTypes.length > 0) {
         selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
       } else {
@@ -121,7 +144,7 @@ class QuizSystem {
           lessRecentTypes[Math.floor(Math.random() * lessRecentTypes.length)] :
           allQuizTypes[Math.floor(Math.random() * allQuizTypes.length)];
       }
-      
+
       // Track this type
       this.recentQuizTypes.push(selectedType);
       if (this.recentQuizTypes.length > this.maxRecentTypes) {
@@ -792,12 +815,12 @@ class QuizSystem {
     const textInput = document.querySelector('.letter-picker-text-input');
     const letterAnswer = document.querySelector('.letter-picker-answer').textContent.toLowerCase();
     const correct = document.querySelector('.letter-picker-answer').dataset.correct;
-    
+
     // Check both input methods - typed text takes priority
     const typedAnswer = textInput.value.toLowerCase().trim();
     const finalAnswer = typedAnswer || letterAnswer;
     const isCorrect = finalAnswer === correct;
-    
+
     const feedback = document.querySelector('.quiz-feedback');
     const checkButton = document.querySelector('.quiz-check');
 
@@ -837,7 +860,7 @@ class QuizSystem {
       this.score++;
     }
     this.totalQuestions++;
-    
+
     const controls = document.querySelector('.flashcard-controls');
     const feedback = document.createElement('div');
     feedback.className = 'quiz-feedback';
@@ -937,7 +960,7 @@ class QuizSystem {
 
     const containerId = currentContainer.id;
     const topicIndex = containerId.replace('quiz', '');
-    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'grammar'];
+    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'grammar', 'extraVocabulary']; // Added extraVocabulary
     const topic = topics[topicIndex] || 'seasons';
     const nextQuiz = this.generateQuiz(topic);
 
@@ -1021,7 +1044,7 @@ class QuizSystem {
   selectWord(word, button) {
     // Prevent selecting already disabled buttons
     if (button.disabled) return;
-    
+
     const answerArea = document.querySelector('.word-order-answer');
     const wordSpan = document.createElement('span');
     wordSpan.className = 'selected-word';
@@ -1061,7 +1084,7 @@ class QuizSystem {
   }
 
   startQuiz(topicIndex) {
-    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'grammar'];
+    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'grammar', 'extraVocabulary']; // Added extraVocabulary
     const topic = topics[topicIndex] || 'seasons';
     const quiz = this.generateQuiz(topic);
 
@@ -1112,12 +1135,18 @@ function toggleQuiz(id) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.quiz-button').forEach(button => { // Renamed the quiz buttons
+    button.textContent = 'Endless Quiz!';
+  });
+
   document.querySelectorAll('.vocab-list li').forEach(item => {
     const text = item.textContent;
 
-    const etymologyData = quizSystem.quizData.market.vocabulary.find(v => 
+    const etymologyData = quizSystem.quizData.extraVocabulary.vocabulary.find(v => // Use extraVocabulary here
       text.toLowerCase().includes(v.italian.toLowerCase())
-    ) || quizSystem.quizData.seasons.vocabulary.find(v => 
+    ) || quizSystem.quizData.market.vocabulary.find(v =>
+      text.toLowerCase().includes(v.italian.toLowerCase())
+    ) || quizSystem.quizData.seasons.vocabulary.find(v =>
       text.toLowerCase().includes(v.italian.toLowerCase())
     );
 
@@ -1125,5 +1154,23 @@ document.addEventListener('DOMContentLoaded', function() {
       item.title = etymologyData.etymology;
       item.style.cursor = 'help';
     }
+  });
+
+  // Add smooth scrolling to quiz buttons
+  document.querySelectorAll('.quiz-button').forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      const quizId = this.getAttribute('data-quiz');
+      const targetElement = document.getElementById(quizId);
+
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      } else {
+        console.error('Target quiz element not found.');
+      }
+    });
   });
 });
