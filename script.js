@@ -491,6 +491,7 @@ class QuizSystem {
         html = `
           <div class="quiz-question new-question">
             <h4>${quiz.question}</h4>
+            <input type="text" class="quiz-input letter-picker-input" placeholder="Type your answer here..." maxlength="${quiz.correct.length}">
             <div class="letter-picker-answer"></div>
             <div class="letter-picker-buttons">
               ${quiz.letters.map(letter => `
@@ -833,7 +834,7 @@ class QuizSystem {
     }
 
     this.totalQuestions++;
-    feedback.style.display = 'block';
+    feedback.style.display ='block';
 
     // Mark question as answered and add styling
     currentQuestion.classList.add('answered');
@@ -927,6 +928,7 @@ class QuizSystem {
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const checkButton = currentQuestion.querySelector('.quiz-check');
     const containerId = currentQuestion.closest('.quiz-block')?.id;
+    const input = currentQuestion.querySelector('.quiz-input.letter-picker-input');
 
     // Safety checks
     if (!answerArea || !feedback || !this.currentQuiz || !this.currentQuiz.correct) {
@@ -939,7 +941,7 @@ class QuizSystem {
       return;
     }
 
-    const answer = answerArea.textContent.toLowerCase().trim();
+    const answer = (input && input.value) ? input.value.toLowerCase().trim() : answerArea.textContent.toLowerCase().trim();
     const isCorrect = answer === this.currentQuiz.correct.toLowerCase();
 
     if (checkButton) {
@@ -1179,6 +1181,7 @@ class QuizSystem {
         html = `
           <div class="quiz-question new-question">
             <h4>${quiz.question}</h4>
+            <input type="text" class="quiz-input letter-picker-input" placeholder="Type your answer here..." maxlength="${quiz.correct.length}">
             <div class="letter-picker-answer"></div>
             <div class="letter-picker-buttons">
               ${quiz.letters.map(letter => `
