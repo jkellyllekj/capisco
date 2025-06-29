@@ -46,6 +46,8 @@ class QuizSystem {
     this.currentKeyboardInput = '';
     this.selectedMatches = new Map();
     this.selectedAnswer = null;
+    this.userId = this.generateUserId();
+    this.loadUserProgress();
     this.quizData = {
       seasons: {
         vocabulary: [
@@ -153,6 +155,33 @@ class QuizSystem {
     };
   }
 
+  generateUserId() {
+    let userId = localStorage.getItem('italian_learner_id');
+    if (!userId) {
+      userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('italian_learner_id', userId);
+    }
+    return userId;
+  }
+
+  loadUserProgress() {
+    const savedProgress = localStorage.getItem(`italian_progress_${this.userId}`);
+    if (savedProgress) {
+      const progress = JSON.parse(savedProgress);
+      this.spacedRepetition = new Map(progress.spacedRepetition || []);
+      this.difficultyLevel = progress.difficultyLevel || 'improver';
+    }
+  }
+
+  saveUserProgress() {
+    const progress = {
+      spacedRepetition: Array.from(this.spacedRepetition.entries()),
+      difficultyLevel: this.difficultyLevel,
+      lastAccess: Date.now()
+    };
+    localStorage.setItem(`italian_progress_${this.userId}`, JSON.stringify(progress));
+  }
+
   updateSpacedRepetition(word, correct) {
     if (!this.spacedRepetition.has(word)) {
       this.spacedRepetition.set(word, {
@@ -178,6 +207,7 @@ class QuizSystem {
     }
 
     this.spacedRepetition.set(word, item);
+    this.saveUserProgress();
   }
 
   shouldShowWord(word) {
@@ -421,15 +451,20 @@ class QuizSystem {
     const letters = word.split('');
 
     const extraLetters = 'abcdefghilmnopqrstuvz'.split('').filter(l => !letters.includes(l));
-    const allLetters = [...letters, ...extraLetters.slice(0, 6)].sort(() => Math.random() - 0.5);
+    const allLetters = [...letters, ...extraLetters];
+    
+    // Show only 8 letters initially
+    const visibleLetters = allLetters.slice(0, 8).sort(() => Math.random() - 0.5);
 
     return {
       type: 'letterPicker',
       question: `Spell "${item.english}" in Italian by clicking the letters:`,
       letters: allLetters,
+      visibleLetters: visibleLetters,
       correct: word,
       hint: `${word.length} letters`,
-      explanation: `"${item.italian}" means "${item.english}". ${item.etymology || ''}`
+      explanation: `"${item.italian}" means "${item.english}". ${item.etymology || ''}`,
+      usedLetterCount: 0
     };
   }
 
@@ -613,6 +648,10 @@ class QuizSystem {
     return `
       <div class="quiz-question">
         <h4>Flashcard - Click to reveal the answer</h4>
+        <div class="flashcard-controls">
+          <button class="quiz-option incorrect" onclick="quizSystem.flashcardResult(false)">Need More Practice</button>
+          <button class="quiz-option correct" onclick="quizSystem.flashcardResult(true)">Got It!</button>
+        </div>
         <div class="flashcard" onclick="this.classList.toggle('flipped')">
           <div class="flashcard-front">
             ${quiz.icon ? `<i class="fas fa-${quiz.icon}" style="color: ${quiz.color}; font-size: 2rem;"></i>` : ''}
@@ -623,10 +662,6 @@ class QuizSystem {
             ${quiz.etymology ? `<div class="flashcard-etymology">${quiz.etymology}</div>` : ''}
           </div>
         </div>
-        <div class="flashcard-controls">
-          <button class="quiz-option incorrect" onclick="quizSystem.flashcardResult(false)">Need More Practice</button>
-          <button class="quiz-option correct" onclick="quizSystem.flashcardResult(true)">Got It!</button>
-        </div>
       </div>
     `;
   }
@@ -634,7 +669,6 @@ class QuizSystem {
   renderLetterPicker(quiz) {
     return `
       <div class="quiz-question">
-        <h4>${quiz.question}</h4>
         <div class="letter-picker-hint">${quiz.hint}</div>
         <div class="letter-picker-input-mode">
           <strong>Type directly:</strong> <input type="text" class="letter-picker-text-input" placeholder="Type the word here..." maxlength="${quiz.correct.length}">
@@ -642,7 +676,7 @@ class QuizSystem {
         </div>
         <div class="letter-picker-answer" data-correct="${quiz.correct}"></div>
         <div class="letter-picker-letters">
-          ${quiz.letters.map(letter => `
+          ${quiz.visibleLetters.map(letter => `
             <button class="letter-btn" onclick="quizSystem.pickLetter('${letter}', this)">${letter}</button>
           `).join('')}
         </div>
@@ -652,6 +686,7 @@ class QuizSystem {
             <i class="fas fa-check"></i> Check Answer
           </button>
         </div>
+        <h4>${quiz.question}</h4>
         <div class="quiz-feedback" style="display: none;"></div>
       </div>
     `;
@@ -808,10 +843,10 @@ class QuizSystem {
   }
 
   autoProgressToNext(feedback) {
-    // Auto-progress after 4 seconds (slower) and with better visual indication
+    // Show feedback for 3 seconds, then transition smoothly
     setTimeout(() => {
-      this.addNextQuestion();
-    }, 4000);
+      this.transitionToNextQuestion();
+    }, 3000);
   }
 
   checkMultipleChoice() {
@@ -991,12 +1026,29 @@ class QuizSystem {
     this.totalQuestions++;
 
     const controls = document.querySelector('.flashcard-controls');
+    const currentQuestion = controls.closest('.quiz-question');
+    
+    // Create feedback element
     const feedback = document.createElement('div');
     feedback.className = 'quiz-feedback';
     feedback.style.display = 'block';
-    feedback.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
-    controls.parentNode.insertBefore(feedback, controls.nextSibling);
+    
+    if (correct) {
+      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Great! You know this word well!</div>`;
+    } else {
+      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Keep practicing! This word needs more review.</div>`;
+    }
+    
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.className = 'quiz-score-display';
+    scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
+    feedback.appendChild(scoreDisplay);
+    
+    // Add feedback after flashcard
+    const flashcard = currentQuestion.querySelector('.flashcard');
+    flashcard.parentNode.insertBefore(feedback, flashcard.nextSibling);
     controls.style.display = 'none';
+    
     this.autoProgressToNext(feedback);
   }
 
@@ -1071,24 +1123,30 @@ class QuizSystem {
     this.autoProgressToNext(feedback);
   }
 
-  addNextQuestion() {
+  transitionToNextQuestion() {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
-    const existingQuestions = currentContainer.querySelectorAll('.quiz-question');
+    const currentQuestion = currentContainer.querySelector('.quiz-question:last-child');
+    if (!currentQuestion) return;
 
-    // Only remove old questions if we have too many, and keep their feedback visible
-    if (existingQuestions.length >= 4) {
-      const oldestQuestion = existingQuestions[0];
-      // Add a "previous question" class to maintain styling but show it's past
-      oldestQuestion.classList.add('previous-question');
-      // Fade it out slowly then remove
-      oldestQuestion.style.opacity = '0.6';
-      oldestQuestion.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        oldestQuestion.remove();
-      }, 1000);
-    }
+    // Fade out current question
+    currentQuestion.style.transition = 'all 0.5s ease-out';
+    currentQuestion.style.opacity = '0.3';
+    currentQuestion.style.transform = 'translateY(-20px) scale(0.95)';
+
+    setTimeout(() => {
+      // Remove current question
+      currentQuestion.remove();
+      
+      // Generate and add new question
+      this.addNextQuestion();
+    }, 500);
+  }
+
+  addNextQuestion() {
+    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!currentContainer) return;
 
     const containerId = currentContainer.id;
     const topicIndex = containerId.replace('quiz', '');
@@ -1097,21 +1155,10 @@ class QuizSystem {
     const nextQuiz = this.generateQuiz(topic);
 
     if (nextQuiz) {
-      // Add visual separator between questions
-      const separator = document.createElement('div');
-      separator.className = 'quiz-separator';
-      separator.innerHTML = `
-        <div style="text-align: center; margin: 2rem 0; padding: 1rem;">
-          <div style="height: 2px; background: linear-gradient(to right, transparent, #e9ecef, transparent); margin: 1rem 0;"></div>
-          <span style="color: #6c757d; font-size: 0.9rem; background: #f8f9fa; padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid #e9ecef;">
-            <i class="fas fa-arrow-down"></i> Next Question
-          </span>
-        </div>
-      `;
-      currentContainer.appendChild(separator);
-
       const nextQuestionDiv = document.createElement('div');
       nextQuestionDiv.className = 'quiz-question new-question';
+      nextQuestionDiv.style.opacity = '0';
+      nextQuestionDiv.style.transform = 'translateY(20px)';
 
       let html = '';
       switch (nextQuiz.type) {
@@ -1141,38 +1188,31 @@ class QuizSystem {
       nextQuestionDiv.innerHTML = html;
       currentContainer.appendChild(nextQuestionDiv);
 
-      // Slower, more noticeable scroll with a pause
+      // Animate in new question
       setTimeout(() => {
+        nextQuestionDiv.style.transition = 'all 0.5s ease-in';
+        nextQuestionDiv.style.opacity = '1';
+        nextQuestionDiv.style.transform = 'translateY(0)';
+        
+        // Smooth scroll to new question
         nextQuestionDiv.scrollIntoView({ 
           behavior: 'smooth', 
-          block: 'start' 
+          block: 'center' 
         });
-
-        // Add highlight effect to new question
-        nextQuestionDiv.style.background = 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 20%, white 100%)';
-        nextQuestionDiv.style.borderRadius = '12px';
-        nextQuestionDiv.style.padding = '1.5rem';
-        nextQuestionDiv.style.boxShadow = '0 4px 12px rgba(255, 193, 7, 0.3)';
-
-        // Remove highlight after a moment
-        setTimeout(() => {
-          nextQuestionDiv.style.background = '';
-          nextQuestionDiv.style.boxShadow = '';
-          nextQuestionDiv.classList.remove('new-question');
-        }, 2000);
-      }, 500);
+      }, 100);
 
       this.currentQuiz = nextQuiz;
 
+      // Setup event listeners
       if (nextQuiz.type === 'matching') {
         setTimeout(() => this.setupMatchingEventListeners(), 600);
       } else if (nextQuiz.type === 'wordOrder') {
         setTimeout(() => this.setupWordOrderEventListeners(), 600);
       }
 
-      // Add Enter key support for new question
+      // Add Enter key support
       setTimeout(() => {
-        const textInputs = nextQuestionDiv.querySelectorAll('.quiz-input, .audio-input, .fill-blank');
+        const textInputs = nextQuestionDiv.querySelectorAll('.quiz-input, .audio-input, .fill-blank, .letter-picker-text-input');
         textInputs.forEach(input => {
           input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -1192,6 +1232,22 @@ class QuizSystem {
     answerDiv.textContent += letter;
     button.disabled = true;
     button.style.opacity = '0.5';
+    
+    // Add new letter if we have more available
+    this.currentQuiz.usedLetterCount++;
+    if (this.currentQuiz.usedLetterCount < this.currentQuiz.letters.length && 
+        this.currentQuiz.usedLetterCount + 8 < this.currentQuiz.letters.length) {
+      const lettersContainer = document.querySelector('.letter-picker-letters');
+      const newLetterIndex = this.currentQuiz.usedLetterCount + 7;
+      if (this.currentQuiz.letters[newLetterIndex]) {
+        const newLetter = this.currentQuiz.letters[newLetterIndex];
+        const newButton = document.createElement('button');
+        newButton.className = 'letter-btn';
+        newButton.textContent = newLetter;
+        newButton.onclick = () => this.pickLetter(newLetter, newButton);
+        lettersContainer.appendChild(newButton);
+      }
+    }
   }
 
   clearLetters() {
