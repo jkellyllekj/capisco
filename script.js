@@ -380,11 +380,16 @@ class QuizSystem {
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const containerId = currentQuestion.closest('.quiz-block').id;
 
+    // Prevent re-answering
+    if (currentQuestion.querySelector('.quiz-option.correct, .quiz-option.incorrect')) {
+      return;
+    }
+
     currentQuestion.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
 
     if (isCorrect) {
       selectedButton.classList.add('correct');
-      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct!</div>`;
+      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct! The answer is "${this.currentQuiz.correct}"</div>`;
       this.score++;
       
       // Track correct answer
@@ -398,25 +403,35 @@ class QuizSystem {
           btn.classList.add('correct');
         }
       });
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect. The correct answer is "${this.currentQuiz.correct}".</div>`;
+      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect. The correct answer is "${this.currentQuiz.correct}"</div>`;
     }
 
     this.totalQuestions++;
     feedback.style.display = 'block';
+    
+    // Mark question as answered to prevent multiple submissions
+    currentQuestion.classList.add('answered');
 
-    setTimeout(() => this.generateNextQuestion(), 2000);
+    setTimeout(() => this.generateNextQuestion(), 3000);
   }
 
   checkMatching() {
-    const matchedItems = document.querySelectorAll('.match-item.matched');
-    const totalItems = document.querySelectorAll('.match-item.italian').length;
-    const feedback = document.querySelector('.quiz-feedback');
-    const checkButton = document.querySelector('.quiz-check');
-    const currentQuestion = checkButton.closest('.quiz-question');
+    const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
+    if (!currentQuestion) return;
+    
+    const matchedItems = currentQuestion.querySelectorAll('.match-item.matched');
+    const totalItems = currentQuestion.querySelectorAll('.match-item.italian').length;
+    const feedback = currentQuestion.querySelector('.quiz-feedback');
+    const checkButton = currentQuestion.querySelector('.quiz-check');
     const containerId = currentQuestion.closest('.quiz-block').id;
 
+    // Prevent re-checking
+    if (currentQuestion.classList.contains('answered')) {
+      return;
+    }
+
     // Disable all match items to prevent further interaction
-    document.querySelectorAll('.match-item').forEach(item => {
+    currentQuestion.querySelectorAll('.match-item').forEach(item => {
       item.style.pointerEvents = 'none';
     });
 
@@ -440,22 +455,34 @@ class QuizSystem {
     this.totalQuestions++;
     feedback.style.display = 'block';
     checkButton.style.display = 'none';
+    
+    // Mark question as answered
+    currentQuestion.classList.add('answered');
 
-    setTimeout(() => this.generateNextQuestion(), 2000);
+    setTimeout(() => this.generateNextQuestion(), 3000);
   }
 
   checkFillBlank() {
-    const input = document.querySelector('.fill-blank');
-    const answer = input.value.toLowerCase().trim();
-    const isCorrect = answer === this.currentQuiz.correct;
-    const feedback = document.querySelector('.quiz-feedback');
-    const checkButton = document.querySelector('.quiz-check');
-    const currentQuestion = checkButton.closest('.quiz-question');
+    const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
+    if (!currentQuestion) return;
+    
+    const input = currentQuestion.querySelector('.fill-blank');
+    const feedback = currentQuestion.querySelector('.quiz-feedback');
+    const checkButton = currentQuestion.querySelector('.quiz-check');
     const containerId = currentQuestion.closest('.quiz-block').id;
+
+    // Prevent re-answering
+    if (currentQuestion.classList.contains('answered')) {
+      return;
+    }
+
+    const answer = input.value.toLowerCase().trim();
+    const isCorrect = answer === this.currentQuiz.correct.toLowerCase();
 
     // Disable input and button to prevent re-answering
     input.disabled = true;
     checkButton.disabled = true;
+    checkButton.style.display = 'none';
 
     if (isCorrect) {
       input.classList.add('correct');
@@ -473,29 +500,27 @@ class QuizSystem {
 
     this.totalQuestions++;
     feedback.style.display = 'block';
-    checkButton.style.display = 'none';
+    
+    // Mark question as answered
+    currentQuestion.classList.add('answered');
 
-    setTimeout(() => this.generateNextQuestion(), 2000);
+    setTimeout(() => this.generateNextQuestion(), 3000);
   }
 
   generateNextQuestion() {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
-    // Remove all previous questions except the most recent one
-    const allQuestions = currentContainer.querySelectorAll('.quiz-question');
-    if (allQuestions.length > 1) {
-      // Remove all but the last two questions
-      for (let i = 0; i < allQuestions.length - 1; i++) {
-        if (i < allQuestions.length - 2) {
+    // Remove all previous questions completely after a delay
+    setTimeout(() => {
+      const allQuestions = currentContainer.querySelectorAll('.quiz-question');
+      if (allQuestions.length > 1) {
+        // Remove all but the most recent question
+        for (let i = 0; i < allQuestions.length - 1; i++) {
           allQuestions[i].remove();
-        } else {
-          // Mark the second-to-last as previous
-          allQuestions[i].classList.add('previous-question');
-          allQuestions[i].classList.remove('new-question');
         }
       }
-    }
+    }, 3000); // Show previous question for 3 seconds before removing
 
     const containerId = currentContainer.id;
     const topicIndex = containerId.replace('quiz', '');
@@ -570,9 +595,7 @@ class QuizSystem {
         break;
     }
 
-    // Add separator and new question
-    const separator = '<div class="quiz-separator"></div>';
-    container.insertAdjacentHTML('beforeend', separator + html);
+    container.insertAdjacentHTML('beforeend', html);
     
     this.currentQuiz = quiz;
 

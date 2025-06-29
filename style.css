@@ -1384,34 +1384,17 @@ footer {
 }
 
 /* Quiz Question Separation */
-.previous-question {
+.answered-question {
   transition: all 0.8s ease !important;
-  opacity: 0.6 !important;
-  transform: scale(0.92) !important;
-  margin-bottom: 2rem !important;
-  position: relative;
-  border-left: 4px solid #6c757d !important;
+  opacity: 0.8 !important;
+  border-left: 4px solid #28a745 !important;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
   border-radius: 12px !important;
   padding: 1rem !important;
   pointer-events: none;
 }
 
-.previous-question::after {
-  content: "✓ Completed";
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 15px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-}
-
-.previous-question .quiz-feedback {
+.answered-question .quiz-feedback {
   display: block !important;
 }
 
