@@ -509,8 +509,8 @@ class QuizSystem {
             <div class="word-order-container">
               <div class="word-answer-area"></div>
               <div class="word-buttons">
-                ${quiz.words.map(word => `
-                  <button class="word-btn" onclick="quizSystem.selectWord('${word}', this)">${word}</button>
+                ${quiz.words.map((word, index) => `
+                  <button class="word-btn" data-word="${word}" data-index="${index}">${word}</button>
                 `).join('')}
               </div>
             </div>
@@ -573,6 +573,8 @@ class QuizSystem {
 
     if (quiz.type === 'matching') {
       setTimeout(() => this.setupMatchingEventListeners(), 100);
+    } else if (quiz.type === 'wordOrder') {
+      setTimeout(() => this.setupWordOrderEventListeners(), 100);
     }
   }
 
@@ -1195,8 +1197,8 @@ class QuizSystem {
             <div class="word-order-container">
               <div class="word-answer-area"></div>
               <div class="word-buttons">
-                ${quiz.words.map(word => `
-                  <button class="word-btn" onclick="quizSystem.selectWord('${word}', this)">${word}</button>
+                ${quiz.words.map((word, index) => `
+                  <button class="word-btn" data-word="${word}" data-index="${index}">${word}</button>
                 `).join('')}
               </div>
             </div>
@@ -1260,6 +1262,8 @@ class QuizSystem {
 
     if (quiz.type === 'matching') {
       setTimeout(() => this.setupMatchingEventListeners(), 100);
+    } else if (quiz.type === 'wordOrder') {
+      setTimeout(() => this.setupWordOrderEventListeners(), 100);
     }
 
     // Smooth scroll to the new question without jumping
@@ -1293,6 +1297,15 @@ class QuizSystem {
     if (quiz) {
       this.renderQuiz(quiz, containerId);
     }
+  }
+
+  setupWordOrderEventListeners() {
+    document.querySelectorAll('.word-btn').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const word = e.target.dataset.word;
+        this.selectWord(word, e.target);
+      });
+    });
   }
 }
 
