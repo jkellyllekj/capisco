@@ -697,14 +697,25 @@ class QuizSystem {
   }
 
   checkMatching() {
-    const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
+    // Find the current active question more reliably
+    const allQuestions = document.querySelectorAll('.quiz-question');
+    let currentQuestion = null;
+    
+    // Find the last unanswered question
+    for (let i = allQuestions.length - 1; i >= 0; i--) {
+      if (!allQuestions[i].classList.contains('answered')) {
+        currentQuestion = allQuestions[i];
+        break;
+      }
+    }
+    
     if (!currentQuestion) return;
 
     const matchedItems = currentQuestion.querySelectorAll('.match-item.matched');
     const totalItems = currentQuestion.querySelectorAll('.match-item.italian').length;
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const checkButton = currentQuestion.querySelector('.quiz-check');
-    const containerId = currentQuestion.closest('.quiz-block').id;
+    const containerId = currentQuestion.closest('.quiz-block')?.id;
 
     // Prevent re-checking
     if (currentQuestion.classList.contains('answered')) {
@@ -745,7 +756,18 @@ class QuizSystem {
   }
 
   checkFillBlank() {
-    const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
+    // Find the current active question more reliably
+    const allQuestions = document.querySelectorAll('.quiz-question');
+    let currentQuestion = null;
+    
+    // Find the last unanswered question
+    for (let i = allQuestions.length - 1; i >= 0; i--) {
+      if (!allQuestions[i].classList.contains('answered')) {
+        currentQuestion = allQuestions[i];
+        break;
+      }
+    }
+    
     if (!currentQuestion) return;
 
     const input = currentQuestion.querySelector('.fill-blank') || currentQuestion.querySelector('.quiz-input');
@@ -805,13 +827,17 @@ class QuizSystem {
   flipFlashcard(flashcard) {
     const front = flashcard.querySelector('.flashcard-front');
     const back = flashcard.querySelector('.flashcard-back');
-    const continueBtn = flashcard.closest('.quiz-question').querySelector('.quiz-check');
+    const currentQuestion = flashcard.closest('.quiz-question');
+    const continueBtn = currentQuestion.querySelector('.quiz-check');
 
-    if (front.style.display !== 'none') {
+    if (!flashcard.classList.contains('flipped')) {
+      flashcard.classList.add('flipped');
       front.style.display = 'none';
       back.style.display = 'block';
-      continueBtn.style.display = 'inline-block';
-      continueBtn.textContent = 'Got it! Next Question';
+      if (continueBtn) {
+        continueBtn.style.display = 'inline-block';
+        continueBtn.textContent = 'Got it! Next Question';
+      }
     }
   }
 
@@ -840,18 +866,31 @@ class QuizSystem {
   }
 
   selectLetter(letter, button) {
-    const answerArea = button.closest('.quiz-question').querySelector('.letter-picker-answer');
+    const currentQuestion = button.closest('.quiz-question');
+    const answerArea = currentQuestion.querySelector('.letter-picker-answer');
     const currentAnswer = answerArea.textContent;
 
     if (currentAnswer.length < this.currentQuiz.correct.length) {
       answerArea.textContent += letter;
       button.disabled = true;
       button.style.opacity = '0.5';
+      button.style.pointerEvents = 'none';
     }
   }
 
   checkLetterPicker() {
-    const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
+    // Find the current active question more reliably
+    const allQuestions = document.querySelectorAll('.quiz-question');
+    let currentQuestion = null;
+    
+    // Find the last unanswered question
+    for (let i = allQuestions.length - 1; i >= 0; i--) {
+      if (!allQuestions[i].classList.contains('answered')) {
+        currentQuestion = allQuestions[i];
+        break;
+      }
+    }
+    
     if (!currentQuestion || currentQuestion.classList.contains('answered')) return;
 
     const answerArea = currentQuestion.querySelector('.letter-picker-answer');
@@ -909,13 +948,24 @@ class QuizSystem {
   }
 
   checkWordOrder() {
-    const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
+    // Find the current active question more reliably
+    const allQuestions = document.querySelectorAll('.quiz-question');
+    let currentQuestion = null;
+    
+    // Find the last unanswered question
+    for (let i = allQuestions.length - 1; i >= 0; i--) {
+      if (!allQuestions[i].classList.contains('answered')) {
+        currentQuestion = allQuestions[i];
+        break;
+      }
+    }
+    
     if (!currentQuestion || currentQuestion.classList.contains('answered')) return;
 
     const answerArea = currentQuestion.querySelector('.word-answer-area');
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const checkButton = currentQuestion.querySelector('.quiz-check');
-    const containerId = currentQuestion.closest('.quiz-block').id;
+    const containerId = currentQuestion.closest('.quiz-block')?.id;
 
     const selectedWords = Array.from(answerArea.querySelectorAll('.selected-word')).map(span => span.textContent.trim());
     const answer = selectedWords.join(' ').toLowerCase();
@@ -945,13 +995,23 @@ class QuizSystem {
   }
 
   generateNextQuestion() {
-    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    // Find all visible quiz containers
+    const visibleContainers = document.querySelectorAll('.quiz-block:not(.hidden)');
+    let currentContainer = null;
+    
+    // Find the container with the most recent question
+    visibleContainers.forEach(container => {
+      if (container.querySelector('.quiz-question')) {
+        currentContainer = container;
+      }
+    });
+    
     if (!currentContainer) return;
 
     const containerId = currentContainer.id;
-    const topicIndex = containerId.replace('quiz', '');
+    const topicIndex = parseInt(containerId.replace('quiz', '')) || 0;
     const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
-    const topic = topics[topicIndex] || 'seasons';
+    const topic = topics[topicIndex] || 'vocabulary';
 
     // Clean up questions to maintain only 2 max (previous answered + current)
     const allQuestions = currentContainer.querySelectorAll('.quiz-question');
