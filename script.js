@@ -199,9 +199,9 @@ class QuizSystem {
     return vocab.filter(item => this.shouldShowWord(item.italian));
   }
 
-  handleMultipleChoiceKeyboard(event) {
+  handleMultipleChoiceKeyboard(event, currentQuestion) {
     if (event.key >= '1' && event.key <= '4') {
-      const options = document.querySelectorAll('.quiz-option');
+      const options = currentQuestion.querySelectorAll('.quiz-option');
       const index = parseInt(event.key) - 1;
       if (options[index]) {
         options[index].click();
@@ -209,10 +209,10 @@ class QuizSystem {
     }
   }
 
-  handleMatchingKeyboard(event) {
+  handleMatchingKeyboard(event, currentQuestion) {
     // Simple keyboard navigation for matching
     if (event.key === 'Enter') {
-      const checkButton = document.querySelector('.quiz-check');
+      const checkButton = currentQuestion.querySelector('.quiz-check');
       if (checkButton && !checkButton.disabled) {
         checkButton.click();
       }
@@ -1488,9 +1488,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.quiz-btn').forEach(btn => {
     btn.addEventListener('click', function(e) {
       e.preventDefault();
-      const quizId = this.getAttribute('onclick').match(/toggleQuiz\('([^']+)'\)/)[1];
-      if (quizId) {
-        toggleQuiz(quizId);
+      const onclickAttr = this.getAttribute('onclick');
+      if (onclickAttr) {
+        const match = onclickAttr.match(/toggleQuiz\('([^']+)'\)/);
+        if (match && match[1]) {
+          toggleQuiz(match[1]);
+        }
       }
     });
   });
