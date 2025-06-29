@@ -514,16 +514,16 @@ class QuizSystem {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
-    // Remove all previous questions completely after a delay
+    // Keep answered questions visible but limit to 2 total questions max
     setTimeout(() => {
       const allQuestions = currentContainer.querySelectorAll('.quiz-question');
-      if (allQuestions.length > 1) {
-        // Remove all but the most recent question
-        for (let i = 0; i < allQuestions.length - 1; i++) {
+      if (allQuestions.length > 2) {
+        // Remove the oldest questions, keeping only the most recent 2
+        for (let i = 0; i < allQuestions.length - 2; i++) {
           allQuestions[i].remove();
         }
       }
-    }, 3000); // Show previous question for 3 seconds before removing
+    }, 2000);
 
     const containerId = currentContainer.id;
     const topicIndex = containerId.replace('quiz', '');
@@ -606,13 +606,14 @@ class QuizSystem {
       setTimeout(() => this.setupMatchingEventListeners(), 100);
     }
 
-    // Smooth scroll to the new question
+    // Smooth scroll to the new question without jumping
     setTimeout(() => {
       const newQuestion = container.querySelector('.quiz-question.new-question:last-child');
       if (newQuestion) {
         newQuestion.scrollIntoView({ 
           behavior: 'smooth', 
-          block: 'center' 
+          block: 'nearest',
+          inline: 'nearest'
         });
       }
     }, 100);

@@ -821,7 +821,7 @@ footer {
   border-radius: 16px;
   padding: 1.5rem;
   margin-top: 1rem;
-  max-height: 80vh;
+  max-height: 70vh;
   overflow-y: auto;
   scroll-behavior: smooth;
   position: relative;
@@ -1387,16 +1387,17 @@ footer {
 
 /* Quiz Question Separation */
 .quiz-question.answered {
-  transition: all 0.8s ease !important;
-  opacity: 0.9 !important;
+  transition: all 0.5s ease !important;
+  opacity: 0.85 !important;
   border-left: 4px solid #28a745 !important;
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
   border-radius: 12px !important;
   padding: 1rem !important;
-  margin-bottom: 2rem !important;
+  margin-bottom: 1.5rem !important;
   pointer-events: none;
   position: relative;
   border: 1px solid #bfdbfe !important;
+  transform: scale(0.98);
 }
 
 .quiz-question.answered::after {
@@ -1439,6 +1440,8 @@ footer {
   border-left: 4px solid #667eea;
   background: white !important;
   position: relative;
+  margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
 }
 
 
