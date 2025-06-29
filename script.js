@@ -391,7 +391,11 @@ class QuizSystem {
       return;
     }
 
-    currentQuestion.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
+    // Reset all button styles first to prevent mixing
+    currentQuestion.querySelectorAll('.quiz-option').forEach(btn => {
+      btn.disabled = true;
+      btn.classList.remove('correct', 'incorrect', 'selected');
+    });
 
     if (isCorrect) {
       selectedButton.classList.add('correct');
@@ -418,6 +422,9 @@ class QuizSystem {
     // Mark question as answered and add styling
     currentQuestion.classList.add('answered');
     currentQuestion.classList.remove('new-question');
+
+    // Reset selected answer
+    this.selectedAnswer = null;
 
     setTimeout(() => this.generateNextQuestion(), 2000);
   }
@@ -520,20 +527,20 @@ class QuizSystem {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
-    // First, remove the oldest question if we have too many (smooth transition)
+    // Clean up questions to maintain only 2 max (previous answered + current)
     const allQuestions = currentContainer.querySelectorAll('.quiz-question');
-    if (allQuestions.length > 2) {
-      // Remove the oldest questions first, with a fade out effect
-      for (let i = 0; i < allQuestions.length - 2; i++) {
-        const oldQuestion = allQuestions[i];
-        oldQuestion.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        oldQuestion.style.opacity = '0';
-        oldQuestion.style.transform = 'translateY(-20px)';
+    if (allQuestions.length >= 2) {
+      // Remove the oldest question immediately to prevent visual mixing
+      const oldestQuestion = allQuestions[0];
+      if (oldestQuestion) {
+        oldestQuestion.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        oldestQuestion.style.opacity = '0';
+        oldestQuestion.style.transform = 'translateY(-20px)';
         setTimeout(() => {
-          if (oldQuestion.parentNode) {
-            oldQuestion.remove();
+          if (oldestQuestion.parentNode) {
+            oldestQuestion.remove();
           }
-        }, 500);
+        }, 300);
       }
     }
 
@@ -554,7 +561,7 @@ class QuizSystem {
       if (nextQuiz) {
         this.appendQuiz(nextQuiz, containerId);
       }
-    }, 600);
+    }, 400);
   }
 
   appendQuiz(quiz, containerId) {
