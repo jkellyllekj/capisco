@@ -295,7 +295,17 @@ class QuizSystem {
   }
 
   generateMatching(data) {
-    const vocab = data.vocabulary?.slice(0, 4) || [];
+    let vocab = [];
+    
+    // Try different data structures to find vocabulary
+    if (data.vocabulary && Array.isArray(data.vocabulary)) {
+      vocab = data.vocabulary.slice(0, 4);
+    } else if (data.vocabulary && data.vocabulary.vocabulary && Array.isArray(data.vocabulary.vocabulary)) {
+      vocab = data.vocabulary.vocabulary.slice(0, 4);
+    } else if (Array.isArray(data)) {
+      vocab = data.slice(0, 4);
+    }
+    
     if (vocab.length < 3) return null;
 
     const shuffledEnglish = [...vocab.map(v => v.english)].sort(() => Math.random() - 0.5);
@@ -752,6 +762,16 @@ class QuizSystem {
     });
   }
 
+  handleMatchingKeyboard(e, currentQuestion) {
+    // Basic keyboard support for matching games
+    if (e.key === 'Enter') {
+      const checkButton = currentQuestion.querySelector('.quiz-check');
+      if (checkButton && checkButton.style.display !== 'none') {
+        checkButton.click();
+      }
+    }
+  }
+
   handleMultipleChoiceKeyboard(e, currentQuestion) {
     if (e.key === 'Enter') {
       const selectedOption = currentQuestion.querySelector('.quiz-option.selected');
@@ -802,10 +822,10 @@ class QuizSystem {
   }
 
   autoProgressToNext(feedback) {
-    // Auto-progress after 2 seconds
+    // Auto-progress after 3 seconds
     setTimeout(() => {
       this.addNextQuestion();
-    }, 2000);
+    }, 3000);
   }
 
   checkMultipleChoice() {
@@ -1059,7 +1079,8 @@ class QuizSystem {
     if (!currentContainer) return;
 
     const existingQuestions = currentContainer.querySelectorAll('.quiz-question');
-    if (existingQuestions.length >= 2) {
+    // Keep previous questions with their feedback instead of removing them
+    if (existingQuestions.length >= 3) {
       existingQuestions[0].remove();
     }
 
