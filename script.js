@@ -1,3 +1,4 @@
+
 // Toggle quiz function for backward compatibility
 function toggleQuiz(quizId) {
   const quiz = document.getElementById(quizId);
@@ -763,7 +764,6 @@ class QuizSystem {
         englishMatch.element.classList.add('matched');
         italianMatch.element.classList.remove('selected');
         englishMatch.element.classList.remove('selected');
-        englishMatch.element.classList.remove('selected');
       } else {
         setTimeout(() => {
           italianMatch.element.classList.remove('selected');
@@ -997,7 +997,7 @@ class QuizSystem {
     feedback.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     controls.parentNode.insertBefore(feedback, controls.nextSibling);
     controls.style.display = 'none';
-     this.autoProgressToNext(feedback);
+    this.autoProgressToNext(feedback);
   }
 
   checkWordOrder() {
@@ -1280,52 +1280,18 @@ class QuizSystem {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    container.innerHTML = '<div class="endless-quiz-container"></div>';
-    this.generateNextQuestion(container.querySelector('.endless-quiz-container'));
-  }
-
-  generateNextQuestion(container) {
-    const topics = Object.keys(this.quizData);
-    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-    const quiz = this.generateQuiz(randomTopic);
-
-    if (quiz) {
-      this.currentQuiz = quiz;
-      const quizHtml = this.renderQuizContent(quiz);
-      container.innerHTML = quizHtml;
-      this.setupQuizEventListeners();
-    }
-  }
-
-  renderQuizContent(quiz) {
-    let html = '';
-    switch (quiz.type) {
-      case 'multipleChoice':
-        html = this.renderMultipleChoice(quiz);
-      case 'matching':
-        html = this.renderMatching(quiz);
-      case 'fillBlank':
-        html = this.renderFillBlank(quiz);
-      case 'flashcard':
-        html = this.renderFlashcard(quiz);
-      case 'letterPicker':
-        html = this.renderLetterPicker(quiz);
-      case 'wordOrder':
-        html = this.renderWordOrder(quiz);
-      case 'audioQuiz':
-        html = this.renderAudioQuiz(quiz);
-    }
-    return html;
-  }
-
-  setupQuizEventListeners() {
-    if (this.currentQuiz) {
-      if (this.currentQuiz.type === 'matching') {
-        setTimeout(() => this.setupMatchingEventListeners(), 100);
-      } else if (this.currentQuiz.type === 'wordOrder') {
-        setTimeout(() => this.setupWordOrderEventListeners(), 100);
+    const topicIndex = containerId.replace('quiz', '');
+    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
+    const topic = topics[topicIndex] || 'seasons';
+    
+    container.innerHTML = '<div class="endless-quiz-loading">Starting quiz...</div>';
+    
+    setTimeout(() => {
+      const quiz = this.generateQuiz(topic);
+      if (quiz) {
+        this.renderQuiz(quiz, containerId);
       }
-    }
+    }, 100);
   }
 }
 
@@ -1335,91 +1301,4 @@ const quizSystem = new QuizSystem();
 document.addEventListener('DOMContentLoaded', () => {
   quizSystem.setupKeyboardNavigation();
   initializeTooltips();
-
-  // Add click handlers to quiz buttons
-  document.querySelectorAll('.quiz-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      const onclickAttr = this.getAttribute('onclick');
-      if (onclickAttr) {
-        const match = onclickAttr.match(/toggleQuiz\('([^']+)'\)/);
-        if (match && match[1]) {
-          toggleQuiz(match[1]);
-        }
-      }
-    });
-  });
-});
-
-function toggleQuiz(id) {
-  const block = document.getElementById(id);
-  const isHidden = block.classList.contains('hidden');
-
-  document.querySelectorAll('.quiz-block').forEach(q => q.classList.add('hidden'));
-
-  if (isHidden) {
-    block.classList.remove('hidden');
-    const topicIndex = id.replace('quiz', '');
-    quizSystem.startQuiz(topicIndex);
-  }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.quiz-button').forEach(button => { // Renamed the quiz buttons
-    button.textContent = 'Endless Quiz!';
-  });
-
-  document.querySelectorAll('.vocab-list li').forEach(item => {
-    const text = item.textContent;
-
-    // Search through all available quiz data sections safely
-    let etymologyData = null;
-
-    // Check if quizSystem and quizData exist
-    if (quizSystem && quizSystem.quizData) {
-      // Check extraVocabulary first
-      if (quizSystem.quizData.extraVocabulary && quizSystem.quizData.extraVocabulary.vocabulary) {
-        etymologyData = quizSystem.quizData.extraVocabulary.vocabulary.find(v => 
-          v && v.italian && text.toLowerCase().includes(v.italian.toLowerCase())
-        );
-      }
-
-      // Check vocabulary section
-      if (!etymologyData && quizSystem.quizData.vocabulary && quizSystem.quizData.vocabulary.vocabulary) {
-        etymologyData = quizSystem.quizData.vocabulary.vocabulary.find(v =>
-          v && v.italian && text.toLowerCase().includes(v.italian.toLowerCase())
-        );
-      }
-
-      // Check seasons section
-      if (!etymologyData && quizSystem.quizData.seasons && quizSystem.quizData.seasons.vocabulary) {
-        etymologyData = quizSystem.quizData.seasons.vocabulary.find(v =>
-          v && v.italian && text.toLowerCase().includes(v.italian.toLowerCase())
-        );
-      }
-    }
-
-    if (etymologyData && etymologyData.etymology) {
-      item.title = etymologyData.etymology;
-      item.style.cursor = 'help';
-    }
-  });
-
-  // Add smooth scrolling to quiz buttons
-  document.querySelectorAll('.quiz-button').forEach(button => {
-    button.addEventListener('click', function(e) {
-      e.preventDefault();
-      const quizId = this.getAttribute('data-quiz');
-      const targetElement = document.getElementById(quizId);
-
-      if (targetElement) {
-        targetElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      } else {
-        console.error('Target quiz element not found.');
-      }
-    });
-  });
 });
