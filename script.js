@@ -11,37 +11,89 @@ class QuizSystem {
     this.quizData = {
       seasons: {
         vocabulary: [
-          { italian: 'primavera', english: 'spring', icon: 'seedling', color: '#28a745', etymology: 'From Latin "prima" (first) + "vera" (spring). Related to English "prime" and "vernal".', lesson: 'Chapter 1: Al Mercato' },
-          { italian: 'estate', english: 'summer', icon: 'sun', color: '#ffc107', etymology: 'From Latin "aestas". Related to English "estival" (relating to summer).', lesson: 'Chapter 1: Al Mercato' },
-          { italian: 'autunno', english: 'autumn', icon: 'leaf', color: '#fd7e14', etymology: 'From Latin "autunnus". Direct cognate with English "autumn".', lesson: 'Chapter 1: Al Mercato' },
-          { italian: 'inverno', english: 'winter', icon: 'snowflake', color: '#17a2b8', etymology: 'From Latin "hibernus". Related to English "hibernate" (winter sleep).', lesson: 'Chapter 1: Al Mercato' }
+          { italian: 'primavera', english: 'spring', icon: 'seedling', color: '#28a745' },
+          { italian: 'estate', english: 'summer', icon: 'sun', color: '#ffc107' },
+          { italian: 'autunno', english: 'autumn', icon: 'leaf', color: '#fd7e14' },
+          { italian: 'inverno', english: 'winter', icon: 'snowflake', color: '#17a2b8' }
         ],
         phrases: [
-          { italian: 'Preferisco la primavera', english: 'I prefer spring', note: '"Preferisco" comes from Latin - like English "prefer"! You learned this phrase structure in Chapter 1.', lesson: 'Chapter 1: Al Mercato' },
-          { italian: 'Mi piace l\'estate', english: 'I like summer', note: 'Literally means "summer pleases me" - this expression was introduced in Chapter 1.', lesson: 'Chapter 1: Al Mercato' },
-          { italian: 'Preferisco l\'autunno', english: 'I prefer autumn', note: 'Using the "preferisco" pattern you learned in Chapter 1.', lesson: 'Chapter 1: Al Mercato' }
+          { italian: 'Preferisco la primavera', english: 'I prefer spring' },
+          { italian: 'Mi piace l\'estate', english: 'I like summer' },
+          { italian: 'Preferisco l\'autunno', english: 'I prefer autumn' },
+          { italian: 'Quale stagione preferisci?', english: 'Which season do you prefer?' },
+          { italian: 'Perché fa caldo', english: 'Because it\'s hot' },
+          { italian: 'Perché fa freddo', english: 'Because it\'s cold' }
         ]
       },
-      market: {
+      vocabulary: {
         vocabulary: [
-          { italian: 'formaggio', english: 'cheese', category: 'dairy', etymology: 'From Latin "formaticus" - related to "form" because cheese is formed/shaped. Fun fact: Italy produces over 400 types of cheese!' },
-          { italian: 'pesce', english: 'fish', category: 'protein', etymology: 'From Latin "piscis" - related to English "Pisces" (fish constellation). Italy has the longest coastline in Europe!' },
-          { italian: 'mele', english: 'apples', category: 'fruit', etymology: 'From Latin "malum" - appears in many languages. Italian apples are famous worldwide, especially from Alto Adige!' },
-          { italian: 'pomodori', english: 'tomatoes', category: 'vegetables', etymology: 'Literally "golden apples" - "pomo" (apple) + "d\'oro" (of gold)! Originally yellow when first brought to Italy.' },
-          { italian: 'pane', english: 'bread', category: 'carbs', etymology: 'From Latin "panis" - related to English "pantry" and "company" (sharing bread). Each Italian region has its own bread style!' },
-          { italian: 'burro', english: 'butter', category: 'dairy', etymology: 'From Latin "butyrum" via Greek. Romans didn\'t eat much butter - they preferred olive oil!' },
-          { italian: 'latte', english: 'milk', category: 'dairy', etymology: 'From Latin "lac/lactis" - related to English "lactose" and "galaxy" (milky way). Italian milk is often sold in glass bottles!' },
-          { italian: 'carote', english: 'carrots', category: 'vegetables', etymology: 'From Greek "karoton". Orange carrots were developed in Holland - original carrots were purple!' },
-          { italian: 'cipolle', english: 'onions', category: 'vegetables', etymology: 'From Latin "cepa". Onions were used as currency in ancient Egypt!' },
-          { italian: 'patate', english: 'potatoes', category: 'vegetables', etymology: 'From Spanish "patata" from Taíno "batata". Potatoes came to Italy from the Americas in the 1500s!' }
-        ],
+          // Bread and Grains
+          { italian: 'panini', english: 'bread rolls', category: 'bread' },
+          { italian: 'pane', english: 'bread', category: 'bread' },
+          { italian: 'pasta', english: 'pasta', category: 'bread' },
+          { italian: 'riso', english: 'rice', category: 'bread' },
+          // Fruit
+          { italian: 'cocomero', english: 'watermelon', category: 'fruit' },
+          { italian: 'pesche', english: 'peaches', category: 'fruit' },
+          { italian: 'mele', english: 'apples', category: 'fruit' },
+          { italian: 'banane', english: 'bananas', category: 'fruit' },
+          { italian: 'arance', english: 'oranges', category: 'fruit' },
+          { italian: 'uva', english: 'grapes', category: 'fruit' },
+          // Vegetables
+          { italian: 'patate', english: 'potatoes', category: 'vegetables' },
+          { italian: 'pomodori', english: 'tomatoes', category: 'vegetables' },
+          { italian: 'carote', english: 'carrots', category: 'vegetables' },
+          { italian: 'insalata', english: 'lettuce', category: 'vegetables' },
+          { italian: 'cipolle', english: 'onions', category: 'vegetables' },
+          // Fish and Meat
+          { italian: 'pesce', english: 'fish', category: 'protein' },
+          { italian: 'salmone', english: 'salmon', category: 'protein' },
+          { italian: 'pollo', english: 'chicken', category: 'protein' },
+          { italian: 'manzo', english: 'beef', category: 'protein' },
+          // Dairy
+          { italian: 'formaggio', english: 'cheese', category: 'dairy' },
+          { italian: 'parmigiano', english: 'parmesan', category: 'dairy' },
+          { italian: 'mozzarella', english: 'mozzarella', category: 'dairy' },
+          { italian: 'latte', english: 'milk', category: 'dairy' },
+          { italian: 'burro', english: 'butter', category: 'dairy' }
+        ]
+      },
+      expressions: {
         expressions: [
-          { italian: 'Vorrei del parmigiano', english: 'I would like some parmesan', note: 'Polite way to request. "Vorrei" is conditional form.' },
-          { italian: 'Quanto costa?', english: 'How much does it cost?', note: 'Essential shopping phrase. "Costa" comes from "costare" (to cost).' },
-          { italian: 'Posso assaggiare?', english: 'Can I taste it?', note: 'Very common at Italian markets - vendors encourage tasting!' },
-          { italian: 'È fresco?', english: 'Is it fresh?', note: 'Quality is very important in Italian food culture.' },
-          { italian: 'Un chilo di...', english: 'A kilo of...', note: 'Italy uses metric system. 1 kg = about 2.2 pounds.' },
-          { italian: 'Tre etti', english: '300 grams', note: 'An "etto" is 100 grams - very common measurement.' }
+          // Asking and Buying
+          { italian: 'Vorrei...', english: 'I would like...', category: 'asking' },
+          { italian: 'Quanto costa?', english: 'How much does it cost?', category: 'asking' },
+          { italian: 'Quanto costano?', english: 'How much do they cost?', category: 'asking' },
+          { italian: 'Posso assaggiare?', english: 'Can I taste it?', category: 'asking' },
+          { italian: 'Quanto ne vuole?', english: 'How much do you want?', category: 'asking' },
+          { italian: 'Questo є tutto', english: 'That\'s all', category: 'asking' },
+          // Quantities
+          { italian: 'Un chilo di...', english: 'A kilo of...', category: 'quantity' },
+          { italian: 'Mezzo chilo', english: 'Half a kilo', category: 'quantity' },
+          { italian: 'Tre etti', english: '300 grams', category: 'quantity' },
+          { italian: 'Un etto', english: '100 grams', category: 'quantity' },
+          { italian: 'Una dozzina', english: 'A dozen', category: 'quantity' },
+          { italian: 'Un pezzo', english: 'One piece', category: 'quantity' },
+          // Quality
+          { italian: 'È fresco?', english: 'Is it fresh?', category: 'quality' },
+          { italian: 'Lo preferisce fresco o stagionato?', english: 'Do you prefer it fresh or aged?', category: 'quality' },
+          { italian: 'È maturo?', english: 'Is it ripe?', category: 'quality' },
+          { italian: 'È di stagione?', english: 'Is it in season?', category: 'quality' },
+          { italian: 'È locale?', english: 'Is it local?', category: 'quality' }
+        ]
+      },
+      dialogue: {
+        phrases: [
+          { italian: 'Vorrei del parmigiano', english: 'I would like some parmesan' },
+          { italian: 'Lo preferisce fresco o stagionato?', english: 'Do you prefer it fresh or aged?' },
+          { italian: 'Mah... fresco', english: 'Well... fresh' },
+          { italian: 'Quanto ne vuole?', english: 'How much do you want?' },
+          { italian: 'Tre etti', english: '300 grams' }
+        ],
+        vocabulary: [
+          { italian: 'ne', english: 'of it/them', note: 'Pronoun referring to quantity' },
+          { italian: 'fresco', english: 'fresh' },
+          { italian: 'stagionato', english: 'aged' }
         ]
       }
     };
@@ -885,7 +937,7 @@ class QuizSystem {
 
     const containerId = currentContainer.id;
     const topicIndex = containerId.replace('quiz', '');
-    const topics = ['seasons', 'market', 'market', 'market', 'market'];
+    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'grammar'];
     const topic = topics[topicIndex] || 'seasons';
     const nextQuiz = this.generateQuiz(topic);
 
@@ -1009,7 +1061,7 @@ class QuizSystem {
   }
 
   startQuiz(topicIndex) {
-    const topics = ['seasons', 'market', 'market', 'market', 'market'];
+    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'grammar'];
     const topic = topics[topicIndex] || 'seasons';
     const quiz = this.generateQuiz(topic);
 
