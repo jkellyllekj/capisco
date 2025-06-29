@@ -9,15 +9,15 @@ class QuizSystem {
     this.quizData = {
       seasons: {
         vocabulary: [
-          { italian: 'primavera', english: 'spring', icon: 'seedling', color: '#28a745', etymology: 'From Latin "prima" (first) + "vera" (spring). Related to English "prime" and "vernal".' },
-          { italian: 'estate', english: 'summer', icon: 'sun', color: '#ffc107', etymology: 'From Latin "aestas". Related to English "estival" (relating to summer).' },
-          { italian: 'autunno', english: 'autumn', icon: 'leaf', color: '#fd7e14', etymology: 'From Latin "autumnus". Direct cognate with English "autumn".' },
-          { italian: 'inverno', english: 'winter', icon: 'snowflake', color: '#17a2b8', etymology: 'From Latin "hibernus". Related to English "hibernate" (winter sleep).' }
+          { italian: 'primavera', english: 'spring', icon: 'seedling', color: '#28a745', etymology: 'From Latin "prima" (first) + "vera" (spring). Related to English "prime" and "vernal".', lesson: 'Chapter 1: Al Mercato' },
+          { italian: 'estate', english: 'summer', icon: 'sun', color: '#ffc107', etymology: 'From Latin "aestas". Related to English "estival" (relating to summer).', lesson: 'Chapter 1: Al Mercato' },
+          { italian: 'autunno', english: 'autumn', icon: 'leaf', color: '#fd7e14', etymology: 'From Latin "autumnus". Direct cognate with English "autumn".', lesson: 'Chapter 1: Al Mercato' },
+          { italian: 'inverno', english: 'winter', icon: 'snowflake', color: '#17a2b8', etymology: 'From Latin "hibernus". Related to English "hibernate" (winter sleep).', lesson: 'Chapter 1: Al Mercato' }
         ],
         phrases: [
-          { italian: 'Quale stagione preferisci?', english: 'Which season do you prefer?', note: 'Common conversation starter' },
-          { italian: 'Preferisco la primavera', english: 'I prefer spring', note: '"Preferisco" comes from Latin - like English "prefer"!' },
-          { italian: 'Mi piace l\'estate', english: 'I like summer', note: 'Literally means "summer pleases me"' }
+          { italian: 'Preferisco la primavera', english: 'I prefer spring', note: '"Preferisco" comes from Latin - like English "prefer"! You learned this phrase structure in Chapter 1.', lesson: 'Chapter 1: Al Mercato' },
+          { italian: 'Mi piace l\'estate', english: 'I like summer', note: 'Literally means "summer pleases me" - this expression was introduced in Chapter 1.', lesson: 'Chapter 1: Al Mercato' },
+          { italian: 'Preferisco l\'autunno', english: 'I prefer autumn', note: 'Using the "preferisco" pattern you learned in Chapter 1.', lesson: 'Chapter 1: Al Mercato' }
         ]
       },
       market: {
@@ -146,7 +146,7 @@ class QuizSystem {
       question: `What is the Italian word for "${correct.english}"?`,
       options: options.map(opt => opt.italian),
       correct: correct.italian,
-      explanation: `"${correct.italian}" means "${correct.english}" in English. ${correct.etymology || ''}`
+      explanation: `"${correct.italian}" means "${correct.english}" in English. ${correct.etymology || ''} ${correct.lesson ? `You learned this in ${correct.lesson}.` : ''}`
     };
   }
 
@@ -184,7 +184,7 @@ class QuizSystem {
       question: `Fill in the blank: ${words.join(' ')}`,
       hint: `Translation: "${item.english}"`,
       correct: correctWord.toLowerCase(),
-      explanation: `Complete sentence: "${item.italian}" means "${item.english}". ${item.note || ''}`
+      explanation: `Complete sentence: "${item.italian}" means "${item.english}". ${item.note || ''} ${item.lesson ? `This was covered in ${item.lesson}.` : ''}`
     };
   }
 
@@ -568,6 +568,7 @@ class QuizSystem {
     const matchedItems = document.querySelectorAll('.match-item.matched');
     const totalItems = document.querySelectorAll('.match-item.italian').length;
     const feedback = document.querySelector('.quiz-feedback');
+    const checkButton = document.querySelector('.quiz-check');
     
     if (matchedItems.length === totalItems * 2) {
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect! All matches are correct!</div>`;
@@ -578,11 +579,18 @@ class QuizSystem {
     
     this.totalQuestions++;
     feedback.style.display = 'block';
+    if (checkButton) checkButton.style.display = 'none';
     
-    // Auto-generate next question after 2 seconds
+    // Show score and end quiz controls
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.className = 'quiz-score-display';
+    scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
+    feedback.appendChild(scoreDisplay);
+    
+    // Auto-generate next question after 3 seconds
     setTimeout(() => {
       this.addNextQuestion();
-    }, 2000);
+    }, 3000);
   }
 
   checkFillBlank() {
