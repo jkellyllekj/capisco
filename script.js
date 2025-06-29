@@ -5,6 +5,7 @@ class QuizSystem {
     this.score = 0;
     this.totalQuestions = 0;
     this.questionsAnswered = 0;
+    this.autoNextEnabled = true;
     this.quizData = {
       seasons: {
         vocabulary: [
@@ -21,13 +22,16 @@ class QuizSystem {
       },
       market: {
         vocabulary: [
-          { italian: 'formaggio', english: 'cheese', category: 'dairy', etymology: 'From Latin "formaticus" - related to "form" because cheese is formed/shaped.' },
-          { italian: 'pesce', english: 'fish', category: 'protein', etymology: 'From Latin "piscis" - related to English "Pisces" (fish constellation).' },
-          { italian: 'mele', english: 'apples', category: 'fruit', etymology: 'From Latin "malum" - appears in many languages (French "pomme" is different).' },
-          { italian: 'pomodori', english: 'tomatoes', category: 'vegetables', etymology: 'Literally "golden apples" - "pomo" (apple) + "d\'oro" (of gold)!' },
-          { italian: 'pane', english: 'bread', category: 'carbs', etymology: 'From Latin "panis" - related to English "pantry" and "company" (sharing bread).' },
-          { italian: 'burro', english: 'butter', category: 'dairy', etymology: 'From Latin "butyrum" via Greek. Fun fact: Romans didn\'t eat much butter!' },
-          { italian: 'latte', english: 'milk', category: 'dairy', etymology: 'From Latin "lac/lactis" - related to English "lactose" and "galaxy" (milky way).' }
+          { italian: 'formaggio', english: 'cheese', category: 'dairy', etymology: 'From Latin "formaticus" - related to "form" because cheese is formed/shaped. Fun fact: Italy produces over 400 types of cheese!' },
+          { italian: 'pesce', english: 'fish', category: 'protein', etymology: 'From Latin "piscis" - related to English "Pisces" (fish constellation). Italy has the longest coastline in Europe!' },
+          { italian: 'mele', english: 'apples', category: 'fruit', etymology: 'From Latin "malum" - appears in many languages. Italian apples are famous worldwide, especially from Alto Adige!' },
+          { italian: 'pomodori', english: 'tomatoes', category: 'vegetables', etymology: 'Literally "golden apples" - "pomo" (apple) + "d\'oro" (of gold)! Originally yellow when first brought to Italy.' },
+          { italian: 'pane', english: 'bread', category: 'carbs', etymology: 'From Latin "panis" - related to English "pantry" and "company" (sharing bread). Each Italian region has its own bread style!' },
+          { italian: 'burro', english: 'butter', category: 'dairy', etymology: 'From Latin "butyrum" via Greek. Romans didn\'t eat much butter - they preferred olive oil!' },
+          { italian: 'latte', english: 'milk', category: 'dairy', etymology: 'From Latin "lac/lactis" - related to English "lactose" and "galaxy" (milky way). Italian milk is often sold in glass bottles!' },
+          { italian: 'carote', english: 'carrots', category: 'vegetables', etymology: 'From Greek "karoton". Orange carrots were developed in Holland - original carrots were purple!' },
+          { italian: 'cipolle', english: 'onions', category: 'vegetables', etymology: 'From Latin "cepa". Onions were used as currency in ancient Egypt!' },
+          { italian: 'patate', english: 'potatoes', category: 'vegetables', etymology: 'From Spanish "patata" from Taíno "batata". Potatoes came to Italy from the Americas in the 1500s!' }
         ],
         expressions: [
           { italian: 'Vorrei del parmigiano', english: 'I would like some parmesan', note: 'Polite way to request. "Vorrei" is conditional form.' },
@@ -208,10 +212,11 @@ class QuizSystem {
         <h4>${quiz.question}</h4>
         <div class="quiz-options">
           ${quiz.options.map((option, index) => `
-            <button class="quiz-option" onclick="quizSystem.checkAnswer('${option}', this)">${option}</button>
+            <button class="quiz-option" onclick="quizSystem.selectOption('${option}', this)">${option}</button>
           `).join('')}
         </div>
         <div class="quiz-feedback" style="display: none;"></div>
+        <button class="quiz-check" onclick="quizSystem.checkMultipleChoice()" style="display: none;">Check Answer</button>
       </div>
     `;
   }
@@ -352,19 +357,34 @@ class QuizSystem {
     }
   }
 
-  checkAnswer(answer, button) {
-    const isCorrect = answer === this.currentQuiz.correct;
+  selectOption(answer, button) {
+    // Remove previous selections
+    document.querySelectorAll('.quiz-option.selected').forEach(opt => opt.classList.remove('selected'));
+    
+    // Mark this option as selected
+    button.classList.add('selected');
+    this.selectedAnswer = answer;
+    
+    // Show check button
+    document.querySelector('.quiz-check').style.display = 'inline-block';
+  }
+
+  checkMultipleChoice() {
+    if (!this.selectedAnswer) return;
+    
+    const isCorrect = this.selectedAnswer === this.currentQuiz.correct;
     const feedback = document.querySelector('.quiz-feedback');
+    const selectedButton = document.querySelector('.quiz-option.selected');
     
     // Disable all option buttons
     document.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
     
     if (isCorrect) {
-      button.classList.add('correct');
+      selectedButton.classList.add('correct');
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct! ${this.currentQuiz.explanation || ''}</div>`;
       this.score++;
     } else {
-      button.classList.add('incorrect');
+      selectedButton.classList.add('incorrect');
       document.querySelectorAll('.quiz-option').forEach(btn => {
         if (btn.textContent === this.currentQuiz.correct) {
           btn.classList.add('correct');
@@ -375,11 +395,30 @@ class QuizSystem {
     
     this.totalQuestions++;
     feedback.style.display = 'block';
+    document.querySelector('.quiz-check').style.display = 'none';
     
-    // Auto-generate next question after 2 seconds
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 2000);
+    // Show score and next question button
+    this.showQuizProgress();
+    
+    if (this.autoNextEnabled) {
+      setTimeout(() => {
+        this.addNextQuestion();
+      }, 3000);
+    }
+  }
+
+  showQuizProgress() {
+    const progressDiv = document.createElement('div');
+    progressDiv.className = 'quiz-progress';
+    progressDiv.innerHTML = `
+      <div class="score-display">${this.showScore()}</div>
+      <button class="quiz-next-btn" onclick="quizSystem.addNextQuestion()">
+        <i class="fas fa-arrow-right"></i> Next Question
+      </button>
+    `;
+    
+    const feedback = document.querySelector('.quiz-feedback');
+    feedback.appendChild(progressDiv);
   }
 
   checkMatching() {
