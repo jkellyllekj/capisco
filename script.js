@@ -83,11 +83,11 @@ class QuizSystem {
     }
 
     let availableTypes = [];
-    
+
     // Check what types of content we have
     const hasVocabulary = data.vocabulary && data.vocabulary.length >= 4;
     const hasPhrases = (data.phrases && data.phrases.length > 0) || (data.expressions && data.expressions.length > 0);
-    
+
     if (hasVocabulary || hasPhrases) {
       availableTypes.push('multipleChoice', 'fillBlank', 'flashcard', 'letterPicker', 'wordOrder');
       if (hasVocabulary && data.vocabulary.length >= 3) {
@@ -148,12 +148,12 @@ class QuizSystem {
     // Try vocabulary first, then phrases/expressions
     let vocab = data.vocabulary || [];
     let isPhrase = false;
-    
+
     if (vocab.length < 4) {
       vocab = data.phrases || data.expressions || [];
       isPhrase = true;
     }
-    
+
     if (vocab.length < 4) return null;
 
     let availableVocab = vocab;
@@ -209,12 +209,12 @@ class QuizSystem {
     // Try vocabulary first, then phrases/expressions
     let vocab = data.vocabulary || [];
     let isPhrase = false;
-    
+
     if (vocab.length < 3) {
       vocab = data.phrases || data.expressions || [];
       isPhrase = true;
     }
-    
+
     if (vocab.length < 3) return null;
 
     // Check if we've already done matching with all available items
@@ -265,7 +265,7 @@ class QuizSystem {
     }
 
     const item = availablePhrases[Math.floor(Math.random() * availablePhrases.length)];
-    
+
     // For single words, ask for translation instead of fill-in-blank
     if (!item.italian.includes(' ')) {
       return {
@@ -344,7 +344,7 @@ class QuizSystem {
     const word = item.italian.toLowerCase();
     const letters = word.split('').filter(l => l !== ' ');
     const uniqueLetters = [...new Set(letters)];
-    
+
     // Add some random letters
     const allLetters = 'abcdefghilmnopqrstuvz';
     const extraLetters = [];
@@ -374,7 +374,7 @@ class QuizSystem {
     const phrases = data.phrases || data.expressions || [];
     const longVocab = (data.vocabulary || []).filter(v => v.italian.includes(' '));
     const allPhrases = [...phrases, ...longVocab];
-    
+
     if (allPhrases.length === 0) return null;
 
     let availablePhrases = allPhrases;
@@ -499,6 +499,53 @@ class QuizSystem {
               </div>
             </div>
             <button class="quiz-check" onclick="quizSystem.checkWordOrder()">Check Answer</button>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'trueFalse':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="true-false-options">
+              <button class="quiz-option tf-btn" onclick="quizSystem.selectTrueFalse(true, this)">True</button>
+              <button class="quiz-option tf-btn" onclick="quizSystem.selectTrueFalse(false, this)">False</button>
+            </div>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'speedRound':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="speed-round-container">
+              <div class="timer">Time: <span id="timer-display">30</span>s</div>
+              <div class="speed-items">
+                ${quiz.items.map((item, index) => `
+                  <div class="speed-item" data-index="${index}">
+                    <span class="italian">${item.italian}</span>
+                    <input type="text" class="speed-input" placeholder="English translation...">
+                  </div>
+                `).join('')}
+              </div>
+              <button class="quiz-check" onclick="quizSystem.startSpeedRound()">Start Timer</button>
+            </div>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'audioQuiz':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="audio-container">
+              <button class="play-audio-btn" onclick="quizSystem.playAudio('${quiz.italian}')">
+                <i class="fas fa-play"></i> Play Audio
+              </button>
+              <input type="text" class="quiz-input audio-input" placeholder="Type what you hear...">
+              <button class="quiz-check" onclick="quizSystem.checkAudioQuiz()">Check Answer</button>
+            </div>
             <div class="quiz-feedback" style="display: none;"></div>
           </div>
         `;
@@ -771,7 +818,7 @@ class QuizSystem {
   selectLetter(letter, button) {
     const answerArea = button.closest('.quiz-question').querySelector('.letter-picker-answer');
     const currentAnswer = answerArea.textContent;
-    
+
     if (currentAnswer.length < this.currentQuiz.correct.length) {
       answerArea.textContent += letter;
       button.disabled = true;
@@ -824,7 +871,7 @@ class QuizSystem {
       button.disabled = false;
       button.style.opacity = '1';
     };
-    
+
     answerArea.appendChild(newSpan);
     button.disabled = true;
     button.style.opacity = '0.5';
@@ -1002,6 +1049,53 @@ class QuizSystem {
               </div>
             </div>
             <button class="quiz-check" onclick="quizSystem.checkWordOrder()">Check Answer</button>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'trueFalse':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="true-false-options">
+              <button class="quiz-option tf-btn" onclick="quizSystem.selectTrueFalse(true, this)">True</button>
+              <button class="quiz-option tf-btn" onclick="quizSystem.selectTrueFalse(false, this)">False</button>
+            </div>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'speedRound':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="speed-round-container">
+              <div class="timer">Time: <span id="timer-display">30</span>s</div>
+              <div class="speed-items">
+                ${quiz.items.map((item, index) => `
+                  <div class="speed-item" data-index="${index}">
+                    <span class="italian">${item.italian}</span>
+                    <input type="text" class="speed-input" placeholder="English translation...">
+                  </div>
+                `).join('')}
+              </div>
+              <button class="quiz-check" onclick="quizSystem.startSpeedRound()">Start Timer</button>
+            </div>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'audioQuiz':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="audio-container">
+              <button class="play-audio-btn" onclick="quizSystem.playAudio('${quiz.italian}')">
+                <i class="fas fa-play"></i> Play Audio
+              </button>
+              <input type="text" class="quiz-input audio-input" placeholder="Type what you hear...">
+              <button class="quiz-check" onclick="quizSystem.checkAudioQuiz()">Check Answer</button>
+            </div>
             <div class="quiz-feedback" style="display: none;"></div>
           </div>
         `;
