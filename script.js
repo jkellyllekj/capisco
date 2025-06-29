@@ -82,19 +82,39 @@ class QuizSystem {
       this.correctAnswers.set(containerId, new Set());
     }
 
-    const allQuizTypes = ['multipleChoice', 'matching', 'fillBlank'];
+    let availableTypes = [];
+    
+    // Check what types of content we have
+    const hasVocabulary = data.vocabulary && data.vocabulary.length >= 4;
+    const hasPhrases = (data.phrases && data.phrases.length > 0) || (data.expressions && data.expressions.length > 0);
+    
+    if (hasVocabulary) {
+      availableTypes.push('multipleChoice');
+      if (data.vocabulary.length >= 3) {
+        availableTypes.push('matching');
+      }
+    }
+    
+    if (hasPhrases || hasVocabulary) {
+      availableTypes.push('fillBlank');
+    }
+
     let selectedType = type;
 
-    if (type === 'mixed') {
-      const availableTypes = allQuizTypes.filter(qType => !this.recentQuizTypes.includes(qType));
-      selectedType = availableTypes.length > 0 ? 
-        availableTypes[Math.floor(Math.random() * availableTypes.length)] :
-        allQuizTypes[Math.floor(Math.random() * allQuizTypes.length)];
+    if (type === 'mixed' && availableTypes.length > 0) {
+      const recentTypes = this.recentQuizTypes.slice(-2); // Only consider last 2 types
+      const freshTypes = availableTypes.filter(qType => !recentTypes.includes(qType));
+      selectedType = freshTypes.length > 0 ? 
+        freshTypes[Math.floor(Math.random() * freshTypes.length)] :
+        availableTypes[Math.floor(Math.random() * availableTypes.length)];
 
       this.recentQuizTypes.push(selectedType);
       if (this.recentQuizTypes.length > this.maxRecentTypes) {
         this.recentQuizTypes.shift();
       }
+    } else if (type === 'mixed') {
+      // Fallback to multipleChoice if no other types available
+      selectedType = 'multipleChoice';
     }
 
     // Special handling for topics with limited items
@@ -104,11 +124,11 @@ class QuizSystem {
 
       // For seasons (only 4 items) - avoid matching if all are correct
       if (topic === 'seasons' && selectedType === 'matching' && correctSet.size >= 4) {
-        selectedType = Math.random() < 0.5 ? 'multipleChoice' : 'fillBlank';
+        selectedType = hasVocabulary ? 'multipleChoice' : 'fillBlank';
       }
 
       // For small vocabulary sets, avoid repeated matching
-      if ((data.vocabulary && data.vocabulary.length <= 6) && selectedType === 'matching' && correctSet.size >= data.vocabulary.length) {
+      if (hasVocabulary && data.vocabulary.length <= 6 && selectedType === 'matching' && correctSet.size >= data.vocabulary.length) {
         selectedType = Math.random() < 0.5 ? 'multipleChoice' : 'fillBlank';
       }
     }
@@ -126,7 +146,15 @@ class QuizSystem {
   }
 
   generateMultipleChoice(data, containerId = null) {
-    const vocab = data.vocabulary || [];
+    // Try vocabulary first, then phrases/expressions
+    let vocab = data.vocabulary || [];
+    let isPhrase = false;
+    
+    if (vocab.length < 4) {
+      vocab = data.phrases || data.expressions || [];
+      isPhrase = true;
+    }
+    
     if (vocab.length < 4) return null;
 
     let availableVocab = vocab;
@@ -165,9 +193,13 @@ class QuizSystem {
       this.askedQuestions.get(containerId).add(correct.italian + '_mc');
     }
 
+    const questionText = isPhrase ? 
+      `What is the Italian for "${correct.english}"?` :
+      `What is the Italian word for "${correct.english}"?`;
+
     return {
       type: 'multipleChoice',
-      question: `What is the Italian word for "${correct.english}"?`,
+      question: questionText,
       options: options.map(opt => opt.italian),
       correct: correct.italian,
       correctItem: correct
@@ -175,7 +207,15 @@ class QuizSystem {
   }
 
   generateMatching(data, containerId = null) {
-    const vocab = data.vocabulary || [];
+    // Try vocabulary first, then phrases/expressions
+    let vocab = data.vocabulary || [];
+    let isPhrase = false;
+    
+    if (vocab.length < 3) {
+      vocab = data.phrases || data.expressions || [];
+      isPhrase = true;
+    }
+    
     if (vocab.length < 3) return null;
 
     // Check if we've already done matching with all available items
@@ -193,9 +233,13 @@ class QuizSystem {
     const selectedVocab = vocab.slice(0, Math.min(4, vocab.length));
     const shuffledEnglish = [...selectedVocab.map(v => v.english)].sort(() => Math.random() - 0.5);
 
+    const questionText = isPhrase ? 
+      'Match the Italian phrases with their English translations:' :
+      'Match the Italian words with their English translations:';
+
     return {
       type: 'matching',
-      question: 'Match the Italian words with their English translations:',
+      question: questionText,
       italian: selectedVocab.map(v => v.italian),
       english: shuffledEnglish,
       correct: selectedVocab.reduce((acc, v) => {
@@ -207,7 +251,7 @@ class QuizSystem {
   }
 
   generateFillBlank(data, containerId = null) {
-    const phrases = data.phrases || data.expressions || [];
+    const phrases = data.phrases || data.expressions || data.vocabulary || [];
     if (phrases.length === 0) return null;
 
     let availablePhrases = phrases;
@@ -222,6 +266,18 @@ class QuizSystem {
     }
 
     const item = availablePhrases[Math.floor(Math.random() * availablePhrases.length)];
+    
+    // For single words, ask for translation instead of fill-in-blank
+    if (!item.italian.includes(' ')) {
+      return {
+        type: 'fillBlank',
+        question: `What is the Italian word for "${item.english}"?`,
+        hint: `Think about the vocabulary you've learned`,
+        correct: item.italian.toLowerCase(),
+        correctItem: item
+      };
+    }
+
     const words = item.italian.split(' ');
     const blankIndex = Math.floor(Math.random() * words.length);
     const correctWord = words[blankIndex];
