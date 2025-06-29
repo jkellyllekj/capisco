@@ -1,3 +1,4 @@
+
 class QuizSystem {
   constructor() {
     this.currentQuiz = null;
@@ -10,7 +11,7 @@ class QuizSystem {
         vocabulary: [
           { italian: 'primavera', english: 'spring', icon: 'seedling', color: '#28a745', etymology: 'From Latin "prima" (first) + "vera" (spring). Related to English "prime" and "vernal".', lesson: 'Chapter 1: Al Mercato' },
           { italian: 'estate', english: 'summer', icon: 'sun', color: '#ffc107', etymology: 'From Latin "aestas". Related to English "estival" (relating to summer).', lesson: 'Chapter 1: Al Mercato' },
-          { italian: 'autunno', english: 'autumn', icon: 'leaf', color: '#fd7e14', etymology: 'From Latin "autumnus". Direct cognate with English "autumn".', lesson: 'Chapter 1: Al Mercato' },
+          { italian: 'autunno', english: 'autumn', icon: 'leaf', color: '#fd7e14', etymology: 'From Latin "autunnus". Direct cognate with English "autumn".', lesson: 'Chapter 1: Al Mercato' },
           { italian: 'inverno', english: 'winter', icon: 'snowflake', color: '#17a2b8', etymology: 'From Latin "hibernus". Related to English "hibernate" (winter sleep).', lesson: 'Chapter 1: Al Mercato' }
         ],
         phrases: [
@@ -107,7 +108,6 @@ class QuizSystem {
   }
 
   getPhoneticSpelling(word) {
-    // Simple phonetic guide for Italian words
     const phoneticMap = {
       'primavera': 'pree-mah-VEH-rah',
       'estate': 'eh-STAH-teh',
@@ -134,7 +134,6 @@ class QuizSystem {
       }
     }
 
-    // Shuffle options
     for (let i = options.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [options[i], options[j]] = [options[j], options[i]];
@@ -211,7 +210,6 @@ class QuizSystem {
     const word = item.italian.toLowerCase();
     const letters = word.split('');
 
-    // Add some random letters
     const extraLetters = 'abcdefghilmnopqrstuvz'.split('').filter(l => !letters.includes(l));
     const allLetters = [...letters, ...extraLetters.slice(0, 6)].sort(() => Math.random() - 0.5);
 
@@ -257,13 +255,27 @@ class QuizSystem {
     container.innerHTML = html;
     this.currentQuiz = quiz;
 
-    // Add event listeners for matching
     if (quiz.type === 'matching') {
       this.setupMatchingEventListeners();
     }
     if (quiz.type === 'wordOrder') {
-        this.setupWordOrderEventListeners();
+      this.setupWordOrderEventListeners();
     }
+
+    // Add Enter key support for text inputs
+    setTimeout(() => {
+      const textInputs = container.querySelectorAll('.quiz-input, .audio-input, .fill-blank');
+      textInputs.forEach(input => {
+        input.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            const checkButton = e.target.closest('.quiz-question').querySelector('.quiz-check');
+            if (checkButton && checkButton.style.display !== 'none') {
+              checkButton.click();
+            }
+          }
+        });
+      });
+    }, 100);
   }
 
   renderMultipleChoice(quiz) {
@@ -279,11 +291,6 @@ class QuizSystem {
           <i class="fas fa-check"></i> Check Answer
         </button>
         <div class="quiz-feedback" style="display: none;"></div>
-        <div class="quiz-controls" style="display: none;">
-          <button class="quiz-end-btn" onclick="quizSystem.endQuiz()">
-            <i class="fas fa-stop"></i> End After This Question
-          </button>
-        </div>
       </div>
     `;
   }
@@ -364,11 +371,6 @@ class QuizSystem {
           </button>
         </div>
         <div class="quiz-feedback" style="display: none;"></div>
-        <div class="quiz-controls" style="display: none;">
-          <button class="quiz-end-btn" onclick="quizSystem.endQuiz()">
-            <i class="fas fa-stop"></i> End After This Question
-          </button>
-        </div>
       </div>
     `;
   }
@@ -398,11 +400,6 @@ class QuizSystem {
           </div>
         </div>
         <div class="quiz-feedback" style="display: none;"></div>
-        <div class="quiz-controls" style="display: none;">
-          <button class="quiz-end-btn" onclick="quizSystem.endQuiz()">
-            <i class="fas fa-stop"></i> End After This Question
-          </button>
-        </div>
       </div>
     `;
   }
@@ -425,11 +422,6 @@ class QuizSystem {
           </button>
         </div>
         <div class="quiz-feedback" style="display: none;"></div>
-        <div class="quiz-controls" style="display: none;">
-          <button class="quiz-end-btn" onclick="quizSystem.endQuiz()">
-            <i class="fas fa-stop"></i> End After This Question
-          </button>
-        </div>
       </div>
     `;
   }
@@ -465,7 +457,6 @@ class QuizSystem {
       return;
     }
 
-    // Deselect other items of the same type
     document.querySelectorAll(`.match-item.${isItalian ? 'italian' : 'english'}.selected`).forEach(sel => {
       sel.classList.remove('selected');
     });
@@ -478,19 +469,16 @@ class QuizSystem {
       this.selectedMatches.set('english', { element: item, word: word });
     }
 
-    // Check if we have both selections
     if (this.selectedMatches.has('italian') && this.selectedMatches.has('english')) {
       const italianMatch = this.selectedMatches.get('italian');
       const englishMatch = this.selectedMatches.get('english');
 
-      // Check if it's a correct match
       if (this.currentQuiz.correct[italianMatch.word] === englishMatch.word) {
         italianMatch.element.classList.add('matched');
         englishMatch.element.classList.add('matched');
         italianMatch.element.classList.remove('selected');
         englishMatch.element.classList.remove('selected');
       } else {
-        // Wrong match - just deselect
         setTimeout(() => {
           italianMatch.element.classList.remove('selected');
           englishMatch.element.classList.remove('selected');
@@ -502,15 +490,12 @@ class QuizSystem {
   }
 
   selectOption(answer, button) {
-    // Remove previous selections from current question
     const currentQuestion = button.closest('.quiz-question');
     currentQuestion.querySelectorAll('.quiz-option.selected').forEach(opt => opt.classList.remove('selected'));
 
-    // Mark this option as selected
     button.classList.add('selected');
     this.selectedAnswer = answer;
 
-    // Show check button for this question
     const checkButton = currentQuestion.querySelector('.quiz-check');
     if (checkButton) {
       checkButton.style.display = 'inline-flex';
@@ -525,9 +510,7 @@ class QuizSystem {
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const selectedButton = currentQuestion.querySelector('.quiz-option.selected');
     const checkButton = currentQuestion.querySelector('.quiz-check');
-    const controlsDiv = currentQuestion.querySelector('.quiz-controls');
 
-    // Disable all option buttons in this question
     currentQuestion.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
 
     if (isCorrect) {
@@ -548,37 +531,14 @@ class QuizSystem {
     feedback.style.display = 'block';
     checkButton.style.display = 'none';
 
-    // Show score and controls
     const scoreDisplay = document.createElement('div');
     scoreDisplay.className = 'quiz-score-display';
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    // Show end quiz button
-    if (controlsDiv) {
-      controlsDiv.style.display = 'flex';
-    }
-
-    // Auto-generate next question after 3 seconds
     setTimeout(() => {
       this.addNextQuestion();
     }, 3000);
-  }
-
-  showQuizProgress() {
-    const progressDiv = document.createElement('div');
-    progressDiv.className = 'quiz-progress';
-    progressDiv.innerHTML = `
-      <div class="score-display">${this.showScore()}</div>
-      <div class="quiz-controls">
-        <button class="quiz-end-btn" onclick="quizSystem.endQuiz()">
-          <i class="fas fa-stop"></i> End Quiz
-        </button>
-      </div>
-    `;
-
-    const feedback = document.querySelector('.quiz-feedback');
-    feedback.appendChild(progressDiv);
   }
 
   checkMatching() {
@@ -598,13 +558,11 @@ class QuizSystem {
     feedback.style.display = 'block';
     if (checkButton) checkButton.style.display = 'none';
 
-    // Show score and end quiz controls
     const scoreDisplay = document.createElement('div');
     scoreDisplay.className = 'quiz-score-display';
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    // Auto-generate next question after 3 seconds
     setTimeout(() => {
       this.addNextQuestion();
     }, 3000);
@@ -629,7 +587,6 @@ class QuizSystem {
     feedback.style.display = 'block';
     document.querySelector('.quiz-check').style.display = 'none';
 
-    // Auto-generate next question after 2 seconds
     setTimeout(() => {
       this.addNextQuestion();
     }, 2000);
@@ -652,7 +609,6 @@ class QuizSystem {
     feedback.style.display = 'block';
     document.querySelector('.quiz-check').style.display = 'none';
 
-    // Auto-generate next question after 2 seconds
     setTimeout(() => {
       this.addNextQuestion();
     }, 2000);
@@ -665,7 +621,6 @@ class QuizSystem {
     this.totalQuestions++;
     document.querySelector('.flashcard-controls').style.display = 'none';
 
-    // Auto-generate next question after 2 seconds
     setTimeout(() => {
       this.addNextQuestion();
     }, 2000);
@@ -675,16 +630,8 @@ class QuizSystem {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
-    // Hide controls from previous question
-    const lastControls = currentContainer.querySelector('.quiz-controls[style*="flex"]');
-    if (lastControls) {
-      lastControls.style.display = 'none';
-    }
-
-    // Check if we have too many questions - keep only current and previous
     const existingQuestions = currentContainer.querySelectorAll('.quiz-question');
     if (existingQuestions.length >= 2) {
-      // Remove the oldest question (first one)
       existingQuestions[0].remove();
     }
 
@@ -729,17 +676,30 @@ class QuizSystem {
       nextQuestionDiv.innerHTML = html;
       currentContainer.appendChild(nextQuestionDiv);
 
-      // Scroll to new question
       nextQuestionDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       this.currentQuiz = nextQuiz;
 
-      // Setup event listeners for interactive types
       if (nextQuiz.type === 'matching') {
         this.setupMatchingEventListeners();
       } else if (nextQuiz.type === 'wordOrder') {
         this.setupWordOrderEventListeners();
       }
+
+      // Add Enter key support for new question
+      setTimeout(() => {
+        const textInputs = nextQuestionDiv.querySelectorAll('.quiz-input, .audio-input, .fill-blank');
+        textInputs.forEach(input => {
+          input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+              const checkButton = e.target.closest('.quiz-question').querySelector('.quiz-check');
+              if (checkButton && checkButton.style.display !== 'none') {
+                checkButton.click();
+              }
+            }
+          });
+        });
+      }, 100);
     }
   }
 
@@ -781,7 +741,8 @@ class QuizSystem {
     document.querySelectorAll('.word-btn').forEach(btn => {
       btn.disabled = false;
       btn.style.opacity = '1';
-    });}
+    });
+  }
 
   checkWordOrder() {
     const selectedWords = Array.from(document.querySelectorAll('.selected-word')).map(span => span.textContent);
@@ -800,19 +761,12 @@ class QuizSystem {
     feedback.style.display = 'block';
     document.querySelector('.quiz-check').style.display = 'none';
 
-    // Show controls
-    const controlsDiv = document.querySelector('.quiz-controls');
-    if (controlsDiv) {
-      controlsDiv.style.display = 'flex';
-    }
-
     setTimeout(() => {
       this.addNextQuestion();
     }, 3000);
   }
 
   playAudio(word) {
-    // Simple text-to-speech for Italian pronunciation
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(word);
       utterance.lang = 'it-IT';
@@ -843,12 +797,6 @@ class QuizSystem {
     feedback.style.display = 'block';
     document.querySelector('.quiz-check').style.display = 'none';
 
-    // Show controls
-    const controlsDiv = document.querySelector('.quiz-controls');
-    if (controlsDiv) {
-      controlsDiv.style.display = 'flex';
-    }
-
     setTimeout(() => {
       this.addNextQuestion();
     }, 3000);
@@ -863,8 +811,6 @@ class QuizSystem {
       this.renderQuiz(quiz, `quiz${topicIndex}`);
     }
   }
-
-
 
   showScore() {
     return `Score: ${this.score}/${this.totalQuestions} (${Math.round((this.score/this.totalQuestions) * 100)}%)`;
@@ -892,14 +838,12 @@ class QuizSystem {
   }
 }
 
-// Initialize the quiz system
 const quizSystem = new QuizSystem();
 
 function toggleQuiz(id) {
   const block = document.getElementById(id);
   const isHidden = block.classList.contains('hidden');
 
-  // Hide all other quiz blocks
   document.querySelectorAll('.quiz-block').forEach(q => q.classList.add('hidden'));
 
   if (isHidden) {
@@ -909,14 +853,10 @@ function toggleQuiz(id) {
   }
 }
 
-// Add tooltip functionality
 document.addEventListener('DOMContentLoaded', function() {
-  // Add tooltips to vocabulary items
   document.querySelectorAll('.vocab-list li').forEach(item => {
     const text = item.textContent;
-    const italian = text.split(' – ')[0];
 
-    // Find etymology data
     const etymologyData = quizSystem.quizData.market.vocabulary.find(v => 
       text.toLowerCase().includes(v.italian.toLowerCase())
     ) || quizSystem.quizData.seasons.vocabulary.find(v => 
