@@ -436,11 +436,17 @@ footer {
 }
 
 .lesson-title h1 i {
+  color: #ffffff;
   text-shadow: 
-    0 2px 4px rgba(0,0,0,0.5),
-    0 0 8px rgba(255,255,255,0.3),
-    1px 1px 2px rgba(0,0,0,0.8);
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    0 4px 8px rgba(0,0,0,0.9),
+    0 0 16px rgba(255,255,255,0.7),
+    2px 2px 4px rgba(0,0,0,1),
+    0 0 24px rgba(255,255,255,0.4),
+    0 0 32px rgba(99, 102, 241, 0.6);
+  filter: 
+    drop-shadow(0 4px 8px rgba(0,0,0,0.6))
+    drop-shadow(0 0 12px rgba(255,255,255,0.5))
+    drop-shadow(0 8px 16px rgba(99, 102, 241, 0.4));
 }
 
 .lesson-subtitle {
@@ -476,17 +482,20 @@ footer {
 }
 
 .section-header h2 i {
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.1);
+  color: #ffffff;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   padding: 0.5rem;
   border-radius: 12px;
   text-shadow: 
-    0 2px 4px rgba(0,0,0,0.4),
-    0 0 6px rgba(255,255,255,0.4),
-    1px 1px 2px rgba(0,0,0,0.7);
+    0 3px 6px rgba(0,0,0,0.8),
+    0 0 12px rgba(255,255,255,0.6),
+    2px 2px 4px rgba(0,0,0,0.9),
+    0 0 20px rgba(99, 102, 241, 0.5);
   box-shadow: 
-    0 2px 8px rgba(0,0,0,0.2),
-    inset 0 1px 0 rgba(255,255,255,0.3);
+    0 4px 12px rgba(0,0,0,0.4),
+    0 0 20px rgba(99, 102, 241, 0.3),
+    inset 0 1px 0 rgba(255,255,255,0.4),
+    0 8px 32px rgba(99, 102, 241, 0.2);
 }
 
 .content-card {
@@ -612,10 +621,15 @@ footer {
 }
 
 .quiz-btn i {
+  color: #ffffff;
   text-shadow: 
-    0 1px 2px rgba(0,0,0,0.5),
-    0 0 4px rgba(255,255,255,0.2);
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+    0 2px 4px rgba(0,0,0,0.8),
+    0 0 8px rgba(255,255,255,0.6),
+    1px 1px 2px rgba(0,0,0,0.9),
+    0 0 12px rgba(255,255,255,0.4);
+  filter: 
+    drop-shadow(0 2px 4px rgba(0,0,0,0.5))
+    drop-shadow(0 0 8px rgba(255,255,255,0.3));
 }
 
 /* Matching Game Styles */

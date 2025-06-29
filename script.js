@@ -2,7 +2,7 @@
 function toggleQuiz(quizId) {
   const quiz = document.getElementById(quizId);
   if (!quiz) return;
-  
+
   if (quiz.classList.contains('hidden')) {
     quiz.classList.remove('hidden');
     quiz.style.display = 'block';
@@ -20,11 +20,11 @@ function initializeTooltips() {
     tooltip.className = 'tooltip';
     tooltip.textContent = item.getAttribute('title');
     item.appendChild(tooltip);
-    
+
     item.addEventListener('mouseenter', () => {
       tooltip.style.display = 'block';
     });
-    
+
     item.addEventListener('mouseleave', () => {
       tooltip.style.display = 'none';
     });
@@ -1162,7 +1162,7 @@ class QuizSystem {
     if (!currentContainer) return;
 
     const existingQuestions = currentContainer.querySelectorAll('.quiz-question');
-    
+
     // Only remove old questions if we have too many, and keep their feedback visible
     if (existingQuestions.length >= 4) {
       const oldestQuestion = existingQuestions[0];
@@ -1198,7 +1198,7 @@ class QuizSystem {
 
       const nextQuestionDiv = document.createElement('div');
       nextQuestionDiv.className = 'quiz-question new-question';
-      
+
       let html = '';
       switch (nextQuiz.type) {
         case 'multipleChoice':
@@ -1233,13 +1233,13 @@ class QuizSystem {
           behavior: 'smooth', 
           block: 'start' 
         });
-        
+
         // Add highlight effect to new question
         nextQuestionDiv.style.background = 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 20%, white 100%)';
         nextQuestionDiv.style.borderRadius = '12px';
         nextQuestionDiv.style.padding = '1.5rem';
         nextQuestionDiv.style.boxShadow = '0 4px 12px rgba(255, 193, 7, 0.3)';
-        
+
         // Remove highlight after a moment
         setTimeout(() => {
           nextQuestionDiv.style.background = '';
@@ -1407,11 +1407,8 @@ class QuizSystem {
       </div>
     `;
   }
-}
 
-}
-
-  startEndlessQuiz(containerId) {
+startEndlessQuiz(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -1423,7 +1420,7 @@ class QuizSystem {
     const topics = Object.keys(this.quizData);
     const randomTopic = topics[Math.floor(Math.random() * topics.length)];
     const quiz = this.generateQuiz(randomTopic);
-    
+
     if (quiz) {
       this.currentQuiz = quiz;
       const quizHtml = this.renderQuizContent(quiz);
@@ -1486,7 +1483,7 @@ const quizSystem = new QuizSystem();
 document.addEventListener('DOMContentLoaded', () => {
   quizSystem.setupKeyboardNavigation();
   initializeTooltips();
-  
+
   // Add click handlers to quiz buttons
   document.querySelectorAll('.quiz-btn').forEach(btn => {
     btn.addEventListener('click', function(e) {
