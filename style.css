@@ -45,6 +45,15 @@ body {
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+.inspiration-note {
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+}
+
 .chapters-list {
   background: white;
   padding: 2rem;
