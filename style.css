@@ -167,38 +167,27 @@ body {
 
 .course-features {
   background: white;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 10px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
 }
 
 .feature-item {
   text-align: center;
-  padding: 1rem;
-}
-
-.feature-item i {
-  font-size: 2.5rem;
-  color: #667eea;
-  margin-bottom: 1rem;
-}
-
-.feature-item h3 {
-  margin: 0.5rem 0;
-  color: #333;
+  padding: 0.5rem;
 }
 
 footer {
   text-align: center;
-  padding: 2rem;
+  padding: 1rem;
   color: white;
   opacity: 0.8;
 }
@@ -223,7 +212,7 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.5rem;
   max-width: 1000px;
   margin: 0 auto;
 }
@@ -254,18 +243,18 @@ footer {
 
 .lesson-title {
   text-align: center;
-  padding: 0.25rem 0.5rem;
+  padding: 0.125rem 0.25rem;
   color: #333;
 }
 
 .lesson-title h1 {
-  font-size: 1.2rem;
+  font-size: 1rem;
   margin-bottom: 0;
   color: #667eea;
 }
 
 .lesson-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: #666;
   margin: 0;
 }
@@ -273,24 +262,24 @@ footer {
 .lesson-container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 0 2rem 3rem;
+  padding: 0 1rem 1rem;
 }
 
 .lesson-section {
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 
 .section-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .section-header h2 {
   color: white;
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   margin: 0;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
   background: rgba(0,0,0,0.2);
-  padding: 1rem 1.5rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 10px;
   border: 2px solid rgba(255,255,255,0.3);
   backdrop-filter: blur(5px);
@@ -309,7 +298,7 @@ footer {
 .content-card {
   background: white;
   border-radius: 15px;
-  padding: 2rem;
+  padding: 1rem;
   box-shadow: 0 8px 25px rgba(0,0,0,0.15);
   border: 1px solid rgba(255,255,255,0.2);
 }
@@ -317,8 +306,8 @@ footer {
 .lesson-visual {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
   border: 2px solid #e9ecef;
 }
 
@@ -394,22 +383,16 @@ footer {
 
 .vocab-categories {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
 }
 
 .vocab-category {
   background: #f8f9fa;
   border-radius: 10px;
-  padding: 1.5rem;
+  padding: 0.75rem;
   border-left: 4px solid #667eea;
-}
-
-.vocab-category h4 {
-  margin: 0 0 1rem 0;
-  color: #667eea;
-  font-size: 1.1rem;
 }
 
 .expressions-grid {
@@ -981,6 +964,7 @@ footer {
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
+```text
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1169,13 +1153,26 @@ footer {
 
   /* Home page mobile improvements */
   .main-header h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
 
   .subtitle {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
+  .main-header {
+    padding: 0.5rem 0.5rem;
+  }
+
+  /* Content layout mobile improvements */
+  .lesson-container {
+    padding: 0 0.5rem 1rem;
+  }
+
+  .content-card {
+    padding: 0.75rem;
+    margin: 0.25rem 0;
+  }
   .chapter-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -1614,8 +1611,8 @@ footer {
 .educational-content {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 12px;
-  padding: 1.5rem;
-  margin: 1.5rem 0;
+  padding: 0.75rem;
+  margin: 0.75rem 0;
   border-left: 4px solid #667eea;
 }
 
