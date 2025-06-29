@@ -909,7 +909,7 @@ class QuizSystem {
 
     const containerId = currentContainer.id;
     const topicIndex = containerId.replace('quiz', '');
-    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'grammar', 'extraVocabulary']; // Added extraVocabulary
+    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar']; // Reordered to match HTML quiz order
     const topic = topics[topicIndex] || 'seasons';
     const nextQuiz = this.generateQuiz(topic);
 
@@ -1033,7 +1033,7 @@ class QuizSystem {
   }
 
   startQuiz(topicIndex) {
-    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'grammar', 'extraVocabulary']; // Added extraVocabulary
+    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar']; // Reordered to match HTML quiz order
     const topic = topics[topicIndex] || 'seasons';
     const quiz = this.generateQuiz(topic);
 
@@ -1137,13 +1137,29 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.vocab-list li').forEach(item => {
     const text = item.textContent;
 
-    const etymologyData = quizSystem.quizData.extraVocabulary.vocabulary.find(v => // Use extraVocabulary here
-      text.toLowerCase().includes(v.italian.toLowerCase())
-    ) || quizSystem.quizData.market.vocabulary.find(v =>
-      text.toLowerCase().includes(v.italian.toLowerCase())
-    ) || quizSystem.quizData.seasons.vocabulary.find(v =>
-      text.toLowerCase().includes(v.italian.toLowerCase())
-    );
+    // Search through all available quiz data sections
+    let etymologyData = null;
+    
+    // Check extraVocabulary first
+    if (quizSystem.quizData.extraVocabulary && quizSystem.quizData.extraVocabulary.vocabulary) {
+      etymologyData = quizSystem.quizData.extraVocabulary.vocabulary.find(v => 
+        text.toLowerCase().includes(v.italian.toLowerCase())
+      );
+    }
+    
+    // Check vocabulary section
+    if (!etymologyData && quizSystem.quizData.vocabulary && quizSystem.quizData.vocabulary.vocabulary) {
+      etymologyData = quizSystem.quizData.vocabulary.vocabulary.find(v =>
+        text.toLowerCase().includes(v.italian.toLowerCase())
+      );
+    }
+    
+    // Check seasons section
+    if (!etymologyData && quizSystem.quizData.seasons && quizSystem.quizData.seasons.vocabulary) {
+      etymologyData = quizSystem.quizData.seasons.vocabulary.find(v =>
+        text.toLowerCase().includes(v.italian.toLowerCase())
+      );
+    }
 
     if (etymologyData && etymologyData.etymology) {
       item.title = etymologyData.etymology;
