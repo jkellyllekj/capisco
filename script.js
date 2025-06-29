@@ -218,7 +218,8 @@ class QuizSystem {
       question: `Spell "${item.english}" in Italian by clicking the letters:`,
       letters: allLetters,
       correct: word,
-      hint: `${word.length} letters`
+      hint: `${word.length} letters`,
+      explanation: `"${item.italian}" means "${item.english}". ${item.etymology || ''}`
     };
   }
 
@@ -538,7 +539,7 @@ class QuizSystem {
 
     setTimeout(() => {
       this.addNextQuestion();
-    }, 3000);
+    }, 4000);
   }
 
   checkMatching() {
@@ -551,7 +552,7 @@ class QuizSystem {
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect! All matches are correct!</div>`;
       this.score++;
     } else {
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> You matched ${matchedItems.length / 2} out of ${totalItems} correctly. Try again!</div>`;
+      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> You matched ${matchedItems.length / 2} out of ${totalItems} correctly. Keep practicing!</div>`;
     }
 
     this.totalQuestions++;
@@ -573,23 +574,29 @@ class QuizSystem {
     const answer = input.value.toLowerCase().trim();
     const isCorrect = answer === this.currentQuiz.correct;
     const feedback = document.querySelector('.quiz-feedback');
+    const checkButton = document.querySelector('.quiz-check');
 
     if (isCorrect) {
       input.classList.add('correct');
-      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct! ${this.currentQuiz.explanation || ''}</div>`;
+      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Excellent! ${this.currentQuiz.explanation || ''}</div>`;
       this.score++;
     } else {
       input.classList.add('incorrect');
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect. The correct answer is "${this.currentQuiz.correct}". ${this.currentQuiz.explanation || ''}</div>`;
+      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Not quite. The correct answer is "${this.currentQuiz.correct}". ${this.currentQuiz.explanation || ''}</div>`;
     }
 
     this.totalQuestions++;
     feedback.style.display = 'block';
-    document.querySelector('.quiz-check').style.display = 'none';
+    checkButton.style.display = 'none';
+
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.className = 'quiz-score-display';
+    scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
+    feedback.appendChild(scoreDisplay);
 
     setTimeout(() => {
       this.addNextQuestion();
-    }, 2000);
+    }, 4000);
   }
 
   checkLetterPicker() {
@@ -597,21 +604,27 @@ class QuizSystem {
     const correct = document.querySelector('.letter-picker-answer').dataset.correct;
     const isCorrect = answer === correct;
     const feedback = document.querySelector('.quiz-feedback');
+    const checkButton = document.querySelector('.quiz-check');
 
     if (isCorrect) {
-      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct! You spelled "${correct}" perfectly!</div>`;
+      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect spelling! ${this.currentQuiz.explanation || ''}</div>`;
       this.score++;
     } else {
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect. The correct spelling is "${correct}".</div>`;
+      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> The correct spelling is "${correct}". ${this.currentQuiz.explanation || ''}</div>`;
     }
 
     this.totalQuestions++;
     feedback.style.display = 'block';
-    document.querySelector('.quiz-check').style.display = 'none';
+    checkButton.style.display = 'none';
+
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.className = 'quiz-score-display';
+    scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
+    feedback.appendChild(scoreDisplay);
 
     setTimeout(() => {
       this.addNextQuestion();
-    }, 2000);
+    }, 4000);
   }
 
   flashcardResult(correct) {
@@ -619,11 +632,77 @@ class QuizSystem {
       this.score++;
     }
     this.totalQuestions++;
-    document.querySelector('.flashcard-controls').style.display = 'none';
+    
+    const controls = document.querySelector('.flashcard-controls');
+    const feedback = document.createElement('div');
+    feedback.className = 'quiz-feedback';
+    feedback.style.display = 'block';
+    feedback.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
+    controls.parentNode.insertBefore(feedback, controls.nextSibling);
+    controls.style.display = 'none';
 
     setTimeout(() => {
       this.addNextQuestion();
     }, 2000);
+  }
+
+  checkWordOrder() {
+    const selectedWords = Array.from(document.querySelectorAll('.selected-word')).map(span => span.textContent);
+    const answer = selectedWords.join(' ');
+    const isCorrect = answer === this.currentQuiz.correct;
+    const feedback = document.querySelector('.quiz-feedback');
+    const checkButton = document.querySelector('.quiz-check');
+
+    if (isCorrect) {
+      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect! "${answer}" is correct! ${this.currentQuiz.note || ''}</div>`;
+      this.score++;
+    } else {
+      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> The correct order is: "${this.currentQuiz.correct}". ${this.currentQuiz.note || ''}</div>`;
+    }
+
+    this.totalQuestions++;
+    feedback.style.display = 'block';
+    checkButton.style.display = 'none';
+
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.className = 'quiz-score-display';
+    scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
+    feedback.appendChild(scoreDisplay);
+
+    setTimeout(() => {
+      this.addNextQuestion();
+    }, 4000);
+  }
+
+  checkAudioQuiz() {
+    const input = document.querySelector('.audio-input');
+    const answer = input.value.toLowerCase().trim();
+    const correct = this.currentQuiz.word.toLowerCase();
+    const isCorrect = answer === correct;
+    const feedback = document.querySelector('.quiz-feedback');
+    const checkButton = document.querySelector('.quiz-check');
+
+    if (isCorrect) {
+      input.classList.add('correct');
+      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Excellent listening! You heard "${correct}" correctly!</div>`;
+      this.score++;
+    } else {
+      input.classList.add('incorrect');
+      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> The word was "${correct}" (${this.currentQuiz.english}). Listen again and practice!</div>`;
+    }
+
+    this.totalQuestions++;
+    feedback.style.display = 'block';
+    checkButton.style.display = 'none';
+
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.className = 'quiz-score-display';
+    scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
+    feedback.appendChild(scoreDisplay);
+
+    setTimeout(() => {
+      this.addNextQuestion();
+    }, 4000);
   }
 
   addNextQuestion() {
@@ -744,28 +823,6 @@ class QuizSystem {
     });
   }
 
-  checkWordOrder() {
-    const selectedWords = Array.from(document.querySelectorAll('.selected-word')).map(span => span.textContent);
-    const answer = selectedWords.join(' ');
-    const isCorrect = answer === this.currentQuiz.correct;
-    const feedback = document.querySelector('.quiz-feedback');
-
-    if (isCorrect) {
-      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect! "${answer}" is correct!</div>`;
-      this.score++;
-    } else {
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Not quite. The correct order is: "${this.currentQuiz.correct}"</div>`;
-    }
-
-    this.totalQuestions++;
-    feedback.style.display = 'block';
-    document.querySelector('.quiz-check').style.display = 'none';
-
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 3000);
-  }
-
   playAudio(word) {
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(word);
@@ -775,31 +832,6 @@ class QuizSystem {
     } else {
       alert(`Listen carefully: ${word}`);
     }
-  }
-
-  checkAudioQuiz() {
-    const input = document.querySelector('.audio-input');
-    const answer = input.value.toLowerCase().trim();
-    const correct = this.currentQuiz.word.toLowerCase();
-    const isCorrect = answer === correct;
-    const feedback = document.querySelector('.quiz-feedback');
-
-    if (isCorrect) {
-      input.classList.add('correct');
-      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Excellent! You heard "${correct}" correctly!</div>`;
-      this.score++;
-    } else {
-      input.classList.add('incorrect');
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Not quite. The word was "${correct}" (${this.currentQuiz.english})</div>`;
-    }
-
-    this.totalQuestions++;
-    feedback.style.display = 'block';
-    document.querySelector('.quiz-check').style.display = 'none';
-
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 3000);
   }
 
   startQuiz(topicIndex) {
