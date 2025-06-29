@@ -43,6 +43,7 @@ class QuizSystem {
     this.spacedRepetition = new Map();
     this.difficultyLevel = 'improver';
     this.currentKeyboardInput = '';
+    this.selectedMatches = new Map();
     this.quizData = {
       seasons: {
         vocabulary: [
@@ -62,30 +63,25 @@ class QuizSystem {
       },
       vocabulary: {
         vocabulary: [
-          // Bread and Grains
           { italian: 'panini', english: 'bread rolls', category: 'bread' },
           { italian: 'pane', english: 'bread', category: 'bread' },
           { italian: 'pasta', english: 'pasta', category: 'bread' },
           { italian: 'riso', english: 'rice', category: 'bread' },
-          // Fruit
           { italian: 'cocomero', english: 'watermelon', category: 'fruit' },
           { italian: 'pesche', english: 'peaches', category: 'fruit' },
           { italian: 'mele', english: 'apples', category: 'fruit' },
           { italian: 'banane', english: 'bananas', category: 'fruit' },
           { italian: 'arance', english: 'oranges', category: 'fruit' },
           { italian: 'uva', english: 'grapes', category: 'fruit' },
-          // Vegetables
           { italian: 'patate', english: 'potatoes', category: 'vegetables' },
           { italian: 'pomodori', english: 'tomatoes', category: 'vegetables' },
           { italian: 'carote', english: 'carrots', category: 'vegetables' },
           { italian: 'insalata', english: 'lettuce', category: 'vegetables' },
           { italian: 'cipolle', english: 'onions', category: 'vegetables' },
-          // Fish and Meat
           { italian: 'pesce', english: 'fish', category: 'protein' },
           { italian: 'salmone', english: 'salmon', category: 'protein' },
           { italian: 'pollo', english: 'chicken', category: 'protein' },
           { italian: 'manzo', english: 'beef', category: 'protein' },
-          // Dairy
           { italian: 'formaggio', english: 'cheese', category: 'dairy' },
           { italian: 'parmigiano', english: 'parmesan', category: 'dairy' },
           { italian: 'mozzarella', english: 'mozzarella', category: 'dairy' },
@@ -101,14 +97,12 @@ class QuizSystem {
           { italian: 'Posso assaggiare?', english: 'Can I taste it?', category: 'asking' },
           { italian: 'Quanto ne vuole?', english: 'How much do you want?', category: 'asking' },
           { italian: 'Questo è tutto', english: 'That\'s all', category: 'asking' },
-          // Quantities
           { italian: 'Un chilo di...', english: 'A kilo of...', category: 'quantity' },
           { italian: 'Mezzo chilo', english: 'Half a kilo', category: 'quantity' },
           { italian: 'Tre etti', english: '300 grams', category: 'quantity' },
           { italian: 'Un etto', english: '100 grams', category: 'quantity' },
           { italian: 'Una dozzina', english: 'A dozen', category: 'quantity' },
           { italian: 'Un pezzo', english: 'One piece', category: 'quantity' },
-          // Quality
           { italian: 'È fresco?', english: 'Is it fresh?', category: 'quality' },
           { italian: 'Lo preferisce fresco o stagionato?', english: 'Do you prefer it fresh or aged?', category: 'quality' },
           { italian: 'È maturo?', english: 'Is it ripe?', category: 'quality' },
@@ -155,7 +149,6 @@ class QuizSystem {
         ]
       }
     };
-    this.selectedMatches = new Map();
   }
 
   updateSpacedRepetition(word, correct) {
