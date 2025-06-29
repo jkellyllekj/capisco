@@ -327,7 +327,7 @@ class QuizSystem {
 
     for (let i = options.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [options[i], options[j]] = [options[j], [options[i]];
+      [options[i], options[j]] = [options[j], options[i]];
     }
 
     return {
@@ -763,10 +763,12 @@ class QuizSystem {
         englishMatch.element.classList.add('matched');
         italianMatch.element.classList.remove('selected');
         englishMatch.element.classList.remove('selected');
-            } else {
+        englishMatch.element.classList.remove('selected');
+      } else {
         setTimeout(() => {
           italianMatch.element.classList.remove('selected');
-          englishMatch.element.classList.remove('selected');        }, 500);
+          englishMatch.element.classList.remove('selected');
+        }, 500);
       }
 
       this.selectedMatches.clear();
@@ -774,20 +776,15 @@ class QuizSystem {
   }
 
   selectOption(answer, button) {
-    // Prevent selecting disabled buttons
     if (button.disabled) return;
 
     const currentQuestion = button.closest('.quiz-question');
     if (!currentQuestion) return;
 
-    // Remove previous selections
     currentQuestion.querySelectorAll('.quiz-option.selected').forEach(opt => opt.classList.remove('selected'));
-
-    // Add selection to clicked button
     button.classList.add('selected');
     this.selectedAnswer = answer;
 
-    // Auto-check answer after brief delay for visual feedback
     setTimeout(() => this.checkMultipleChoice(), 300);
   }
 
