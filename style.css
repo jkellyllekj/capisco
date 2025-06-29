@@ -68,9 +68,9 @@ body {
 
 .chapters-list {
   background: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 10px;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
@@ -167,9 +167,9 @@ body {
 
 .course-features {
   background: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 10px;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
@@ -224,7 +224,7 @@ footer {
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 1rem;
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -254,18 +254,18 @@ footer {
 
 .lesson-title {
   text-align: center;
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.5rem;
   color: #333;
 }
 
 .lesson-title h1 {
-  font-size: 1.4rem;
-  margin-bottom: 0.1rem;
+  font-size: 1.2rem;
+  margin-bottom: 0;
   color: #667eea;
 }
 
 .lesson-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #666;
   margin: 0;
 }
@@ -971,6 +971,7 @@ footer {
   padding: 1rem;
   background: white;
   border-radius: 8px;
+```text
   border-left: 4px solid #28a745;
 }
 
@@ -1093,7 +1094,7 @@ footer {
   cursor: pointer;
   transition: all 0.3s ease;
   margin-bottom: 1rem;
-}```text
+}
 .audio-play-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4);
@@ -2079,18 +2080,18 @@ footer {
     flex-wrap: wrap;
     gap: 0.4rem;
   }
-  
+
   .accent-btn {
     padding: 0.5rem 0.7rem;
     font-size: 1.1rem;
     min-width: 2.5rem;
   }
-  
+
   .keyboard-hint {
     font-size: 0.8rem;
     padding: 0.5rem;
   }
-  
+
   .option-key {
     font-size: 0.7rem;
     padding: 0.15rem 0.3rem;
