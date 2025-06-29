@@ -1,4 +1,3 @@
-
 class QuizSystem {
   constructor() {
     this.currentQuiz = null;
@@ -127,14 +126,14 @@ class QuizSystem {
 
     const correct = vocab[Math.floor(Math.random() * vocab.length)];
     const options = [correct];
-    
+
     while (options.length < 4) {
       const random = vocab[Math.floor(Math.random() * vocab.length)];
       if (!options.includes(random)) {
         options.push(random);
       }
     }
-    
+
     // Shuffle options
     for (let i = options.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -176,7 +175,7 @@ class QuizSystem {
     const words = item.italian.split(' ');
     const blankIndex = Math.floor(Math.random() * words.length);
     const correctWord = words[blankIndex];
-    
+
     words[blankIndex] = '_____';
 
     return {
@@ -211,7 +210,7 @@ class QuizSystem {
     const item = vocab[Math.floor(Math.random() * vocab.length)];
     const word = item.italian.toLowerCase();
     const letters = word.split('');
-    
+
     // Add some random letters
     const extraLetters = 'abcdefghilmnopqrstuvz'.split('').filter(l => !letters.includes(l));
     const allLetters = [...letters, ...extraLetters.slice(0, 6)].sort(() => Math.random() - 0.5);
@@ -247,6 +246,12 @@ class QuizSystem {
       case 'letterPicker':
         html = this.renderLetterPicker(quiz);
         break;
+      case 'wordOrder':
+        html = this.renderWordOrder(quiz);
+        break;
+      case 'audioQuiz':
+        html = this.renderAudioQuiz(quiz);
+        break;
     }
 
     container.innerHTML = html;
@@ -255,6 +260,9 @@ class QuizSystem {
     // Add event listeners for matching
     if (quiz.type === 'matching') {
       this.setupMatchingEventListeners();
+    }
+    if (quiz.type === 'wordOrder') {
+        this.setupWordOrderEventListeners();
     }
   }
 
@@ -432,10 +440,19 @@ class QuizSystem {
     });
   }
 
+  setupWordOrderEventListeners() {
+    document.querySelectorAll('.word-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const word = e.target.textContent;
+        this.selectWord(word, e.target);
+      });
+    });
+  }
+
   handleMatchClick(item) {
     const word = item.dataset.word;
     const isItalian = item.classList.contains('italian');
-    
+
     if (item.classList.contains('matched')) return;
 
     if (item.classList.contains('selected')) {
@@ -454,7 +471,7 @@ class QuizSystem {
     });
 
     item.classList.add('selected');
-    
+
     if (isItalian) {
       this.selectedMatches.set('italian', { element: item, word: word });
     } else {
@@ -465,7 +482,7 @@ class QuizSystem {
     if (this.selectedMatches.has('italian') && this.selectedMatches.has('english')) {
       const italianMatch = this.selectedMatches.get('italian');
       const englishMatch = this.selectedMatches.get('english');
-      
+
       // Check if it's a correct match
       if (this.currentQuiz.correct[italianMatch.word] === englishMatch.word) {
         italianMatch.element.classList.add('matched');
@@ -479,7 +496,7 @@ class QuizSystem {
           englishMatch.element.classList.remove('selected');
         }, 500);
       }
-      
+
       this.selectedMatches.clear();
     }
   }
@@ -488,11 +505,11 @@ class QuizSystem {
     // Remove previous selections from current question
     const currentQuestion = button.closest('.quiz-question');
     currentQuestion.querySelectorAll('.quiz-option.selected').forEach(opt => opt.classList.remove('selected'));
-    
+
     // Mark this option as selected
     button.classList.add('selected');
     this.selectedAnswer = answer;
-    
+
     // Show check button for this question
     const checkButton = currentQuestion.querySelector('.quiz-check');
     if (checkButton) {
@@ -502,17 +519,17 @@ class QuizSystem {
 
   checkMultipleChoice() {
     if (!this.selectedAnswer) return;
-    
+
     const isCorrect = this.selectedAnswer === this.currentQuiz.correct;
     const currentQuestion = document.querySelector('.quiz-option.selected').closest('.quiz-question');
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const selectedButton = currentQuestion.querySelector('.quiz-option.selected');
     const checkButton = currentQuestion.querySelector('.quiz-check');
     const controlsDiv = currentQuestion.querySelector('.quiz-controls');
-    
+
     // Disable all option buttons in this question
     currentQuestion.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
-    
+
     if (isCorrect) {
       selectedButton.classList.add('correct');
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct! ${this.currentQuiz.explanation || ''}</div>`;
@@ -526,22 +543,22 @@ class QuizSystem {
       });
       feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect. The correct answer is "${this.currentQuiz.correct}". ${this.currentQuiz.explanation || ''}</div>`;
     }
-    
+
     this.totalQuestions++;
     feedback.style.display = 'block';
     checkButton.style.display = 'none';
-    
+
     // Show score and controls
     const scoreDisplay = document.createElement('div');
     scoreDisplay.className = 'quiz-score-display';
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
-    
+
     // Show end quiz button
     if (controlsDiv) {
       controlsDiv.style.display = 'flex';
     }
-    
+
     // Auto-generate next question after 3 seconds
     setTimeout(() => {
       this.addNextQuestion();
@@ -559,7 +576,7 @@ class QuizSystem {
         </button>
       </div>
     `;
-    
+
     const feedback = document.querySelector('.quiz-feedback');
     feedback.appendChild(progressDiv);
   }
@@ -569,24 +586,24 @@ class QuizSystem {
     const totalItems = document.querySelectorAll('.match-item.italian').length;
     const feedback = document.querySelector('.quiz-feedback');
     const checkButton = document.querySelector('.quiz-check');
-    
+
     if (matchedItems.length === totalItems * 2) {
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect! All matches are correct!</div>`;
       this.score++;
     } else {
       feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> You matched ${matchedItems.length / 2} out of ${totalItems} correctly. Try again!</div>`;
     }
-    
+
     this.totalQuestions++;
     feedback.style.display = 'block';
     if (checkButton) checkButton.style.display = 'none';
-    
+
     // Show score and end quiz controls
     const scoreDisplay = document.createElement('div');
     scoreDisplay.className = 'quiz-score-display';
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
-    
+
     // Auto-generate next question after 3 seconds
     setTimeout(() => {
       this.addNextQuestion();
@@ -598,7 +615,7 @@ class QuizSystem {
     const answer = input.value.toLowerCase().trim();
     const isCorrect = answer === this.currentQuiz.correct;
     const feedback = document.querySelector('.quiz-feedback');
-    
+
     if (isCorrect) {
       input.classList.add('correct');
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct! ${this.currentQuiz.explanation || ''}</div>`;
@@ -607,11 +624,11 @@ class QuizSystem {
       input.classList.add('incorrect');
       feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect. The correct answer is "${this.currentQuiz.correct}". ${this.currentQuiz.explanation || ''}</div>`;
     }
-    
+
     this.totalQuestions++;
     feedback.style.display = 'block';
     document.querySelector('.quiz-check').style.display = 'none';
-    
+
     // Auto-generate next question after 2 seconds
     setTimeout(() => {
       this.addNextQuestion();
@@ -623,18 +640,18 @@ class QuizSystem {
     const correct = document.querySelector('.letter-picker-answer').dataset.correct;
     const isCorrect = answer === correct;
     const feedback = document.querySelector('.quiz-feedback');
-    
+
     if (isCorrect) {
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct! You spelled "${correct}" perfectly!</div>`;
       this.score++;
     } else {
       feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect. The correct spelling is "${correct}".</div>`;
     }
-    
+
     this.totalQuestions++;
     feedback.style.display = 'block';
     document.querySelector('.quiz-check').style.display = 'none';
-    
+
     // Auto-generate next question after 2 seconds
     setTimeout(() => {
       this.addNextQuestion();
@@ -647,7 +664,7 @@ class QuizSystem {
     }
     this.totalQuestions++;
     document.querySelector('.flashcard-controls').style.display = 'none';
-    
+
     // Auto-generate next question after 2 seconds
     setTimeout(() => {
       this.addNextQuestion();
@@ -676,14 +693,14 @@ class QuizSystem {
     const topics = ['seasons', 'market', 'market', 'market', 'market'];
     const topic = topics[topicIndex] || 'seasons';
     const nextQuiz = this.generateQuiz(topic);
-    
+
     if (nextQuiz) {
       const nextQuestionDiv = document.createElement('div');
       nextQuestionDiv.className = 'quiz-question';
       nextQuestionDiv.style.marginTop = '2rem';
       nextQuestionDiv.style.paddingTop = '2rem';
       nextQuestionDiv.style.borderTop = '2px solid #e9ecef';
-      
+
       let html = '';
       switch (nextQuiz.type) {
         case 'multipleChoice':
@@ -708,15 +725,15 @@ class QuizSystem {
           html = this.renderAudioQuiz(nextQuiz);
           break;
       }
-      
+
       nextQuestionDiv.innerHTML = html;
       currentContainer.appendChild(nextQuestionDiv);
-      
+
       // Scroll to new question
       nextQuestionDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      
+
       this.currentQuiz = nextQuiz;
-      
+
       // Setup event listeners for interactive types
       if (nextQuiz.type === 'matching') {
         this.setupMatchingEventListeners();
@@ -748,7 +765,7 @@ class QuizSystem {
     wordSpan.textContent = word;
     wordSpan.onclick = () => this.removeWord(wordSpan, button);
     answerArea.appendChild(wordSpan);
-    
+
     button.disabled = true;
     button.style.opacity = '0.5';
   }
@@ -764,32 +781,31 @@ class QuizSystem {
     document.querySelectorAll('.word-btn').forEach(btn => {
       btn.disabled = false;
       btn.style.opacity = '1';
-    });
-  }
+    });}
 
   checkWordOrder() {
     const selectedWords = Array.from(document.querySelectorAll('.selected-word')).map(span => span.textContent);
     const answer = selectedWords.join(' ');
     const isCorrect = answer === this.currentQuiz.correct;
     const feedback = document.querySelector('.quiz-feedback');
-    
+
     if (isCorrect) {
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect! "${answer}" is correct!</div>`;
       this.score++;
     } else {
       feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Not quite. The correct order is: "${this.currentQuiz.correct}"</div>`;
     }
-    
+
     this.totalQuestions++;
     feedback.style.display = 'block';
     document.querySelector('.quiz-check').style.display = 'none';
-    
+
     // Show controls
     const controlsDiv = document.querySelector('.quiz-controls');
     if (controlsDiv) {
       controlsDiv.style.display = 'flex';
     }
-    
+
     setTimeout(() => {
       this.addNextQuestion();
     }, 3000);
@@ -813,7 +829,7 @@ class QuizSystem {
     const correct = this.currentQuiz.word.toLowerCase();
     const isCorrect = answer === correct;
     const feedback = document.querySelector('.quiz-feedback');
-    
+
     if (isCorrect) {
       input.classList.add('correct');
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Excellent! You heard "${correct}" correctly!</div>`;
@@ -822,17 +838,17 @@ class QuizSystem {
       input.classList.add('incorrect');
       feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Not quite. The word was "${correct}" (${this.currentQuiz.english})</div>`;
     }
-    
+
     this.totalQuestions++;
     feedback.style.display = 'block';
     document.querySelector('.quiz-check').style.display = 'none';
-    
+
     // Show controls
     const controlsDiv = document.querySelector('.quiz-controls');
     if (controlsDiv) {
       controlsDiv.style.display = 'flex';
     }
-    
+
     setTimeout(() => {
       this.addNextQuestion();
     }, 3000);
@@ -842,13 +858,13 @@ class QuizSystem {
     const topics = ['seasons', 'market', 'market', 'market', 'market'];
     const topic = topics[topicIndex] || 'seasons';
     const quiz = this.generateQuiz(topic);
-    
+
     if (quiz) {
       this.renderQuiz(quiz, `quiz${topicIndex}`);
     }
   }
 
-  
+
 
   showScore() {
     return `Score: ${this.score}/${this.totalQuestions} (${Math.round((this.score/this.totalQuestions) * 100)}%)`;
@@ -857,7 +873,7 @@ class QuizSystem {
   endQuiz() {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
-    
+
     const finalScore = document.createElement('div');
     finalScore.className = 'quiz-final-score';
     finalScore.innerHTML = `
@@ -870,7 +886,7 @@ class QuizSystem {
         </button>
       </div>
     `;
-    
+
     currentContainer.innerHTML = '';
     currentContainer.appendChild(finalScore);
   }
@@ -882,10 +898,10 @@ const quizSystem = new QuizSystem();
 function toggleQuiz(id) {
   const block = document.getElementById(id);
   const isHidden = block.classList.contains('hidden');
-  
+
   // Hide all other quiz blocks
   document.querySelectorAll('.quiz-block').forEach(q => q.classList.add('hidden'));
-  
+
   if (isHidden) {
     block.classList.remove('hidden');
     const topicIndex = id.replace('quiz', '');
@@ -899,14 +915,14 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.vocab-list li').forEach(item => {
     const text = item.textContent;
     const italian = text.split(' – ')[0];
-    
+
     // Find etymology data
     const etymologyData = quizSystem.quizData.market.vocabulary.find(v => 
       text.toLowerCase().includes(v.italian.toLowerCase())
     ) || quizSystem.quizData.seasons.vocabulary.find(v => 
       text.toLowerCase().includes(v.italian.toLowerCase())
     );
-    
+
     if (etymologyData && etymologyData.etymology) {
       item.title = etymologyData.etymology;
       item.style.cursor = 'help';
