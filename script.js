@@ -1117,6 +1117,52 @@ class QuizSystem {
     currentContainer.innerHTML = '';
     currentContainer.appendChild(finalScore);
   }
+
+  renderImageQuiz(quiz) {
+    let imageDisplay = '';
+
+    switch (quiz.subtype) {
+      case 'identify':
+        imageDisplay = `
+          <div class="image-quiz-display">
+            <div class="quiz-image-large">${quiz.image}</div>
+            ${quiz.icon ? `<div class="quiz-icon"><i class="fas fa-${quiz.icon}" style="color: ${quiz.color}; font-size: 2rem;"></i></div>` : ''}
+          </div>
+        `;
+        break;
+      case 'scene':
+        imageDisplay = `
+          <div class="image-quiz-display">
+            <div class="scene-description">${quiz.scene}</div>
+            <div class="quiz-image-large">${quiz.image}</div>
+          </div>
+        `;
+        break;
+      case 'emoji':
+        imageDisplay = `
+          <div class="image-quiz-display">
+            <div class="quiz-emoji-large">${quiz.image}</div>
+          </div>
+        `;
+        break;
+    }
+
+    return `
+      <div class="quiz-question image-quiz-question">
+        <h4>${quiz.question}</h4>
+        ${imageDisplay}
+        <div class="quiz-options">
+          ${quiz.options.map((option, index) => `
+            <button class="quiz-option" onclick="quizSystem.selectOption('${option}', this)">${option}</button>
+          `).join('')}
+        </div>
+        <button class="quiz-check" onclick="quizSystem.checkMultipleChoice()" style="display: none;">
+          <i class="fas fa-check"></i> Check Answer
+        </button>
+        <div class="quiz-feedback" style="display: none;"></div>
+      </div>
+    `;
+  }
 }
 
 const quizSystem = new QuizSystem();

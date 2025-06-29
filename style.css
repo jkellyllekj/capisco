@@ -1762,3 +1762,167 @@ footer {
   color: #007bff;
   width: 1.2em;
 }
+
+/* Image Quiz Styles */
+.image-quiz-question {
+  text-align: center;
+}
+
+.image-quiz-display {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 15px;
+  padding: 2rem;
+  margin: 1.5rem 0;
+  border: 2px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.quiz-image-large {
+  font-size: 4rem;
+  line-height: 1;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  background: white;
+  padding: 1rem;
+  border-radius: 50%;
+  border: 3px solid #667eea;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.quiz-emoji-large {
+  font-size: 6rem;
+  line-height: 1;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  border: 3px solid #667eea;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.quiz-icon {
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 2px solid #667eea;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.scene-description {
+  background: rgba(102, 126, 234, 0.1);
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  font-style: italic;
+  color: #495057;
+  max-width: 400px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Enhanced vocabulary display with images */
+.vocab-item-enhanced {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 10px;
+  border-left: 4px solid #667eea;
+  margin-bottom: 0.75rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vocab-item-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.vocab-image {
+  font-size: 2rem;
+  background: #f8f9fa;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  min-width: 60px;
+  text-align: center;
+}
+
+.vocab-content {
+  flex: 1;
+}
+
+.vocab-italian {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.vocab-english {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.vocab-category {
+  font-size: 0.8rem;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  margin-top: 0.5rem;
+  display: inline-block;
+}
+
+/* Difficulty Controls */
+.difficulty-controls {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.difficulty-controls h4 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.difficulty-btn {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid #dee2e6;
+  color: #495057;
+  padding: 0.75rem 1.5rem;
+  margin: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.difficulty-btn.beginner:hover {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border-color: #28a745;
+  color: #155724;
+}
+
+.difficulty-btn.intermediate:hover {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border-color: #ffc107;
+  color: #856404;
+}
+
+.difficulty-btn.advanced:hover {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border-color: #dc3545;
+  color: #721c24;
+}
+
+.difficulty-suggestion {
+  font-style: italic;
+  color: #667eea;
+  font-weight: 500;
+  margin: 1rem 0;
+}
