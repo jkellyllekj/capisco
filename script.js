@@ -720,6 +720,12 @@ class QuizSystem {
     const checkButton = currentQuestion.querySelector('.quiz-check');
     const containerId = currentQuestion.closest('.quiz-block')?.id;
 
+    // Safety checks
+    if (!feedback || !this.currentQuiz) {
+      console.error('Missing elements or quiz data for matching check');
+      return;
+    }
+
     // Prevent re-checking
     if (currentQuestion.classList.contains('answered')) {
       return;
@@ -737,7 +743,7 @@ class QuizSystem {
       this.score++;
 
       // Track all correct matches
-      if (this.correctAnswers.has(containerId) && this.currentQuiz.selectedVocab) {
+      if (containerId && this.correctAnswers.has(containerId) && this.currentQuiz.selectedVocab) {
         this.currentQuiz.selectedVocab.forEach(item => {
           this.correctAnswers.get(containerId).add(item.italian);
         });
@@ -749,7 +755,9 @@ class QuizSystem {
 
     this.totalQuestions++;
     feedback.style.display = 'block';
-    checkButton.style.display = 'none';
+    if (checkButton) {
+      checkButton.style.display = 'none';
+    }
 
     // Mark question as answered and add styling
     currentQuestion.classList.add('answered');
@@ -774,22 +782,18 @@ class QuizSystem {
     if (!currentQuestion) return;
 
     const input = currentQuestion.querySelector('.fill-blank') || currentQuestion.querySelector('.quiz-input');
-    if (!input) {
-      console.error('Fill blank input not found');
-      return;
-    }
-
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const checkButton = currentQuestion.querySelector('.quiz-check');
     const containerId = currentQuestion.closest('.quiz-block')?.id;
 
-    // Prevent re-answering
-    if (currentQuestion.classList.contains('answered')) {
+    // Safety checks
+    if (!input || !feedback || !this.currentQuiz || !this.currentQuiz.correct) {
+      console.error('Missing elements or quiz data for fill blank check');
       return;
     }
 
-    if (!this.currentQuiz || !this.currentQuiz.correct) {
-      console.error('Current quiz or correct answer not found');
+    // Prevent re-answering
+    if (currentQuestion.classList.contains('answered')) {
       return;
     }
 
@@ -910,8 +914,9 @@ class QuizSystem {
     const checkButton = currentQuestion.querySelector('.quiz-check');
     const containerId = currentQuestion.closest('.quiz-block')?.id;
 
-    if (!this.currentQuiz || !this.currentQuiz.correct) {
-      console.error('Current quiz or correct answer not found');
+    // Safety checks
+    if (!answerArea || !feedback || !this.currentQuiz || !this.currentQuiz.correct) {
+      console.error('Missing elements or quiz data for letter picker check');
       return;
     }
 
@@ -979,18 +984,26 @@ class QuizSystem {
     const checkButton = currentQuestion.querySelector('.quiz-check');
     const containerId = currentQuestion.closest('.quiz-block')?.id;
 
+    // Safety checks
+    if (!answerArea || !feedback || !this.currentQuiz) {
+      console.error('Missing elements for word order check');
+      return;
+    }
+
     const selectedWords = Array.from(answerArea.querySelectorAll('.selected-word')).map(span => span.textContent.trim());
     const answer = selectedWords.join(' ').toLowerCase();
     const isCorrect = answer === this.currentQuiz.correct.toLowerCase();
 
-    checkButton.style.display = 'none';
+    if (checkButton) {
+      checkButton.style.display = 'none';
+    }
     currentQuestion.querySelectorAll('.word-btn').forEach(btn => btn.disabled = true);
 
     if (isCorrect) {
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect word order! "${this.currentQuiz.correct}"</div>`;
       this.score++;
 
-      if (this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
+      if (containerId && this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
         this.correctAnswers.get(containerId).add(this.currentQuiz.correctItem.italian);
       }
     } else {
