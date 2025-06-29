@@ -256,12 +256,14 @@ class QuizSystem {
     container.innerHTML = html;
     this.currentQuiz = quiz;
 
-    if (quiz.type === 'matching') {
-      this.setupMatchingEventListeners();
-    }
-    if (quiz.type === 'wordOrder') {
-      this.setupWordOrderEventListeners();
-    }
+    // Set up event listeners based on quiz type
+    setTimeout(() => {
+      if (quiz.type === 'matching') {
+        this.setupMatchingEventListeners();
+      } else if (quiz.type === 'wordOrder') {
+        this.setupWordOrderEventListeners();
+      }
+    }, 100);
 
     // Add Enter key support for text inputs
     setTimeout(() => {
@@ -384,8 +386,8 @@ class QuizSystem {
           <div class="word-bank">
             <h5>Available Words:</h5>
             <div class="word-bank-words">
-              ${quiz.words.map(word => `
-                <button class="word-btn" onclick="quizSystem.selectWord('${word}', this)">${word}</button>
+              ${quiz.words.map((word, index) => `
+                <button class="word-btn" data-word="${word}" data-index="${index}">${word}</button>
               `).join('')}
             </div>
           </div>
@@ -434,10 +436,14 @@ class QuizSystem {
   }
 
   setupWordOrderEventListeners() {
-    document.querySelectorAll('.word-btn').forEach(btn => {
+    const wordButtons = document.querySelectorAll('.word-btn');
+    wordButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const word = e.target.textContent;
-        this.selectWord(word, e.target);
+        e.preventDefault();
+        if (!e.target.disabled) {
+          const word = e.target.dataset.word || e.target.textContent;
+          this.selectWord(word, e.target);
+        }
       });
     });
   }
@@ -548,11 +554,34 @@ class QuizSystem {
     const feedback = document.querySelector('.quiz-feedback');
     const checkButton = document.querySelector('.quiz-check');
 
-    if (matchedItems.length === totalItems * 2) {
-      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect! All matches are correct!</div>`;
+    const isFullyMatched = matchedItems.length === totalItems * 2;
+
+    if (isFullyMatched) {
+      feedback.innerHTML = `<div class="correct-feedback">
+        <i class="fas fa-check"></i> Perfect! All matches are correct! 
+        <br><br><strong>What you learned:</strong>
+        <ul style="text-align: left; margin: 1rem 0;">
+          <li><strong>Primavera</strong> (spring) - From Latin "prima" (first) + "vera" (spring)</li>
+          <li><strong>Estate</strong> (summer) - From Latin "aestas", related to "estival"</li>
+          <li><strong>Autunno</strong> (autumn) - Direct cognate with English "autumn"</li>
+          <li><strong>Inverno</strong> (winter) - From Latin "hibernus", like "hibernate"</li>
+        </ul>
+        These seasonal words are essential for expressing preferences in Italian!
+      </div>`;
       this.score++;
     } else {
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> You matched ${matchedItems.length / 2} out of ${totalItems} correctly. Keep practicing!</div>`;
+      const correctMatches = matchedItems.length / 2;
+      feedback.innerHTML = `<div class="incorrect-feedback">
+        <i class="fas fa-times"></i> You matched ${correctMatches} out of ${totalItems} correctly. 
+        <br><br><strong>Remember:</strong> Each Italian season has fascinating etymology:
+        <ul style="text-align: left; margin: 1rem 0;">
+          <li><strong>Primavera</strong> = spring (literally "first spring")</li>
+          <li><strong>Estate</strong> = summer (from Latin for heat/warmth)</li>
+          <li><strong>Autunno</strong> = autumn (harvest time)</li>
+          <li><strong>Inverno</strong> = winter (hibernation time)</li>
+        </ul>
+        Keep practicing - you're learning Italian vocabulary!
+      </div>`;
     }
 
     this.totalQuestions++;
@@ -566,7 +595,7 @@ class QuizSystem {
 
     setTimeout(() => {
       this.addNextQuestion();
-    }, 3000);
+    }, 5000);
   }
 
   checkFillBlank() {
@@ -653,11 +682,27 @@ class QuizSystem {
     const feedback = document.querySelector('.quiz-feedback');
     const checkButton = document.querySelector('.quiz-check');
 
+    // Disable all word buttons to prevent further clicking
+    document.querySelectorAll('.word-btn').forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+    });
+
     if (isCorrect) {
-      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect! "${answer}" is correct! ${this.currentQuiz.note || ''}</div>`;
+      feedback.innerHTML = `<div class="correct-feedback">
+        <i class="fas fa-check"></i> Perfect! "${answer}" is correct! 
+        <br><br><strong>Grammar note:</strong> ${this.currentQuiz.note || ''}
+        <br><strong>Remember:</strong> "Preferisco" comes from Latin "praeferre" - just like English "prefer"! 
+        This sentence structure is essential for expressing preferences in Italian.
+      </div>`;
       this.score++;
     } else {
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> The correct order is: "${this.currentQuiz.correct}". ${this.currentQuiz.note || ''}</div>`;
+      feedback.innerHTML = `<div class="incorrect-feedback">
+        <i class="fas fa-times"></i> The correct order is: "<strong>${this.currentQuiz.correct}</strong>"
+        <br>You wrote: "${answer}"
+        <br><br><strong>Grammar tip:</strong> ${this.currentQuiz.note || ''}
+        <br><strong>Word order in Italian:</strong> Subject + Verb + Object (like English). "Preferisco" means "I prefer".
+      </div>`;
     }
 
     this.totalQuestions++;
@@ -671,7 +716,7 @@ class QuizSystem {
 
     setTimeout(() => {
       this.addNextQuestion();
-    }, 4000);
+    }, 6000);
   }
 
   checkAudioQuiz() {
@@ -798,6 +843,9 @@ class QuizSystem {
   }
 
   selectWord(word, button) {
+    // Prevent selecting already disabled buttons
+    if (button.disabled) return;
+    
     const answerArea = document.querySelector('.word-order-answer');
     const wordSpan = document.createElement('span');
     wordSpan.className = 'selected-word';
@@ -807,12 +855,14 @@ class QuizSystem {
 
     button.disabled = true;
     button.style.opacity = '0.5';
+    button.style.cursor = 'not-allowed';
   }
 
   removeWord(wordSpan, originalButton) {
     wordSpan.remove();
     originalButton.disabled = false;
     originalButton.style.opacity = '1';
+    originalButton.style.cursor = 'pointer';
   }
 
   clearWordOrder() {
