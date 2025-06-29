@@ -642,6 +642,16 @@ class QuizSystem {
     }
   }
 
+  addContinueButton(feedback) {
+      const continueButton = document.createElement('button');
+      continueButton.className = 'quiz-continue-btn';
+      continueButton.innerHTML = '<i class="fas fa-forward"></i> Continue';
+      continueButton.onclick = () => {
+          this.addNextQuestion();
+      };
+      feedback.appendChild(continueButton);
+  }
+
   checkMultipleChoice() {
     if (!this.selectedAnswer) return;
 
@@ -676,9 +686,8 @@ class QuizSystem {
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 4000);
+    // Don't auto-advance - let user control when to continue
+    this.addContinueButton(feedback);
   }
 
   checkMatching() {
@@ -726,59 +735,7 @@ class QuizSystem {
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 5000);
-  }
-
-  checkMatching() {
-    const matchedItems = document.querySelectorAll('.match-item.matched');
-    const totalItems = document.querySelectorAll('.match-item.italian').length;
-    const feedback = document.querySelector('.quiz-feedback');
-    const checkButton = document.querySelector('.quiz-check');
-
-    const isFullyMatched = matchedItems.length === totalItems * 2;
-
-    if (isFullyMatched) {
-      feedback.innerHTML = `<div class="correct-feedback">
-        <i class="fas fa-check"></i> Perfect! All matches are correct! 
-        <br><br><strong>What you learned:</strong>
-        <ul style="text-align: left; margin: 1rem 0;">
-          <li><strong>Primavera</strong> (spring) - From Latin "prima" (first) + "vera" (spring)</li>
-          <li><strong>Estate</strong> (summer) - From Latin "aestas", related to "estival"</li>
-          <li><strong>Autunno</strong> (autumn) - Direct cognate with English "autumn"</li>
-          <li><strong>Inverno</strong> (winter) - From Latin "hibernus", like "hibernate"</li>
-        </ul>
-        These seasonal words are essential for expressing preferences in Italian!
-      </div>`;
-      this.score++;
-    } else {
-      const correctMatches = matchedItems.length / 2;
-      feedback.innerHTML = `<div class="incorrect-feedback">
-        <i class="fas fa-times"></i> You matched ${correctMatches} out of ${totalItems} correctly. 
-        <br><br><strong>Remember:</strong> Each Italian season has fascinating etymology:
-        <ul style="text-align: left; margin: 1rem 0;">
-          <li><strong>Primavera</strong> = spring (literally "first spring")</li>
-          <li><strong>Estate</strong> = summer (from Latin for heat/warmth)</li>
-          <li><strong>Autunno</strong> = autumn (harvest time)</li>
-          <li><strong>Inverno</strong> = winter (hibernation time)</li>
-        </ul>
-        Keep practicing - you're learning Italian vocabulary!
-      </div>`;
-    }
-
-    this.totalQuestions++;
-    feedback.style.display = 'block';
-    if (checkButton) checkButton.style.display = 'none';
-
-    const scoreDisplay = document.createElement('div');
-    scoreDisplay.className = 'quiz-score-display';
-    scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
-    feedback.appendChild(scoreDisplay);
-
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 5000);
+    this.addContinueButton(feedback);
   }
 
   checkFillBlank() {
@@ -806,9 +763,8 @@ class QuizSystem {
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 4000);
+    // Don't auto-advance - let user control when to continue
+    this.addContinueButton(feedback);
   }
 
   checkLetterPicker() {
@@ -850,9 +806,8 @@ class QuizSystem {
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 4000);
+    // Don't auto-advance - let user control when to continue
+    this.addContinueButton(feedback);
   }
 
   flashcardResult(correct) {
@@ -868,10 +823,7 @@ class QuizSystem {
     feedback.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     controls.parentNode.insertBefore(feedback, controls.nextSibling);
     controls.style.display = 'none';
-
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 2000);
+     this.addContinueButton(feedback);
   }
 
   checkWordOrder() {
@@ -913,9 +865,7 @@ class QuizSystem {
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 6000);
+    this.addContinueButton(feedback);
   }
 
   checkAudioQuiz() {
@@ -944,9 +894,8 @@ class QuizSystem {
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 4000);
+    // Don't auto-advance - let user control when to continue
+    this.addContinueButton(feedback);
   }
 
   addNextQuestion() {
