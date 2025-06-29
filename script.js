@@ -343,19 +343,32 @@ class QuizSystem {
     const item = availableVocab[Math.floor(Math.random() * availableVocab.length)];
     const word = item.italian.toLowerCase();
     const letters = word.split('').filter(l => l !== ' ');
-    const uniqueLetters = [...new Set(letters)];
+    
+    // Count frequency of each letter to ensure we have enough
+    const letterCount = {};
+    letters.forEach(letter => {
+      letterCount[letter] = (letterCount[letter] || 0) + 1;
+    });
+    
+    // Create array with correct number of each letter needed
+    const neededLetters = [];
+    Object.keys(letterCount).forEach(letter => {
+      for (let i = 0; i < letterCount[letter]; i++) {
+        neededLetters.push(letter);
+      }
+    });
 
     // Add some random letters
     const allLetters = 'abcdefghilmnopqrstuvz';
     const extraLetters = [];
-    while (extraLetters.length < 6 && extraLetters.length + uniqueLetters.length < 12) {
+    while (extraLetters.length < 6 && extraLetters.length + neededLetters.length < 15) {
       const randomLetter = allLetters[Math.floor(Math.random() * allLetters.length)];
-      if (!uniqueLetters.includes(randomLetter) && !extraLetters.includes(randomLetter)) {
+      if (!neededLetters.includes(randomLetter) && !extraLetters.includes(randomLetter)) {
         extraLetters.push(randomLetter);
       }
     }
 
-    const allAvailableLetters = [...uniqueLetters, ...extraLetters].sort(() => Math.random() - 0.5);
+    const allAvailableLetters = [...neededLetters, ...extraLetters].sort(() => Math.random() - 0.5);
 
     if (containerId && this.askedQuestions.has(containerId)) {
       this.askedQuestions.get(containerId).add(item.italian + '_letter');
@@ -735,15 +748,23 @@ class QuizSystem {
     const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
     if (!currentQuestion) return;
 
-    const input = currentQuestion.querySelector('.fill-blank');
-    if (!input) return; // Safety check to prevent null errors
+    const input = currentQuestion.querySelector('.fill-blank') || currentQuestion.querySelector('.quiz-input');
+    if (!input) {
+      console.error('Fill blank input not found');
+      return;
+    }
 
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const checkButton = currentQuestion.querySelector('.quiz-check');
-    const containerId = currentQuestion.closest('.quiz-block').id;
+    const containerId = currentQuestion.closest('.quiz-block')?.id;
 
     // Prevent re-answering
     if (currentQuestion.classList.contains('answered')) {
+      return;
+    }
+
+    if (!this.currentQuiz || !this.currentQuiz.correct) {
+      console.error('Current quiz or correct answer not found');
       return;
     }
 
@@ -752,8 +773,10 @@ class QuizSystem {
 
     // Disable input and button to prevent re-answering
     input.disabled = true;
-    checkButton.disabled = true;
-    checkButton.style.display = 'none';
+    if (checkButton) {
+      checkButton.disabled = true;
+      checkButton.style.display = 'none';
+    }
 
     if (isCorrect) {
       input.classList.add('correct');
@@ -761,7 +784,7 @@ class QuizSystem {
       this.score++;
 
       // Track correct answer
-      if (this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
+      if (containerId && this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
         this.correctAnswers.get(containerId).add(this.currentQuiz.correctItem.italian);
       }
     } else {
@@ -787,7 +810,8 @@ class QuizSystem {
     if (front.style.display !== 'none') {
       front.style.display = 'none';
       back.style.display = 'block';
-      continueBtn.style.display = 'block';
+      continueBtn.style.display = 'inline-block';
+      continueBtn.textContent = 'Got it! Next Question';
     }
   }
 
@@ -833,19 +857,26 @@ class QuizSystem {
     const answerArea = currentQuestion.querySelector('.letter-picker-answer');
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const checkButton = currentQuestion.querySelector('.quiz-check');
-    const containerId = currentQuestion.closest('.quiz-block').id;
+    const containerId = currentQuestion.closest('.quiz-block')?.id;
+
+    if (!this.currentQuiz || !this.currentQuiz.correct) {
+      console.error('Current quiz or correct answer not found');
+      return;
+    }
 
     const answer = answerArea.textContent.toLowerCase().trim();
     const isCorrect = answer === this.currentQuiz.correct.toLowerCase();
 
-    checkButton.style.display = 'none';
+    if (checkButton) {
+      checkButton.style.display = 'none';
+    }
     currentQuestion.querySelectorAll('.letter-btn').forEach(btn => btn.disabled = true);
 
     if (isCorrect) {
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect spelling! "${this.currentQuiz.correct}"</div>`;
       this.score++;
 
-      if (this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
+      if (containerId && this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
         this.correctAnswers.get(containerId).add(this.currentQuiz.correctItem.italian);
       }
     } else {
@@ -917,12 +948,17 @@ class QuizSystem {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
+    const containerId = currentContainer.id;
+    const topicIndex = containerId.replace('quiz', '');
+    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
+    const topic = topics[topicIndex] || 'seasons';
+
     // Clean up questions to maintain only 2 max (previous answered + current)
     const allQuestions = currentContainer.querySelectorAll('.quiz-question');
     if (allQuestions.length >= 2) {
       // Remove the oldest question immediately to prevent visual mixing
       const oldestQuestion = allQuestions[0];
-      if (oldestQuestion) {
+      if (oldestQuestion && oldestQuestion.classList.contains('answered')) {
         oldestQuestion.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
         oldestQuestion.style.opacity = '0';
         oldestQuestion.style.transform = 'translateY(-20px)';
@@ -936,11 +972,6 @@ class QuizSystem {
 
     // Generate new question after cleanup
     setTimeout(() => {
-      const containerId = currentContainer.id;
-      const topicIndex = containerId.replace('quiz', '');
-      const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
-      const topic = topics[topicIndex] || 'seasons';
-
       let nextQuiz = this.generateQuiz(topic, 'mixed', containerId);
 
       // If quiz generation returns null (e.g., avoided repetitive matching), try a different type
@@ -1114,11 +1145,17 @@ class QuizSystem {
     setTimeout(() => {
       const newQuestion = container.querySelector('.quiz-question.new-question:last-child');
       if (newQuestion) {
-        newQuestion.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'nearest',
-          inline: 'nearest'
-        });
+        // Only scroll if we're not at the top of the container
+        const containerRect = container.getBoundingClientRect();
+        const questionRect = newQuestion.getBoundingClientRect();
+        
+        if (questionRect.bottom > containerRect.bottom) {
+          newQuestion.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'end',
+            inline: 'nearest'
+          });
+        }
       }
     }, 100);
   }
