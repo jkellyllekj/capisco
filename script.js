@@ -1433,7 +1433,7 @@ startEndlessQuiz(containerId) {
     switch (quiz.type) {
       case 'multipleChoice':
         html = this.renderMultipleChoice(quiz);
-        break;
+      break;
       case 'matching':
         html = this.renderMatching(quiz);
         break;
