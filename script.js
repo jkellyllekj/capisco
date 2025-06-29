@@ -1,3 +1,36 @@
+// Toggle quiz function for backward compatibility
+function toggleQuiz(quizId) {
+  const quiz = document.getElementById(quizId);
+  if (!quiz) return;
+  
+  if (quiz.classList.contains('hidden')) {
+    quiz.classList.remove('hidden');
+    quiz.style.display = 'block';
+    quizSystem.startEndlessQuiz(quizId);
+  } else {
+    quiz.classList.add('hidden');
+    quiz.style.display = 'none';
+  }
+}
+
+// Initialize tooltips
+function initializeTooltips() {
+  document.querySelectorAll('.tooltip-item').forEach(item => {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = item.getAttribute('title');
+    item.appendChild(tooltip);
+    
+    item.addEventListener('mouseenter', () => {
+      tooltip.style.display = 'block';
+    });
+    
+    item.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+    });
+  });
+}
+
 class QuizSystem {
   constructor() {
     this.currentQuiz = null;
@@ -164,6 +197,26 @@ class QuizSystem {
   getAvailableWords(data) {
     const vocab = data.vocabulary || [];
     return vocab.filter(item => this.shouldShowWord(item.italian));
+  }
+
+  handleMultipleChoiceKeyboard(event) {
+    if (event.key >= '1' && event.key <= '4') {
+      const options = document.querySelectorAll('.quiz-option');
+      const index = parseInt(event.key) - 1;
+      if (options[index]) {
+        options[index].click();
+      }
+    }
+  }
+
+  handleMatchingKeyboard(event) {
+    // Simple keyboard navigation for matching
+    if (event.key === 'Enter') {
+      const checkButton = document.querySelector('.quiz-check');
+      if (checkButton && !checkButton.disabled) {
+        checkButton.click();
+      }
+    }
   }
 
   generateQuiz(topic, type = 'mixed') {
@@ -1356,11 +1409,67 @@ class QuizSystem {
   }
 }
 
+{ italian: 'pomodori', english: 'tomatoes' },
+          { italian: 'carote', english: 'carrots' },
+          { italian: 'insalata', english: 'lettuce' },
+          { italian: 'cipolle', english: 'onions' },
+          { italian: 'pesce', english: 'fish' },
+          { italian: 'salmone', english: 'salmon' },
+          { italian: 'pollo', english: 'chicken' },
+          { italian: 'manzo', english: 'beef' },
+          { italian: 'formaggio', english: 'cheese' },
+          { italian: 'parmigiano', english: 'parmesan' },
+          { italian: 'mozzarella', english: 'mozzarella' },
+          { italian: 'latte', english: 'milk' },
+          { italian: 'burro', english: 'butter' }
+        ],
+        phrases: [
+          { italian: 'Vorrei del formaggio', english: 'I would like some cheese' },
+          { italian: 'Quanto costa?', english: 'How much does it cost?' },
+          { italian: 'Posso assaggiare?', english: 'Can I taste it?' },
+          { italian: 'Tre etti di formaggio', english: '300 grams of cheese' },
+          { italian: 'È fresco il pesce?', english: 'Is the fish fresh?' }
+        ]
+      }
+    };
+  }
+
+  startEndlessQuiz(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = '<div class="endless-quiz-container"></div>';
+    this.generateNextQuestion(container.querySelector('.endless-quiz-container'));
+  }
+
+  generateNextQuestion(container) {
+    const topics = Object.keys(this.quizData);
+    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+    const quiz = this.generateQuiz(randomTopic);
+    
+    if (quiz) {
+      this.currentQuiz = quiz;
+      container.innerHTML = this.renderQuiz(quiz);
+      this.setupQuizEventListeners();
+    }
+  }
+
+  autoProgressToNext(feedbackElement) {
+    setTimeout(() => {
+      const container = feedbackElement.closest('.endless-quiz-container');
+      if (container) {
+        this.generateNextQuestion(container);
+      }
+    }, 3000); // Auto-progress after 3 seconds
+  }
+}
+
 const quizSystem = new QuizSystem();
 
 // Initialize the quiz system
 document.addEventListener('DOMContentLoaded', () => {
   quizSystem.setupKeyboardNavigation();
+  initializeTooltips();
   
   // Add click handlers to quiz buttons
   document.querySelectorAll('.quiz-btn').forEach(btn => {
