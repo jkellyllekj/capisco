@@ -135,8 +135,12 @@ class QuizSystem {
     if (containerId && this.askedQuestions.has(containerId)) {
       const askedSet = this.askedQuestions.get(containerId);
       const unasked = vocab.filter(v => !askedSet.has(v.italian + '_mc'));
-      if (unasked.length >= 4) {
+      if (unasked.length >= 1) {
         availableVocab = unasked;
+      } else {
+        // If all have been asked, reset the tracking to avoid infinite loops
+        askedSet.clear();
+        availableVocab = vocab;
       }
     }
 
@@ -360,7 +364,8 @@ class QuizSystem {
     const currentQuestion = button.closest('.quiz-question');
 
     // Check if this question has already been answered
-    if (currentQuestion.querySelector('.quiz-option.correct, .quiz-option.incorrect')) {
+    if (currentQuestion.querySelector('.quiz-option.correct, .quiz-option.incorrect') || 
+        currentQuestion.classList.contains('answered')) {
       return; // Prevent re-answering
     }
 
@@ -368,20 +373,21 @@ class QuizSystem {
     button.classList.add('selected');
     this.selectedAnswer = answer;
 
-    setTimeout(() => this.checkMultipleChoice(), 300);
+    setTimeout(() => this.checkMultipleChoice(currentQuestion), 300);
   }
 
-  checkMultipleChoice() {
+  checkMultipleChoice(questionElement = null) {
     if (!this.selectedAnswer) return;
 
     const isCorrect = this.selectedAnswer === this.currentQuiz.correct;
     const selectedButton = document.querySelector('.quiz-option.selected');
-    const currentQuestion = selectedButton.closest('.quiz-question');
+    const currentQuestion = questionElement || selectedButton.closest('.quiz-question');
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const containerId = currentQuestion.closest('.quiz-block').id;
 
     // Prevent re-answering
-    if (currentQuestion.querySelector('.quiz-option.correct, .quiz-option.incorrect')) {
+    if (currentQuestion.querySelector('.quiz-option.correct, .quiz-option.incorrect') || 
+        currentQuestion.classList.contains('answered')) {
       return;
     }
 
@@ -514,32 +520,41 @@ class QuizSystem {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
-    // Keep answered questions visible but limit to 2 total questions max
-    setTimeout(() => {
-      const allQuestions = currentContainer.querySelectorAll('.quiz-question');
-      if (allQuestions.length > 2) {
-        // Remove the oldest questions, keeping only the most recent 2
-        for (let i = 0; i < allQuestions.length - 2; i++) {
-          allQuestions[i].remove();
-        }
+    // First, remove the oldest question if we have too many (smooth transition)
+    const allQuestions = currentContainer.querySelectorAll('.quiz-question');
+    if (allQuestions.length > 2) {
+      // Remove the oldest questions first, with a fade out effect
+      for (let i = 0; i < allQuestions.length - 2; i++) {
+        const oldQuestion = allQuestions[i];
+        oldQuestion.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        oldQuestion.style.opacity = '0';
+        oldQuestion.style.transform = 'translateY(-20px)';
+        setTimeout(() => {
+          if (oldQuestion.parentNode) {
+            oldQuestion.remove();
+          }
+        }, 500);
       }
-    }, 2000);
-
-    const containerId = currentContainer.id;
-    const topicIndex = containerId.replace('quiz', '');
-    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
-    const topic = topics[topicIndex] || 'seasons';
-
-    let nextQuiz = this.generateQuiz(topic, 'mixed', containerId);
-
-    // If quiz generation returns null (e.g., avoided repetitive matching), try a different type
-    if (!nextQuiz) {
-      nextQuiz = this.generateQuiz(topic, 'multipleChoice', containerId);
     }
 
-    if (nextQuiz) {
-      this.appendQuiz(nextQuiz, containerId);
-    }
+    // Generate new question after cleanup
+    setTimeout(() => {
+      const containerId = currentContainer.id;
+      const topicIndex = containerId.replace('quiz', '');
+      const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
+      const topic = topics[topicIndex] || 'seasons';
+
+      let nextQuiz = this.generateQuiz(topic, 'mixed', containerId);
+
+      // If quiz generation returns null (e.g., avoided repetitive matching), try a different type
+      if (!nextQuiz) {
+        nextQuiz = this.generateQuiz(topic, 'multipleChoice', containerId);
+      }
+
+      if (nextQuiz) {
+        this.appendQuiz(nextQuiz, containerId);
+      }
+    }, 600);
   }
 
   appendQuiz(quiz, containerId) {
