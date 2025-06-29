@@ -54,6 +54,18 @@ body {
   padding-top: 1rem;
 }
 
+.inspiration-note a {
+  color: #667eea;
+  text-decoration: none;
+  border-bottom: 1px dotted #667eea;
+  transition: all 0.3s ease;
+}
+
+.inspiration-note a:hover {
+  color: #5a6fd8;
+  border-bottom-style: solid;
+}
+
 .chapters-list {
   background: white;
   padding: 2rem;
