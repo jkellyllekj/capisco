@@ -409,8 +409,9 @@ class QuizSystem {
     this.totalQuestions++;
     feedback.style.display = 'block';
 
-    // Mark question as answered
+    // Mark question as answered and add styling
     currentQuestion.classList.add('answered');
+    currentQuestion.classList.remove('new-question');
 
     setTimeout(() => this.generateNextQuestion(), 2000);
   }
@@ -456,8 +457,9 @@ class QuizSystem {
     feedback.style.display = 'block';
     checkButton.style.display = 'none';
 
-    // Mark question as answered
+    // Mark question as answered and add styling
     currentQuestion.classList.add('answered');
+    currentQuestion.classList.remove('new-question');
 
     setTimeout(() => this.generateNextQuestion(), 2000);
   }
@@ -501,8 +503,9 @@ class QuizSystem {
     this.totalQuestions++;
     feedback.style.display = 'block';
 
-    // Mark question as answered
+    // Mark question as answered and add styling
     currentQuestion.classList.add('answered');
+    currentQuestion.classList.remove('new-question');
 
     setTimeout(() => this.generateNextQuestion(), 2000);
   }
