@@ -234,18 +234,18 @@ footer {
 
 .lesson-title {
   text-align: center;
-  padding: 2rem;
+  padding: 1rem 2rem;
   color: #333;
 }
 
 .lesson-title h1 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+  margin-bottom: 0.25rem;
   color: #667eea;
 }
 
 .lesson-subtitle {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   color: #666;
   margin: 0;
 }
@@ -1091,6 +1091,45 @@ footer {
   
   .word-order-answer {
     justify-content: center;
+  }
+  
+  /* Mobile-responsive lesson header */
+  .lesson-nav {
+    padding: 0.75rem 1rem;
+  }
+  
+  .lesson-title {
+    padding: 0.75rem 1rem;
+  }
+  
+  .lesson-title h1 {
+    font-size: 1.5rem;
+  }
+  
+  .lesson-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .back-button {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .chapter-indicator {
+    font-size: 0.8rem;
+  }
+  
+  /* Make content cards more compact on mobile */
+  .content-card {
+    padding: 1.5rem;
+  }
+  
+  .lesson-container {
+    padding: 0 1rem 2rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1.5rem;
   }
 }
 
