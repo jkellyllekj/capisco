@@ -6,6 +6,8 @@ class QuizSystem {
     this.totalQuestions = 0;
     this.questionsAnswered = 0;
     this.autoNextEnabled = true;
+    this.recentQuizTypes = []; // Track recent quiz types for variety
+    this.maxRecentTypes = 3; // Don't repeat same type within last 3 questions
     this.quizData = {
       seasons: {
         vocabulary: [
@@ -50,8 +52,30 @@ class QuizSystem {
     const data = this.quizData[topic];
     if (!data) return null;
 
-    const quizTypes = ['multipleChoice', 'matching', 'fillBlank', 'flashcard', 'letterPicker', 'wordOrder', 'audioQuiz'];
-    const selectedType = type === 'mixed' ? quizTypes[Math.floor(Math.random() * quizTypes.length)] : type;
+    const allQuizTypes = ['multipleChoice', 'matching', 'fillBlank', 'flashcard', 'letterPicker', 'wordOrder', 'audioQuiz'];
+    
+    let selectedType = type;
+    if (type === 'mixed') {
+      // Filter out recently used types for variety
+      const availableTypes = allQuizTypes.filter(qType => !this.recentQuizTypes.includes(qType));
+      
+      if (availableTypes.length > 0) {
+        selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+      } else {
+        // If all types have been used recently, pick randomly but avoid the most recent
+        const typesToAvoid = this.recentQuizTypes.slice(-1); // Avoid just the last one
+        const lessRecentTypes = allQuizTypes.filter(qType => !typesToAvoid.includes(qType));
+        selectedType = lessRecentTypes.length > 0 ? 
+          lessRecentTypes[Math.floor(Math.random() * lessRecentTypes.length)] :
+          allQuizTypes[Math.floor(Math.random() * allQuizTypes.length)];
+      }
+      
+      // Track this type
+      this.recentQuizTypes.push(selectedType);
+      if (this.recentQuizTypes.length > this.maxRecentTypes) {
+        this.recentQuizTypes.shift(); // Remove oldest
+      }
+    }
 
     switch (selectedType) {
       case 'multipleChoice':
@@ -202,6 +226,20 @@ class QuizSystem {
     };
   }
 
+  // Add missing setupWordOrderEventListeners function
+  setupWordOrderEventListeners() {
+    const wordButtons = document.querySelectorAll('.word-btn');
+    wordButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!e.target.disabled) {
+          const word = e.target.dataset.word || e.target.textContent;
+          this.selectWord(word, e.target);
+        }
+      });
+    });
+  }
+
   generateLetterPicker(data) {
     const vocab = data.vocabulary || [];
     if (vocab.length === 0) return null;
@@ -267,7 +305,7 @@ class QuizSystem {
 
     // Add Enter key support for text inputs
     setTimeout(() => {
-      const textInputs = container.querySelectorAll('.quiz-input, .audio-input, .fill-blank');
+      const textInputs = container.querySelectorAll('.quiz-input, .audio-input, .fill-blank, .letter-picker-text-input');
       textInputs.forEach(input => {
         input.addEventListener('keypress', (e) => {
           if (e.key === 'Enter') {
@@ -278,6 +316,22 @@ class QuizSystem {
           }
         });
       });
+
+      // Special handling for letter picker text input
+      const letterPickerInput = container.querySelector('.letter-picker-text-input');
+      if (letterPickerInput) {
+        letterPickerInput.addEventListener('input', (e) => {
+          // Clear the letter picker answer when user types
+          const letterAnswer = container.querySelector('.letter-picker-answer');
+          if (letterAnswer && e.target.value.length > 0) {
+            letterAnswer.textContent = '';
+            // Also clear/disable letter buttons to show user is typing instead
+            container.querySelectorAll('.letter-btn').forEach(btn => {
+              btn.style.opacity = e.target.value.length > 0 ? '0.3' : '1';
+            });
+          }
+        });
+      }
     }, 100);
   }
 
@@ -361,6 +415,10 @@ class QuizSystem {
       <div class="quiz-question">
         <h4>${quiz.question}</h4>
         <div class="letter-picker-hint">${quiz.hint}</div>
+        <div class="letter-picker-input-mode">
+          <strong>Type directly:</strong> <input type="text" class="letter-picker-text-input" placeholder="Type the word here..." maxlength="${quiz.correct.length}">
+          <br><br><strong>Or click letters below:</strong>
+        </div>
         <div class="letter-picker-answer" data-correct="${quiz.correct}"></div>
         <div class="letter-picker-letters">
           ${quiz.letters.map(letter => `
@@ -368,7 +426,7 @@ class QuizSystem {
           `).join('')}
         </div>
         <div class="letter-picker-controls">
-          <button class="quiz-option" onclick="quizSystem.clearLetters()">Clear</button>
+          <button class="quiz-option" onclick="quizSystem.clearLetters()">Clear Letters</button>
           <button class="quiz-check" onclick="quizSystem.checkLetterPicker()">
             <i class="fas fa-check"></i> Check Answer
           </button>
@@ -598,6 +656,56 @@ class QuizSystem {
     }, 5000);
   }
 
+  checkMatching() {
+    const matchedItems = document.querySelectorAll('.match-item.matched');
+    const totalItems = document.querySelectorAll('.match-item.italian').length;
+    const feedback = document.querySelector('.quiz-feedback');
+    const checkButton = document.querySelector('.quiz-check');
+
+    const isFullyMatched = matchedItems.length === totalItems * 2;
+
+    if (isFullyMatched) {
+      feedback.innerHTML = `<div class="correct-feedback">
+        <i class="fas fa-check"></i> Perfect! All matches are correct! 
+        <br><br><strong>What you learned:</strong>
+        <ul style="text-align: left; margin: 1rem 0;">
+          <li><strong>Primavera</strong> (spring) - From Latin "prima" (first) + "vera" (spring)</li>
+          <li><strong>Estate</strong> (summer) - From Latin "aestas", related to "estival"</li>
+          <li><strong>Autunno</strong> (autumn) - Direct cognate with English "autumn"</li>
+          <li><strong>Inverno</strong> (winter) - From Latin "hibernus", like "hibernate"</li>
+        </ul>
+        These seasonal words are essential for expressing preferences in Italian!
+      </div>`;
+      this.score++;
+    } else {
+      const correctMatches = matchedItems.length / 2;
+      feedback.innerHTML = `<div class="incorrect-feedback">
+        <i class="fas fa-times"></i> You matched ${correctMatches} out of ${totalItems} correctly. 
+        <br><br><strong>Remember:</strong> Each Italian season has fascinating etymology:
+        <ul style="text-align: left; margin: 1rem 0;">
+          <li><strong>Primavera</strong> = spring (literally "first spring")</li>
+          <li><strong>Estate</strong> = summer (from Latin for heat/warmth)</li>
+          <li><strong>Autunno</strong> = autumn (harvest time)</li>
+          <li><strong>Inverno</strong> = winter (hibernation time)</li>
+        </ul>
+        Keep practicing - you're learning Italian vocabulary!
+      </div>`;
+    }
+
+    this.totalQuestions++;
+    feedback.style.display = 'block';
+    if (checkButton) checkButton.style.display = 'none';
+
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.className = 'quiz-score-display';
+    scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
+    feedback.appendChild(scoreDisplay);
+
+    setTimeout(() => {
+      this.addNextQuestion();
+    }, 5000);
+  }
+
   checkFillBlank() {
     const input = document.querySelector('.fill-blank');
     const answer = input.value.toLowerCase().trim();
@@ -629,17 +737,33 @@ class QuizSystem {
   }
 
   checkLetterPicker() {
-    const answer = document.querySelector('.letter-picker-answer').textContent.toLowerCase();
+    const textInput = document.querySelector('.letter-picker-text-input');
+    const letterAnswer = document.querySelector('.letter-picker-answer').textContent.toLowerCase();
     const correct = document.querySelector('.letter-picker-answer').dataset.correct;
-    const isCorrect = answer === correct;
+    
+    // Check both input methods - typed text takes priority
+    const typedAnswer = textInput.value.toLowerCase().trim();
+    const finalAnswer = typedAnswer || letterAnswer;
+    const isCorrect = finalAnswer === correct;
+    
     const feedback = document.querySelector('.quiz-feedback');
     const checkButton = document.querySelector('.quiz-check');
 
+    // Disable inputs
+    textInput.disabled = true;
+    document.querySelectorAll('.letter-btn').forEach(btn => btn.disabled = true);
+
     if (isCorrect) {
-      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect spelling! ${this.currentQuiz.explanation || ''}</div>`;
+      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect spelling! "${correct}" is correct! ${this.currentQuiz.explanation || ''}</div>`;
       this.score++;
+      if (typedAnswer) {
+        textInput.classList.add('correct');
+      }
     } else {
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> The correct spelling is "${correct}". ${this.currentQuiz.explanation || ''}</div>`;
+      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> The correct spelling is "${correct}". You answered: "${finalAnswer}". ${this.currentQuiz.explanation || ''}</div>`;
+      if (typedAnswer) {
+        textInput.classList.add('incorrect');
+      }
     }
 
     this.totalQuestions++;

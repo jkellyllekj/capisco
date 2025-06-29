@@ -1021,8 +1021,7 @@ footer {
   cursor: pointer;
   transition: all 0.3s ease;
   margin-bottom: 1rem;
-}
-
+}```text
 .audio-play-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4);
@@ -1146,54 +1145,72 @@ footer {
 }
 
 /* Letter Picker */
-.letter-picker-hint {
-  text-align: center;
-  font-style: italic;
-  color: #666;
-  margin-bottom: 1rem;
+.letter-picker-input-mode {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
 }
 
-.letter-picker-answer {
-  background: white;
+.letter-picker-text-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.75rem;
   border: 2px solid #e9ecef;
   border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  min-height: 2rem;
   font-size: 1.2rem;
   font-weight: 600;
   text-align: center;
-  letter-spacing: 0.2rem;
+  margin: 0.5rem 0;
+  transition: border-color 0.3s ease;
+}
+
+.letter-picker-text-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.letter-picker-text-input.correct {
+  border-color: #28a745;
+  background-color: #d4edda;
+}
+
+.letter-picker-text-input.incorrect {
+  border-color: #dc3545;
+  background-color: #f8d7da;
+}
+
+.letter-picker-answer {
+  min-height: 2rem;
+  padding: 0.75rem;
+  margin: 1rem 0;
+  border: 2px dashed #e9ecef;
+  border-radius: 8px;
+  background: white;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .letter-picker-letters {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
+  justify-content: center;
   margin-bottom: 1rem;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .letter-btn {
-  width: 40px;
-  height: 40px;
-  border: 2px solid #e9ecef;
+  padding: 0.75rem;
+  border: 2px solid #667eea;
   background: white;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 1rem;
   transition: all 0.3s ease;
-}
-
-.letter-btn:hover:not(:disabled) {
-  border-color: #667eea;
-  background: #f8f9ff;
-}
-
-.letter-btn:disabled {
-  cursor: not-allowed;
+  min-width: 3rem;
 }
 
 .letter-picker-controls {
