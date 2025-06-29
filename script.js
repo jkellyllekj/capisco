@@ -155,7 +155,7 @@ class QuizSystem {
 
   shouldShowWord(word) {
     if (!this.spacedRepetition.has(word)) return true;
-    
+
     const item = this.spacedRepetition.get(word);
     const daysSinceLastSeen = (Date.now() - item.lastSeen) / (1000 * 60 * 60 * 24);
     return daysSinceLastSeen >= item.interval;
@@ -415,7 +415,7 @@ class QuizSystem {
     const buttons = document.querySelectorAll('.difficulty-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
     document.querySelector(`.difficulty-btn.${level}`).classList.add('active');
-    
+
     // Start quiz after difficulty selection
     setTimeout(() => this.startActualQuiz(), 500);
   }
@@ -739,7 +739,7 @@ class QuizSystem {
   setupKeyboardNavigation() {
     document.addEventListener('keydown', (e) => {
       if (!this.currentQuiz) return;
-      
+
       const currentQuestion = document.querySelector('.quiz-question:last-child');
       if (!currentQuestion) return;
 
@@ -766,7 +766,7 @@ class QuizSystem {
     if (options.length === 0) return;
 
     this.currentKeyboardInput += e.key.toLowerCase();
-    
+
     // Find matching options
     const matchingOptions = options.filter(opt => 
       opt.textContent.toLowerCase().startsWith(this.currentKeyboardInput)
@@ -894,7 +894,7 @@ class QuizSystem {
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    this.addContinueButton(feedback);
+    this.autoProgressToNext(feedback);
   }
 
   checkFillBlank() {
@@ -922,8 +922,7 @@ class QuizSystem {
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    // Don't auto-advance - let user control when to continue
-    this.addContinueButton(feedback);
+    this.autoProgressToNext(feedback);
   }
 
   checkLetterPicker() {
@@ -965,8 +964,7 @@ class QuizSystem {
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    // Don't auto-advance - let user control when to continue
-    this.addContinueButton(feedback);
+    this.autoProgressToNext(feedback);
   }
 
   flashcardResult(correct) {
@@ -982,7 +980,7 @@ class QuizSystem {
     feedback.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     controls.parentNode.insertBefore(feedback, controls.nextSibling);
     controls.style.display = 'none';
-     this.addContinueButton(feedback);
+     this.autoProgressToNext(feedback);
   }
 
   checkWordOrder() {
@@ -1024,7 +1022,7 @@ class QuizSystem {
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    this.addContinueButton(feedback);
+    this.autoProgressToNext(feedback);
   }
 
   checkAudioQuiz() {
@@ -1053,8 +1051,7 @@ class QuizSystem {
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    // Don't auto-advance - let user control when to continue
-    this.addContinueButton(feedback);
+    this.autoProgressToNext(feedback);
   }
 
   addNextQuestion() {
@@ -1300,7 +1297,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Search through all available quiz data sections safely
     let etymologyData = null;
-    
+
     // Check if quizSystem and quizData exist
     if (quizSystem && quizSystem.quizData) {
       // Check extraVocabulary first
@@ -1309,14 +1306,14 @@ document.addEventListener('DOMContentLoaded', function() {
           v && v.italian && text.toLowerCase().includes(v.italian.toLowerCase())
         );
       }
-      
+
       // Check vocabulary section
       if (!etymologyData && quizSystem.quizData.vocabulary && quizSystem.quizData.vocabulary.vocabulary) {
         etymologyData = quizSystem.quizData.vocabulary.vocabulary.find(v =>
           v && v.italian && text.toLowerCase().includes(v.italian.toLowerCase())
         );
       }
-      
+
       // Check seasons section
       if (!etymologyData && quizSystem.quizData.seasons && quizSystem.quizData.seasons.vocabulary) {
         etymologyData = quizSystem.quizData.seasons.vocabulary.find(v =>
