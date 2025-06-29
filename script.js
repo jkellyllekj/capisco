@@ -343,13 +343,13 @@ class QuizSystem {
     const item = availableVocab[Math.floor(Math.random() * availableVocab.length)];
     const word = item.italian.toLowerCase();
     const letters = word.split('').filter(l => l !== ' ');
-    
+
     // Count frequency of each letter to ensure we have enough
     const letterCount = {};
     letters.forEach(letter => {
       letterCount[letter] = (letterCount[letter] || 0) + 1;
     });
-    
+
     // Create array with correct number of each letter needed
     const neededLetters = [];
     Object.keys(letterCount).forEach(letter => {
@@ -479,7 +479,10 @@ class QuizSystem {
               <div class="flashcard-front">${quiz.italian}</div>
               <div class="flashcard-back" style="display: none;">${quiz.english}</div>
             </div>
-            <button class="quiz-check" onclick="quizSystem.checkFlashcard()" style="display: none;">Continue</button>
+            <div class="flashcard-controls" style="display: none;">
+              <button class="quiz-check" onclick="quizSystem.selectFlashcardDifficulty('easy')">Got it!</button>
+              <button class="quiz-check secondary" onclick="quizSystem.selectFlashcardDifficulty('hard')">Need more practice</button>
+            </div>
             <div class="quiz-feedback" style="display: none;"></div>
           </div>
         `;
@@ -700,7 +703,7 @@ class QuizSystem {
     // Find the current active question more reliably
     const allQuestions = document.querySelectorAll('.quiz-question');
     let currentQuestion = null;
-    
+
     // Find the last unanswered question
     for (let i = allQuestions.length - 1; i >= 0; i--) {
       if (!allQuestions[i].classList.contains('answered')) {
@@ -708,7 +711,7 @@ class QuizSystem {
         break;
       }
     }
-    
+
     if (!currentQuestion) return;
 
     const matchedItems = currentQuestion.querySelectorAll('.match-item.matched');
@@ -759,7 +762,7 @@ class QuizSystem {
     // Find the current active question more reliably
     const allQuestions = document.querySelectorAll('.quiz-question');
     let currentQuestion = null;
-    
+
     // Find the last unanswered question
     for (let i = allQuestions.length - 1; i >= 0; i--) {
       if (!allQuestions[i].classList.contains('answered')) {
@@ -767,7 +770,7 @@ class QuizSystem {
         break;
       }
     }
-    
+
     if (!currentQuestion) return;
 
     const input = currentQuestion.querySelector('.fill-blank') || currentQuestion.querySelector('.quiz-input');
@@ -828,30 +831,33 @@ class QuizSystem {
     const front = flashcard.querySelector('.flashcard-front');
     const back = flashcard.querySelector('.flashcard-back');
     const currentQuestion = flashcard.closest('.quiz-question');
-    const continueBtn = currentQuestion.querySelector('.quiz-check');
+    const controls = currentQuestion.querySelector('.flashcard-controls');
 
     if (!flashcard.classList.contains('flipped')) {
       flashcard.classList.add('flipped');
       front.style.display = 'none';
       back.style.display = 'block';
-      if (continueBtn) {
-        continueBtn.style.display = 'inline-block';
-        continueBtn.textContent = 'Got it! Next Question';
+      if (controls) {
+        controls.style.display = 'flex';
       }
     }
   }
 
-  checkFlashcard() {
+  selectFlashcardDifficulty(difficulty) {
     const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
     if (!currentQuestion || currentQuestion.classList.contains('answered')) return;
 
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const containerId = currentQuestion.closest('.quiz-block').id;
+    const flashcard = currentQuestion.querySelector('.flashcard');
+    const front = flashcard.querySelector('.flashcard-front');
+    const back = flashcard.querySelector('.flashcard-back');
+    const controls = currentQuestion.querySelector('.flashcard-controls');
 
-    feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Great! You've learned: ${this.currentQuiz.italian} = ${this.currentQuiz.english}</div>`;
+    feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> You chose: ${difficulty}. ${this.currentQuiz.italian} = ${this.currentQuiz.english}</div>`;
     feedback.style.display = 'block';
 
-    // Track as correct
+    // Track as correct - adjust based on difficulty later if needed
     if (this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
       this.correctAnswers.get(containerId).add(this.currentQuiz.correctItem.italian);
     }
@@ -861,6 +867,12 @@ class QuizSystem {
 
     currentQuestion.classList.add('answered');
     currentQuestion.classList.remove('new-question');
+
+    // Hide controls and reset flashcard for the next question
+    controls.style.display = 'none';
+    flashcard.classList.remove('flipped');
+    front.style.display = 'block';
+    back.style.display = 'none';
 
     setTimeout(() => this.generateNextQuestion(), 2000);
   }
@@ -882,7 +894,7 @@ class QuizSystem {
     // Find the current active question more reliably
     const allQuestions = document.querySelectorAll('.quiz-question');
     let currentQuestion = null;
-    
+
     // Find the last unanswered question
     for (let i = allQuestions.length - 1; i >= 0; i--) {
       if (!allQuestions[i].classList.contains('answered')) {
@@ -890,7 +902,7 @@ class QuizSystem {
         break;
       }
     }
-    
+
     if (!currentQuestion || currentQuestion.classList.contains('answered')) return;
 
     const answerArea = currentQuestion.querySelector('.letter-picker-answer');
@@ -951,7 +963,7 @@ class QuizSystem {
     // Find the current active question more reliably
     const allQuestions = document.querySelectorAll('.quiz-question');
     let currentQuestion = null;
-    
+
     // Find the last unanswered question
     for (let i = allQuestions.length - 1; i >= 0; i--) {
       if (!allQuestions[i].classList.contains('answered')) {
@@ -959,7 +971,7 @@ class QuizSystem {
         break;
       }
     }
-    
+
     if (!currentQuestion || currentQuestion.classList.contains('answered')) return;
 
     const answerArea = currentQuestion.querySelector('.word-answer-area');
@@ -998,14 +1010,14 @@ class QuizSystem {
     // Find all visible quiz containers
     const visibleContainers = document.querySelectorAll('.quiz-block:not(.hidden)');
     let currentContainer = null;
-    
+
     // Find the container with the most recent question
     visibleContainers.forEach(container => {
       if (container.querySelector('.quiz-question')) {
         currentContainer = container;
       }
     });
-    
+
     if (!currentContainer) return;
 
     const containerId = currentContainer.id;
@@ -1107,7 +1119,10 @@ class QuizSystem {
               <div class="flashcard-front">${quiz.italian}</div>
               <div class="flashcard-back" style="display: none;">${quiz.english}</div>
             </div>
-            <button class="quiz-check" onclick="quizSystem.checkFlashcard()" style="display: none;">Continue</button>
+            <div class="flashcard-controls" style="display: none;">
+              <button class="quiz-check" onclick="quizSystem.selectFlashcardDifficulty('easy')">Got it!</button>
+              <button class="quiz-check secondary" onclick="quizSystem.selectFlashcardDifficulty('hard')">Need more practice</button>
+            </div>
             <div class="quiz-feedback" style="display: none;"></div>
           </div>
         `;
@@ -1208,7 +1223,7 @@ class QuizSystem {
         // Only scroll if we're not at the top of the container
         const containerRect = container.getBoundingClientRect();
         const questionRect = newQuestion.getBoundingClientRect();
-        
+
         if (questionRect.bottom > containerRect.bottom) {
           newQuestion.scrollIntoView({ 
             behavior: 'smooth', 
