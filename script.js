@@ -767,14 +767,18 @@ class QuizSystem {
   }
 
   checkFillBlank() {
-    // Find the current active question more reliably
-    const allQuestions = document.querySelectorAll('.quiz-question');
+    // Find the question with the fill blank check button that was clicked
+    const checkButtons = document.querySelectorAll('.quiz-check');
     let currentQuestion = null;
-
-    // Find the last unanswered question
-    for (let i = allQuestions.length - 1; i >= 0; i--) {
-      if (!allQuestions[i].classList.contains('answered')) {
-        currentQuestion = allQuestions[i];
+    
+    // Find the question that contains an active (visible) check button for fill blank
+    for (let button of checkButtons) {
+      if (button.style.display !== 'none' && 
+          button.closest('.quiz-question') && 
+          (button.closest('.quiz-question').querySelector('.fill-blank') || 
+           button.closest('.quiz-question').querySelector('.quiz-input')) &&
+          !button.closest('.quiz-question').classList.contains('answered')) {
+        currentQuestion = button.closest('.quiz-question');
         break;
       }
     }
@@ -788,7 +792,12 @@ class QuizSystem {
 
     // Safety checks
     if (!input || !feedback || !this.currentQuiz || !this.currentQuiz.correct) {
-      console.error('Missing elements or quiz data for fill blank check');
+      console.error('Missing elements or quiz data for fill blank check', {
+        input: !!input,
+        feedback: !!feedback,
+        currentQuiz: !!this.currentQuiz,
+        correct: this.currentQuiz?.correct
+      });
       return;
     }
 
@@ -895,14 +904,17 @@ class QuizSystem {
   }
 
   checkLetterPicker() {
-    // Find the current active question more reliably
-    const allQuestions = document.querySelectorAll('.quiz-question');
+    // Find the question with the letter picker check button that was clicked
+    const checkButtons = document.querySelectorAll('.quiz-check');
     let currentQuestion = null;
-
-    // Find the last unanswered question
-    for (let i = allQuestions.length - 1; i >= 0; i--) {
-      if (!allQuestions[i].classList.contains('answered')) {
-        currentQuestion = allQuestions[i];
+    
+    // Find the question that contains an active (visible) check button for letter picker
+    for (let button of checkButtons) {
+      if (button.style.display !== 'none' && 
+          button.closest('.quiz-question') && 
+          button.closest('.quiz-question').querySelector('.letter-picker-answer') &&
+          !button.closest('.quiz-question').classList.contains('answered')) {
+        currentQuestion = button.closest('.quiz-question');
         break;
       }
     }
@@ -916,7 +928,12 @@ class QuizSystem {
 
     // Safety checks
     if (!answerArea || !feedback || !this.currentQuiz || !this.currentQuiz.correct) {
-      console.error('Missing elements or quiz data for letter picker check');
+      console.error('Missing elements or quiz data for letter picker check', {
+        answerArea: !!answerArea,
+        feedback: !!feedback,
+        currentQuiz: !!this.currentQuiz,
+        correct: this.currentQuiz?.correct
+      });
       return;
     }
 
@@ -926,7 +943,10 @@ class QuizSystem {
     if (checkButton) {
       checkButton.style.display = 'none';
     }
-    currentQuestion.querySelectorAll('.letter-btn').forEach(btn => btn.disabled = true);
+    currentQuestion.querySelectorAll('.letter-btn').forEach(btn => {
+      btn.disabled = true;
+      btn.style.pointerEvents = 'none';
+    });
 
     if (isCorrect) {
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect spelling! "${this.currentQuiz.correct}"</div>`;
@@ -949,7 +969,8 @@ class QuizSystem {
   }
 
   selectWord(word, button) {
-    const answerArea = button.closest('.quiz-question').querySelector('.word-answer-area');
+    const currentQuestion = button.closest('.quiz-question');
+    const answerArea = currentQuestion.querySelector('.word-answer-area');
     const newSpan = document.createElement('span');
     newSpan.textContent = word + ' ';
     newSpan.className = 'selected-word';
@@ -957,27 +978,32 @@ class QuizSystem {
       newSpan.remove();
       button.disabled = false;
       button.style.opacity = '1';
+      button.style.pointerEvents = 'auto';
     };
 
     answerArea.appendChild(newSpan);
     button.disabled = true;
     button.style.opacity = '0.5';
+    button.style.pointerEvents = 'none';
   }
 
   checkWordOrder() {
-    // Find the current active question more reliably
-    const allQuestions = document.querySelectorAll('.quiz-question');
+    // Find the question with the word order check button that was clicked
+    const checkButtons = document.querySelectorAll('.quiz-check');
     let currentQuestion = null;
-
-    // Find the last unanswered question
-    for (let i = allQuestions.length - 1; i >= 0; i--) {
-      if (!allQuestions[i].classList.contains('answered')) {
-        currentQuestion = allQuestions[i];
+    
+    // Find the question that contains an active (visible) check button for word order
+    for (let button of checkButtons) {
+      if (button.style.display !== 'none' && 
+          button.closest('.quiz-question') && 
+          button.closest('.quiz-question').querySelector('.word-order-container') &&
+          !button.closest('.quiz-question').classList.contains('answered')) {
+        currentQuestion = button.closest('.quiz-question');
         break;
       }
     }
 
-    if (!currentQuestion || currentQuestion.classList.contains('answered')) return;
+    if (!currentQuestion) return;
 
     const answerArea = currentQuestion.querySelector('.word-answer-area');
     const feedback = currentQuestion.querySelector('.quiz-feedback');
@@ -986,7 +1012,11 @@ class QuizSystem {
 
     // Safety checks
     if (!answerArea || !feedback || !this.currentQuiz) {
-      console.error('Missing elements for word order check');
+      console.error('Missing elements for word order check', {
+        answerArea: !!answerArea,
+        feedback: !!feedback,
+        currentQuiz: !!this.currentQuiz
+      });
       return;
     }
 
@@ -997,7 +1027,10 @@ class QuizSystem {
     if (checkButton) {
       checkButton.style.display = 'none';
     }
-    currentQuestion.querySelectorAll('.word-btn').forEach(btn => btn.disabled = true);
+    currentQuestion.querySelectorAll('.word-btn').forEach(btn => {
+      btn.disabled = true;
+      btn.style.pointerEvents = 'none';
+    });
 
     if (isCorrect) {
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect word order! "${this.currentQuiz.correct}"</div>`;
