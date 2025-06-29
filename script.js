@@ -9,6 +9,8 @@ class QuizSystem {
     this.difficultyLevel = 'improver';
     this.selectedMatches = new Map();
     this.selectedAnswer = null;
+    this.askedQuestions = new Map(); // Track questions per container
+    this.correctAnswers = new Map(); // Track correct answers per container
 
     this.quizData = {
       seasons: {
@@ -70,9 +72,15 @@ class QuizSystem {
     };
   }
 
-  generateQuiz(topic, type = 'mixed') {
+  generateQuiz(topic, type = 'mixed', containerId = null) {
     const data = this.quizData[topic];
     if (!data) return null;
+
+    // Initialize tracking for this container if needed
+    if (containerId && !this.askedQuestions.has(containerId)) {
+      this.askedQuestions.set(containerId, new Set());
+      this.correctAnswers.set(containerId, new Set());
+    }
 
     const allQuizTypes = ['multipleChoice', 'matching', 'fillBlank'];
     let selectedType = type;
@@ -89,23 +97,50 @@ class QuizSystem {
       }
     }
 
+    // Special handling for topics with limited items
+    if (containerId) {
+      const askedSet = this.askedQuestions.get(containerId);
+      const correctSet = this.correctAnswers.get(containerId);
+      
+      // For seasons (only 4 items) - avoid matching if all are correct
+      if (topic === 'seasons' && selectedType === 'matching' && correctSet.size >= 4) {
+        selectedType = Math.random() < 0.5 ? 'multipleChoice' : 'fillBlank';
+      }
+      
+      // For small vocabulary sets, avoid repeated matching
+      if ((data.vocabulary && data.vocabulary.length <= 6) && selectedType === 'matching' && correctSet.size >= data.vocabulary.length) {
+        selectedType = Math.random() < 0.5 ? 'multipleChoice' : 'fillBlank';
+      }
+    }
+
     switch (selectedType) {
       case 'multipleChoice':
-        return this.generateMultipleChoice(data);
+        return this.generateMultipleChoice(data, containerId);
       case 'matching':
-        return this.generateMatching(data);
+        return this.generateMatching(data, containerId);
       case 'fillBlank':
-        return this.generateFillBlank(data);
+        return this.generateFillBlank(data, containerId);
       default:
-        return this.generateMultipleChoice(data);
+        return this.generateMultipleChoice(data, containerId);
     }
   }
 
-  generateMultipleChoice(data) {
+  generateMultipleChoice(data, containerId = null) {
     const vocab = data.vocabulary || [];
     if (vocab.length < 4) return null;
 
-    const correct = vocab[Math.floor(Math.random() * vocab.length)];
+    let availableVocab = vocab;
+    
+    // Filter out recently asked questions if we have enough options
+    if (containerId && this.askedQuestions.has(containerId)) {
+      const askedSet = this.askedQuestions.get(containerId);
+      const unasked = vocab.filter(v => !askedSet.has(v.italian + '_mc'));
+      if (unasked.length >= 4) {
+        availableVocab = unasked;
+      }
+    }
+
+    const correct = availableVocab[Math.floor(Math.random() * availableVocab.length)];
     const options = [correct];
 
     while (options.length < 4) {
@@ -121,19 +156,37 @@ class QuizSystem {
       [options[i], options[j]] = [options[j], options[i]];
     }
 
+    // Track this question
+    if (containerId && this.askedQuestions.has(containerId)) {
+      this.askedQuestions.get(containerId).add(correct.italian + '_mc');
+    }
+
     return {
       type: 'multipleChoice',
       question: `What is the Italian word for "${correct.english}"?`,
       options: options.map(opt => opt.italian),
-      correct: correct.italian
+      correct: correct.italian,
+      correctItem: correct
     };
   }
 
-  generateMatching(data) {
+  generateMatching(data, containerId = null) {
     const vocab = data.vocabulary || [];
     if (vocab.length < 3) return null;
 
-    const selectedVocab = vocab.slice(0, 4);
+    // Check if we've already done matching with all available items
+    if (containerId && this.askedQuestions.has(containerId)) {
+      const askedSet = this.askedQuestions.get(containerId);
+      const matchingKey = vocab.map(v => v.italian).sort().join(',') + '_matching';
+      if (askedSet.has(matchingKey)) {
+        // Return null to force a different quiz type
+        return null;
+      }
+      // Track this matching combination
+      askedSet.add(matchingKey);
+    }
+
+    const selectedVocab = vocab.slice(0, Math.min(4, vocab.length));
     const shuffledEnglish = [...selectedVocab.map(v => v.english)].sort(() => Math.random() - 0.5);
 
     return {
@@ -144,26 +197,44 @@ class QuizSystem {
       correct: selectedVocab.reduce((acc, v) => {
         acc[v.italian] = v.english;
         return acc;
-      }, {})
+      }, {}),
+      selectedVocab: selectedVocab
     };
   }
 
-  generateFillBlank(data) {
+  generateFillBlank(data, containerId = null) {
     const phrases = data.phrases || data.expressions || [];
     if (phrases.length === 0) return null;
 
-    const item = phrases[Math.floor(Math.random() * phrases.length)];
+    let availablePhrases = phrases;
+    
+    // Filter out recently asked questions
+    if (containerId && this.askedQuestions.has(containerId)) {
+      const askedSet = this.askedQuestions.get(containerId);
+      const unasked = phrases.filter(p => !askedSet.has(p.italian + '_fb'));
+      if (unasked.length > 0) {
+        availablePhrases = unasked;
+      }
+    }
+
+    const item = availablePhrases[Math.floor(Math.random() * availablePhrases.length)];
     const words = item.italian.split(' ');
     const blankIndex = Math.floor(Math.random() * words.length);
     const correctWord = words[blankIndex];
 
     words[blankIndex] = '_____';
 
+    // Track this question
+    if (containerId && this.askedQuestions.has(containerId)) {
+      this.askedQuestions.get(containerId).add(item.italian + '_fb');
+    }
+
     return {
       type: 'fillBlank',
       question: `Fill in the blank: ${words.join(' ')}`,
       hint: `Translation: "${item.english}"`,
-      correct: correctWord.toLowerCase()
+      correct: correctWord.toLowerCase(),
+      correctItem: item
     };
   }
 
@@ -301,6 +372,7 @@ class QuizSystem {
     const selectedButton = document.querySelector('.quiz-option.selected');
     const currentQuestion = selectedButton.closest('.quiz-question');
     const feedback = currentQuestion.querySelector('.quiz-feedback');
+    const containerId = currentQuestion.closest('.quiz-block').id;
 
     currentQuestion.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
 
@@ -308,6 +380,11 @@ class QuizSystem {
       selectedButton.classList.add('correct');
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct!</div>`;
       this.score++;
+      
+      // Track correct answer
+      if (this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
+        this.correctAnswers.get(containerId).add(this.currentQuiz.correctItem.italian);
+      }
     } else {
       selectedButton.classList.add('incorrect');
       currentQuestion.querySelectorAll('.quiz-option').forEach(btn => {
@@ -329,12 +406,21 @@ class QuizSystem {
     const totalItems = document.querySelectorAll('.match-item.italian').length;
     const feedback = document.querySelector('.quiz-feedback');
     const checkButton = document.querySelector('.quiz-check');
+    const currentQuestion = checkButton.closest('.quiz-question');
+    const containerId = currentQuestion.closest('.quiz-block').id;
 
     const isFullyMatched = matchedItems.length === totalItems * 2;
 
     if (isFullyMatched) {
       feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect! All matches are correct!</div>`;
       this.score++;
+      
+      // Track all correct matches
+      if (this.correctAnswers.has(containerId) && this.currentQuiz.selectedVocab) {
+        this.currentQuiz.selectedVocab.forEach(item => {
+          this.correctAnswers.get(containerId).add(item.italian);
+        });
+      }
     } else {
       const correctMatches = matchedItems.length / 2;
       feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> You matched ${correctMatches} out of ${totalItems} correctly.</div>`;
@@ -374,18 +460,32 @@ class QuizSystem {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
-    // Mark current question as previous
-    const currentQuestion = currentContainer.querySelector('.quiz-question:last-child');
-    if (currentQuestion) {
-      currentQuestion.classList.add('previous-question');
-      currentQuestion.classList.remove('new-question');
+    // Remove all previous questions except the most recent
+    const allQuestions = currentContainer.querySelectorAll('.quiz-question');
+    if (allQuestions.length > 1) {
+      // Keep only the last question and remove all others except the very last one
+      for (let i = 0; i < allQuestions.length - 1; i++) {
+        if (i < allQuestions.length - 2) {
+          allQuestions[i].remove();
+        } else {
+          // Mark the second-to-last as previous
+          allQuestions[i].classList.add('previous-question');
+          allQuestions[i].classList.remove('new-question');
+        }
+      }
     }
 
     const containerId = currentContainer.id;
     const topicIndex = containerId.replace('quiz', '');
     const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
     const topic = topics[topicIndex] || 'seasons';
-    const nextQuiz = this.generateQuiz(topic);
+    
+    let nextQuiz = this.generateQuiz(topic, 'mixed', containerId);
+    
+    // If quiz generation returns null (e.g., avoided repetitive matching), try a different type
+    if (!nextQuiz) {
+      nextQuiz = this.generateQuiz(topic, 'multipleChoice', containerId);
+    }
 
     if (nextQuiz) {
       this.appendQuiz(nextQuiz, containerId);
@@ -478,7 +578,7 @@ class QuizSystem {
     const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
     const topic = topics[topicIndex] || 'seasons';
 
-    const quiz = this.generateQuiz(topic);
+    const quiz = this.generateQuiz(topic, 'mixed', containerId);
     if (quiz) {
       this.renderQuiz(quiz, containerId);
     }

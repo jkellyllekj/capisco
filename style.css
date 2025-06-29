@@ -1438,19 +1438,7 @@ footer {
   position: relative;
 }
 
-.new-question::before {
-  content: "Current Question";
-  position: absolute;
-  top: -12px;
-  left: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 15px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
+
 
 @keyframes slideInUp {
   from {
