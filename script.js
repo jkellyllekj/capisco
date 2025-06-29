@@ -1,3 +1,7 @@
+` tags.
+
+```
+<replit_final_file>
 // Toggle quiz function for backward compatibility
 function toggleQuiz(quizId) {
   const quiz = document.getElementById(quizId);
@@ -417,20 +421,6 @@ class QuizSystem {
     };
   }
 
-  // Add missing setupWordOrderEventListeners function
-  setupWordOrderEventListeners() {
-    const wordButtons = document.querySelectorAll('.word-btn');
-    wordButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (!e.target.disabled) {
-          const word = e.target.dataset.word || e.target.textContent;
-          this.selectWord(word, e.target);
-        }
-      });
-    });
-  }
-
   generateLetterPicker(data) {
     const vocab = data.vocabulary || [];
     if (vocab.length === 0) return null;
@@ -821,75 +811,6 @@ class QuizSystem {
         this.handleMatchingKeyboard(e, currentQuestion);
       }
     });
-  }
-
-  handleMatchingKeyboard(e, currentQuestion) {
-    // Basic keyboard support for matching games
-    if (e.key === 'Enter') {
-      const checkButton = currentQuestion.querySelector('.quiz-check');
-      if (checkButton && checkButton.style.display !== 'none') {
-        checkButton.click();
-      }
-    }
-  }
-
-  handleMultipleChoiceKeyboard(e, currentQuestion) {
-    if (e.key === 'Enter') {
-      const selectedOption = currentQuestion.querySelector('.quiz-option.selected');
-      if (selectedOption && !selectedOption.disabled) {
-        this.checkMultipleChoice();
-      }
-      return;
-    }
-
-    // Number key selection (1-4)
-    const num = parseInt(e.key);
-    if (num >= 1 && num <= 4) {
-      const options = Array.from(currentQuestion.querySelectorAll('.quiz-option:not(:disabled)'));
-      if (options[num - 1]) {
-        this.selectOption(options[num - 1].textContent, options[num - 1]);
-      }
-      return;
-    }
-
-    // Letter-based selection
-    const options = Array.from(currentQuestion.querySelectorAll('.quiz-option:not(:disabled)'));
-    if (options.length === 0) return;
-
-    this.currentKeyboardInput += e.key.toLowerCase();
-
-    // Find matching options
-    const matchingOptions = options.filter(opt => 
-      opt.textContent.toLowerCase().startsWith(this.currentKeyboardInput)
-    );
-
-    if (matchingOptions.length === 1) {
-      // Exact match found - select it
-      this.selectOption(matchingOptions[0].textContent, matchingOptions[0]);
-      this.currentKeyboardInput = '';
-    } else if (matchingOptions.length > 1) {
-      // Multiple matches - highlight the first one
-      currentQuestion.querySelectorAll('.quiz-option.keyboard-highlight').forEach(opt => 
-        opt.classList.remove('keyboard-highlight')
-      );
-      matchingOptions[0].classList.add('keyboard-highlight');
-    } else {
-      // No matches - reset
-      this.currentKeyboardInput = '';
-      currentQuestion.querySelectorAll('.quiz-option.keyboard-highlight').forEach(opt => 
-        opt.classList.remove('keyboard-highlight')
-      );
-    }
-
-    // Clear input after delay
-    setTimeout(() => {
-      if (this.currentKeyboardInput.length > 0) {
-        this.currentKeyboardInput = '';
-        currentQuestion.querySelectorAll('.quiz-option.keyboard-highlight').forEach(opt => 
-          opt.classList.remove('keyboard-highlight')
-        );
-      }
-    }, 1500);
   }
 
   autoProgressToNext(feedback) {
@@ -1361,53 +1282,7 @@ class QuizSystem {
     currentContainer.appendChild(finalScore);
   }
 
-  renderImageQuiz(quiz) {
-    let imageDisplay = '';
-
-    switch (quiz.subtype) {
-      case 'identify':
-        imageDisplay = `
-          <div class="image-quiz-display">
-            <div class="quiz-image-large">${quiz.image}</div>
-            ${quiz.icon ? `<div class="quiz-icon"><i class="fas fa-${quiz.icon}" style="color: ${quiz.color}; font-size: 2rem;"></i></div>` : ''}
-          </div>
-        `;
-        break;
-      case 'scene':
-        imageDisplay = `
-          <div class="image-quiz-display">
-            <div class="scene-description">${quiz.scene}</div>
-            <div class="quiz-image-large">${quiz.image}</div>
-          </div>
-        `;
-        break;
-      case 'emoji':
-        imageDisplay = `
-          <div class="image-quiz-display">
-            <div class="quiz-emoji-large">${quiz.image}</div>
-          </div>
-        `;
-        break;
-    }
-
-    return `
-      <div class="quiz-question image-quiz-question">
-        <h4>${quiz.question}</h4>
-        ${imageDisplay}
-        <div class="quiz-options">
-          ${quiz.options.map((option, index) => `
-            <button class="quiz-option" onclick="quizSystem.selectOption('${option}', this)">${option}</button>
-          `).join('')}
-        </div>
-        <button class="quiz-check" onclick="quizSystem.checkMultipleChoice()" style="display: none;">
-          <i class="fas fa-check"></i> Check Answer
-        </button>
-        <div class="quiz-feedback" style="display: none;"></div>
-      </div>
-    `;
-  }
-
-startEndlessQuiz(containerId) {
+  startEndlessQuiz(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -1433,7 +1308,7 @@ startEndlessQuiz(containerId) {
     switch (quiz.type) {
       case 'multipleChoice':
         html = this.renderMultipleChoice(quiz);
-      break;
+        break;
       case 'matching':
         html = this.renderMatching(quiz);
         break;
@@ -1464,15 +1339,6 @@ startEndlessQuiz(containerId) {
         setTimeout(() => this.setupWordOrderEventListeners(), 100);
       }
     }
-  }
-
-  autoProgressToNext(feedbackElement) {
-    setTimeout(() => {
-      const container = feedbackElement.closest('.endless-quiz-container');
-      if (container) {
-        this.generateNextQuestion(container);
-      }
-    }, 3000);
   }
 }
 
