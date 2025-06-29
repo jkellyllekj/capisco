@@ -735,19 +735,29 @@ class QuizSystem {
   }
 
   selectOption(answer, button) {
+    // Prevent selecting disabled buttons
+    if (button.disabled) return;
+
     const currentQuestion = button.closest('.quiz-question');
+    if (!currentQuestion) return;
+
+    // Remove previous selections
     currentQuestion.querySelectorAll('.quiz-option.selected').forEach(opt => opt.classList.remove('selected'));
 
+    // Add selection to clicked button
     button.classList.add('selected');
     this.selectedAnswer = answer;
 
-    // Auto-check answer immediately instead of showing check button
-    setTimeout(() => this.checkMultipleChoice(), 100);
+    // Auto-check answer after brief delay for visual feedback
+    setTimeout(() => this.checkMultipleChoice(), 300);
   }
 
   setupKeyboardNavigation() {
     document.addEventListener('keydown', (e) => {
       if (!this.currentQuiz) return;
+
+      // Don't interfere with typing in input fields
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
       const currentQuestion = document.querySelector('.quiz-question:last-child');
       if (!currentQuestion) return;
@@ -776,6 +786,16 @@ class QuizSystem {
       const selectedOption = currentQuestion.querySelector('.quiz-option.selected');
       if (selectedOption && !selectedOption.disabled) {
         this.checkMultipleChoice();
+      }
+      return;
+    }
+
+    // Number key selection (1-4)
+    const num = parseInt(e.key);
+    if (num >= 1 && num <= 4) {
+      const options = Array.from(currentQuestion.querySelectorAll('.quiz-option:not(:disabled)'));
+      if (options[num - 1]) {
+        this.selectOption(options[num - 1].textContent, options[num - 1]);
       }
       return;
     }
@@ -820,16 +840,6 @@ class QuizSystem {
     }, 1500);
   }
 
-  handleMatchingKeyboard(e, currentQuestion) {
-    // Basic keyboard support for matching games
-    if (e.key === 'Enter') {
-      const checkButton = currentQuestion.querySelector('.quiz-check');
-      if (checkButton && checkButton.style.display !== 'none') {
-        checkButton.click();
-      }
-    }
-  }
-
   autoProgressToNext(feedback) {
     // Auto-progress after 4 seconds (slower) and with better visual indication
     setTimeout(() => {
@@ -841,15 +851,21 @@ class QuizSystem {
     if (!this.selectedAnswer) return;
 
     const isCorrect = this.selectedAnswer === this.currentQuiz.correct;
-    const currentQuestion = document.querySelector('.quiz-option.selected').closest('.quiz-question');
+    const selectedButton = document.querySelector('.quiz-option.selected');
+    if (!selectedButton) return;
+
+    const currentQuestion = selectedButton.closest('.quiz-question');
+    if (!currentQuestion) return;
+
     const feedback = currentQuestion.querySelector('.quiz-feedback');
-    const selectedButton = currentQuestion.querySelector('.quiz-option.selected');
+    if (!feedback) return;
 
     // Update spaced repetition for the word
     if (this.currentQuiz.wordBeingTested) {
       this.updateSpacedRepetition(this.currentQuiz.wordBeingTested, isCorrect);
     }
 
+    // Disable all options
     currentQuestion.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
 
     if (isCorrect) {
@@ -858,6 +874,7 @@ class QuizSystem {
       this.score++;
     } else {
       selectedButton.classList.add('incorrect');
+      // Highlight the correct answer
       currentQuestion.querySelectorAll('.quiz-option').forEach(btn => {
         if (btn.textContent === this.currentQuiz.correct) {
           btn.classList.add('correct');
@@ -869,10 +886,14 @@ class QuizSystem {
     this.totalQuestions++;
     feedback.style.display = 'block';
 
+    // Add score display
     const scoreDisplay = document.createElement('div');
     scoreDisplay.className = 'quiz-score-display';
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
+
+    // Clear selected answer
+    this.selectedAnswer = null;
 
     // Auto-progress to next question
     this.autoProgressToNext(feedback);
@@ -1337,9 +1358,20 @@ class QuizSystem {
 
 const quizSystem = new QuizSystem();
 
-// Initialize keyboard navigation
+// Initialize the quiz system
 document.addEventListener('DOMContentLoaded', () => {
   quizSystem.setupKeyboardNavigation();
+  
+  // Add click handlers to quiz buttons
+  document.querySelectorAll('.quiz-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const quizId = this.getAttribute('onclick').match(/toggleQuiz\('([^']+)'\)/)[1];
+      if (quizId) {
+        toggleQuiz(quizId);
+      }
+    });
+  });
 });
 
 function toggleQuiz(id) {
