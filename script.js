@@ -1,7 +1,3 @@
-` tags.
-
-```
-<replit_final_file>
 // Toggle quiz function for backward compatibility
 function toggleQuiz(quizId) {
   const quiz = document.getElementById(quizId);
@@ -570,45 +566,51 @@ class QuizSystem {
 
   renderMultipleChoice(quiz) {
     return `
-      <h4>${quiz.question}</h4>
-      <div class="quiz-options">
-        ${quiz.options.map((option, index) => `
-          <button class="quiz-option" onclick="quizSystem.selectOption('${option}', this)">${option}</button>
-        `).join('')}
+      <div class="quiz-question">
+        <h4>${quiz.question}</h4>
+        <div class="quiz-options">
+          ${quiz.options.map((option, index) => `
+            <button class="quiz-option" onclick="quizSystem.selectOption('${option}', this)">${option}</button>
+          `).join('')}
+        </div>
+        <div class="quiz-feedback" style="display: none; margin-top: 1rem;"></div>
       </div>
-      <div class="quiz-feedback" style="display: none; margin-top: 1rem;"></div>
     `;
   }
 
   renderMatching(quiz) {
     return `
-      <h4>${quiz.question}</h4>
-      <div class="matching-container">
-        <div class="italian-column">
-          <h5>Italian</h5>
-          ${quiz.italian.map(word => `
-            <div class="match-item italian" data-word="${word}">${word}</div>
-          `).join('')}
+      <div class="quiz-question">
+        <h4>${quiz.question}</h4>
+        <div class="matching-container">
+          <div class="italian-column">
+            <h5>Italian</h5>
+            ${quiz.italian.map(word => `
+              <div class="match-item italian" data-word="${word}">${word}</div>
+            `).join('')}
+          </div>
+          <div class="english-column">
+            <h5>English</h5>
+            ${quiz.english.map(word => `
+              <div class="match-item english" data-word="${word}">${word}</div>
+            `).join('')}
+          </div>
         </div>
-        <div class="english-column">
-          <h5>English</h5>
-          ${quiz.english.map(word => `
-            <div class="match-item english" data-word="${word}">${word}</div>
-          `).join('')}
-        </div>
+        <button class="quiz-check" onclick="quizSystem.checkMatching()">Check Answers</button>
+        <div class="quiz-feedback" style="display: none; margin-top: 1rem;"></div>
       </div>
-      <button class="quiz-check" onclick="quizSystem.checkMatching()">Check Answers</button>
-      <div class="quiz-feedback" style="display: none; margin-top: 1rem;"></div>
     `;
   }
 
   renderFillBlank(quiz) {
     return `
-      <h4>${quiz.question}</h4>
-      <p class="quiz-hint"><em>${quiz.hint}</em></p>
-      <input type="text" class="quiz-input fill-blank" placeholder="Type your answer...">
-      <button class="quiz-check" onclick="quizSystem.checkFillBlank()">Check Answer</button>
-      <div class="quiz-feedback" style="display: none; margin-top: 1rem;"></div>
+      <div class="quiz-question">
+        <h4>${quiz.question}</h4>
+        <p class="quiz-hint"><em>${quiz.hint}</em></p>
+        <input type="text" class="quiz-input fill-blank" placeholder="Type your answer...">
+        <button class="quiz-check" onclick="quizSystem.checkFillBlank()">Check Answer</button>
+        <div class="quiz-feedback" style="display: none; margin-top: 1rem;"></div>
+      </div>
     `;
   }
 
@@ -662,28 +664,30 @@ class QuizSystem {
 
   renderWordOrder(quiz) {
     return `
-      <h4>${quiz.question}</h4>
-      <div class="word-order-container">
-        <div class="word-bank">
-          <h5>Available Words:</h5>
-          <div class="word-bank-words">
-            ${quiz.words.map((word, index) => `
-              <button class="word-btn" data-word="${word}" data-index="${index}">${word}</button>
-            `).join('')}
+      <div class="quiz-question">
+        <h4>${quiz.question}</h4>
+        <div class="word-order-container">
+          <div class="word-bank">
+            <h5>Available Words:</h5>
+            <div class="word-bank-words">
+              ${quiz.words.map((word, index) => `
+                <button class="word-btn" data-word="${word}" data-index="${index}">${word}</button>
+              `).join('')}
+            </div>
+          </div>
+          <div class="answer-area">
+            <h5>Your Answer:</h5>
+            <div class="word-order-answer"></div>
+            <div class="word-order-controls">
+              <button class="quiz-option" onclick="quizSystem.clearWordOrder()">Clear</button>
+              <button class="quiz-check" onclick="quizSystem.checkWordOrder()">
+                <i class="fas fa-check"></i> Check Answer
+              </button>
+            </div>
           </div>
         </div>
-        <div class="answer-area">
-          <h5>Your Answer:</h5>
-          <div class="word-order-answer"></div>
-          <div class="word-order-controls">
-            <button class="quiz-option" onclick="quizSystem.clearWordOrder()">Clear</button>
-            <button class="quiz-check" onclick="quizSystem.checkWordOrder()">
-              <i class="fas fa-check"></i> Check Answer
-            </button>
-          </div>
-        </div>
+        <div class="quiz-feedback" style="display: none; margin-top: 1rem;"></div>
       </div>
-      <div class="quiz-feedback" style="display: none; margin-top: 1rem;"></div>
     `;
   }
 
@@ -765,7 +769,7 @@ class QuizSystem {
         englishMatch.element.classList.add('matched');
         italianMatch.element.classList.remove('selected');
         englishMatch.element.classList.remove('selected');
-      } else {
+            } else {
         setTimeout(() => {
           italianMatch.element.classList.remove('selected');
           englishMatch.element.classList.remove('selected');
@@ -1308,25 +1312,18 @@ class QuizSystem {
     switch (quiz.type) {
       case 'multipleChoice':
         html = this.renderMultipleChoice(quiz);
-        break;
       case 'matching':
         html = this.renderMatching(quiz);
-        break;
       case 'fillBlank':
         html = this.renderFillBlank(quiz);
-        break;
       case 'flashcard':
         html = this.renderFlashcard(quiz);
-        break;
       case 'letterPicker':
         html = this.renderLetterPicker(quiz);
-        break;
       case 'wordOrder':
         html = this.renderWordOrder(quiz);
-        break;
       case 'audioQuiz':
         html = this.renderAudioQuiz(quiz);
-        break;
     }
     return html;
   }
