@@ -510,7 +510,7 @@ class QuizSystem {
               <div class="word-answer-area"></div>
               <div class="word-buttons">
                 ${quiz.words.map((word, index) => `
-                  <button class="word-btn" data-word="${word}" data-index="${index}">${word}</button>
+                  <button class="word-btn" data-word="${word}" data-index="${index}" onclick="quizSystem.selectWord('${word}', this)">${word}</button>
                 `).join('')}
               </div>
             </div>
@@ -1198,7 +1198,7 @@ class QuizSystem {
               <div class="word-answer-area"></div>
               <div class="word-buttons">
                 ${quiz.words.map((word, index) => `
-                  <button class="word-btn" data-word="${word}" data-index="${index}">${word}</button>
+                  <button class="word-btn" data-word="${word}" data-index="${index}" onclick="quizSystem.selectWord('${word}', this)">${word}</button>
                 `).join('')}
               </div>
             </div>
