@@ -297,25 +297,32 @@ class QuizSystem {
   generateMatching(data) {
     let vocab = [];
 
-    // Try different data structures to find vocabulary
-    if (data.vocabulary && Array.isArray(data.vocabulary)) {
+    // Safe data access with null checks
+    if (data && data.vocabulary && Array.isArray(data.vocabulary)) {
       vocab = data.vocabulary.slice(0, 4);
-    } else if (data.vocabulary && data.vocabulary.vocabulary && Array.isArray(data.vocabulary.vocabulary)) {
+    } else if (data && data.vocabulary && data.vocabulary.vocabulary && Array.isArray(data.vocabulary.vocabulary)) {
       vocab = data.vocabulary.vocabulary.slice(0, 4);
     } else if (Array.isArray(data)) {
       vocab = data.slice(0, 4);
+    } else if (data && data.phrases && Array.isArray(data.phrases)) {
+      // Use phrases if no vocabulary available
+      vocab = data.phrases.slice(0, 4);
     }
 
-    if (vocab.length < 3) return null;
+    if (!vocab || vocab.length < 3) return null;
 
-    const shuffledEnglish = [...vocab.map(v => v.english)].sort(() => Math.random() - 0.5);
+    // Ensure all vocab items have required properties
+    const validVocab = vocab.filter(v => v && v.italian && v.english);
+    if (validVocab.length < 3) return null;
+
+    const shuffledEnglish = [...validVocab.map(v => v.english)].sort(() => Math.random() - 0.5);
 
     return {
       type: 'matching',
       question: 'Match the Italian words with their English translations:',
-      italian: vocab.map(v => v.italian),
+      italian: validVocab.map(v => v.italian),
       english: shuffledEnglish,
-      correct: vocab.reduce((acc, v) => {
+      correct: validVocab.reduce((acc, v) => {
         acc[v.italian] = v.english;
         return acc;
       }, {})
@@ -521,51 +528,45 @@ class QuizSystem {
 
   renderMultipleChoice(quiz) {
     return `
-      <div class="quiz-question">
-        <h4>${quiz.question}</h4>
-        <div class="quiz-options">
-          ${quiz.options.map((option, index) => `
-            <button class="quiz-option" onclick="quizSystem.selectOption('${option}', this)">${option}</button>
-          `).join('')}
-        </div>
-        <div class="quiz-feedback" style="display: none;"></div>
+      <h4>${quiz.question}</h4>
+      <div class="quiz-options">
+        ${quiz.options.map((option, index) => `
+          <button class="quiz-option" onclick="quizSystem.selectOption('${option}', this)">${option}</button>
+        `).join('')}
       </div>
+      <div class="quiz-feedback" style="display: none; margin-top: 1rem;"></div>
     `;
   }
 
   renderMatching(quiz) {
     return `
-      <div class="quiz-question">
-        <h4>${quiz.question}</h4>
-        <div class="matching-container">
-          <div class="italian-column">
-            <h5>Italian</h5>
-            ${quiz.italian.map(word => `
-              <div class="match-item italian" data-word="${word}">${word}</div>
-            `).join('')}
-          </div>
-          <div class="english-column">
-            <h5>English</h5>
-            ${quiz.english.map(word => `
-              <div class="match-item english" data-word="${word}">${word}</div>
-            `).join('')}
-          </div>
+      <h4>${quiz.question}</h4>
+      <div class="matching-container">
+        <div class="italian-column">
+          <h5>Italian</h5>
+          ${quiz.italian.map(word => `
+            <div class="match-item italian" data-word="${word}">${word}</div>
+          `).join('')}
         </div>
-        <div class="quiz-feedback" style="display: none;"></div>
-        <button class="quiz-check" onclick="quizSystem.checkMatching()">Check Answers</button>
+        <div class="english-column">
+          <h5>English</h5>
+          ${quiz.english.map(word => `
+            <div class="match-item english" data-word="${word}">${word}</div>
+          `).join('')}
+        </div>
       </div>
+      <button class="quiz-check" onclick="quizSystem.checkMatching()">Check Answers</button>
+      <div class="quiz-feedback" style="display: none; margin-top: 1rem;"></div>
     `;
   }
 
   renderFillBlank(quiz) {
     return `
-      <div class="quiz-question">
-        <h4>${quiz.question}</h4>
-        <p class="quiz-hint"><em>${quiz.hint}</em></p>
-        <input type="text" class="quiz-input fill-blank" placeholder="Type your answer...">
-        <div class="quiz-feedback" style="display: none;"></div>
-        <button class="quiz-check" onclick="quizSystem.checkFillBlank()">Check Answer</button>
-      </div>
+      <h4>${quiz.question}</h4>
+      <p class="quiz-hint"><em>${quiz.hint}</em></p>
+      <input type="text" class="quiz-input fill-blank" placeholder="Type your answer...">
+      <button class="quiz-check" onclick="quizSystem.checkFillBlank()">Check Answer</button>
+      <div class="quiz-feedback" style="display: none; margin-top: 1rem;"></div>
     `;
   }
 
@@ -619,30 +620,28 @@ class QuizSystem {
 
   renderWordOrder(quiz) {
     return `
-      <div class="quiz-question">
-        <h4>${quiz.question}</h4>
-        <div class="word-order-container">
-          <div class="word-bank">
-            <h5>Available Words:</h5>
-            <div class="word-bank-words">
-              ${quiz.words.map((word, index) => `
-                <button class="word-btn" data-word="${word}" data-index="${index}">${word}</button>
-              `).join('')}
-            </div>
-          </div>
-          <div class="answer-area">
-            <h5>Your Answer:</h5>
-            <div class="word-order-answer"></div>
-            <div class="word-order-controls">
-              <button class="quiz-option" onclick="quizSystem.clearWordOrder()">Clear</button>
-              <button class="quiz-check" onclick="quizSystem.checkWordOrder()">
-                <i class="fas fa-check"></i> Check Answer
-              </button>
-            </div>
+      <h4>${quiz.question}</h4>
+      <div class="word-order-container">
+        <div class="word-bank">
+          <h5>Available Words:</h5>
+          <div class="word-bank-words">
+            ${quiz.words.map((word, index) => `
+              <button class="word-btn" data-word="${word}" data-index="${index}">${word}</button>
+            `).join('')}
           </div>
         </div>
-        <div class="quiz-feedback" style="display: none;"></div>
+        <div class="answer-area">
+          <h5>Your Answer:</h5>
+          <div class="word-order-answer"></div>
+          <div class="word-order-controls">
+            <button class="quiz-option" onclick="quizSystem.clearWordOrder()">Clear</button>
+            <button class="quiz-check" onclick="quizSystem.checkWordOrder()">
+              <i class="fas fa-check"></i> Check Answer
+            </button>
+          </div>
+        </div>
       </div>
+      <div class="quiz-feedback" style="display: none; margin-top: 1rem;"></div>
     `;
   }
 
@@ -772,11 +771,70 @@ class QuizSystem {
     }
   }
 
+  handleMultipleChoiceKeyboard(e, currentQuestion) {
+    if (e.key === 'Enter') {
+      const selectedOption = currentQuestion.querySelector('.quiz-option.selected');
+      if (selectedOption && !selectedOption.disabled) {
+        this.checkMultipleChoice();
+      }
+      return;
+    }
+
+    // Letter-based selection
+    const options = Array.from(currentQuestion.querySelectorAll('.quiz-option:not(:disabled)'));
+    if (options.length === 0) return;
+
+    this.currentKeyboardInput += e.key.toLowerCase();
+
+    // Find matching options
+    const matchingOptions = options.filter(opt => 
+      opt.textContent.toLowerCase().startsWith(this.currentKeyboardInput)
+    );
+
+    if (matchingOptions.length === 1) {
+      // Exact match found - select it
+      this.selectOption(matchingOptions[0].textContent, matchingOptions[0]);
+      this.currentKeyboardInput = '';
+    } else if (matchingOptions.length > 1) {
+      // Multiple matches - highlight the first one
+      currentQuestion.querySelectorAll('.quiz-option.keyboard-highlight').forEach(opt => 
+        opt.classList.remove('keyboard-highlight')
+      );
+      matchingOptions[0].classList.add('keyboard-highlight');
+    } else {
+      // No matches - reset
+      this.currentKeyboardInput = '';
+      currentQuestion.querySelectorAll('.quiz-option.keyboard-highlight').forEach(opt => 
+        opt.classList.remove('keyboard-highlight')
+      );
+    }
+
+    // Clear input after delay
+    setTimeout(() => {
+      if (this.currentKeyboardInput.length > 0) {
+        this.currentKeyboardInput = '';
+        currentQuestion.querySelectorAll('.quiz-option.keyboard-highlight').forEach(opt => 
+          opt.classList.remove('keyboard-highlight')
+        );
+      }
+    }, 1500);
+  }
+
+  handleMatchingKeyboard(e, currentQuestion) {
+    // Basic keyboard support for matching games
+    if (e.key === 'Enter') {
+      const checkButton = currentQuestion.querySelector('.quiz-check');
+      if (checkButton && checkButton.style.display !== 'none') {
+        checkButton.click();
+      }
+    }
+  }
+
   autoProgressToNext(feedback) {
-    // Auto-progress after 3 seconds
+    // Auto-progress after 4 seconds (slower) and with better visual indication
     setTimeout(() => {
       this.addNextQuestion();
-    }, 3000);
+    }, 4000);
   }
 
   checkMultipleChoice() {
@@ -1030,24 +1088,43 @@ class QuizSystem {
     if (!currentContainer) return;
 
     const existingQuestions = currentContainer.querySelectorAll('.quiz-question');
-    // Keep previous questions with their feedback instead of removing them
-    if (existingQuestions.length >= 3) {
-      existingQuestions[0].remove();
+    
+    // Only remove old questions if we have too many, and keep their feedback visible
+    if (existingQuestions.length >= 4) {
+      const oldestQuestion = existingQuestions[0];
+      // Add a "previous question" class to maintain styling but show it's past
+      oldestQuestion.classList.add('previous-question');
+      // Fade it out slowly then remove
+      oldestQuestion.style.opacity = '0.6';
+      oldestQuestion.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        oldestQuestion.remove();
+      }, 1000);
     }
 
     const containerId = currentContainer.id;
     const topicIndex = containerId.replace('quiz', '');
-    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar']; // Reordered to match HTML quiz order
+    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
     const topic = topics[topicIndex] || 'seasons';
     const nextQuiz = this.generateQuiz(topic);
 
     if (nextQuiz) {
-      const nextQuestionDiv = document.createElement('div');
-      nextQuestionDiv.className = 'quiz-question';
-      nextQuestionDiv.style.marginTop = '2rem';
-      nextQuestionDiv.style.paddingTop = '2rem';
-      nextQuestionDiv.style.borderTop = '2px solid #e9ecef';
+      // Add visual separator between questions
+      const separator = document.createElement('div');
+      separator.className = 'quiz-separator';
+      separator.innerHTML = `
+        <div style="text-align: center; margin: 2rem 0; padding: 1rem;">
+          <div style="height: 2px; background: linear-gradient(to right, transparent, #e9ecef, transparent); margin: 1rem 0;"></div>
+          <span style="color: #6c757d; font-size: 0.9rem; background: #f8f9fa; padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid #e9ecef;">
+            <i class="fas fa-arrow-down"></i> Next Question
+          </span>
+        </div>
+      `;
+      currentContainer.appendChild(separator);
 
+      const nextQuestionDiv = document.createElement('div');
+      nextQuestionDiv.className = 'quiz-question new-question';
+      
       let html = '';
       switch (nextQuiz.type) {
         case 'multipleChoice':
@@ -1076,14 +1153,33 @@ class QuizSystem {
       nextQuestionDiv.innerHTML = html;
       currentContainer.appendChild(nextQuestionDiv);
 
-      nextQuestionDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Slower, more noticeable scroll with a pause
+      setTimeout(() => {
+        nextQuestionDiv.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+        
+        // Add highlight effect to new question
+        nextQuestionDiv.style.background = 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 20%, white 100%)';
+        nextQuestionDiv.style.borderRadius = '12px';
+        nextQuestionDiv.style.padding = '1.5rem';
+        nextQuestionDiv.style.boxShadow = '0 4px 12px rgba(255, 193, 7, 0.3)';
+        
+        // Remove highlight after a moment
+        setTimeout(() => {
+          nextQuestionDiv.style.background = '';
+          nextQuestionDiv.style.boxShadow = '';
+          nextQuestionDiv.classList.remove('new-question');
+        }, 2000);
+      }, 500);
 
       this.currentQuiz = nextQuiz;
 
       if (nextQuiz.type === 'matching') {
-        this.setupMatchingEventListeners();
+        setTimeout(() => this.setupMatchingEventListeners(), 600);
       } else if (nextQuiz.type === 'wordOrder') {
-        this.setupWordOrderEventListeners();
+        setTimeout(() => this.setupWordOrderEventListeners(), 600);
       }
 
       // Add Enter key support for new question
@@ -1099,7 +1195,7 @@ class QuizSystem {
             }
           });
         });
-      }, 100);
+      }, 600);
     }
   }
 
