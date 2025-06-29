@@ -7,6 +7,9 @@ class QuizSystem {
     this.autoNextEnabled = true;
     this.recentQuizTypes = []; // Track recent quiz types for variety
     this.maxRecentTypes = 3; // Don't repeat same type within last 3 questions
+    this.spacedRepetition = new Map(); // Track word performance for spaced repetition
+    this.difficultyLevel = 'improver'; // starter, improver, scholar
+    this.currentKeyboardInput = ''; // For keyboard shortcuts
     this.quizData = {
       seasons: {
         vocabulary: [
@@ -123,6 +126,46 @@ class QuizSystem {
     this.selectedMatches = new Map();
   }
 
+  updateSpacedRepetition(word, correct) {
+    if (!this.spacedRepetition.has(word)) {
+      this.spacedRepetition.set(word, {
+        correctCount: 0,
+        incorrectCount: 0,
+        lastSeen: Date.now(),
+        interval: 1, // Days before showing again
+        easiness: 2.5 // Spaced repetition easiness factor
+      });
+    }
+
+    const item = this.spacedRepetition.get(word);
+    item.lastSeen = Date.now();
+
+    if (correct) {
+      item.correctCount++;
+      item.interval = Math.ceil(item.interval * item.easiness);
+      item.easiness = Math.min(item.easiness + 0.1, 3.0);
+    } else {
+      item.incorrectCount++;
+      item.interval = 1; // Reset interval for incorrect answers
+      item.easiness = Math.max(item.easiness - 0.2, 1.3);
+    }
+
+    this.spacedRepetition.set(word, item);
+  }
+
+  shouldShowWord(word) {
+    if (!this.spacedRepetition.has(word)) return true;
+    
+    const item = this.spacedRepetition.get(word);
+    const daysSinceLastSeen = (Date.now() - item.lastSeen) / (1000 * 60 * 60 * 24);
+    return daysSinceLastSeen >= item.interval;
+  }
+
+  getAvailableWords(data) {
+    const vocab = data.vocabulary || [];
+    return vocab.filter(item => this.shouldShowWord(item.italian));
+  }
+
   generateQuiz(topic, type = 'mixed') {
     const data = this.quizData[topic];
     if (!data) return null;
@@ -220,10 +263,13 @@ class QuizSystem {
   }
 
   generateMultipleChoice(data) {
+    const availableWords = this.getAvailableWords(data);
     const vocab = data.vocabulary || [];
     if (vocab.length < 4) return null;
 
-    const correct = vocab[Math.floor(Math.random() * vocab.length)];
+    // Prioritize words that need review, fallback to all words if none available
+    const wordsToUse = availableWords.length > 0 ? availableWords : vocab;
+    const correct = wordsToUse[Math.floor(Math.random() * wordsToUse.length)];
     const options = [correct];
 
     while (options.length < 4) {
@@ -243,6 +289,7 @@ class QuizSystem {
       question: `What is the Italian word for "${correct.english}"?`,
       options: options.map(opt => opt.italian),
       correct: correct.italian,
+      wordBeingTested: correct.italian,
       explanation: `"${correct.italian}" means "${correct.english}" in English. ${correct.etymology || ''} ${correct.lesson ? `You learned this in ${correct.lesson}.` : ''}`
     };
   }
@@ -336,6 +383,58 @@ class QuizSystem {
     };
   }
 
+  renderDifficultySelector(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const difficultyHtml = `
+      <div class="difficulty-selector">
+        <h4><i class="fas fa-graduation-cap"></i> Choose Your Learning Level</h4>
+        <div class="difficulty-options">
+          <button class="difficulty-btn starter ${this.difficultyLevel === 'starter' ? 'active' : ''}" onclick="quizSystem.setDifficulty('starter')">
+            <i class="fas fa-seedling"></i> Starter
+            <span class="difficulty-desc">Gentle introduction with extra hints</span>
+          </button>
+          <button class="difficulty-btn improver ${this.difficultyLevel === 'improver' ? 'active' : ''}" onclick="quizSystem.setDifficulty('improver')">
+            <i class="fas fa-arrow-up"></i> Improver  
+            <span class="difficulty-desc">Balanced challenge and support</span>
+          </button>
+          <button class="difficulty-btn scholar ${this.difficultyLevel === 'scholar' ? 'active' : ''}" onclick="quizSystem.setDifficulty('scholar')">
+            <i class="fas fa-university"></i> Scholar
+            <span class="difficulty-desc">Advanced practice with minimal hints</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = difficultyHtml;
+  }
+
+  setDifficulty(level) {
+    this.difficultyLevel = level;
+    const buttons = document.querySelectorAll('.difficulty-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.difficulty-btn.${level}`).classList.add('active');
+    
+    // Start quiz after difficulty selection
+    setTimeout(() => this.startActualQuiz(), 500);
+  }
+
+  startActualQuiz() {
+    const container = document.querySelector('.quiz-block:not(.hidden)');
+    if (!container) return;
+
+    const containerId = container.id;
+    const topicIndex = containerId.replace('quiz', '');
+    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
+    const topic = topics[topicIndex] || 'seasons';
+    const quiz = this.generateQuiz(topic);
+
+    if (quiz) {
+      this.renderQuiz(quiz, containerId);
+    }
+  }
+
   renderQuiz(quiz, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -419,9 +518,6 @@ class QuizSystem {
             <button class="quiz-option" onclick="quizSystem.selectOption('${option}', this)">${option}</button>
           `).join('')}
         </div>
-        <button class="quiz-check" onclick="quizSystem.checkMultipleChoice()" style="display: none;">
-          <i class="fas fa-check"></i> Check Answer
-        </button>
         <div class="quiz-feedback" style="display: none;"></div>
       </div>
     `;
@@ -636,20 +732,80 @@ class QuizSystem {
     button.classList.add('selected');
     this.selectedAnswer = answer;
 
-    const checkButton = currentQuestion.querySelector('.quiz-check');
-    if (checkButton) {
-      checkButton.style.display = 'inline-flex';
-    }
+    // Auto-check answer immediately instead of showing check button
+    setTimeout(() => this.checkMultipleChoice(), 100);
   }
 
-  addContinueButton(feedback) {
-      const continueButton = document.createElement('button');
-      continueButton.className = 'quiz-continue-btn';
-      continueButton.innerHTML = '<i class="fas fa-forward"></i> Continue';
-      continueButton.onclick = () => {
-          this.addNextQuestion();
-      };
-      feedback.appendChild(continueButton);
+  setupKeyboardNavigation() {
+    document.addEventListener('keydown', (e) => {
+      if (!this.currentQuiz) return;
+      
+      const currentQuestion = document.querySelector('.quiz-question:last-child');
+      if (!currentQuestion) return;
+
+      // Handle different quiz types
+      if (this.currentQuiz.type === 'multipleChoice') {
+        this.handleMultipleChoiceKeyboard(e, currentQuestion);
+      } else if (this.currentQuiz.type === 'matching') {
+        this.handleMatchingKeyboard(e, currentQuestion);
+      }
+    });
+  }
+
+  handleMultipleChoiceKeyboard(e, currentQuestion) {
+    if (e.key === 'Enter') {
+      const selectedOption = currentQuestion.querySelector('.quiz-option.selected');
+      if (selectedOption && !selectedOption.disabled) {
+        this.checkMultipleChoice();
+      }
+      return;
+    }
+
+    // Letter-based selection
+    const options = Array.from(currentQuestion.querySelectorAll('.quiz-option:not(:disabled)'));
+    if (options.length === 0) return;
+
+    this.currentKeyboardInput += e.key.toLowerCase();
+    
+    // Find matching options
+    const matchingOptions = options.filter(opt => 
+      opt.textContent.toLowerCase().startsWith(this.currentKeyboardInput)
+    );
+
+    if (matchingOptions.length === 1) {
+      // Exact match found - select it
+      this.selectOption(matchingOptions[0].textContent, matchingOptions[0]);
+      this.currentKeyboardInput = '';
+    } else if (matchingOptions.length > 1) {
+      // Multiple matches - highlight the first one
+      currentQuestion.querySelectorAll('.quiz-option.keyboard-highlight').forEach(opt => 
+        opt.classList.remove('keyboard-highlight')
+      );
+      matchingOptions[0].classList.add('keyboard-highlight');
+    } else {
+      // No matches - reset
+      this.currentKeyboardInput = '';
+      currentQuestion.querySelectorAll('.quiz-option.keyboard-highlight').forEach(opt => 
+        opt.classList.remove('keyboard-highlight')
+      );
+    }
+
+    // Clear input after delay
+    setTimeout(() => {
+      if (this.currentKeyboardInput.length > 0) {
+        this.currentKeyboardInput = '';
+        currentQuestion.querySelectorAll('.quiz-option.keyboard-highlight').forEach(opt => 
+          opt.classList.remove('keyboard-highlight')
+        );
+      }
+    }, 1500);
+  }
+
+  autoProgressToNext(feedback) {
+    // Auto-progress after 2 seconds
+    setTimeout(() => {
+      this.addNextQuestion();
+    }, 2000);
   }
 
   checkMultipleChoice() {
@@ -659,7 +815,11 @@ class QuizSystem {
     const currentQuestion = document.querySelector('.quiz-option.selected').closest('.quiz-question');
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const selectedButton = currentQuestion.querySelector('.quiz-option.selected');
-    const checkButton = currentQuestion.querySelector('.quiz-check');
+
+    // Update spaced repetition for the word
+    if (this.currentQuiz.wordBeingTested) {
+      this.updateSpacedRepetition(this.currentQuiz.wordBeingTested, isCorrect);
+    }
 
     currentQuestion.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
 
@@ -679,15 +839,14 @@ class QuizSystem {
 
     this.totalQuestions++;
     feedback.style.display = 'block';
-    checkButton.style.display = 'none';
 
     const scoreDisplay = document.createElement('div');
     scoreDisplay.className = 'quiz-score-display';
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
 
-    // Don't auto-advance - let user control when to continue
-    this.addContinueButton(feedback);
+    // Auto-progress to next question
+    this.autoProgressToNext(feedback);
   }
 
   checkMatching() {
@@ -1033,13 +1192,10 @@ class QuizSystem {
   }
 
   startQuiz(topicIndex) {
-    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar']; // Reordered to match HTML quiz order
-    const topic = topics[topicIndex] || 'seasons';
-    const quiz = this.generateQuiz(topic);
-
-    if (quiz) {
-      this.renderQuiz(quiz, `quiz${topicIndex}`);
-    }
+    // Show difficulty selector first
+    this.renderDifficultySelector(`quiz${topicIndex}`);
+    // Store topic index for later use
+    this.currentTopicIndex = topicIndex;
   }
 
   showScore() {
@@ -1115,6 +1271,11 @@ class QuizSystem {
 }
 
 const quizSystem = new QuizSystem();
+
+// Initialize keyboard navigation
+document.addEventListener('DOMContentLoaded', () => {
+  quizSystem.setupKeyboardNavigation();
+});
 
 function toggleQuiz(id) {
   const block = document.getElementById(id);
