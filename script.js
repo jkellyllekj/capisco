@@ -296,7 +296,7 @@ class QuizSystem {
 
   generateMatching(data) {
     let vocab = [];
-    
+
     // Try different data structures to find vocabulary
     if (data.vocabulary && Array.isArray(data.vocabulary)) {
       vocab = data.vocabulary.slice(0, 4);
@@ -305,7 +305,7 @@ class QuizSystem {
     } else if (Array.isArray(data)) {
       vocab = data.slice(0, 4);
     }
-    
+
     if (vocab.length < 3) return null;
 
     const shuffledEnglish = [...vocab.map(v => v.english)].sort(() => Math.random() - 0.5);
@@ -770,55 +770,6 @@ class QuizSystem {
         checkButton.click();
       }
     }
-  }
-
-  handleMultipleChoiceKeyboard(e, currentQuestion) {
-    if (e.key === 'Enter') {
-      const selectedOption = currentQuestion.querySelector('.quiz-option.selected');
-      if (selectedOption && !selectedOption.disabled) {
-        this.checkMultipleChoice();
-      }
-      return;
-    }
-
-    // Letter-based selection
-    const options = Array.from(currentQuestion.querySelectorAll('.quiz-option:not(:disabled)'));
-    if (options.length === 0) return;
-
-    this.currentKeyboardInput += e.key.toLowerCase();
-
-    // Find matching options
-    const matchingOptions = options.filter(opt => 
-      opt.textContent.toLowerCase().startsWith(this.currentKeyboardInput)
-    );
-
-    if (matchingOptions.length === 1) {
-      // Exact match found - select it
-      this.selectOption(matchingOptions[0].textContent, matchingOptions[0]);
-      this.currentKeyboardInput = '';
-    } else if (matchingOptions.length > 1) {
-      // Multiple matches - highlight the first one
-      currentQuestion.querySelectorAll('.quiz-option.keyboard-highlight').forEach(opt => 
-        opt.classList.remove('keyboard-highlight')
-      );
-      matchingOptions[0].classList.add('keyboard-highlight');
-    } else {
-      // No matches - reset
-      this.currentKeyboardInput = '';
-      currentQuestion.querySelectorAll('.quiz-option.keyboard-highlight').forEach(opt => 
-        opt.classList.remove('keyboard-highlight')
-      );
-    }
-
-    // Clear input after delay
-    setTimeout(() => {
-      if (this.currentKeyboardInput.length > 0) {
-        this.currentKeyboardInput = '';
-        currentQuestion.querySelectorAll('.quiz-option.keyboard-highlight').forEach(opt => 
-          opt.classList.remove('keyboard-highlight')
-        );
-      }
-    }, 1500);
   }
 
   autoProgressToNext(feedback) {
