@@ -960,7 +960,7 @@ footer {
 }
 
 .flashcard-controls .quiz-check.secondary {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  background: linear-gradient(135deg, #fbbf24 0%, #f599e0b 100%);
 }
 
 .flashcard-controls .quiz-check.secondary:hover {
@@ -1504,8 +1504,13 @@ footer {
 }
 
 .quiz-question .quiz-check,
-.quiz-question button {
+.quiz-question .word-buttons,
+.quiz-question .letter-picker-buttons {
   order: 3;
+}
+
+.quiz-question .flashcard-controls {
+  order: 4;
 }
 
 .quiz-question .quiz-feedback {

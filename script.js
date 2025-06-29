@@ -479,7 +479,7 @@ class QuizSystem {
               <div class="flashcard-front">${quiz.italian}</div>
               <div class="flashcard-back" style="display: none;">${quiz.english}</div>
             </div>
-            <div class="flashcard-controls" style="display: none;">
+            <div class="flashcard-controls">
               <button class="quiz-check" onclick="quizSystem.selectFlashcardDifficulty('easy')">Got it!</button>
               <button class="quiz-check secondary" onclick="quizSystem.selectFlashcardDifficulty('hard')">Need more practice</button>
             </div>
@@ -1132,7 +1132,7 @@ class QuizSystem {
               <div class="flashcard-front">${quiz.italian}</div>
               <div class="flashcard-back" style="display: none;">${quiz.english}</div>
             </div>
-            <div class="flashcard-controls" style="display: none;">
+            <div class="flashcard-controls">
               <button class="quiz-check" onclick="quizSystem.selectFlashcardDifficulty('easy')">Got it!</button>
               <button class="quiz-check secondary" onclick="quizSystem.selectFlashcardDifficulty('hard')">Need more practice</button>
             </div>
