@@ -1082,58 +1082,334 @@ footer {
   gap: 0.5rem;
 }
 
-/* Responsive Design for New Quiz Types */
+/* Responsive Design - Mobile First Approach */
 @media (max-width: 768px) {
-  .word-order-container, .matching-container {
+  /* Base mobile layout improvements */
+  body {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  /* Home page mobile improvements */
+  .main-header h1 {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .chapter-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
 
-  .word-bank-words {
-    justify-content: center;
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
-  .word-order-answer {
-    justify-content: center;
-  }
-
-  /* Mobile-responsive lesson header */
+  /* Lesson page mobile improvements */
   .lesson-nav {
-    padding: 0.4rem 0.75rem;
+    padding: 0.5rem;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .lesson-title {
-    padding: 0.4rem 0.75rem;
+    padding: 0.75rem;
   }
 
   .lesson-title h1 {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    margin-bottom: 0.25rem;
   }
 
   .lesson-subtitle {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 
   .back-button {
     font-size: 0.9rem;
-    padding: 0.4rem 0.8rem;
+    padding: 0.5rem 1rem;
+    align-self: flex-start;
   }
 
   .chapter-indicator {
     font-size: 0.8rem;
+    align-self: flex-end;
   }
 
-  /* Make content cards more compact on mobile */
-  .content-card {
-    padding: 1.5rem;
-  }
-
+  /* Content layout mobile improvements */
   .lesson-container {
-    padding: 0 1rem 2rem;
+    padding: 0 0.75rem 2rem;
+  }
+
+  .content-card {
+    padding: 1rem;
+    margin: 0.5rem 0;
   }
 
   .section-header h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Vocabulary and content mobile layout */
+  .vocab-categories {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .vocab-category {
+    padding: 1rem;
+  }
+
+  .expressions-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .expression-category {
+    padding: 1rem;
+  }
+
+  .educational-content {
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+
+  .etymology-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .etymology-item {
+    padding: 0.75rem;
+  }
+
+  /* Quiz mobile improvements */
+  .quiz-block {
+    padding: 1rem;
+  }
+
+  .quiz-question h4 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Matching game mobile fix */
+  .matching-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .italian-column, .english-column {
+    gap: 0.5rem;
+  }
+
+  .match-item {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  /* Word order mobile improvements */
+  .word-order-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .word-bank, .answer-area {
+    padding: 0.75rem;
+  }
+
+  .word-bank-words {
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  .word-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .word-order-answer {
+    min-height: 2.5rem;
+    padding: 0.75rem;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  .selected-word {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  /* Quiz options mobile layout */
+  .quiz-options {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .quiz-option {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  /* Letter picker mobile improvements */
+  .letter-picker-letters {
+    gap: 0.4rem;
+  }
+
+  .letter-btn {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+    min-width: 2.5rem;
+  }
+
+  .letter-picker-text-input {
+    max-width: 100%;
+    font-size: 1rem;
+  }
+
+  /* Flashcard mobile improvements */
+  .flashcard {
+    width: 280px;
+    height: 180px;
+  }
+
+  .flashcard-front, .flashcard-back {
+    font-size: 1rem;
+  }
+
+  .flashcard-word {
+    font-size: 1.2rem;
+  }
+
+  .flashcard-etymology {
+    font-size: 0.8rem;
+  }
+
+  .flashcard-controls {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* Button and control mobile improvements */
+  .quiz-btn, .quiz-check, .quiz-next {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .quiz-controls {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  /* Input field mobile improvements */
+  .quiz-input, .audio-input, .fill-blank {
+    font-size: 1rem;
+    padding: 0.75rem;
+  }
+
+  /* Visual elements mobile improvements */
+  .visual-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .season-item, .food-item {
+    padding: 0.75rem;
+  }
+
+  .season-icon {
     font-size: 1.5rem;
+  }
+
+  /* Dialogue mobile improvements */
+  .dialogue-line {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .dialogue-line > span {
+    font-size: 1rem;
+    gap: 0.5rem;
+  }
+
+  .dialogue-line .translation {
+    font-size: 0.85rem;
+    margin-left: 1.5rem;
+  }
+
+  /* Navigation mobile improvements */
+  .lesson-navigation {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .nav-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nav-spacer {
+    display: none;
+  }
+
+  /* Tooltip mobile adjustments */
+  .tooltip-item:hover::after {
+    width: 90vw;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    padding: 0.5rem;
+  }
+
+  /* Feedback and scoring mobile improvements */
+  .quiz-feedback {
+    padding: 0.75rem;
+    margin: 0.75rem 0;
+  }
+
+  .quiz-score-display {
+    padding: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .score-text {
+    font-size: 0.9rem;
+  }
+}
+
+/* Tablet-specific improvements */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .matching-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .word-order-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .vocab-categories {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .expressions-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
