@@ -44,6 +44,7 @@ class QuizSystem {
     this.difficultyLevel = 'improver';
     this.currentKeyboardInput = '';
     this.selectedMatches = new Map();
+    this.selectedAnswer = null;
     this.quizData = {
       seasons: {
         vocabulary: [
@@ -216,8 +217,8 @@ class QuizSystem {
     if (!data) return null;
 
     const allQuizTypes = ['multipleChoice', 'matching', 'fillBlank', 'flashcard', 'letterPicker', 'wordOrder', 'audioQuiz'];
-
     let selectedType = type;
+
     if (type === 'mixed') {
       // Filter out recently used types for variety
       const availableTypes = allQuizTypes.filter(qType => !this.recentQuizTypes.includes(qType));
@@ -326,7 +327,7 @@ class QuizSystem {
 
     for (let i = options.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [options[i], options[j]] = [options[j], options[i]];
+      [options[i], options[j]] = [options[j], [options[i]];
     }
 
     return {
@@ -765,8 +766,7 @@ class QuizSystem {
             } else {
         setTimeout(() => {
           italianMatch.element.classList.remove('selected');
-          englishMatch.element.classList.remove('selected');
-        }, 500);
+          englishMatch.element.classList.remove('selected');        }, 500);
       }
 
       this.selectedMatches.clear();
