@@ -215,8 +215,8 @@ class QuizSystem {
             <button class="quiz-option" onclick="quizSystem.selectOption('${option}', this)">${option}</button>
           `).join('')}
         </div>
-        <div class="quiz-feedback" style="display: none;"></div>
         <button class="quiz-check" onclick="quizSystem.checkMultipleChoice()" style="display: none;">Check Answer</button>
+        <div class="quiz-feedback" style="display: none;"></div>
       </div>
     `;
   }
@@ -400,11 +400,10 @@ class QuizSystem {
     // Show score and next question button
     this.showQuizProgress();
     
-    if (this.autoNextEnabled) {
-      setTimeout(() => {
-        this.addNextQuestion();
-      }, 3000);
-    }
+    // Auto-generate next question after 3 seconds
+    setTimeout(() => {
+      this.addNextQuestion();
+    }, 3000);
   }
 
   showQuizProgress() {
@@ -412,9 +411,11 @@ class QuizSystem {
     progressDiv.className = 'quiz-progress';
     progressDiv.innerHTML = `
       <div class="score-display">${this.showScore()}</div>
-      <button class="quiz-next-btn" onclick="quizSystem.addNextQuestion()">
-        <i class="fas fa-arrow-right"></i> Next Question
-      </button>
+      <div class="quiz-controls">
+        <button class="quiz-end-btn" onclick="quizSystem.endQuiz()">
+          <i class="fas fa-stop"></i> End Quiz
+        </button>
+      </div>
     `;
     
     const feedback = document.querySelector('.quiz-feedback');
@@ -576,105 +577,31 @@ class QuizSystem {
     }
   }
 
-  checkMatching() {
-    const matchedItems = document.querySelectorAll('.match-item.matched');
-    const totalItems = document.querySelectorAll('.match-item.italian').length;
-    const feedback = document.querySelector('.quiz-feedback');
-    
-    if (matchedItems.length === totalItems * 2) {
-      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect! All matches are correct!</div>`;
-      this.score++;
-    } else {
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> You matched ${matchedItems.length / 2} out of ${totalItems} correctly. Try again!</div>`;
-    }
-    
-    this.totalQuestions++;
-    feedback.style.display = 'block';
-    
-    // Auto-generate next question after 2 seconds
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 2000);
-  }
-
-  checkFillBlank() {
-    const input = document.querySelector('.fill-blank');
-    const answer = input.value.toLowerCase().trim();
-    const isCorrect = answer === this.currentQuiz.correct;
-    const feedback = document.querySelector('.quiz-feedback');
-    
-    if (isCorrect) {
-      input.classList.add('correct');
-      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct! ${this.currentQuiz.explanation || ''}</div>`;
-      this.score++;
-    } else {
-      input.classList.add('incorrect');
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect. The correct answer is "${this.currentQuiz.correct}". ${this.currentQuiz.explanation || ''}</div>`;
-    }
-    
-    this.totalQuestions++;
-    feedback.style.display = 'block';
-    document.querySelector('.quiz-check').style.display = 'none';
-    
-    // Auto-generate next question after 2 seconds
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 2000);
-  }
-
-  checkLetterPicker() {
-    const answer = document.querySelector('.letter-picker-answer').textContent.toLowerCase();
-    const correct = document.querySelector('.letter-picker-answer').dataset.correct;
-    const isCorrect = answer === correct;
-    const feedback = document.querySelector('.quiz-feedback');
-    
-    if (isCorrect) {
-      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Correct! You spelled "${correct}" perfectly!</div>`;
-      this.score++;
-    } else {
-      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect. The correct spelling is "${correct}".</div>`;
-    }
-    
-    this.totalQuestions++;
-    feedback.style.display = 'block';
-    document.querySelector('.quiz-check').style.display = 'none';
-    
-    // Auto-generate next question after 2 seconds
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 2000);
-  }
-
-  flashcardResult(correct) {
-    if (correct) {
-      this.score++;
-    }
-    this.totalQuestions++;
-    document.querySelector('.flashcard-controls').style.display = 'none';
-    
-    // Auto-generate next question after 2 seconds
-    setTimeout(() => {
-      this.addNextQuestion();
-    }, 2000);
-  }
-
-  pickLetter(letter, button) {
-    const answerDiv = document.querySelector('.letter-picker-answer');
-    answerDiv.textContent += letter;
-    button.disabled = true;
-    button.style.opacity = '0.5';
-  }
-
-  clearLetters() {
-    document.querySelector('.letter-picker-answer').textContent = '';
-    document.querySelectorAll('.letter-btn').forEach(btn => {
-      btn.disabled = false;
-      btn.style.opacity = '1';
-    });
-  }
+  
 
   showScore() {
     return `Score: ${this.score}/${this.totalQuestions} (${Math.round((this.score/this.totalQuestions) * 100)}%)`;
+  }
+
+  endQuiz() {
+    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!currentContainer) return;
+    
+    const finalScore = document.createElement('div');
+    finalScore.className = 'quiz-final-score';
+    finalScore.innerHTML = `
+      <div class="final-score-content">
+        <h3><i class="fas fa-trophy"></i> Quiz Complete!</h3>
+        <div class="final-score">${this.showScore()}</div>
+        <p>Great job practicing Italian! Keep it up!</p>
+        <button class="quiz-restart-btn" onclick="location.reload()">
+          <i class="fas fa-redo"></i> Start New Quiz
+        </button>
+      </div>
+    `;
+    
+    currentContainer.innerHTML = '';
+    currentContainer.appendChild(finalScore);
   }
 }
 
