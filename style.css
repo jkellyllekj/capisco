@@ -821,6 +821,27 @@ footer {
   border-radius: 16px;
   padding: 1.5rem;
   margin-top: 1rem;
+  max-height: 80vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.quiz-block::-webkit-scrollbar {
+  width: 8px;
+}
+
+.quiz-block::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.quiz-block::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+}
+
+.quiz-block::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
 }
 
 .quiz-input {
@@ -1364,34 +1385,71 @@ footer {
 
 /* Quiz Question Separation */
 .previous-question {
-  transition: all 1s ease !important;
-  opacity: 0.7 !important;
-  transform: scale(0.95) !important;
+  transition: all 0.8s ease !important;
+  opacity: 0.6 !important;
+  transform: scale(0.92) !important;
   margin-bottom: 2rem !important;
   position: relative;
+  border-left: 4px solid #6c757d !important;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+  border-radius: 12px !important;
+  padding: 1rem !important;
+  pointer-events: none;
 }
 
 .previous-question::after {
-  content: "Previous Question";
+  content: "✓ Completed";
   position: absolute;
-  top: -10px;
-  right: 10px;
-  background: #6c757d;
+  top: 10px;
+  right: 15px;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
   color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.75rem;
   font-weight: 600;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.previous-question .quiz-feedback {
+  display: block !important;
 }
 
 .quiz-separator {
   margin: 2rem 0;
   text-align: center;
+  position: relative;
+}
+
+.quiz-separator::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #e9ecef 50%, transparent 100%);
+  margin: 1rem 0;
 }
 
 .new-question {
-  transition: all 0.5s ease;
-  animation: slideInUp 0.5s ease-out;
+  transition: all 0.6s ease;
+  animation: slideInUp 0.6s ease-out;
+  border-left: 4px solid #667eea;
+  background: white !important;
+  position: relative;
+}
+
+.new-question::before {
+  content: "Current Question";
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 @keyframes slideInUp {

@@ -176,7 +176,7 @@ class QuizSystem {
     switch (quiz.type) {
       case 'multipleChoice':
         html = `
-          <div class="quiz-question">
+          <div class="quiz-question new-question">
             <h4>${quiz.question}</h4>
             <div class="quiz-options">
               ${quiz.options.map(option => `
@@ -189,7 +189,7 @@ class QuizSystem {
         break;
       case 'matching':
         html = `
-          <div class="quiz-question">
+          <div class="quiz-question new-question">
             <h4>${quiz.question}</h4>
             <div class="matching-container">
               <div class="italian-column">
@@ -212,7 +212,7 @@ class QuizSystem {
         break;
       case 'fillBlank':
         html = `
-          <div class="quiz-question">
+          <div class="quiz-question new-question">
             <h4>${quiz.question}</h4>
             <p class="quiz-hint"><em>${quiz.hint}</em></p>
             <input type="text" class="quiz-input fill-blank" placeholder="Type your answer...">
@@ -374,6 +374,13 @@ class QuizSystem {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
+    // Mark current question as previous
+    const currentQuestion = currentContainer.querySelector('.quiz-question:last-child');
+    if (currentQuestion) {
+      currentQuestion.classList.add('previous-question');
+      currentQuestion.classList.remove('new-question');
+    }
+
     const containerId = currentContainer.id;
     const topicIndex = containerId.replace('quiz', '');
     const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
@@ -381,8 +388,86 @@ class QuizSystem {
     const nextQuiz = this.generateQuiz(topic);
 
     if (nextQuiz) {
-      this.renderQuiz(nextQuiz, containerId);
+      this.appendQuiz(nextQuiz, containerId);
     }
+  }
+
+  appendQuiz(quiz, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    let html = '';
+
+    switch (quiz.type) {
+      case 'multipleChoice':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="quiz-options">
+              ${quiz.options.map(option => `
+                <button class="quiz-option" onclick="quizSystem.selectOption('${option}', this)">${option}</button>
+              `).join('')}
+            </div>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'matching':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="matching-container">
+              <div class="italian-column">
+                <h5>Italian</h5>
+                ${quiz.italian.map(word => `
+                  <div class="match-item italian" data-word="${word}">${word}</div>
+                `).join('')}
+              </div>
+              <div class="english-column">
+                <h5>English</h5>
+                ${quiz.english.map(word => `
+                  <div class="match-item english" data-word="${word}">${word}</div>
+                `).join('')}
+              </div>
+            </div>
+            <button class="quiz-check" onclick="quizSystem.checkMatching()">Check Answers</button>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'fillBlank':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <p class="quiz-hint"><em>${quiz.hint}</em></p>
+            <input type="text" class="quiz-input fill-blank" placeholder="Type your answer...">
+            <button class="quiz-check" onclick="quizSystem.checkFillBlank()">Check Answer</button>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+    }
+
+    // Add separator and new question
+    const separator = '<div class="quiz-separator"></div>';
+    container.insertAdjacentHTML('beforeend', separator + html);
+    
+    this.currentQuiz = quiz;
+
+    if (quiz.type === 'matching') {
+      setTimeout(() => this.setupMatchingEventListeners(), 100);
+    }
+
+    // Smooth scroll to the new question
+    setTimeout(() => {
+      const newQuestion = container.querySelector('.quiz-question.new-question:last-child');
+      if (newQuestion) {
+        newQuestion.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }, 100);
   }
 
   startEndlessQuiz(containerId) {
