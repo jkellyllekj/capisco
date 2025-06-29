@@ -88,21 +88,17 @@ class QuizSystem {
     const hasVocabulary = data.vocabulary && data.vocabulary.length >= 4;
     const hasPhrases = (data.phrases && data.phrases.length > 0) || (data.expressions && data.expressions.length > 0);
     
-    if (hasVocabulary) {
-      availableTypes.push('multipleChoice');
-      if (data.vocabulary.length >= 3) {
+    if (hasVocabulary || hasPhrases) {
+      availableTypes.push('multipleChoice', 'fillBlank', 'flashcard', 'letterPicker', 'wordOrder');
+      if (hasVocabulary && data.vocabulary.length >= 3) {
         availableTypes.push('matching');
       }
-    }
-    
-    if (hasPhrases || hasVocabulary) {
-      availableTypes.push('fillBlank');
     }
 
     let selectedType = type;
 
     if (type === 'mixed' && availableTypes.length > 0) {
-      const recentTypes = this.recentQuizTypes.slice(-2); // Only consider last 2 types
+      const recentTypes = this.recentQuizTypes.slice(-2);
       const freshTypes = availableTypes.filter(qType => !recentTypes.includes(qType));
       selectedType = freshTypes.length > 0 ? 
         freshTypes[Math.floor(Math.random() * freshTypes.length)] :
@@ -113,7 +109,6 @@ class QuizSystem {
         this.recentQuizTypes.shift();
       }
     } else if (type === 'mixed') {
-      // Fallback to multipleChoice if no other types available
       selectedType = 'multipleChoice';
     }
 
@@ -122,14 +117,12 @@ class QuizSystem {
       const askedSet = this.askedQuestions.get(containerId);
       const correctSet = this.correctAnswers.get(containerId);
 
-      // For seasons (only 4 items) - avoid matching if all are correct
       if (topic === 'seasons' && selectedType === 'matching' && correctSet.size >= 4) {
-        selectedType = hasVocabulary ? 'multipleChoice' : 'fillBlank';
+        selectedType = availableTypes.filter(t => t !== 'matching')[Math.floor(Math.random() * (availableTypes.length - 1))];
       }
 
-      // For small vocabulary sets, avoid repeated matching
       if (hasVocabulary && data.vocabulary.length <= 6 && selectedType === 'matching' && correctSet.size >= data.vocabulary.length) {
-        selectedType = Math.random() < 0.5 ? 'multipleChoice' : 'fillBlank';
+        selectedType = availableTypes.filter(t => t !== 'matching')[Math.floor(Math.random() * (availableTypes.length - 1))];
       }
     }
 
@@ -140,6 +133,12 @@ class QuizSystem {
         return this.generateMatching(data, containerId);
       case 'fillBlank':
         return this.generateFillBlank(data, containerId);
+      case 'flashcard':
+        return this.generateFlashcard(data, containerId);
+      case 'letterPicker':
+        return this.generateLetterPicker(data, containerId);
+      case 'wordOrder':
+        return this.generateWordOrder(data, containerId);
       default:
         return this.generateMultipleChoice(data, containerId);
     }
@@ -298,6 +297,113 @@ class QuizSystem {
     };
   }
 
+  generateFlashcard(data, containerId = null) {
+    const vocab = data.vocabulary || data.phrases || data.expressions || [];
+    if (vocab.length === 0) return null;
+
+    let availableVocab = vocab;
+
+    if (containerId && this.askedQuestions.has(containerId)) {
+      const askedSet = this.askedQuestions.get(containerId);
+      const unasked = vocab.filter(v => !askedSet.has(v.italian + '_flashcard'));
+      if (unasked.length > 0) {
+        availableVocab = unasked;
+      }
+    }
+
+    const item = availableVocab[Math.floor(Math.random() * availableVocab.length)];
+
+    if (containerId && this.askedQuestions.has(containerId)) {
+      this.askedQuestions.get(containerId).add(item.italian + '_flashcard');
+    }
+
+    return {
+      type: 'flashcard',
+      question: 'Click the flashcard to reveal the translation',
+      italian: item.italian,
+      english: item.english,
+      correctItem: item
+    };
+  }
+
+  generateLetterPicker(data, containerId = null) {
+    const vocab = data.vocabulary || data.phrases || data.expressions || [];
+    if (vocab.length === 0) return null;
+
+    let availableVocab = vocab;
+
+    if (containerId && this.askedQuestions.has(containerId)) {
+      const askedSet = this.askedQuestions.get(containerId);
+      const unasked = vocab.filter(v => !askedSet.has(v.italian + '_letter'));
+      if (unasked.length > 0) {
+        availableVocab = unasked;
+      }
+    }
+
+    const item = availableVocab[Math.floor(Math.random() * availableVocab.length)];
+    const word = item.italian.toLowerCase();
+    const letters = word.split('').filter(l => l !== ' ');
+    const uniqueLetters = [...new Set(letters)];
+    
+    // Add some random letters
+    const allLetters = 'abcdefghilmnopqrstuvz';
+    const extraLetters = [];
+    while (extraLetters.length < 6 && extraLetters.length + uniqueLetters.length < 12) {
+      const randomLetter = allLetters[Math.floor(Math.random() * allLetters.length)];
+      if (!uniqueLetters.includes(randomLetter) && !extraLetters.includes(randomLetter)) {
+        extraLetters.push(randomLetter);
+      }
+    }
+
+    const allAvailableLetters = [...uniqueLetters, ...extraLetters].sort(() => Math.random() - 0.5);
+
+    if (containerId && this.askedQuestions.has(containerId)) {
+      this.askedQuestions.get(containerId).add(item.italian + '_letter');
+    }
+
+    return {
+      type: 'letterPicker',
+      question: `Spell the Italian word for "${item.english}"`,
+      correct: word,
+      letters: allAvailableLetters,
+      correctItem: item
+    };
+  }
+
+  generateWordOrder(data, containerId = null) {
+    const phrases = data.phrases || data.expressions || [];
+    const longVocab = (data.vocabulary || []).filter(v => v.italian.includes(' '));
+    const allPhrases = [...phrases, ...longVocab];
+    
+    if (allPhrases.length === 0) return null;
+
+    let availablePhrases = allPhrases;
+
+    if (containerId && this.askedQuestions.has(containerId)) {
+      const askedSet = this.askedQuestions.get(containerId);
+      const unasked = allPhrases.filter(p => !askedSet.has(p.italian + '_order'));
+      if (unasked.length > 0) {
+        availablePhrases = unasked;
+      }
+    }
+
+    const item = availablePhrases[Math.floor(Math.random() * availablePhrases.length)];
+    const words = item.italian.split(' ');
+    const shuffledWords = [...words].sort(() => Math.random() - 0.5);
+
+    if (containerId && this.askedQuestions.has(containerId)) {
+      this.askedQuestions.get(containerId).add(item.italian + '_order');
+    }
+
+    return {
+      type: 'wordOrder',
+      question: `Put these words in the correct order to say "${item.english}"`,
+      words: shuffledWords,
+      correct: item.italian,
+      correctItem: item
+    };
+  }
+
   renderQuiz(quiz, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -348,6 +454,51 @@ class QuizSystem {
             <p class="quiz-hint"><em>${quiz.hint}</em></p>
             <input type="text" class="quiz-input fill-blank" placeholder="Type your answer...">
             <button class="quiz-check" onclick="quizSystem.checkFillBlank()">Check Answer</button>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'flashcard':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="flashcard" onclick="quizSystem.flipFlashcard(this)">
+              <div class="flashcard-front">${quiz.italian}</div>
+              <div class="flashcard-back" style="display: none;">${quiz.english}</div>
+            </div>
+            <button class="quiz-check" onclick="quizSystem.checkFlashcard()" style="display: none;">Continue</button>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'letterPicker':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="letter-picker-answer"></div>
+            <div class="letter-picker-buttons">
+              ${quiz.letters.map(letter => `
+                <button class="letter-btn" onclick="quizSystem.selectLetter('${letter}', this)">${letter}</button>
+              `).join('')}
+            </div>
+            <button class="quiz-check" onclick="quizSystem.checkLetterPicker()">Check Answer</button>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'wordOrder':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="word-order-container">
+              <div class="word-answer-area"></div>
+              <div class="word-buttons">
+                ${quiz.words.map(word => `
+                  <button class="word-btn" onclick="quizSystem.selectWord('${word}', this)">${word}</button>
+                `).join('')}
+              </div>
+            </div>
+            <button class="quiz-check" onclick="quizSystem.checkWordOrder()">Check Answer</button>
             <div class="quiz-feedback" style="display: none;"></div>
           </div>
         `;
@@ -538,6 +689,8 @@ class QuizSystem {
     if (!currentQuestion) return;
 
     const input = currentQuestion.querySelector('.fill-blank');
+    if (!input) return; // Safety check to prevent null errors
+
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     const checkButton = currentQuestion.querySelector('.quiz-check');
     const containerId = currentQuestion.closest('.quiz-block').id;
@@ -573,6 +726,140 @@ class QuizSystem {
     feedback.style.display = 'block';
 
     // Mark question as answered and add styling
+    currentQuestion.classList.add('answered');
+    currentQuestion.classList.remove('new-question');
+
+    setTimeout(() => this.generateNextQuestion(), 2000);
+  }
+
+  flipFlashcard(flashcard) {
+    const front = flashcard.querySelector('.flashcard-front');
+    const back = flashcard.querySelector('.flashcard-back');
+    const continueBtn = flashcard.closest('.quiz-question').querySelector('.quiz-check');
+
+    if (front.style.display !== 'none') {
+      front.style.display = 'none';
+      back.style.display = 'block';
+      continueBtn.style.display = 'block';
+    }
+  }
+
+  checkFlashcard() {
+    const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
+    if (!currentQuestion || currentQuestion.classList.contains('answered')) return;
+
+    const feedback = currentQuestion.querySelector('.quiz-feedback');
+    const containerId = currentQuestion.closest('.quiz-block').id;
+
+    feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Great! You've learned: ${this.currentQuiz.italian} = ${this.currentQuiz.english}</div>`;
+    feedback.style.display = 'block';
+
+    // Track as correct
+    if (this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
+      this.correctAnswers.get(containerId).add(this.currentQuiz.correctItem.italian);
+    }
+
+    this.score++;
+    this.totalQuestions++;
+
+    currentQuestion.classList.add('answered');
+    currentQuestion.classList.remove('new-question');
+
+    setTimeout(() => this.generateNextQuestion(), 2000);
+  }
+
+  selectLetter(letter, button) {
+    const answerArea = button.closest('.quiz-question').querySelector('.letter-picker-answer');
+    const currentAnswer = answerArea.textContent;
+    
+    if (currentAnswer.length < this.currentQuiz.correct.length) {
+      answerArea.textContent += letter;
+      button.disabled = true;
+      button.style.opacity = '0.5';
+    }
+  }
+
+  checkLetterPicker() {
+    const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
+    if (!currentQuestion || currentQuestion.classList.contains('answered')) return;
+
+    const answerArea = currentQuestion.querySelector('.letter-picker-answer');
+    const feedback = currentQuestion.querySelector('.quiz-feedback');
+    const checkButton = currentQuestion.querySelector('.quiz-check');
+    const containerId = currentQuestion.closest('.quiz-block').id;
+
+    const answer = answerArea.textContent.toLowerCase().trim();
+    const isCorrect = answer === this.currentQuiz.correct.toLowerCase();
+
+    checkButton.style.display = 'none';
+    currentQuestion.querySelectorAll('.letter-btn').forEach(btn => btn.disabled = true);
+
+    if (isCorrect) {
+      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect spelling! "${this.currentQuiz.correct}"</div>`;
+      this.score++;
+
+      if (this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
+        this.correctAnswers.get(containerId).add(this.currentQuiz.correctItem.italian);
+      }
+    } else {
+      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect spelling. The correct answer is "${this.currentQuiz.correct}"</div>`;
+    }
+
+    this.totalQuestions++;
+    feedback.style.display = 'block';
+
+    currentQuestion.classList.add('answered');
+    currentQuestion.classList.remove('new-question');
+
+    setTimeout(() => this.generateNextQuestion(), 2000);
+  }
+
+  selectWord(word, button) {
+    const answerArea = button.closest('.quiz-question').querySelector('.word-answer-area');
+    const newSpan = document.createElement('span');
+    newSpan.textContent = word + ' ';
+    newSpan.className = 'selected-word';
+    newSpan.onclick = () => {
+      newSpan.remove();
+      button.disabled = false;
+      button.style.opacity = '1';
+    };
+    
+    answerArea.appendChild(newSpan);
+    button.disabled = true;
+    button.style.opacity = '0.5';
+  }
+
+  checkWordOrder() {
+    const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
+    if (!currentQuestion || currentQuestion.classList.contains('answered')) return;
+
+    const answerArea = currentQuestion.querySelector('.word-answer-area');
+    const feedback = currentQuestion.querySelector('.quiz-feedback');
+    const checkButton = currentQuestion.querySelector('.quiz-check');
+    const containerId = currentQuestion.closest('.quiz-block').id;
+
+    const selectedWords = Array.from(answerArea.querySelectorAll('.selected-word')).map(span => span.textContent.trim());
+    const answer = selectedWords.join(' ').toLowerCase();
+    const isCorrect = answer === this.currentQuiz.correct.toLowerCase();
+
+    checkButton.style.display = 'none';
+    currentQuestion.querySelectorAll('.word-btn').forEach(btn => btn.disabled = true);
+
+    if (isCorrect) {
+      feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> Perfect word order! "${this.currentQuiz.correct}"</div>`;
+      this.score++;
+
+      if (this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
+        this.correctAnswers.get(containerId).add(this.currentQuiz.correctItem.italian);
+      }
+    } else {
+      feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect order. The correct answer is "${this.currentQuiz.correct}"</div>`;
+    }
+
+    this.totalQuestions++;
+    feedback.style.display = 'block';
+
     currentQuestion.classList.add('answered');
     currentQuestion.classList.remove('new-question');
 
@@ -670,6 +957,51 @@ class QuizSystem {
             <p class="quiz-hint"><em>${quiz.hint}</em></p>
             <input type="text" class="quiz-input fill-blank" placeholder="Type your answer...">
             <button class="quiz-check" onclick="quizSystem.checkFillBlank()">Check Answer</button>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'flashcard':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="flashcard" onclick="quizSystem.flipFlashcard(this)">
+              <div class="flashcard-front">${quiz.italian}</div>
+              <div class="flashcard-back" style="display: none;">${quiz.english}</div>
+            </div>
+            <button class="quiz-check" onclick="quizSystem.checkFlashcard()" style="display: none;">Continue</button>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'letterPicker':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="letter-picker-answer"></div>
+            <div class="letter-picker-buttons">
+              ${quiz.letters.map(letter => `
+                <button class="letter-btn" onclick="quizSystem.selectLetter('${letter}', this)">${letter}</button>
+              `).join('')}
+            </div>
+            <button class="quiz-check" onclick="quizSystem.checkLetterPicker()">Check Answer</button>
+            <div class="quiz-feedback" style="display: none;"></div>
+          </div>
+        `;
+        break;
+      case 'wordOrder':
+        html = `
+          <div class="quiz-question new-question">
+            <h4>${quiz.question}</h4>
+            <div class="word-order-container">
+              <div class="word-answer-area"></div>
+              <div class="word-buttons">
+                ${quiz.words.map(word => `
+                  <button class="word-btn" onclick="quizSystem.selectWord('${word}', this)">${word}</button>
+                `).join('')}
+              </div>
+            </div>
+            <button class="quiz-check" onclick="quizSystem.checkWordOrder()">Check Answer</button>
             <div class="quiz-feedback" style="display: none;"></div>
           </div>
         `;
