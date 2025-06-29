@@ -435,6 +435,14 @@ footer {
   gap: 0.75rem;
 }
 
+.lesson-title h1 i {
+  text-shadow: 
+    0 2px 4px rgba(0,0,0,0.5),
+    0 0 8px rgba(255,255,255,0.3),
+    1px 1px 2px rgba(0,0,0,0.8);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
 .lesson-subtitle {
   font-size: clamp(0.9rem, 2.5vw, 1.1rem);
   opacity: 0.9;
@@ -472,6 +480,13 @@ footer {
   background: rgba(99, 102, 241, 0.1);
   padding: 0.5rem;
   border-radius: 12px;
+  text-shadow: 
+    0 2px 4px rgba(0,0,0,0.4),
+    0 0 6px rgba(255,255,255,0.4),
+    1px 1px 2px rgba(0,0,0,0.7);
+  box-shadow: 
+    0 2px 8px rgba(0,0,0,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
 .content-card {
@@ -594,6 +609,13 @@ footer {
   align-items: center;
   gap: 0.5rem;
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.quiz-btn i {
+  text-shadow: 
+    0 1px 2px rgba(0,0,0,0.5),
+    0 0 4px rgba(255,255,255,0.2);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
 }
 
 /* Matching Game Styles */

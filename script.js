@@ -1409,30 +1409,7 @@ class QuizSystem {
   }
 }
 
-{ italian: 'pomodori', english: 'tomatoes' },
-          { italian: 'carote', english: 'carrots' },
-          { italian: 'insalata', english: 'lettuce' },
-          { italian: 'cipolle', english: 'onions' },
-          { italian: 'pesce', english: 'fish' },
-          { italian: 'salmone', english: 'salmon' },
-          { italian: 'pollo', english: 'chicken' },
-          { italian: 'manzo', english: 'beef' },
-          { italian: 'formaggio', english: 'cheese' },
-          { italian: 'parmigiano', english: 'parmesan' },
-          { italian: 'mozzarella', english: 'mozzarella' },
-          { italian: 'latte', english: 'milk' },
-          { italian: 'burro', english: 'butter' }
-        ],
-        phrases: [
-          { italian: 'Vorrei del formaggio', english: 'I would like some cheese' },
-          { italian: 'Quanto costa?', english: 'How much does it cost?' },
-          { italian: 'Posso assaggiare?', english: 'Can I taste it?' },
-          { italian: 'Tre etti di formaggio', english: '300 grams of cheese' },
-          { italian: 'È fresco il pesce?', english: 'Is the fish fresh?' }
-        ]
-      }
-    };
-  }
+}
 
   startEndlessQuiz(containerId) {
     const container = document.getElementById(containerId);
@@ -1449,8 +1426,47 @@ class QuizSystem {
     
     if (quiz) {
       this.currentQuiz = quiz;
-      container.innerHTML = this.renderQuiz(quiz);
+      const quizHtml = this.renderQuizContent(quiz);
+      container.innerHTML = quizHtml;
       this.setupQuizEventListeners();
+    }
+  }
+
+  renderQuizContent(quiz) {
+    let html = '';
+    switch (quiz.type) {
+      case 'multipleChoice':
+        html = this.renderMultipleChoice(quiz);
+        break;
+      case 'matching':
+        html = this.renderMatching(quiz);
+        break;
+      case 'fillBlank':
+        html = this.renderFillBlank(quiz);
+        break;
+      case 'flashcard':
+        html = this.renderFlashcard(quiz);
+        break;
+      case 'letterPicker':
+        html = this.renderLetterPicker(quiz);
+        break;
+      case 'wordOrder':
+        html = this.renderWordOrder(quiz);
+        break;
+      case 'audioQuiz':
+        html = this.renderAudioQuiz(quiz);
+        break;
+    }
+    return html;
+  }
+
+  setupQuizEventListeners() {
+    if (this.currentQuiz) {
+      if (this.currentQuiz.type === 'matching') {
+        setTimeout(() => this.setupMatchingEventListeners(), 100);
+      } else if (this.currentQuiz.type === 'wordOrder') {
+        setTimeout(() => this.setupWordOrderEventListeners(), 100);
+      }
     }
   }
 
@@ -1460,7 +1476,7 @@ class QuizSystem {
       if (container) {
         this.generateNextQuestion(container);
       }
-    }, 3000); // Auto-progress after 3 seconds
+    }, 3000);
   }
 }
 
