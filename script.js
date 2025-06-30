@@ -662,19 +662,24 @@ class QuizSystem {
   }
 
   checkMatching() {
-    // Find the current active question more reliably
-    const allQuestions = document.querySelectorAll('.quiz-question');
+    // Find the specific matching question that needs to be checked
+    const matchingQuestions = document.querySelectorAll('.quiz-question:not(.answered)');
     let currentQuestion = null;
 
-    // Find the last unanswered question
-    for (let i = allQuestions.length - 1; i >= 0; i--) {
-      if (!allQuestions[i].classList.contains('answered')) {
-        currentQuestion = allQuestions[i];
+    // Find the matching question with a visible check button
+    for (let question of matchingQuestions) {
+      const checkButton = question.querySelector('.quiz-check');
+      const matchingContainer = question.querySelector('.matching-container');
+      if (checkButton && matchingContainer && checkButton.style.display !== 'none') {
+        currentQuestion = question;
         break;
       }
     }
 
-    if (!currentQuestion) return;
+    if (!currentQuestion) {
+      console.error('No active matching question found');
+      return;
+    }
 
     const matchedItems = currentQuestion.querySelectorAll('.match-item.matched');
     const totalItems = currentQuestion.querySelectorAll('.match-item.italian').length;
@@ -683,8 +688,13 @@ class QuizSystem {
     const containerId = currentQuestion.closest('.quiz-block')?.id;
 
     // Safety checks
-    if (!feedback || !this.currentQuiz) {
-      console.error('Missing elements or quiz data for matching check');
+    if (!feedback || !this.currentQuiz || !matchedItems || !totalItems) {
+      console.error('Missing elements or quiz data for matching check', {
+        feedback: !!feedback,
+        currentQuiz: !!this.currentQuiz,
+        matchedItems: matchedItems?.length,
+        totalItems: totalItems
+      });
       return;
     }
 
@@ -819,21 +829,41 @@ class QuizSystem {
   }
 
   selectFlashcardDifficulty(difficulty) {
-    const currentQuestion = document.querySelector('.quiz-question.new-question:last-child') || document.querySelector('.quiz-question:last-child');
-    if (!currentQuestion || currentQuestion.classList.contains('answered')) return;
+    // Find the active flashcard question more reliably
+    const flashcardQuestions = document.querySelectorAll('.quiz-question:not(.answered)');
+    let currentQuestion = null;
+
+    for (let question of flashcardQuestions) {
+      const flashcard = question.querySelector('.flashcard');
+      const controls = question.querySelector('.flashcard-controls');
+      if (flashcard && controls && controls.style.display !== 'none') {
+        currentQuestion = question;
+        break;
+      }
+    }
+
+    if (!currentQuestion || currentQuestion.classList.contains('answered')) {
+      console.error('No active flashcard question found');
+      return;
+    }
 
     const feedback = currentQuestion.querySelector('.quiz-feedback');
-    const containerId = currentQuestion.closest('.quiz-block').id;
+    const containerId = currentQuestion.closest('.quiz-block')?.id;
     const flashcard = currentQuestion.querySelector('.flashcard');
-    const front = flashcard.querySelector('.flashcard-front');
-    const back = flashcard.querySelector('.flashcard-back');
+    const front = flashcard?.querySelector('.flashcard-front');
+    const back = flashcard?.querySelector('.flashcard-back');
     const controls = currentQuestion.querySelector('.flashcard-controls');
+
+    if (!feedback || !flashcard || !controls || !this.currentQuiz) {
+      console.error('Missing flashcard elements');
+      return;
+    }
 
     feedback.innerHTML = `<div class="correct-feedback"><i class="fas fa-check"></i> You chose: ${difficulty}. ${this.currentQuiz.italian} = ${this.currentQuiz.english}</div>`;
     feedback.style.display = 'block';
 
     // Track as correct - adjust based on difficulty later if needed
-    if (this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
+    if (containerId && this.correctAnswers.has(containerId) && this.currentQuiz.correctItem) {
       this.correctAnswers.get(containerId).add(this.currentQuiz.correctItem.italian);
     }
 
@@ -845,9 +875,11 @@ class QuizSystem {
 
     // Hide controls and reset flashcard for the next question
     controls.style.display = 'none';
-    flashcard.classList.remove('flipped');
-    front.style.display = 'block';
-    back.style.display = 'none';
+    if (front && back) {
+      flashcard.classList.remove('flipped');
+      front.style.display = 'block';
+      back.style.display = 'none';
+    }
 
     setTimeout(() => this.generateNextQuestion(), 2000);
   }
@@ -1022,7 +1054,8 @@ class QuizSystem {
 
     // Find the container with the most recent question
     visibleContainers.forEach(container => {
-      if (container.querySelector('.quiz-question')) {
+      const questions = container.querySelectorAll('.quiz-question');
+      if (questions.length > 0) {
         currentContainer = container;
       }
     });
@@ -1034,18 +1067,26 @@ class QuizSystem {
     const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
     const topic = topics[topicIndex] || 'vocabulary';
 
+    // Check if there's already a pending new question being generated
+    const existingNewQuestions = currentContainer.querySelectorAll('.quiz-question.new-question:not(.answered)');
+    if (existingNewQuestions.length > 0) {
+      console.log('Question generation already in progress, skipping');
+      return;
+    }
+
     // Clean up questions to maintain only 2 max (previous answered + current)
     const allQuestions = currentContainer.querySelectorAll('.quiz-question');
     if (allQuestions.length >= 2) {
-      // Remove the oldest question immediately to prevent visual mixing
-      const oldestQuestion = allQuestions[0];
-      if (oldestQuestion && oldestQuestion.classList.contains('answered')) {
-        oldestQuestion.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        oldestQuestion.style.opacity = '0';
-        oldestQuestion.style.transform = 'translateY(-20px)';
+      // Remove the oldest answered question
+      const answeredQuestions = Array.from(allQuestions).filter(q => q.classList.contains('answered'));
+      if (answeredQuestions.length > 1) {
+        const oldestAnswered = answeredQuestions[0];
+        oldestAnswered.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        oldestAnswered.style.opacity = '0';
+        oldestAnswered.style.transform = 'translateY(-20px)';
         setTimeout(() => {
-          if (oldestQuestion.parentNode) {
-            oldestQuestion.remove();
+          if (oldestAnswered.parentNode) {
+            oldestAnswered.remove();
           }
         }, 300);
       }
@@ -1053,6 +1094,12 @@ class QuizSystem {
 
     // Generate new question after cleanup
     setTimeout(() => {
+      // Double-check no new question was generated while we waited
+      const newCheck = currentContainer.querySelectorAll('.quiz-question.new-question:not(.answered)');
+      if (newCheck.length > 0) {
+        return;
+      }
+
       let nextQuiz = this.generateQuiz(topic, 'mixed', containerId);
 
       // If quiz generation returns null (e.g., avoided repetitive matching), try a different type
@@ -1202,7 +1249,13 @@ class QuizSystem {
 
   startEndlessQuiz(containerId) {
     const container = document.getElementById(containerId);
-    if (!container) return;
+    if (!container) {
+      console.error('Quiz container not found:', containerId);
+      return;
+    }
+
+    // Clear any existing content first
+    container.innerHTML = '';
 
     const topicIndex = containerId.replace('quiz', '');
     const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
@@ -1211,6 +1264,13 @@ class QuizSystem {
     const quiz = this.generateQuiz(topic, 'mixed', containerId);
     if (quiz) {
       this.renderQuiz(quiz, containerId);
+    } else {
+      console.error('Failed to generate quiz for topic:', topic);
+      // Try fallback
+      const fallbackQuiz = this.generateQuiz(topic, 'multipleChoice', containerId);
+      if (fallbackQuiz) {
+        this.renderQuiz(fallbackQuiz, containerId);
+      }
     }
   }
 
