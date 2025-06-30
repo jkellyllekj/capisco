@@ -511,7 +511,7 @@ class QuizSystem {
               <div class="word-answer-area"></div>
               <div class="word-buttons">
                 ${quiz.words.map((word, index) => `
-                  <button class="word-btn" data-word="${word}" data-index="${index}" onclick="quizSystem.selectWord('${word}', this)">${word}</button>
+                  <button class="word-btn" data-word="${word}" data-index="${index}" onclick="quizSystem.selectWord('${word.replace(/'/g, "\\'")}', this)">${word}</button>
                 `).join('')}
               </div>
             </div>
@@ -833,7 +833,8 @@ class QuizSystem {
       feedback.innerHTML = `<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect. The correct answer is "${this.currentQuiz.correct}"</div>`;
     }
 
-    this.totalQuestions++;
+    ```text
+this.totalQuestions++;
     feedback.style.display ='block';
 
     // Mark question as answered and add styling
@@ -1201,7 +1202,7 @@ class QuizSystem {
               <div class="word-answer-area"></div>
               <div class="word-buttons">
                 ${quiz.words.map((word, index) => `
-                  <button class="word-btn" data-word="${word}" data-index="${index}" onclick="quizSystem.selectWord('${word}', this)">${word}</button>
+                  <button class="word-btn" data-word="${word}" data-index="${index}" onclick="quizSystem.selectWord('${word.replace(/'/g, "\\'")}', this)">${word}</button>
                 `).join('')}
               </div>
             </div>
