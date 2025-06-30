@@ -867,10 +867,21 @@ class QuizSystem {
   }
 
   checkMatching() {
-    const matchedItems = document.querySelectorAll('.match-item.matched');
-    const totalItems = document.querySelectorAll('.match-item.italian').length;
-    const feedback = document.querySelector('.quiz-feedback');
-    const checkButton = document.querySelector('.quiz-check');
+    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!currentContainer) {
+      console.log("Missing quiz container for matching check");
+      return;
+    }
+
+    const matchedItems = currentContainer.querySelectorAll('.match-item.matched');
+    const totalItems = currentContainer.querySelectorAll('.match-item.italian').length;
+    const feedback = currentContainer.querySelector('.quiz-feedback');
+    const checkButton = currentContainer.querySelector('.quiz-check');
+
+    if (!feedback || !checkButton || totalItems === 0) {
+      console.log("Missing elements or quiz data for matching check");
+      return;
+    }
 
     const isFullyMatched = matchedItems.length === totalItems * 2;
 
@@ -915,11 +926,18 @@ class QuizSystem {
   }
 
   checkFillBlank() {
-    const input = document.querySelector('.fill-blank');
+    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!currentContainer) return;
+
+    const input = currentContainer.querySelector('.fill-blank');
+    if (!input) return;
+
     const answer = input.value.toLowerCase().trim();
     const isCorrect = answer === this.currentQuiz.correct;
-    const feedback = document.querySelector('.quiz-feedback');
-    const checkButton = document.querySelector('.quiz-check');
+    const feedback = currentContainer.querySelector('.quiz-feedback');
+    const checkButton = currentContainer.querySelector('.quiz-check');
+
+    if (!feedback || !checkButton) return;
 
     if (isCorrect) {
       input.classList.add('correct');
@@ -943,17 +961,26 @@ class QuizSystem {
   }
 
   checkLetterPicker() {
-    const textInput = document.querySelector('.letter-picker-text-input');
-    const letterAnswer = document.querySelector('.letter-picker-answer').textContent.toLowerCase();
-    const correct = document.querySelector('.letter-picker-answer').dataset.correct;
+    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!currentContainer) return;
+
+    const textInput = currentContainer.querySelector('.letter-picker-text-input');
+    const letterAnswerEl = currentContainer.querySelector('.letter-picker-answer');
+    
+    if (!textInput || !letterAnswerEl) return;
+
+    const letterAnswer = letterAnswerEl.textContent.toLowerCase();
+    const correct = letterAnswerEl.dataset.correct;
 
     // Check both input methods - typed text takes priority
     const typedAnswer = textInput.value.toLowerCase().trim();
     const finalAnswer = typedAnswer || letterAnswer;
     const isCorrect = finalAnswer === correct;
 
-    const feedback = document.querySelector('.quiz-feedback');
-    const checkButton = document.querySelector('.quiz-check');
+    const feedback = currentContainer.querySelector('.quiz-feedback');
+    const checkButton = currentContainer.querySelector('.quiz-check');
+
+    if (!feedback || !checkButton) return;
 
     // Disable inputs
     textInput.disabled = true;
@@ -990,22 +1017,32 @@ class QuizSystem {
     }
     this.totalQuestions++;
 
-    const controls = document.querySelector('.flashcard-controls');
+    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!currentContainer) return;
+
+    const controls = currentContainer.querySelector('.flashcard-controls');
+    if (!controls) return;
+
     const feedback = document.createElement('div');
     feedback.className = 'quiz-feedback';
     feedback.style.display = 'block';
     feedback.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     controls.parentNode.insertBefore(feedback, controls.nextSibling);
     controls.style.display = 'none';
-     this.autoProgressToNext(feedback);
+    this.autoProgressToNext(feedback);
   }
 
   checkWordOrder() {
-    const selectedWords = Array.from(document.querySelectorAll('.selected-word')).map(span => span.textContent);
+    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!currentContainer) return;
+
+    const selectedWords = Array.from(currentContainer.querySelectorAll('.selected-word')).map(span => span.textContent);
     const answer = selectedWords.join(' ');
     const isCorrect = answer === this.currentQuiz.correct;
-    const feedback = document.querySelector('.quiz-feedback');
-    const checkButton = document.querySelector('.quiz-check');
+    const feedback = currentContainer.querySelector('.quiz-feedback');
+    const checkButton = currentContainer.querySelector('.quiz-check');
+
+    if (!feedback || !checkButton) return;
 
     // Disable all word buttons to prevent further clicking
     document.querySelectorAll('.word-btn').forEach(btn => {
@@ -1043,12 +1080,19 @@ class QuizSystem {
   }
 
   checkAudioQuiz() {
-    const input = document.querySelector('.audio-input');
+    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!currentContainer) return;
+
+    const input = currentContainer.querySelector('.audio-input');
+    if (!input) return;
+
     const answer = input.value.toLowerCase().trim();
     const correct = this.currentQuiz.word.toLowerCase();
     const isCorrect = answer === correct;
-    const feedback = document.querySelector('.quiz-feedback');
-    const checkButton = document.querySelector('.quiz-check');
+    const feedback = currentContainer.querySelector('.quiz-feedback');
+    const checkButton = currentContainer.querySelector('.quiz-check');
+
+    if (!feedback || !checkButton) return;
 
     if (isCorrect) {
       input.classList.add('correct');
@@ -1188,15 +1232,27 @@ class QuizSystem {
   }
 
   pickLetter(letter, button) {
-    const answerDiv = document.querySelector('.letter-picker-answer');
+    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!currentContainer) return;
+
+    const answerDiv = currentContainer.querySelector('.letter-picker-answer');
+    if (!answerDiv) return;
+
     answerDiv.textContent += letter;
     button.disabled = true;
     button.style.opacity = '0.5';
   }
 
   clearLetters() {
-    document.querySelector('.letter-picker-answer').textContent = '';
-    document.querySelectorAll('.letter-btn').forEach(btn => {
+    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!currentContainer) return;
+
+    const answerDiv = currentContainer.querySelector('.letter-picker-answer');
+    if (answerDiv) {
+      answerDiv.textContent = '';
+    }
+
+    currentContainer.querySelectorAll('.letter-btn').forEach(btn => {
       btn.disabled = false;
       btn.style.opacity = '1';
     });
@@ -1206,7 +1262,12 @@ class QuizSystem {
     // Prevent selecting already disabled buttons
     if (button.disabled) return;
 
-    const answerArea = document.querySelector('.word-order-answer');
+    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!currentContainer) return;
+
+    const answerArea = currentContainer.querySelector('.word-order-answer');
+    if (!answerArea) return;
+
     const wordSpan = document.createElement('span');
     wordSpan.className = 'selected-word';
     wordSpan.textContent = word;
@@ -1226,8 +1287,15 @@ class QuizSystem {
   }
 
   clearWordOrder() {
-    document.querySelector('.word-order-answer').innerHTML = '';
-    document.querySelectorAll('.word-btn').forEach(btn => {
+    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!currentContainer) return;
+
+    const answerArea = currentContainer.querySelector('.word-order-answer');
+    if (answerArea) {
+      answerArea.innerHTML = '';
+    }
+
+    currentContainer.querySelectorAll('.word-btn').forEach(btn => {
       btn.disabled = false;
       btn.style.opacity = '1';
     });
