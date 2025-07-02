@@ -1265,6 +1265,40 @@ footer {
   background: rgba(0,0,0,0.1);
 }
 
+/* Section translation styles */
+.section-translation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+.translation-text {
+  opacity: 0.8;
+}
+
+.subcategory-translation {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-style: italic;
+  font-weight: normal;
+  margin-left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.speaker-btn.small {
+  padding: 0.25rem;
+  font-size: 0.7rem;
+  min-width: auto;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
 .hidden {
   display: none;
 }
