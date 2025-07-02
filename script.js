@@ -13,22 +13,114 @@ function toggleQuiz(quizId) {
   }
 }
 
-// Initialize tooltips
-function initializeTooltips() {
-  document.querySelectorAll('.tooltip-item').forEach(item => {
-    const tooltip = document.createElement('div');
-    tooltip.className = 'tooltip';
-    tooltip.textContent = item.getAttribute('title');
-    item.appendChild(tooltip);
-
-    item.addEventListener('mouseenter', () => {
-      tooltip.style.display = 'block';
+// Initialize interactive vocab elements
+function initializeVocabInteractions() {
+  // Initialize info buttons
+  document.querySelectorAll('.info-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      showInfoTooltip(btn);
     });
-
-    item.addEventListener('mouseleave', () => {
-      tooltip.style.display = 'none';
+    
+    btn.addEventListener('mouseenter', (e) => {
+      showInfoTooltip(btn);
+    });
+    
+    btn.addEventListener('mouseleave', (e) => {
+      hideInfoTooltip();
     });
   });
+
+  // Initialize speaker buttons
+  document.querySelectorAll('.speaker-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const italian = btn.getAttribute('data-italian');
+      if (italian) {
+        playItalianAudio(italian);
+      }
+    });
+  });
+}
+
+function showInfoTooltip(btn) {
+  // Remove any existing tooltip
+  hideInfoTooltip();
+  
+  const info = btn.getAttribute('data-info');
+  const gender = btn.getAttribute('data-gender');
+  const plural = btn.getAttribute('data-plural');
+  const singular = btn.getAttribute('data-singular');
+  
+  if (!info) return;
+  
+  const tooltip = document.createElement('div');
+  tooltip.className = 'info-tooltip';
+  tooltip.innerHTML = `
+    <div class="info-content">${info}</div>
+    ${gender || plural || singular ? `
+      <div class="gender-info">
+        ${gender ? `<div><strong>Gender:</strong> <span class="gender-${gender === 'm' ? 'masculine' : 'feminine'}">${gender === 'm' ? 'Masculine (il/lo)' : 'Feminine (la)'}</span></div>` : ''}
+        ${singular ? `<div><strong>Singular:</strong> ${singular}</div>` : ''}
+        ${plural ? `<div><strong>Plural:</strong> ${plural}</div>` : ''}
+      </div>
+    ` : ''}
+  `;
+  
+  document.body.appendChild(tooltip);
+  
+  // Position the tooltip
+  const btnRect = btn.getBoundingClientRect();
+  const tooltipRect = tooltip.getBoundingClientRect();
+  
+  let left = btnRect.left + (btnRect.width / 2) - (tooltipRect.width / 2);
+  let top = btnRect.top - tooltipRect.height - 10;
+  
+  // Adjust if tooltip goes off screen
+  if (left < 10) left = 10;
+  if (left + tooltipRect.width > window.innerWidth - 10) {
+    left = window.innerWidth - tooltipRect.width - 10;
+  }
+  if (top < 10) {
+    top = btnRect.bottom + 10;
+  }
+  
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+  tooltip.classList.add('show');
+}
+
+function hideInfoTooltip() {
+  const existingTooltip = document.querySelector('.info-tooltip');
+  if (existingTooltip) {
+    existingTooltip.remove();
+  }
+}
+
+function playItalianAudio(text) {
+  if ('speechSynthesis' in window) {
+    // Cancel any ongoing speech
+    speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'it-IT';
+    utterance.rate = 0.8;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    
+    // Try to use an Italian voice if available
+    const voices = speechSynthesis.getVoices();
+    const italianVoice = voices.find(voice => voice.lang === 'it-IT' || voice.lang.startsWith('it'));
+    if (italianVoice) {
+      utterance.voice = italianVoice;
+    }
+    
+    speechSynthesis.speak(utterance);
+  } else {
+    // Fallback for browsers that don't support speech synthesis
+    console.log(`Would play audio for: ${text}`);
+    alert(`Audio not supported. Text: ${text}`);
+  }
 }
 
 class QuizSystem {
@@ -1421,7 +1513,7 @@ const quizSystem = new QuizSystem();
 // Initialize the quiz system
 document.addEventListener('DOMContentLoaded', () => {
   quizSystem.setupKeyboardNavigation();
-  initializeTooltips();
+  initializeVocabInteractions();
 
   // Add click handlers to quiz buttons
   document.querySelectorAll('.quiz-btn').forEach(btn => {

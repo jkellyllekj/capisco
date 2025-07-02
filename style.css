@@ -565,9 +565,10 @@ footer {
   margin: 0;
 }
 
-.vocab-list li {
+.vocab-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
   padding: 0.75rem;
   margin-bottom: 0.5rem;
@@ -577,16 +578,96 @@ footer {
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.vocab-list li:hover {
+.vocab-item:hover {
   background: #f1f5f9;
   transform: translateX(4px);
 }
 
-.vocab-list li i {
+.vocab-category-icon i {
   color: #6366f1;
   font-size: 1.1rem;
   width: 1.5rem;
   text-align: center;
+}
+
+.vocab-text {
+  flex: 1;
+  font-weight: 500;
+}
+
+.vocab-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.info-btn, .speaker-btn {
+  background: transparent;
+  border: none;
+  color: #6366f1;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+}
+
+.info-btn:hover {
+  background: #6366f1;
+  color: white;
+  transform: scale(1.1);
+}
+
+.speaker-btn:hover {
+  background: #10b981;
+  color: white;
+  transform: scale(1.1);
+}
+
+.info-btn i, .speaker-btn i {
+  font-size: 0.9rem;
+}
+
+/* Info tooltip */
+.info-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  max-width: 300px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+}
+
+.info-tooltip.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.info-tooltip .gender-info {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.8rem;
+}
+
+.gender-masculine {
+  color: #60a5fa;
+}
+
+.gender-feminine {
+  color: #f472b6;
 }
 
 /* Quiz Styles */
