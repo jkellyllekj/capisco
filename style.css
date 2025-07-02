@@ -1518,6 +1518,37 @@ footer {
   }
 }
 
+/* Dialogue styles */
+.dialogue-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.dialogue-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dialogue-controls {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.dialogue-line .speaker-btn {
+  padding: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.8rem;
+}
+
 /* Quiz Question Separation */
 .quiz-question.answered {
   transition: all 0.5s ease !important;
