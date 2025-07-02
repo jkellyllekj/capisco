@@ -40,6 +40,14 @@ function initializeVocabInteractions() {
         playItalianAudio(italian);
       }
     });
+    
+    // Add hover functionality for desktop
+    btn.addEventListener('mouseenter', (e) => {
+      const italian = btn.getAttribute('data-italian');
+      if (italian) {
+        playItalianAudio(italian);
+      }
+    });
   });
 }
 
@@ -69,22 +77,25 @@ function showInfoTooltip(btn) {
   
   document.body.appendChild(tooltip);
   
-  // Position the tooltip
+  // Position the tooltip relative to the button
   const btnRect = btn.getBoundingClientRect();
   const tooltipRect = tooltip.getBoundingClientRect();
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
   
-  let left = btnRect.left + (btnRect.width / 2) - (tooltipRect.width / 2);
-  let top = btnRect.top - tooltipRect.height - 10;
+  let left = btnRect.left + scrollLeft + (btnRect.width / 2) - (tooltipRect.width / 2);
+  let top = btnRect.top + scrollTop - tooltipRect.height - 10;
   
   // Adjust if tooltip goes off screen
   if (left < 10) left = 10;
   if (left + tooltipRect.width > window.innerWidth - 10) {
     left = window.innerWidth - tooltipRect.width - 10;
   }
-  if (top < 10) {
-    top = btnRect.bottom + 10;
+  if (top < scrollTop + 10) {
+    top = btnRect.bottom + scrollTop + 10;
   }
   
+  tooltip.style.position = 'absolute';
   tooltip.style.left = left + 'px';
   tooltip.style.top = top + 'px';
   tooltip.classList.add('show');
