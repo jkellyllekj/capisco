@@ -827,6 +827,7 @@ footer {
   scroll-behavior: smooth;
   position: relative;
   contain: layout;
+  scroll-padding-top: 1rem;
 }
 
 .quiz-block::-webkit-scrollbar {
@@ -1405,7 +1406,7 @@ footer {
 /* Quiz Question Separation */
 .quiz-question.answered {
   transition: all 0.5s ease !important;
-  opacity: 0.85 !important;
+  opacity: 0.95 !important;
   border-left: 4px solid #28a745 !important;
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
   border-radius: 12px !important;
@@ -1415,6 +1416,18 @@ footer {
   position: relative;
   border: 1px solid #bfdbfe !important;
   transform: scale(0.98);
+}
+
+.quiz-question.answered .quiz-feedback {
+  display: block !important;
+  opacity: 1 !important;
+  margin-top: 1rem !important;
+  position: relative !important;
+}
+
+.quiz-feedback[data-persistent="true"] {
+  display: block !important;
+  opacity: 1 !important;
 }
 
 .quiz-question.answered::after {

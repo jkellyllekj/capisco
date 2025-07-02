@@ -880,6 +880,16 @@ class QuizSystem {
 
     if (!feedback || !checkButton || totalItems === 0) {
       console.log("Missing elements or quiz data for matching check");
+      // Show error feedback even if elements are missing
+      if (feedback) {
+        feedback.innerHTML = `<div class="incorrect-feedback">
+          <i class="fas fa-exclamation-triangle"></i> There was an issue with this matching question. 
+          <br>This sometimes happens - let's move to the next question!
+        </div>`;
+        feedback.style.display = 'block';
+        this.totalQuestions++;
+        this.autoProgressToNext(feedback);
+      }
       return;
     }
 
@@ -899,7 +909,7 @@ class QuizSystem {
       </div>`;
       this.score++;
     } else {
-      const correctMatches = matchedItems.length / 2;
+      const correctMatches = Math.floor(matchedItems.length / 2);
       feedback.innerHTML = `<div class="incorrect-feedback">
         <i class="fas fa-times"></i> You matched ${correctMatches} out of ${totalItems} correctly. 
         <br><br><strong>Remember:</strong> Each Italian season has fascinating etymology:
@@ -915,12 +925,16 @@ class QuizSystem {
 
     this.totalQuestions++;
     feedback.style.display = 'block';
+    feedback.style.opacity = '1';
     if (checkButton) checkButton.style.display = 'none';
 
     const scoreDisplay = document.createElement('div');
     scoreDisplay.className = 'quiz-score-display';
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
+
+    // Ensure feedback persists
+    feedback.setAttribute('data-persistent', 'true');
 
     this.autoProgressToNext(feedback);
   }
@@ -1121,13 +1135,20 @@ class QuizSystem {
 
     const existingQuestions = currentContainer.querySelectorAll('.quiz-question');
 
-    // Only remove old questions if we have too many, and keep their feedback visible
-    if (existingQuestions.length >= 4) {
+    // Mark completed questions as answered but keep them visible with feedback
+    existingQuestions.forEach(question => {
+      if (!question.classList.contains('answered')) {
+        const feedback = question.querySelector('.quiz-feedback');
+        if (feedback && feedback.style.display !== 'none') {
+          question.classList.add('answered');
+        }
+      }
+    });
+
+    // Only remove old questions if we have too many (keep last 3)
+    if (existingQuestions.length >= 3) {
       const oldestQuestion = existingQuestions[0];
-      // Add a "previous question" class to maintain styling but show it's past
-      oldestQuestion.classList.add('previous-question');
-      // Fade it out slowly then remove
-      oldestQuestion.style.opacity = '0.6';
+      oldestQuestion.style.opacity = '0.5';
       oldestQuestion.style.transform = 'scale(0.95)';
       setTimeout(() => {
         oldestQuestion.remove();
@@ -1145,8 +1166,8 @@ class QuizSystem {
       const separator = document.createElement('div');
       separator.className = 'quiz-separator';
       separator.innerHTML = `
-        <div style="text-align: center; margin: 2rem 0; padding: 1rem;">
-          <div style="height: 2px; background: linear-gradient(to right, transparent, #e9ecef, transparent); margin: 1rem 0;"></div>
+        <div style="text-align: center; margin: 1.5rem 0; padding: 0.75rem;">
+          <div style="height: 2px; background: linear-gradient(to right, transparent, #e9ecef, transparent); margin: 0.75rem 0;"></div>
           <span style="color: #6c757d; font-size: 0.9rem; background: #f8f9fa; padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid #e9ecef;">
             <i class="fas fa-arrow-down"></i> Next Question
           </span>
@@ -1185,12 +1206,10 @@ class QuizSystem {
       nextQuestionDiv.innerHTML = html;
       currentContainer.appendChild(nextQuestionDiv);
 
-      // Slower, more noticeable scroll with a pause
+      // Scroll within the quiz container only, not the whole page
       setTimeout(() => {
-        nextQuestionDiv.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
+        // Scroll the quiz container to show the new question
+        currentContainer.scrollTop = currentContainer.scrollHeight - currentContainer.clientHeight;
 
         // Add highlight effect to new question
         nextQuestionDiv.style.background = 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 20%, white 100%)';
@@ -1204,19 +1223,19 @@ class QuizSystem {
           nextQuestionDiv.style.boxShadow = '';
           nextQuestionDiv.classList.remove('new-question');
         }, 2000);
-      }, 500);
+      }, 300);
 
       this.currentQuiz = nextQuiz;
 
       if (nextQuiz.type === 'matching') {
-        setTimeout(() => this.setupMatchingEventListeners(), 600);
+        setTimeout(() => this.setupMatchingEventListeners(), 400);
       } else if (nextQuiz.type === 'wordOrder') {
-        setTimeout(() => this.setupWordOrderEventListeners(), 600);
+        setTimeout(() => this.setupWordOrderEventListeners(), 400);
       }
 
       // Add Enter key support for new question
       setTimeout(() => {
-        const textInputs = nextQuestionDiv.querySelectorAll('.quiz-input, .audio-input, .fill-blank');
+        const textInputs = nextQuestionDiv.querySelectorAll('.quiz-input, .audio-input, .fill-blank, .letter-picker-text-input');
         textInputs.forEach(input => {
           input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -1227,7 +1246,7 @@ class QuizSystem {
             }
           });
         });
-      }, 600);
+      }, 400);
     }
   }
 
