@@ -1,4 +1,3 @@
-
 // Toggle quiz function for backward compatibility
 function toggleQuiz(quizId) {
   const quiz = document.getElementById(quizId);
@@ -539,53 +538,21 @@ class QuizSystem {
     };
   }
 
-  renderDifficultySelector(containerId) {
+  startEndlessQuiz(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    const difficultyHtml = `
-      <div class="difficulty-selector">
-        <h4><i class="fas fa-graduation-cap"></i> Choose Your Learning Level</h4>
-        <div class="difficulty-options">
-          <button class="difficulty-btn starter ${this.difficultyLevel === 'starter' ? 'active' : ''}" onclick="quizSystem.setDifficulty('starter')">
-            <i class="fas fa-seedling"></i> Starter
-            <span class="difficulty-desc">Gentle introduction with extra hints</span>
-          </button>
-          <button class="difficulty-btn improver ${this.difficultyLevel === 'improver' ? 'active' : ''}" onclick="quizSystem.setDifficulty('improver')">
-            <i class="fas fa-arrow-up"></i> Improver  
-            <span class="difficulty-desc">Balanced challenge and support</span>
-          </button>
-          <button class="difficulty-btn scholar ${this.difficultyLevel === 'scholar' ? 'active' : ''}" onclick="quizSystem.setDifficulty('scholar')">
-            <i class="fas fa-university"></i> Scholar
-            <span class="difficulty-desc">Advanced practice with minimal hints</span>
-          </button>
-        </div>
-      </div>
-    `;
+    // Reset quiz system state for endless quiz
+    this.score = 0;
+    this.totalQuestions = 0;
+    this.questionsAnswered = 0;
 
-    container.innerHTML = difficultyHtml;
-  }
-
-  setDifficulty(level) {
-    this.difficultyLevel = level;
-    const buttons = document.querySelectorAll('.difficulty-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.difficulty-btn.${level}`).classList.add('active');
-
-    // Start quiz after difficulty selection
-    setTimeout(() => this.startActualQuiz(), 500);
-  }
-
-  startActualQuiz() {
-    const container = document.querySelector('.quiz-block:not(.hidden)');
-    if (!container) return;
-
-    const containerId = container.id;
+    // Start the first question immediately
     const topicIndex = containerId.replace('quiz', '');
     const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
-    const topic = topics[topicIndex] || 'seasons';
-    const quiz = this.generateQuiz(topic);
+    const topic = topics[parseInt(topicIndex)] || 'vocabulary';
 
+    const quiz = this.generateQuiz(topic);
     if (quiz) {
       this.renderQuiz(quiz, containerId);
     }
@@ -870,7 +837,6 @@ class QuizSystem {
         englishMatch.element.classList.add('matched');
         italianMatch.element.classList.remove('selected');
         englishMatch.element.classList.remove('selected');
-        englishMatch.element.classList.remove('selected');
       } else {
         setTimeout(() => {
           italianMatch.element.classList.remove('selected');
@@ -915,7 +881,7 @@ class QuizSystem {
   }
 
   autoProgressToNext(feedback) {
-    // Auto-progress after 4 seconds (slower) and with better visual indication
+    // Auto-progress after 4 seconds
     setTimeout(() => {
       this.addNextQuestion();
     }, 4000);
@@ -1005,28 +971,13 @@ class QuizSystem {
     if (isFullyMatched) {
       feedback.innerHTML = `<div class="correct-feedback">
         <i class="fas fa-check"></i> Perfect! All matches are correct! 
-        <br><br><strong>What you learned:</strong>
-        <ul style="text-align: left; margin: 1rem 0;">
-          <li><strong>Primavera</strong> (spring) - From Latin "prima" (first) + "vera" (spring)</li>
-          <li><strong>Estate</strong> (summer) - From Latin "aestas", related to "estival"</li>
-          <li><strong>Autunno</strong> (autumn) - Direct cognate with English "autumn"</li>
-          <li><strong>Inverno</strong> (winter) - From Latin "hibernus", like "hibernate"</li>
-        </ul>
-        These seasonal words are essential for expressing preferences in Italian!
       </div>`;
       this.score++;
     } else {
       const correctMatches = Math.floor(matchedItems.length / 2);
       feedback.innerHTML = `<div class="incorrect-feedback">
         <i class="fas fa-times"></i> You matched ${correctMatches} out of ${totalItems} correctly. 
-        <br><br><strong>Remember:</strong> Each Italian season has fascinating etymology:
-        <ul style="text-align: left; margin: 1rem 0;">
-          <li><strong>Primavera</strong> = spring (literally "first spring")</li>
-          <li><strong>Estate</strong> = summer (from Latin for heat/warmth)</li>
-          <li><strong>Autunno</strong> = autumn (harvest time)</li>
-          <li><strong>Inverno</strong> = winter (hibernation time)</li>
-        </ul>
-        Keep practicing - you're learning Italian vocabulary!
+        <br>Keep practicing - you're learning Italian vocabulary!
       </div>`;
     }
 
@@ -1039,9 +990,6 @@ class QuizSystem {
     scoreDisplay.className = 'quiz-score-display';
     scoreDisplay.innerHTML = `<div class="score-text">${this.showScore()}</div>`;
     feedback.appendChild(scoreDisplay);
-
-    // Ensure feedback persists
-    feedback.setAttribute('data-persistent', 'true');
 
     this.autoProgressToNext(feedback);
   }
@@ -1174,17 +1122,12 @@ class QuizSystem {
     if (isCorrect) {
       feedback.innerHTML = `<div class="correct-feedback">
         <i class="fas fa-check"></i> Perfect! "${answer}" is correct! 
-        <br><br><strong>Grammar note:</strong> ${this.currentQuiz.note || ''}
-        <br><strong>Remember:</strong> "Preferisco" comes from Latin "praeferre" - just like English "prefer"! 
-        This sentence structure is essential for expressing preferences in Italian.
       </div>`;
       this.score++;
     } else {
       feedback.innerHTML = `<div class="incorrect-feedback">
         <i class="fas fa-times"></i> The correct order is: "<strong>${this.currentQuiz.correct}</strong>"
         <br>You wrote: "${answer}"
-        <br><br><strong>Grammar tip:</strong> ${this.currentQuiz.note || ''}
-        <br><strong>Word order in Italian:</strong> Subject + Verb + Object (like English). "Preferisco" means "I prefer".
       </div>`;
     }
 
@@ -1438,99 +1381,8 @@ class QuizSystem {
     }
   }
 
-  startQuiz(topicIndex) {
-    // Show difficulty selector first
-    this.renderDifficultySelector(`quiz${topicIndex}`);
-    // Store topic index for later use
-    this.currentTopicIndex = topicIndex;
-  }
-
   showScore() {
     return `Score: ${this.score}/${this.totalQuestions} (${Math.round((this.score/this.totalQuestions) * 100)}%)`;
-  }
-
-  endQuiz() {
-    // Endless quiz never ends - just continue generating new questions
-    const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
-    if (!currentContainer) return;
-
-    // Add a celebratory message but keep the quiz going
-    const celebrationDiv = document.createElement('div');
-    celebrationDiv.className = 'quiz-celebration';
-    celebrationDiv.innerHTML = `
-      <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; margin: 1rem 0;">
-        <h4><i class="fas fa-star"></i> Great Progress!</h4>
-        <p>You've answered ${this.totalQuestions} questions! ${this.showScore()}</p>
-        <p><em>Keep practicing - this endless quiz continues...</em></p>
-      </div>
-    `;
-    
-    currentContainer.appendChild(celebrationDiv);
-    
-    // Remove celebration after 3 seconds and continue with new questions
-    setTimeout(() => {
-      celebrationDiv.remove();
-      this.addNextQuestion();
-    }, 3000);
-  }
-
-  startEndlessQuiz(containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    container.innerHTML = '<div class="endless-quiz-container"></div>';
-    this.generateNextQuestion(container.querySelector('.endless-quiz-container'));
-  }
-
-  generateNextQuestion(container) {
-    const topics = Object.keys(this.quizData);
-    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-    const quiz = this.generateQuiz(randomTopic);
-
-    if (quiz) {
-      this.currentQuiz = quiz;
-      const quizHtml = this.renderQuizContent(quiz);
-      container.innerHTML = quizHtml;
-      this.setupQuizEventListeners();
-    }
-  }
-
-  renderQuizContent(quiz) {
-    let html = '';
-    switch (quiz.type) {
-      case 'multipleChoice':
-        html = this.renderMultipleChoice(quiz);
-        break;
-      case 'matching':
-        html = this.renderMatching(quiz);
-        break;
-      case 'fillBlank':
-        html = this.renderFillBlank(quiz);
-        break;
-      case 'flashcard':
-        html = this.renderFlashcard(quiz);
-        break;
-      case 'letterPicker':
-        html = this.renderLetterPicker(quiz);
-        break;
-      case 'wordOrder':
-        html = this.renderWordOrder(quiz);
-        break;
-      case 'audioQuiz':
-        html = this.renderAudioQuiz(quiz);
-        break;
-    }
-    return html;
-  }
-
-  setupQuizEventListeners() {
-    if (this.currentQuiz) {
-      if (this.currentQuiz.type === 'matching') {
-        setTimeout(() => this.setupMatchingEventListeners(), 100);
-      } else if (this.currentQuiz.type === 'wordOrder') {
-        setTimeout(() => this.setupWordOrderEventListeners(), 100);
-      }
-    }
   }
 }
 
@@ -1801,7 +1653,7 @@ const quizQuestions = {
     { question: "How do you say 'How much does it cost?' in Italian?", answer: "Quanto costa?" },
     { question: "What is 'I would like...' in Italian?", answer: "Vorrei..." },
     { question: "Translate 'Is it fresh?' into Italian.", answer: "È fresco?" },
-    { question: "How do you say 'That's all' in Italian?", answer: "Questo è tutto" }
+    { question: "How do you say 'That's all' in Italian?", answer: "Questo è tutto"}
   ],
   dialogueQuiz: [
     { question: "Translate 'I would like some parmesan' into Italian.", answer: "Vorrei del parmigiano" },
@@ -1816,7 +1668,7 @@ const quizQuestions = {
     { question: "What is 'trees' in Italian?", answer: "alberi" }
   ],
   grammarQuiz: [
-    { question: "What does 'Ne voglio un po\\'' mean in English?", answer: "I want some of it" },
+    { question: "What does 'Ne voglio un po\\' mean in English?", answer: "I want some of it" },
     { question: "Translate 'I take it' into Italian.", answer: "Lo prendo" },
     { question: "What is the meaning of 'La preferisco' in English?", answer: "I prefer it" },
     { question: "What does 'ne' mean?", answer: "of it/them" }
