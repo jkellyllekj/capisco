@@ -1,3 +1,4 @@
+
 // Initialize interactive vocab elements
 function initializeVocabInteractions() {
   // Initialize info buttons
