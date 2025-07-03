@@ -21,11 +21,11 @@ function initializeVocabInteractions() {
       e.preventDefault();
       showInfoTooltip(btn);
     });
-    
+
     btn.addEventListener('mouseenter', (e) => {
       showInfoTooltip(btn);
     });
-    
+
     btn.addEventListener('mouseleave', (e) => {
       hideInfoTooltip();
     });
@@ -40,7 +40,7 @@ function initializeVocabInteractions() {
         playItalianAudio(italian);
       }
     });
-    
+
     // Add hover functionality for desktop
     btn.addEventListener('mouseenter', (e) => {
       const italian = btn.getAttribute('data-italian');
@@ -54,14 +54,14 @@ function initializeVocabInteractions() {
 function showInfoTooltip(btn) {
   // Remove any existing tooltip
   hideInfoTooltip();
-  
+
   const info = btn.getAttribute('data-info');
   const gender = btn.getAttribute('data-gender');
   const plural = btn.getAttribute('data-plural');
   const singular = btn.getAttribute('data-singular');
-  
+
   if (!info) return;
-  
+
   const tooltip = document.createElement('div');
   tooltip.className = 'info-tooltip';
   tooltip.innerHTML = `
@@ -74,18 +74,18 @@ function showInfoTooltip(btn) {
       </div>
     ` : ''}
   `;
-  
+
   document.body.appendChild(tooltip);
-  
+
   // Position the tooltip relative to the button
   const btnRect = btn.getBoundingClientRect();
   const tooltipRect = tooltip.getBoundingClientRect();
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-  
+
   let left = btnRect.left + scrollLeft + (btnRect.width / 2) - (tooltipRect.width / 2);
   let top = btnRect.top + scrollTop - tooltipRect.height - 10;
-  
+
   // Adjust if tooltip goes off screen
   if (left < 10) left = 10;
   if (left + tooltipRect.width > window.innerWidth - 10) {
@@ -94,7 +94,7 @@ function showInfoTooltip(btn) {
   if (top < scrollTop + 10) {
     top = btnRect.bottom + scrollTop + 10;
   }
-  
+
   tooltip.style.position = 'absolute';
   tooltip.style.left = left + 'px';
   tooltip.style.top = top + 'px';
@@ -112,20 +112,20 @@ function playItalianAudio(text) {
   if ('speechSynthesis' in window) {
     // Cancel any ongoing speech
     speechSynthesis.cancel();
-    
+
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'it-IT';
     utterance.rate = 0.8;
     utterance.pitch = 1.0;
     utterance.volume = 1.0;
-    
+
     // Try to use an Italian voice if available
     const voices = speechSynthesis.getVoices();
     const italianVoice = voices.find(voice => voice.lang === 'it-IT' || voice.lang.startsWith('it'));
     if (italianVoice) {
       utterance.voice = italianVoice;
     }
-    
+
     speechSynthesis.speak(utterance);
   } else {
     // Fallback for browsers that don't support speech synthesis
@@ -1083,7 +1083,7 @@ class QuizSystem {
 
     const textInput = currentContainer.querySelector('.letter-picker-text-input');
     const letterAnswerEl = currentContainer.querySelector('.letter-picker-answer');
-    
+
     if (!textInput || !letterAnswerEl) return;
 
     const letterAnswer = letterAnswerEl.textContent.toLowerCase();
@@ -1558,7 +1558,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function toggleQuiz(id) {
   const block = document.getElementById(id);
   if (!block) return;
-  
+
   const isHidden = block.classList.contains('hidden');
 
   document.querySelectorAll('.quiz-block').forEach(q => q.classList.add('hidden'));
@@ -1568,7 +1568,7 @@ function toggleQuiz(id) {
     const topicIndex = id.replace('quiz', '');
     const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
     const topic = topics[parseInt(topicIndex)] || 'vocabulary';
-    
+
     // Start the quiz directly instead of showing difficulty selector
     const quiz = quizSystem.generateQuiz(topic);
     if (quiz) {
@@ -1636,3 +1636,195 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+
+// Text-to-speech functionality
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    // Cancel any ongoing speech
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    // Set language to Italian
+    utterance.lang = 'it-IT';
+
+    // Try to get specifically a female Italian voice
+    const voices = speechSynthesis.getVoices();
+    const femaleItalianVoice = voices.find(voice => 
+      (voice.lang.startsWith('it') || voice.name.toLowerCase().includes('italian')) &&
+      (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('donna') || voice.gender === 'female')
+    );
+
+    // Fallback to any Italian voice
+    const italianVoice = voices.find(voice => 
+      voice.lang.startsWith('it') || 
+      voice.name.toLowerCase().includes('italian')
+    );
+
+    if (femaleItalianVoice) {
+      utterance.voice = femaleItalianVoice;
+    } else if (italianVoice) {
+      utterance.voice = italianVoice;
+    }
+
+    // Speech settings for natural Italian pronunciation
+    utterance.rate = 0.7;
+    utterance.pitch = 1.1;
+    utterance.volume = 0.9;
+
+    speechSynthesis.speak(utterance);
+  }
+}
+
+// Quiz functionality
+function toggleQuiz(quizId) {
+  const quizBlock = document.getElementById(quizId);
+  if (quizBlock) {
+    quizBlock.classList.toggle('hidden');
+
+    if (!quizBlock.classList.contains('hidden')) {
+      generateQuizQuestions(quizId);
+    }
+  }
+}
+
+function generateQuizQuestions(quizId) {
+  const quizBlock = document.getElementById(quizId);
+  if (!quizBlock) return;
+
+  // Clear existing content
+  quizBlock.innerHTML = '';
+
+  // Create quiz container
+  const quizContainer = document.createElement('div');
+  quizContainer.className = 'quiz-container';
+
+  // Generate random questions based on the quiz section
+  const questions = getQuestionsForQuiz(quizId);
+
+  let currentQuestionIndex = 0;
+
+  function showQuestion(index) {
+    if (index >= questions.length) {
+      quizContainer.innerHTML = `
+        <div class="quiz-complete">
+          <h4>🎉 Quiz Complete!</h4>
+          <p>Great job! You've completed all questions.</p>
+          <button class="quiz-restart-btn" onclick="generateQuizQuestions('${quizId}')">Start Over</button>
+        </div>
+      `;
+      return;
+    }
+
+    const question = questions[index];
+    quizContainer.innerHTML = `
+      <div class="quiz-question active">
+        <div class="quiz-progress">Question ${index + 1} of ${questions.length}</div>
+        <p>${question.question}</p>
+        <input type="text" class="quiz-input" placeholder="Your answer..." data-correct="${question.answer.toLowerCase()}">
+        <button class="quiz-check-btn" onclick="checkQuizAnswer(this, ${index}, '${quizId}')">Check Answer</button>
+        <div class="quiz-feedback"></div>
+      </div>
+    `;
+  }
+
+  // Store the showQuestion function for later use
+  quizContainer.showQuestion = showQuestion;
+  quizContainer.currentIndex = currentQuestionIndex;
+
+  showQuestion(0);
+  quizBlock.appendChild(quizContainer);
+}
+
+function checkQuizAnswer(button, questionIndex, quizId) {
+  const questionDiv = button.closest('.quiz-question');
+  const input = questionDiv.querySelector('.quiz-input');
+  const feedback = questionDiv.querySelector('.quiz-feedback');
+  const userAnswer = input.value.toLowerCase().trim();
+  const correctAnswer = input.dataset.correct.toLowerCase().trim();
+
+  if (userAnswer === correctAnswer || userAnswer.includes(correctAnswer) || correctAnswer.includes(userAnswer)) {
+    feedback.innerHTML = `<div class="correct">✓ Correct! Well done!</div>`;
+    feedback.className = 'quiz-feedback correct';
+
+    setTimeout(() => {
+      const container = document.getElementById(quizId).querySelector('.quiz-container');
+      if (container && container.showQuestion) {
+        container.showQuestion(questionIndex + 1);
+      }
+    }, 1500);
+  } else {
+    feedback.innerHTML = `<div class="incorrect">✗ Not quite. The answer is: <strong>${input.dataset.correct}</strong></div>`;
+    feedback.className = 'quiz-feedback incorrect';
+
+    setTimeout(() => {
+      const container = document.getElementById(quizId).querySelector('.quiz-container');
+      if (container && container.showQuestion) {
+        container.showQuestion(questionIndex + 1);
+      }
+    }, 3000);
+  }
+
+  button.disabled = true;
+  input.disabled = true;
+}
+
+// Data structure to hold quiz questions for different sections
+const quizQuestions = {
+  seasonsQuiz: [
+    { question: "What is 'spring' in Italian?", answer: "primavera" },
+    { question: "How do you say 'summer' in Italian?", answer: "estate" },
+    { question: "What is 'autumn' in Italian?", answer: "autunno" },
+    { question: "Translate 'winter' into Italian.", answer: "inverno" }
+  ],
+  vocabularyQuiz: [
+    { question: "What is 'bread' in Italian?", answer: "pane" },
+    { question: "Translate 'apple' into Italian.", answer: "mela" },
+    { question: "What is 'fish' in Italian?", answer: "pesce" },
+    { question: "How do you say 'milk' in Italian?", answer: "latte" }
+  ],
+  expressionsQuiz: [
+    { question: "How do you say 'How much does it cost?' in Italian?", answer: "Quanto costa?" },
+    { question: "What is 'I would like...' in Italian?", answer: "Vorrei..." },
+    { question: "Translate 'Is it fresh?' into Italian.", answer: "È fresco?" },
+    { question: "How do you say 'That's all' in Italian?", answer: "Questo è tutto" }
+  ],
+  dialogueQuiz: [
+    { question: "Translate 'I would like some parmesan' into Italian.", answer: "Vorrei del parmigiano" },
+    { question: "What is 'fresh' in Italian?", answer: "fresco" },
+    { question: "How do you say 'aged' in Italian?", answer: "stagionato" },
+    { question: "What does 'Tre etti' mean in English?", answer: "300 grams" }
+  ],
+  extraVocabularyQuiz: [
+    { question: "What is 'suit' in Italian?", answer: "abito" },
+    { question: "How do you say 'steps' in Italian?", answer: "passi" },
+    { question: "Translate 'to walk' into Italian.", answer: "passeggiare" },
+    { question: "What is 'trees' in Italian?", answer: "alberi" }
+  ],
+  grammarQuiz: [
+    { question: "What does 'Ne voglio un po\\'' mean in English?", answer: "I want some of it" },
+    { question: "Translate 'I take it' into Italian.", answer: "Lo prendo" },
+    { question: "What is the meaning of 'La preferisco' in English?", answer: "I prefer it" },
+    { question: "What does 'ne' mean?", answer: "of it/them" }
+  ]
+};
+
+// Function to get the correct questions based on the quiz section
+function getQuestionsForQuiz(quizId) {
+  switch (quizId) {
+    case 'seasonsQuiz':
+      return quizQuestions.seasonsQuiz;
+    case 'vocabularyQuiz':
+      return quizQuestions.vocabularyQuiz;
+    case 'expressionsQuiz':
+      return quizQuestions.expressionsQuiz;
+    case 'dialogueQuiz':
+      return quizQuestions.dialogueQuiz;
+    case 'extraVocabularyQuiz':
+      return quizQuestions.extraVocabularyQuiz;
+    case 'grammarQuiz':
+      return quizQuestions.grammarQuiz;
+    default:
+      return [];
+  }
+}
