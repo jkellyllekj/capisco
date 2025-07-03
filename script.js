@@ -19,22 +19,25 @@ function initializeVocabInteractions() {
   document.querySelectorAll('.info-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       showInfoTooltip(btn);
     });
 
     btn.addEventListener('mouseenter', (e) => {
+      e.stopPropagation();
       showInfoTooltip(btn);
     });
 
     btn.addEventListener('mouseleave', (e) => {
       hideInfoTooltip();
     });
-  });
+  });</old_str>
 
   // Initialize speaker buttons
   document.querySelectorAll('.speaker-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       const italian = btn.getAttribute('data-italian');
       if (italian) {
         playItalianAudio(italian);
@@ -48,7 +51,7 @@ function initializeVocabInteractions() {
         playItalianAudio(italian);
       }
     });
-  });
+  });</old_str>
 }
 
 function showInfoTooltip(btn) {
@@ -1496,21 +1499,28 @@ class QuizSystem {
     switch (quiz.type) {
       case 'multipleChoice':
         html = this.renderMultipleChoice(quiz);
+        break;
       case 'matching':
         html = this.renderMatching(quiz);
+        break;
       case 'fillBlank':
         html = this.renderFillBlank(quiz);
+        break;
       case 'flashcard':
         html = this.renderFlashcard(quiz);
+        break;
       case 'letterPicker':
         html = this.renderLetterPicker(quiz);
+        break;
       case 'wordOrder':
         html = this.renderWordOrder(quiz);
+        break;
       case 'audioQuiz':
         html = this.renderAudioQuiz(quiz);
+        break;
     }
     return html;
-  }
+  }</old_str>
 
   setupQuizEventListeners() {
     if (this.currentQuiz) {
