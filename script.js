@@ -1446,25 +1446,29 @@ class QuizSystem {
   }
 
   endQuiz() {
+    // Endless quiz never ends - just continue generating new questions
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
-    const finalScore = document.createElement('div');
-    finalScore.className = 'quiz-final-score';
-    finalScore.innerHTML = `
-      <div class="final-score-content">
-        <h3><i class="fas fa-trophy"></i> Quiz Complete!</h3>
-        <div class="final-score">${this.showScore()}</div>
-        <p>Great job practicing Italian! Keep it up!</p>
-        <button class="quiz-restart-btn" onclick="location.reload()">
-          <i class="fas fa-redo"></i> Start New Quiz
-        </button>
+    // Add a celebratory message but keep the quiz going
+    const celebrationDiv = document.createElement('div');
+    celebrationDiv.className = 'quiz-celebration';
+    celebrationDiv.innerHTML = `
+      <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; margin: 1rem 0;">
+        <h4><i class="fas fa-star"></i> Great Progress!</h4>
+        <p>You've answered ${this.totalQuestions} questions! ${this.showScore()}</p>
+        <p><em>Keep practicing - this endless quiz continues...</em></p>
       </div>
     `;
-
-    currentContainer.innerHTML = '';
-    currentContainer.appendChild(finalScore);
-  }
+    
+    currentContainer.appendChild(celebrationDiv);
+    
+    // Remove celebration after 3 seconds and continue with new questions
+    setTimeout(() => {
+      celebrationDiv.remove();
+      this.addNextQuestion();
+    }, 3000);
+  }</old_str>
 
   startEndlessQuiz(containerId) {
     const container = document.getElementById(containerId);
@@ -1565,17 +1569,24 @@ function toggleQuiz(id) {
 
   if (isHidden) {
     block.classList.remove('hidden');
+    
+    // Initialize the new quiz system for endless quizzes
     const topicIndex = id.replace('quiz', '');
     const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
     const topic = topics[parseInt(topicIndex)] || 'vocabulary';
 
-    // Start the quiz directly instead of showing difficulty selector
+    // Reset quiz system state for endless quiz
+    quizSystem.score = 0;
+    quizSystem.totalQuestions = 0;
+    quizSystem.questionsAnswered = 0;
+    
+    // Start the first question immediately
     const quiz = quizSystem.generateQuiz(topic);
     if (quiz) {
       quizSystem.renderQuiz(quiz, id);
     }
   }
-}
+}</old_str>
 
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.quiz-button').forEach(button => { // Renamed the quiz buttons
@@ -1699,27 +1710,19 @@ function generateQuizQuestions(quizId) {
   const quizContainer = document.createElement('div');
   quizContainer.className = 'quiz-container';
 
-  // Generate random questions based on the quiz section
+  // Generate random questions based on the quiz section - make it endless
   const questions = getQuestionsForQuiz(quizId);
 
   let currentQuestionIndex = 0;
 
   function showQuestion(index) {
-    if (index >= questions.length) {
-      quizContainer.innerHTML = `
-        <div class="quiz-complete">
-          <h4>🎉 Quiz Complete!</h4>
-          <p>Great job! You've completed all questions.</p>
-          <button class="quiz-restart-btn" onclick="generateQuizQuestions('${quizId}')">Start Over</button>
-        </div>
-      `;
-      return;
-    }
-
-    const question = questions[index];
+    // For endless quiz, cycle through questions infinitely
+    const actualIndex = index % questions.length;
+    const question = questions[actualIndex];
+    
     quizContainer.innerHTML = `
       <div class="quiz-question active">
-        <div class="quiz-progress">Question ${index + 1} of ${questions.length}</div>
+        <div class="quiz-progress">Endless Quiz - Question ${index + 1}</div>
         <p>${question.question}</p>
         <input type="text" class="quiz-input" placeholder="Your answer..." data-correct="${question.answer.toLowerCase()}">
         <button class="quiz-check-btn" onclick="checkQuizAnswer(this, ${index}, '${quizId}')">Check Answer</button>
@@ -1734,7 +1737,7 @@ function generateQuizQuestions(quizId) {
 
   showQuestion(0);
   quizBlock.appendChild(quizContainer);
-}
+}</old_str>
 
 function checkQuizAnswer(button, questionIndex, quizId) {
   const questionDiv = button.closest('.quiz-question');
@@ -1744,7 +1747,7 @@ function checkQuizAnswer(button, questionIndex, quizId) {
   const correctAnswer = input.dataset.correct.toLowerCase().trim();
 
   if (userAnswer === correctAnswer || userAnswer.includes(correctAnswer) || correctAnswer.includes(userAnswer)) {
-    feedback.innerHTML = `<div class="correct">✓ Correct! Well done!</div>`;
+    feedback.innerHTML = `<div class="correct">✓ Excellent! Keep going with this endless practice!</div>`;
     feedback.className = 'quiz-feedback correct';
 
     setTimeout(() => {
@@ -1754,7 +1757,7 @@ function checkQuizAnswer(button, questionIndex, quizId) {
       }
     }, 1500);
   } else {
-    feedback.innerHTML = `<div class="incorrect">✗ Not quite. The answer is: <strong>${input.dataset.correct}</strong></div>`;
+    feedback.innerHTML = `<div class="incorrect">✗ Not quite. The answer is: <strong>${input.dataset.correct}</strong><br><em>Don't worry, this endless quiz continues!</em></div>`;
     feedback.className = 'quiz-feedback incorrect';
 
     setTimeout(() => {
@@ -1767,7 +1770,7 @@ function checkQuizAnswer(button, questionIndex, quizId) {
 
   button.disabled = true;
   input.disabled = true;
-}
+}</old_str>
 
 // Data structure to hold quiz questions for different sections
 const quizQuestions = {
