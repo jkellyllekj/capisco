@@ -1,3 +1,4 @@
+
 // Toggle quiz function for backward compatibility
 function toggleQuiz(quizId) {
   const quiz = document.getElementById(quizId);
@@ -31,7 +32,7 @@ function initializeVocabInteractions() {
     btn.addEventListener('mouseleave', (e) => {
       hideInfoTooltip();
     });
-  });</old_str>
+  });
 
   // Initialize speaker buttons
   document.querySelectorAll('.speaker-btn').forEach(btn => {
@@ -51,7 +52,7 @@ function initializeVocabInteractions() {
         playItalianAudio(italian);
       }
     });
-  });</old_str>
+  });
 }
 
 function showInfoTooltip(btn) {
@@ -1471,7 +1472,7 @@ class QuizSystem {
       celebrationDiv.remove();
       this.addNextQuestion();
     }, 3000);
-  }</old_str>
+  }
 
   startEndlessQuiz(containerId) {
     const container = document.getElementById(containerId);
@@ -1520,7 +1521,7 @@ class QuizSystem {
         break;
     }
     return html;
-  }</old_str>
+  }
 
   setupQuizEventListeners() {
     if (this.currentQuiz) {
@@ -1596,7 +1597,7 @@ function toggleQuiz(id) {
       quizSystem.renderQuiz(quiz, id);
     }
   }
-}</old_str>
+}
 
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.quiz-button').forEach(button => { // Renamed the quiz buttons
@@ -1747,7 +1748,7 @@ function generateQuizQuestions(quizId) {
 
   showQuestion(0);
   quizBlock.appendChild(quizContainer);
-}</old_str>
+}
 
 function checkQuizAnswer(button, questionIndex, quizId) {
   const questionDiv = button.closest('.quiz-question');
@@ -1780,7 +1781,7 @@ function checkQuizAnswer(button, questionIndex, quizId) {
 
   button.disabled = true;
   input.disabled = true;
-}</old_str>
+}
 
 // Data structure to hold quiz questions for different sections
 const quizQuestions = {
