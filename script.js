@@ -111,13 +111,38 @@ function playItalianAudio(text) {
     utterance.pitch = 1.0;
     utterance.volume = 1.0;
 
-    const voices = speechSynthesis.getVoices();
-    const italianVoice = voices.find(voice => voice.lang === 'it-IT' || voice.lang.startsWith('it'));
-    if (italianVoice) {
-      utterance.voice = italianVoice;
+    // Ensure voices are loaded
+    function setVoice() {
+      const voices = speechSynthesis.getVoices();
+      
+      // Debug: log available voices (can be removed later)
+      console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+      
+      // Try to find the best Italian voice
+      let italianVoice = voices.find(voice => 
+        voice.lang === 'it-IT' && voice.localService === true
+      ) || voices.find(voice => 
+        voice.lang === 'it-IT'
+      ) || voices.find(voice => 
+        voice.lang.startsWith('it')
+      );
+      
+      if (italianVoice) {
+        utterance.voice = italianVoice;
+        console.log('Selected Italian voice:', italianVoice.name, italianVoice.lang);
+      } else {
+        console.log('No Italian voice found, using default with it-IT lang');
+      }
+      
+      speechSynthesis.speak(utterance);
     }
 
-    speechSynthesis.speak(utterance);
+    // Voices might not be loaded immediately
+    if (speechSynthesis.getVoices().length > 0) {
+      setVoice();
+    } else {
+      speechSynthesis.addEventListener('voiceschanged', setVoice, { once: true });
+    }
   } else {
     console.log('Would play audio for: ' + text);
     alert('Audio not supported. Text: ' + text);
