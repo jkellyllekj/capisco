@@ -153,6 +153,7 @@ class QuizSystem {
     this.selectedAnswer = null;
     this.selectedMatches = new Map();
     this.usedQuestions = new Set(); // Track used questions to avoid repetition
+    this.isChecking = false; // Prevent double submissions
     this.quizData = {
       seasons: {
         vocabulary: [
@@ -614,34 +615,43 @@ class QuizSystem {
     if (event.key === 'Enter') {
       event.preventDefault();
       event.stopPropagation();
-      // Small delay to ensure any autocomplete is settled
+      // Prevent multiple submissions
+      if (this.isChecking) return;
+      this.isChecking = true;
+      
       setTimeout(() => {
         this.checkTyping();
-      }, 50);
+        this.isChecking = false;
+      }, 100);
     }
   }
 
   checkTyping() {
     const input = document.querySelector('.quiz-input');
-    if (!input || !this.currentQuiz) return;
+    if (!input || !this.currentQuiz) {
+      console.log('Input or quiz not found');
+      return;
+    }
 
-    // Get the actual current value from the input
     const userAnswer = input.value;
     const correctAnswer = this.currentQuiz.correct;
 
-    console.log('Raw user answer:', `"${userAnswer}"`);
-    console.log('Raw correct answer:', `"${correctAnswer}"`);
+    console.log('=== TYPING VALIDATION DEBUG ===');
+    console.log('User typed:', JSON.stringify(userAnswer));
+    console.log('Correct answer:', JSON.stringify(correctAnswer));
+    console.log('User length:', userAnswer.length);
+    console.log('Correct length:', correctAnswer.length);
 
-    // Simple normalization - just trim and lowercase
-    const normalizedUser = userAnswer.trim().toLowerCase();
-    const normalizedCorrect = correctAnswer.trim().toLowerCase();
+    // Extremely simple validation - just clean whitespace and make lowercase
+    const cleanUser = userAnswer.replace(/\s+/g, '').toLowerCase();
+    const cleanCorrect = correctAnswer.replace(/\s+/g, '').toLowerCase();
 
-    console.log('Normalized user:', `"${normalizedUser}"`);
-    console.log('Normalized correct:', `"${normalizedCorrect}"`);
+    console.log('Clean user:', JSON.stringify(cleanUser));
+    console.log('Clean correct:', JSON.stringify(cleanCorrect));
 
-    const isCorrect = normalizedUser === normalizedCorrect;
-
-    console.log('Validation result:', isCorrect);
+    const isCorrect = cleanUser === cleanCorrect;
+    console.log('Final result:', isCorrect);
+    console.log('=== END VALIDATION DEBUG ===');
 
     this.selectedAnswer = userAnswer;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
@@ -695,9 +705,14 @@ class QuizSystem {
     if (event.key === 'Enter') {
       event.preventDefault();
       event.stopPropagation();
+      // Prevent multiple submissions
+      if (this.isChecking) return;
+      this.isChecking = true;
+      
       setTimeout(() => {
         this.checkDragDrop();
-      }, 50);
+        this.isChecking = false;
+      }, 100);
     }
   }
 
@@ -717,14 +732,24 @@ class QuizSystem {
       return;
     }
 
-    // Simple normalization - just trim and lowercase
-    const normalizedUser = userWord.trim().toLowerCase();
-    const normalizedCorrect = this.currentQuiz.correct.trim().toLowerCase();
+    const correctAnswer = this.currentQuiz.correct;
 
-    console.log('Drag-drop user answer:', `"${normalizedUser}"`);
-    console.log('Drag-drop correct answer:', `"${normalizedCorrect}"`);
+    console.log('=== DRAG-DROP VALIDATION DEBUG ===');
+    console.log('User answer:', JSON.stringify(userWord));
+    console.log('Correct answer:', JSON.stringify(correctAnswer));
+    console.log('User length:', userWord.length);
+    console.log('Correct length:', correctAnswer.length);
 
-    const isCorrect = normalizedUser === normalizedCorrect;
+    // Extremely simple validation - just clean whitespace and make lowercase
+    const cleanUser = userWord.replace(/\s+/g, '').toLowerCase();
+    const cleanCorrect = correctAnswer.replace(/\s+/g, '').toLowerCase();
+
+    console.log('Clean user:', JSON.stringify(cleanUser));
+    console.log('Clean correct:', JSON.stringify(cleanCorrect));
+
+    const isCorrect = cleanUser === cleanCorrect;
+    console.log('Final result:', isCorrect);
+    console.log('=== END DRAG-DROP VALIDATION DEBUG ===');
 
     this.selectedAnswer = userWord;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
