@@ -500,12 +500,28 @@ class QuizSystem {
       const english = newSelected[0].classList.contains('english-item') ? newSelected[0] : newSelected[1];
       
       if (italian && english && italian !== english) {
-        // Only mark as matched if they're different items and one from each column
-        italian.classList.add('matched');
-        english.classList.add('matched');
-        newSelected.forEach(item => item.classList.remove('selected'));
+        // Check if this is a correct match
+        const isCorrectMatch = this.currentQuiz.pairs.some(pair => 
+          pair.italian === italian.dataset.italian && pair.english === english.dataset.english
+        );
         
-        this.selectedMatches.set(italian.dataset.italian, english.dataset.english);
+        if (isCorrectMatch) {
+          // Correct match - mark as matched with green
+          italian.classList.add('matched');
+          english.classList.add('matched');
+          this.selectedMatches.set(italian.dataset.italian, english.dataset.english);
+        } else {
+          // Incorrect match - flash red and clear selection
+          italian.classList.add('incorrect-match');
+          english.classList.add('incorrect-match');
+          
+          setTimeout(() => {
+            italian.classList.remove('incorrect-match');
+            english.classList.remove('incorrect-match');
+          }, 1000);
+        }
+        
+        newSelected.forEach(item => item.classList.remove('selected'));
       }
     }
   }
@@ -686,21 +702,22 @@ class QuizSystem {
 
     const currentQuestion = currentContainer.querySelector('.quiz-question:last-child');
     
-    // Keep current question visible but move it up slightly
+    // Compact the current question
     currentQuestion.style.transition = 'all 0.5s ease-out';
-    currentQuestion.style.transform = 'translateY(-10px)';
-    currentQuestion.style.marginBottom = '1.5rem';
+    currentQuestion.style.transform = 'scale(0.95)';
+    currentQuestion.style.marginBottom = '1rem';
+    currentQuestion.style.opacity = '0.8';
 
     // Create separator
     const separator = document.createElement('div');
     separator.className = 'quiz-separator';
-    separator.innerHTML = '<div style="text-align: center; margin: 1rem 0; color: #ccc;">• • •</div>';
+    separator.innerHTML = '<div style="text-align: center; margin: 0.5rem 0; color: #ccc; font-size: 0.8rem;">• • •</div>';
     
-    // Create next question
+    // Create next question container
     const nextQuestionDiv = document.createElement('div');
     nextQuestionDiv.className = 'quiz-question new-question';
     nextQuestionDiv.style.opacity = '0';
-    nextQuestionDiv.style.transform = 'translateY(20px)';
+    nextQuestionDiv.style.transform = 'translateY(30px)';
     nextQuestionDiv.style.transition = 'all 0.6s ease-out';
 
     let html = '';
@@ -725,16 +742,23 @@ class QuizSystem {
     html += '<div class="quiz-feedback" style="display: none;"></div>';
     nextQuestionDiv.innerHTML = html;
     
-    // Insert separator and next question
+    // Insert separator and next question at the current scroll position
     currentQuestion.parentNode.insertBefore(separator, currentQuestion.nextSibling);
     separator.parentNode.insertBefore(nextQuestionDiv, separator.nextSibling);
 
     this.currentQuiz = nextQuiz;
 
-    // Animate in the new question
+    // Smooth scroll to keep the new question in view
     setTimeout(() => {
       nextQuestionDiv.style.opacity = '1';
       nextQuestionDiv.style.transform = 'translateY(0)';
+      
+      // Scroll the new question into view smoothly
+      nextQuestionDiv.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center',
+        inline: 'nearest'
+      });
     }, 100);
   }
 
