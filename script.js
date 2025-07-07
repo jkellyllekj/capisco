@@ -236,9 +236,49 @@ class QuizSystem {
   initializeKeyboardNavigation() {
     // Remove existing keyboard listeners to prevent duplicates
     document.removeEventListener('keydown', this.handleKeyboardNavigation.bind(this));
+    document.removeEventListener('keydown', this.handleGlobalSpaceBar.bind(this));
 
     // Add global keyboard listener
     document.addEventListener('keydown', this.handleKeyboardNavigation.bind(this));
+    
+    // Add separate global space bar listener for audio playback
+    document.addEventListener('keydown', this.handleGlobalSpaceBar.bind(this));
+  }
+
+  handleGlobalSpaceBar(event) {
+    // Only handle space bar for listening questions
+    if (event.key === ' ' && this.currentQuiz && this.currentQuiz.type === 'listening') {
+      // Check if we're typing in the middle of a word
+      if (event.target.matches('input')) {
+        const input = event.target;
+        const cursorPos = input.selectionStart;
+        const inputValue = input.value;
+        
+        // Don't interfere if user is typing in middle of word
+        if (inputValue.length > 0 && cursorPos > 0 && cursorPos < inputValue.length) {
+          return; // Let normal space typing happen
+        }
+        
+        // Don't interfere if there's already text and cursor is at end
+        if (inputValue.length > 0 && cursorPos === inputValue.length) {
+          return; // Let normal space typing happen
+        }
+      }
+      
+      // Play audio
+      event.preventDefault();
+      const playBtn = document.querySelector('.play-audio-btn');
+      if (playBtn) {
+        playBtn.click();
+        // Re-focus input after audio
+        setTimeout(() => {
+          const input = document.querySelector('.audio-input');
+          if (input) {
+            input.focus();
+          }
+        }, 100);
+      }
+    }
   }
 
   handleKeyboardNavigation(event) {
@@ -446,21 +486,41 @@ class QuizSystem {
   handleTypingKeyboard(event) {
     const key = event.key;
 
-    // Space bar to play audio for listening questions
-    if (key === ' ' && !event.target.matches('input') && this.currentQuiz.type === 'listening') {
-      event.preventDefault();
-      const playBtn = document.querySelector('.play-audio-btn');
-      if (playBtn) {
-        playBtn.click();
-        // Auto-focus input after playing audio
-        setTimeout(() => {
-          const input = document.querySelector('.audio-input');
-          if (input) {
-            input.focus();
+    // Space bar to play audio for listening questions - handle even when input is focused
+    if (key === ' ' && this.currentQuiz.type === 'listening') {
+      // Check if we're in an input field
+      if (event.target.matches('input')) {
+        // If cursor is at the beginning of the input or input is empty, play audio
+        const input = event.target;
+        const cursorPos = input.selectionStart;
+        const inputValue = input.value;
+        
+        // Play audio if input is empty or cursor is at beginning and first char would be space
+        if (inputValue.length === 0 || (cursorPos === 0 && inputValue[0] !== ' ')) {
+          event.preventDefault();
+          const playBtn = document.querySelector('.play-audio-btn');
+          if (playBtn) {
+            playBtn.click();
           }
-        }, 100);
+          return;
+        }
+        // Otherwise, let the space be typed normally
+      } else {
+        // Not in input field, definitely play audio
+        event.preventDefault();
+        const playBtn = document.querySelector('.play-audio-btn');
+        if (playBtn) {
+          playBtn.click();
+          // Auto-focus input after playing audio
+          setTimeout(() => {
+            const input = document.querySelector('.audio-input');
+            if (input) {
+              input.focus();
+            }
+          }, 100);
+        }
+        return;
       }
-      return;
     }
 
     // Auto-focus input if it exists and user starts typing
