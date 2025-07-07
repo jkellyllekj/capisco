@@ -451,13 +451,13 @@ class QuizSystem {
     html += '</div>';
     html += '<div class="letter-bank">';
     quiz.letters.forEach((letter, index) => {
-      html += '<span class="draggable-letter" data-letter="' + letter + '" onclick="addLetter(\'' + quizId + '\', \'' + letter + '\', this)">' + letter.toUpperCase() + '</span>';
+      html += '<span class="draggable-letter" data-letter="' + letter + '" onclick="quizSystem.addLetter(\'' + letter + '\', this, \'' + quizId + '\')">' + letter.toUpperCase() + '</span>';
     });
     html += '</div>';
     html += '<p>Or type your answer:</p>';
-    html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type here...">';
-    html += '<button class="quiz-check" onclick="window.quizManager.checkDragDrop()">Check Answer</button>';
-    html += '<button class="clear-word" onclick="clearWord(\'' + quizId + '\')">Clear</button>';
+    html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type here..." onkeyup="quizSystem.handleDragDropTyping(event)">';
+    html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()">Check Answer</button>';
+    html += '<button class="clear-word" onclick="quizSystem.clearWord(\'' + quizId + '\')">Clear</button>';
     html += '</div>';
     return html;
   }
@@ -582,14 +582,14 @@ class QuizSystem {
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
   }
 
-  addLetter(letter, element) {
+  addLetter(letter, element, quizId) {
     if (element.style.visibility === 'hidden') return;
 
-    const currentWordDiv = document.getElementById('currentWord');
+    const currentWordDiv = document.getElementById('current-word-' + quizId);
     const letterSpan = document.createElement('span');
     letterSpan.textContent = letter;
     letterSpan.className = 'word-letter';
-    letterSpan.onclick = () => this.removeLetter(letterSpan, letter, element);
+    letterSpan.onclick = () => this.removeLetter(letterSpan, letter, element, quizId);
 
     currentWordDiv.appendChild(letterSpan);
     this.currentQuiz.currentWord.push(letter);
@@ -597,7 +597,7 @@ class QuizSystem {
     element.style.visibility = 'hidden';
   }
 
-  removeLetter(letterSpan, letter, originalElement) {
+  removeLetter(letterSpan, letter, originalElement, quizId) {
     letterSpan.remove();
     const index = this.currentQuiz.currentWord.indexOf(letter);
     if (index > -1) {
@@ -606,8 +606,11 @@ class QuizSystem {
     originalElement.style.visibility = 'visible';
   }
 
-  clearWord() {
-    document.getElementById('currentWord').innerHTML = '';
+  clearWord(quizId) {
+    const currentWordDiv = document.getElementById('current-word-' + quizId);
+    if (currentWordDiv) {
+      currentWordDiv.innerHTML = '';
+    }
     this.currentQuiz.currentWord = [];
     document.querySelectorAll('.draggable-letter').forEach(letter => {
       letter.style.visibility = 'visible';
