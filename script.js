@@ -236,7 +236,7 @@ class QuizSystem {
   initializeKeyboardNavigation() {
     // Remove existing keyboard listeners to prevent duplicates
     document.removeEventListener('keydown', this.handleKeyboardNavigation.bind(this));
-    
+
     // Add global keyboard listener
     document.addEventListener('keydown', this.handleKeyboardNavigation.bind(this));
   }
@@ -276,7 +276,7 @@ class QuizSystem {
   handleMultipleChoiceKeyboard(event) {
     const key = event.key;
     const options = document.querySelectorAll('.quiz-option');
-    
+
     if (!options.length) return;
 
     // Number keys 1-4 for direct selection
@@ -285,36 +285,36 @@ class QuizSystem {
       if (index < options.length) {
         // Clear previous selections
         options.forEach(opt => opt.classList.remove('selected', 'keyboard-highlight'));
-        
+
         // Select and highlight the option
         const selectedOption = options[index];
         selectedOption.classList.add('selected', 'keyboard-highlight');
         // Get the correct answer from the quiz options array
         this.selectedAnswer = this.currentQuiz.options[index];
-        
+
         // Auto-submit after short delay
         setTimeout(() => {
           this.checkAnswer();
         }, 500);
       }
     }
-    
+
     // Arrow keys for navigation
     else if (key === 'ArrowUp' || key === 'ArrowDown') {
       event.preventDefault();
-      
+
       if (key === 'ArrowUp') {
         this.currentHighlight = Math.max(0, this.currentHighlight - 1);
       } else {
         this.currentHighlight = Math.min(options.length - 1, this.currentHighlight + 1);
       }
-      
+
       // Update visual highlight
       options.forEach((opt, index) => {
         opt.classList.toggle('keyboard-highlight', index === this.currentHighlight);
       });
     }
-    
+
     // Enter to select highlighted option
     else if (key === 'Enter' && !event.target.matches('input')) {
       const highlightedOption = options[this.currentHighlight];
@@ -323,7 +323,7 @@ class QuizSystem {
         highlightedOption.classList.add('selected');
         // Get the correct answer from the quiz options array
         this.selectedAnswer = this.currentQuiz.options[this.currentHighlight];
-        
+
         setTimeout(() => {
           this.checkAnswer();
         }, 500);
@@ -333,37 +333,37 @@ class QuizSystem {
 
   handleMatchingKeyboard(event) {
     const key = event.key.toLowerCase();
-    
+
     // Numbers 1-4 for Italian column
     if (key >= '1' && key <= '4') {
       const index = parseInt(key) - 1;
       const italianItems = document.querySelectorAll('.italian-item');
-      
+
       if (index < italianItems.length) {
         // Clear previous Italian selection
         italianItems.forEach(item => item.classList.remove('selected', 'keyboard-highlight'));
-        
+
         const selectedItem = italianItems[index];
         selectedItem.classList.add('selected', 'keyboard-highlight');
         this.matchingSelection.italian = selectedItem;
-        
+
         this.showKeyboardMatchingHint('Italian word selected. Now press A, B, C, or D for English translation.');
       }
     }
-    
+
     // Letters A-D for English column
     else if (['a', 'b', 'c', 'd'].includes(key)) {
       const index = key.charCodeAt(0) - 97; // Convert a-d to 0-3
       const englishItems = document.querySelectorAll('.english-item');
-      
+
       if (index < englishItems.length) {
         // Clear previous English selection
         englishItems.forEach(item => item.classList.remove('selected', 'keyboard-highlight'));
-        
+
         const selectedItem = englishItems[index];
         selectedItem.classList.add('selected', 'keyboard-highlight');
         this.matchingSelection.english = selectedItem;
-        
+
         // If we have both selections, attempt to match
         if (this.matchingSelection.italian && this.matchingSelection.english) {
           this.attemptKeyboardMatch();
@@ -372,7 +372,7 @@ class QuizSystem {
         }
       }
     }
-    
+
     // Enter to check all matches
     else if (key === 'enter') {
       const matchedItems = document.querySelectorAll('.match-item.matched');
@@ -380,7 +380,7 @@ class QuizSystem {
         this.checkMatching();
       }
     }
-    
+
     // Escape to clear selections
     else if (key === 'escape') {
       this.clearMatchingSelections();
@@ -390,35 +390,35 @@ class QuizSystem {
   attemptKeyboardMatch() {
     const italian = this.matchingSelection.italian;
     const english = this.matchingSelection.english;
-    
+
     if (!italian || !english) return;
-    
+
     // Check if this is a correct match
     const isCorrectMatch = this.currentQuiz.pairs.some(pair => 
       pair.italian === italian.dataset.italian && pair.english === english.dataset.english
     );
-    
+
     if (isCorrectMatch) {
       // Correct match
       italian.classList.add('matched');
       english.classList.add('matched');
       italian.classList.remove('selected', 'keyboard-highlight');
       english.classList.remove('selected', 'keyboard-highlight');
-      
+
       this.selectedMatches.set(italian.dataset.italian, english.dataset.english);
       this.showKeyboardMatchingHint('✓ Correct match! Continue matching or press Enter to check answers.');
     } else {
       // Incorrect match - show briefly then clear
       italian.classList.add('incorrect-match');
       english.classList.add('incorrect-match');
-      
+
       setTimeout(() => {
         italian.classList.remove('incorrect-match', 'selected', 'keyboard-highlight');
         english.classList.remove('incorrect-match', 'selected', 'keyboard-highlight');
         this.showKeyboardMatchingHint('✗ Incorrect match. Try again!');
       }, 1000);
     }
-    
+
     // Clear selections
     this.matchingSelection = { italian: null, english: null };
   }
@@ -464,7 +464,7 @@ class QuizSystem {
 
   handleTypingKeyboard(event) {
     const key = event.key;
-    
+
     // Space bar to play audio for listening questions
     if (key === ' ' && !event.target.matches('input') && this.currentQuiz.type === 'listening') {
       event.preventDefault();
@@ -481,7 +481,7 @@ class QuizSystem {
       }
       return;
     }
-    
+
     // Auto-focus input if it exists and user starts typing
     if (key.length === 1 && !event.target.matches('input')) {
       const input = document.querySelector('.quiz-input:not([disabled])');
@@ -491,7 +491,7 @@ class QuizSystem {
         return;
       }
     }
-    
+
     // Enter to submit (handled in existing handleTypingInput/handleListeningInput)
     if (key === 'Enter' && event.target.matches('input')) {
       // Existing logic handles this
@@ -501,7 +501,7 @@ class QuizSystem {
 
   handleDragDropKeyboard(event) {
     const key = event.key.toLowerCase();
-    
+
     // Auto-focus text input if user starts typing
     if (key.length === 1 && !event.target.matches('input')) {
       const input = document.querySelector('.drag-type-input:not([disabled])');
@@ -510,13 +510,13 @@ class QuizSystem {
         return;
       }
     }
-    
+
     // Enter to submit (handled in existing handleDragDropTyping)
     if (key === 'Enter' && event.target.matches('input')) {
       // Existing logic handles this
       return;
     }
-    
+
     // Escape to clear
     if (key === 'escape') {
       const clearBtn = document.querySelector('.clear-word');
@@ -706,21 +706,21 @@ class QuizSystem {
     html += '</div>';
 
     container.innerHTML = html;
-    
+
     // CRITICAL: Set currentQuiz BEFORE any other operations
     this.currentQuiz = quiz;
-    
+
     // Initialize keyboard navigation for this quiz
     this.initializeKeyboardNavigation();
     this.currentHighlight = 0;
-    
+
     // Auto-focus first input if available
     setTimeout(() => {
       const input = container.querySelector('input[autofocus]');
       if (input) {
         input.focus();
       }
-      
+
       // Also highlight first option for multiple choice
       if (quiz.type === 'multipleChoice') {
         const options = container.querySelectorAll('.quiz-option');
@@ -841,7 +841,7 @@ class QuizSystem {
     html += '</div>';
     html += '</div>';
     return html;
-  }</old_str>
+  }
 
   selectOption(answer, button) {
     if (button.disabled) return;
@@ -948,7 +948,7 @@ class QuizSystem {
       // Prevent multiple submissions
       if (this.isChecking) return;
       this.isChecking = true;
-      
+
       setTimeout(() => {
         this.checkTyping();
         this.isChecking = false;
@@ -963,7 +963,7 @@ class QuizSystem {
       // Prevent multiple submissions
       if (this.isChecking) return;
       this.isChecking = true;
-      
+
       setTimeout(() => {
         this.checkListening();
         this.isChecking = false;
@@ -1084,7 +1084,7 @@ class QuizSystem {
       // Prevent multiple submissions
       if (this.isChecking) return;
       this.isChecking = true;
-      
+
       setTimeout(() => {
         this.checkDragDrop();
         this.isChecking = false;
@@ -1342,7 +1342,7 @@ class QuizSystem {
 
     // CRITICAL: Update currentQuiz BEFORE any animations or interactions
     this.currentQuiz = nextQuiz;
-    
+
     console.log('=== TRANSITION DEBUG ===');
     console.log('New quiz type:', nextQuiz.type);
     console.log('New quiz correct:', nextQuiz.correct);
@@ -1392,81 +1392,60 @@ class QuizSystem {
 const quizSystem = new QuizSystem();
 
 // Global toggle function
-window.toggleQuiz = function(quizId) {
+function toggleQuiz(quizId) {
   console.log('toggleQuiz called with:', quizId);
 
   let quiz = document.getElementById(quizId);
-  
-  // If quiz container doesn't exist, create it
+
   if (!quiz) {
-    console.log('Creating quiz container for:', quizId);
     quiz = document.createElement('div');
     quiz.id = quizId;
-    quiz.className = 'quiz-block hidden';
-    quiz.style.cssText = 'display: block; margin: 1rem 0; padding: 1rem; border: 2px solid #e9ecef; border-radius: 8px; background: #f8f9ff; min-height: 200px;';
-    
-    // Find the quiz button that was clicked
-    const allQuizButtons = document.querySelectorAll('.quiz-btn, button[onclick*="toggleQuiz"]');
-    let targetButton = null;
-    
-    // Find the specific button that calls this quiz ID
-    allQuizButtons.forEach(btn => {
+    quiz.className = 'quiz-block';
+
+    // Find the button that was clicked by looking for the one with this quizId
+    const clickedButton = Array.from(document.querySelectorAll('button')).find(btn => {
       const onclick = btn.getAttribute('onclick') || '';
-      if (onclick.includes(quizId)) {
-        targetButton = btn;
-      }
+      return onclick.includes(quizId);
     });
-    
-    if (targetButton && targetButton.parentNode) {
-      // Insert the quiz container after the button's parent element
-      targetButton.parentNode.insertAdjacentElement('afterend', quiz);
+
+    if (clickedButton) {
+      // Insert quiz right after the button
+      clickedButton.insertAdjacentElement('afterend', quiz);
     } else {
-      // Fallback: find the section containing the button and append there
-      const section = document.querySelector('.lesson-section, .vocab-section, main, body');
-      if (section) {
-        section.appendChild(quiz);
-      }
+      // Fallback to body
+      document.body.appendChild(quiz);
     }
+
+    console.log('Quiz container created and inserted into DOM');
   }
 
-  if (quiz.classList.contains('hidden')) {
-    quiz.classList.remove('hidden');
+  // Always show the quiz when clicked
+  quiz.classList.remove('hidden');
+  quiz.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; margin: 1rem 0; padding: 1rem; border: 2px solid #e9ecef; border-radius: 8px; background: #f8f9ff; min-height: 200px;';
+
+  console.log('Starting quiz for:', quizId);
+  console.log('Quiz container should now be visible:', quiz);
+
+  const topic = quizSystem.getTopicFromQuizId(quizId);
+  console.log('Topic:', topic);
+
+  const quizData = quizSystem.generateQuiz(topic);
+  if (quizData) {
+    console.log('Generated quiz:', quizData);
+    quizSystem.renderQuiz(quizData, quizId);
+
+    // Force visibility one more time
     quiz.style.display = 'block';
     quiz.style.visibility = 'visible';
     quiz.style.opacity = '1';
+    quiz.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-    console.log('Starting quiz for:', quizId);
-    console.log('Quiz container created and visible:', quiz);
-
-    const topic = quizSystem.getTopicFromQuizId(quizId);
-    console.log('Topic:', topic);
-
-    // Reset quiz state for new topic
-    quizSystem.score = 0;
-    quizSystem.totalQuestions = 0;
-    quizSystem.usedQuestions.clear();
-
-    const quizData = quizSystem.generateQuiz(topic);
-    if (quizData) {
-      console.log('Generated quiz:', quizData);
-      quizSystem.renderQuiz(quizData, quizId);
-      
-      // Double-check visibility after rendering
-      setTimeout(() => {
-        quiz.style.display = 'block';
-        quiz.style.visibility = 'visible';
-        quiz.style.opacity = '1';
-        console.log('Quiz rendered and should be visible');
-      }, 100);
-    } else {
-      console.log('Failed to generate quiz for topic:', topic);
-      quiz.innerHTML = '<p style="color: red; font-weight: bold;">Error: Could not generate quiz. Please try again.</p>';
-    }
+    console.log('Quiz rendered and forced visible');
   } else {
-    quiz.classList.add('hidden');
-    quiz.style.display = 'none';
+    console.log('Failed to generate quiz for topic:', topic);
+    quiz.innerHTML = '<p style="color: red; font-weight: bold;">Error: Could not generate quiz. Please try again.</p>';
   }
-};
+}
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
