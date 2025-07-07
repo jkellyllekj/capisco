@@ -833,7 +833,7 @@ class QuizSystem {
     html += '</div>';
     html += '</div>';
     return html;
-  }
+  }</old_str>
 
   selectOption(answer, button) {
     if (button.disabled) return;
