@@ -453,6 +453,8 @@ class QuizSystem {
       html += '<span class="draggable-letter" draggable="true" data-letter="' + letter + '" onclick="quizSystem.addLetter(\'' + letter + '\', this)">' + letter + '</span>';
     });
     html += '</div>';
+    html += '<div style="margin: 1rem 0; text-align: center; color: #666;">Or type your answer:</div>';
+    html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type your answer..." onkeyup="quizSystem.handleDragDropTyping(event)" style="margin: 0.5rem 0;">';
     html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()" style="margin-top: 1rem;">Check Answer</button>';
     html += '<button class="clear-word" onclick="quizSystem.clearWord()" style="margin-top: 0.5rem; margin-left: 0.5rem;">Clear</button>';
     html += '</div>';
@@ -474,26 +476,31 @@ class QuizSystem {
   }
 
   selectMatchItem(item) {
-    const allItems = item.parentNode.parentNode.querySelectorAll('.match-item');
-    const selectedItems = item.parentNode.parentNode.querySelectorAll('.match-item.selected');
+    // Don't allow interaction if already matched
+    if (item.classList.contains('matched')) return;
+    
+    const container = item.parentNode.parentNode;
+    const selectedItems = container.querySelectorAll('.match-item.selected');
     
     if (item.classList.contains('selected')) {
       item.classList.remove('selected');
       return;
     }
     
+    // If we already have 2 selected items, clear them first
     if (selectedItems.length >= 2) {
       selectedItems.forEach(si => si.classList.remove('selected'));
     }
     
     item.classList.add('selected');
     
-    const newSelected = item.parentNode.parentNode.querySelectorAll('.match-item.selected');
+    const newSelected = container.querySelectorAll('.match-item.selected');
     if (newSelected.length === 2) {
       const italian = newSelected[0].classList.contains('italian-item') ? newSelected[0] : newSelected[1];
       const english = newSelected[0].classList.contains('english-item') ? newSelected[0] : newSelected[1];
       
-      if (italian && english) {
+      if (italian && english && italian !== english) {
+        // Only mark as matched if they're different items and one from each column
         italian.classList.add('matched');
         english.classList.add('matched');
         newSelected.forEach(item => item.classList.remove('selected'));
@@ -581,8 +588,28 @@ class QuizSystem {
     });
   }
 
+  handleDragDropTyping(event) {
+    if (event.key === 'Enter') {
+      this.checkDragDrop();
+    }
+  }
+
   checkDragDrop() {
-    const userWord = this.currentQuiz.currentWord.join('').toLowerCase();
+    const typedInput = document.querySelector('.drag-type-input');
+    let userWord = '';
+    
+    // Check if user typed or used drag-drop
+    if (typedInput && typedInput.value.trim()) {
+      userWord = typedInput.value.toLowerCase().trim();
+    } else {
+      userWord = this.currentQuiz.currentWord.join('').toLowerCase();
+    }
+    
+    if (!userWord) {
+      alert('Please provide an answer using either the letters or the text input.');
+      return;
+    }
+    
     const isCorrect = userWord === this.currentQuiz.correct.toLowerCase();
     
     this.selectedAnswer = userWord;
@@ -599,6 +626,9 @@ class QuizSystem {
   showFeedback(isCorrect, explanation) {
     const currentQuestion = document.querySelector('.quiz-question:last-child');
     const feedback = currentQuestion.querySelector('.quiz-feedback');
+    
+    // Mark question as answered
+    currentQuestion.classList.add('answered');
     
     // Disable all interactive elements
     currentQuestion.querySelectorAll('button, input, .match-item, .draggable-letter').forEach(el => {
@@ -629,6 +659,7 @@ class QuizSystem {
 
     this.totalQuestions++;
     feedback.style.display = 'block';
+    feedback.setAttribute('data-persistent', 'true');
 
     const scoreDisplay = document.createElement('div');
     scoreDisplay.className = 'quiz-score-display';
@@ -655,12 +686,16 @@ class QuizSystem {
 
     const currentQuestion = currentContainer.querySelector('.quiz-question:last-child');
     
-    // Fade out current question and slide up
+    // Keep current question visible but move it up slightly
     currentQuestion.style.transition = 'all 0.5s ease-out';
-    currentQuestion.style.opacity = '0.7';
-    currentQuestion.style.transform = 'translateY(-20px)';
-    currentQuestion.style.marginBottom = '1rem';
+    currentQuestion.style.transform = 'translateY(-10px)';
+    currentQuestion.style.marginBottom = '1.5rem';
 
+    // Create separator
+    const separator = document.createElement('div');
+    separator.className = 'quiz-separator';
+    separator.innerHTML = '<div style="text-align: center; margin: 1rem 0; color: #ccc;">• • •</div>';
+    
     // Create next question
     const nextQuestionDiv = document.createElement('div');
     nextQuestionDiv.className = 'quiz-question new-question';
@@ -690,8 +725,9 @@ class QuizSystem {
     html += '<div class="quiz-feedback" style="display: none;"></div>';
     nextQuestionDiv.innerHTML = html;
     
-    // Insert next question immediately after current one
-    currentQuestion.parentNode.insertBefore(nextQuestionDiv, currentQuestion.nextSibling);
+    // Insert separator and next question
+    currentQuestion.parentNode.insertBefore(separator, currentQuestion.nextSibling);
+    separator.parentNode.insertBefore(nextQuestionDiv, separator.nextSibling);
 
     this.currentQuiz = nextQuiz;
 
@@ -699,25 +735,7 @@ class QuizSystem {
     setTimeout(() => {
       nextQuestionDiv.style.opacity = '1';
       nextQuestionDiv.style.transform = 'translateY(0)';
-      
-      // Hide all previous questions except the one that just finished
-      const allQuestions = currentContainer.querySelectorAll('.quiz-question');
-      for (let i = 0; i < allQuestions.length - 1; i++) {
-        if (allQuestions[i] !== currentQuestion) {
-          allQuestions[i].style.display = 'none';
-        }
-      }
-      
-      // Hide separators
-      const separators = currentContainer.querySelectorAll('.quiz-separator');
-      separators.forEach(sep => sep.style.display = 'none');
-      
-    }, 50);
-
-    // After animation, hide the previous question
-    setTimeout(() => {
-      currentQuestion.style.display = 'none';
-    }, 700);
+    }, 100);
   }
 
   getTopicFromQuizId(quizId) {
