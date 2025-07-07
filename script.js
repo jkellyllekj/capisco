@@ -432,27 +432,8 @@ class QuizSystem {
   }
 
   showKeyboardMatchingHint(message) {
-    let hint = document.querySelector('.keyboard-matching-hint');
-    if (!hint) {
-      hint = document.createElement('div');
-      hint.className = 'keyboard-matching-hint';
-      hint.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.9);
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        font-weight: 500;
-        z-index: 1000;
-        animation: fadeInUp 0.3s ease;
-      `;
-      document.body.appendChild(hint);
-    }
-    hint.textContent = message;
-    hint.style.display = 'block';
+    // Hide this hint entirely to prevent unwanted popups
+    return;
   }
 
   hideKeyboardMatchingHint() {

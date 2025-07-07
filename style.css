@@ -2143,19 +2143,21 @@ footer {
 }
 
 .match-item .option-key {
-  background: rgba(102, 126, 234, 0.9);
+  background: #1e293b;
+  color: white;
   margin-right: 0.75rem;
+  font-weight: 700;
 }
 
 .match-item.selected .option-key,
 .match-item.keyboard-highlight .option-key {
-  background: white;
-  color: #667eea;
+  background: #667eea;
+  color: white;
 }
 
 .match-item.matched .option-key {
-  background: white;
-  color: #28a745;
+  background: #28a745;
+  color: white;
 }
 
 .keyboard-matching-hint {
