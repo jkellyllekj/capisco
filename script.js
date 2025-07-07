@@ -331,11 +331,15 @@ class QuizSystem {
 
     return {
       type: 'listening',
-      question: 'Listen to the Italian word and type what you hear:',
+      question: 'Listen to the Italian word and complete both parts:',
       audio: correct.italian,
-      correct: correct.italian.toLowerCase(),
+      correctItalian: correct.italian.toLowerCase(),
+      correctEnglish: correct.english.toLowerCase(),
       explanation: 'You heard "' + correct.italian + '" which means "' + correct.english + '".',
-      vocab: correct
+      vocab: correct,
+      part: 1, // Track which part we're on (1 = Italian, 2 = English)
+      userItalian: '', // Store user's Italian answer
+      userEnglish: '' // Store user's English answer
     };
   }
 
@@ -449,9 +453,18 @@ class QuizSystem {
   renderListeningContent(quiz) {
     let html = '<div class="audio-container">';
     html += '<button class="play-audio-btn" onclick="quizSystem.playQuizAudio(\'' + quiz.audio + '\')"><i class="fas fa-play"></i> Play Audio</button>';
-    html += '<input type="text" class="quiz-input audio-input" placeholder="Type what you hear..." onkeyup="quizSystem.handleTypingInput(event)">';
+    
+    if (quiz.part === 1) {
+      html += '<div class="audio-part-info"><strong>Part 1:</strong> Type what you hear in Italian</div>';
+      html += '<input type="text" class="quiz-input audio-input" placeholder="Type the Italian word..." onkeyup="quizSystem.handleListeningInput(event)">';
+    } else {
+      html += '<div class="audio-part-info"><strong>Part 2:</strong> Type the English translation</div>';
+      html += '<div class="previous-answer">✓ Italian: <strong>' + quiz.userItalian + '</strong></div>';
+      html += '<input type="text" class="quiz-input audio-input" placeholder="Type the English meaning..." onkeyup="quizSystem.handleListeningInput(event)">';
+    }
+    
     html += '<div class="audio-controls">';
-    html += '<button class="quiz-check" onclick="quizSystem.checkTyping()">Check Answer</button>';
+    html += '<button class="quiz-check" onclick="quizSystem.checkListening()">Check Answer</button>';
     html += '<button class="skip-audio-btn" onclick="quizSystem.skipAudioQuestion()">Skip (Can\'t hear audio)</button>';
     html += '</div>';
     html += '</div>';
@@ -626,6 +639,21 @@ class QuizSystem {
     }
   }
 
+  handleListeningInput(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
+      // Prevent multiple submissions
+      if (this.isChecking) return;
+      this.isChecking = true;
+      
+      setTimeout(() => {
+        this.checkListening();
+        this.isChecking = false;
+      }, 100);
+    }
+  }
+
   checkTyping() {
     const input = document.querySelector('.quiz-input');
     if (!input || !this.currentQuiz) {
@@ -655,6 +683,84 @@ class QuizSystem {
 
     this.selectedAnswer = userAnswer;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
+  }
+
+  checkListening() {
+    const input = document.querySelector('.audio-input');
+    if (!input || !this.currentQuiz) {
+      console.log('Input or quiz not found');
+      return;
+    }
+
+    const userAnswer = input.value.trim();
+    
+    if (this.currentQuiz.part === 1) {
+      // Check Italian part
+      const correctAnswer = this.currentQuiz.correctItalian;
+      const cleanUser = userAnswer.replace(/\s+/g, '').toLowerCase();
+      const cleanCorrect = correctAnswer.replace(/\s+/g, '').toLowerCase();
+      
+      console.log('=== LISTENING PART 1 DEBUG ===');
+      console.log('User typed:', JSON.stringify(userAnswer));
+      console.log('Correct Italian:', JSON.stringify(correctAnswer));
+      console.log('Clean user:', JSON.stringify(cleanUser));
+      console.log('Clean correct:', JSON.stringify(cleanCorrect));
+      
+      const isCorrect = cleanUser === cleanCorrect;
+      console.log('Part 1 result:', isCorrect);
+      console.log('=== END PART 1 DEBUG ===');
+
+      if (isCorrect) {
+        // Store the user's correct Italian answer and move to part 2
+        this.currentQuiz.userItalian = userAnswer;
+        this.currentQuiz.part = 2;
+        
+        // Re-render for part 2
+        const container = document.querySelector('.quiz-question:last-child');
+        if (container) {
+          let html = '<div class="quiz-question-header">';
+          html += '<h4>' + this.currentQuiz.question + '</h4>';
+          html += '</div>';
+          html += this.renderListeningContent(this.currentQuiz);
+          html += '<div class="quiz-feedback" style="display: none;"></div>';
+          
+          container.innerHTML = html;
+          
+          // Focus on the new input
+          setTimeout(() => {
+            const newInput = container.querySelector('.audio-input');
+            if (newInput) newInput.focus();
+          }, 100);
+        }
+      } else {
+        this.selectedAnswer = userAnswer;
+        this.showFeedback(false, 'Incorrect Italian word. The correct answer is "' + this.currentQuiz.vocab.italian + '" which means "' + this.currentQuiz.vocab.english + '".');
+      }
+    } else {
+      // Check English part
+      const correctAnswer = this.currentQuiz.correctEnglish;
+      const cleanUser = userAnswer.replace(/\s+/g, '').toLowerCase();
+      const cleanCorrect = correctAnswer.replace(/\s+/g, '').toLowerCase();
+      
+      console.log('=== LISTENING PART 2 DEBUG ===');
+      console.log('User typed:', JSON.stringify(userAnswer));
+      console.log('Correct English:', JSON.stringify(correctAnswer));
+      console.log('Clean user:', JSON.stringify(cleanUser));
+      console.log('Clean correct:', JSON.stringify(cleanCorrect));
+      
+      const isCorrect = cleanUser === cleanCorrect;
+      console.log('Part 2 result:', isCorrect);
+      console.log('=== END PART 2 DEBUG ===');
+
+      this.currentQuiz.userEnglish = userAnswer;
+      this.selectedAnswer = this.currentQuiz.userItalian + ' + ' + userAnswer;
+      
+      if (isCorrect) {
+        this.showFeedback(true, 'Perfect! You correctly heard "' + this.currentQuiz.vocab.italian + '" and translated it to "' + this.currentQuiz.vocab.english + '".');
+      } else {
+        this.showFeedback(false, 'You got the Italian right ("' + this.currentQuiz.userItalian + '"), but the English translation should be "' + this.currentQuiz.vocab.english + '".');
+      }
+    }
   }
 
   skipAudioQuestion() {
