@@ -1458,10 +1458,24 @@ const quizSystem = new QuizSystem();
 window.toggleQuiz = function(quizId) {
   console.log('toggleQuiz called with:', quizId);
 
-  const quiz = document.getElementById(quizId);
+  let quiz = document.getElementById(quizId);
+  
+  // If quiz container doesn't exist, create it
   if (!quiz) {
-    console.log('Quiz element not found:', quizId);
-    return;
+    console.log('Creating quiz container for:', quizId);
+    quiz = document.createElement('div');
+    quiz.id = quizId;
+    quiz.className = 'quiz-block hidden';
+    
+    // Find the quiz button that was clicked
+    const quizButton = document.querySelector(`[onclick*="${quizId}"], .quiz-btn`);
+    if (quizButton && quizButton.parentNode) {
+      // Insert the quiz container after the button's parent element
+      quizButton.parentNode.insertAdjacentElement('afterend', quiz);
+    } else {
+      // Fallback: append to document body
+      document.body.appendChild(quiz);
+    }
   }
 
   if (quiz.classList.contains('hidden')) {
