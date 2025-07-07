@@ -1,3 +1,4 @@
+
 // Initialize interactive vocab elements
 function initializeVocabInteractions() {
   // Initialize info buttons
@@ -110,14 +111,10 @@ function playItalianAudio(text) {
     utterance.pitch = 1.0;
     utterance.volume = 1.0;
 
-    // Ensure voices are loaded
     function setVoice() {
       const voices = speechSynthesis.getVoices();
-
-      // Debug: log available voices (can be removed later)
       console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
 
-      // Try to find the best Italian voice
       let italianVoice = voices.find(voice => 
         voice.lang === 'it-IT' && voice.localService === true
       ) || voices.find(voice => 
@@ -136,7 +133,6 @@ function playItalianAudio(text) {
       speechSynthesis.speak(utterance);
     }
 
-    // Voices might not be loaded immediately
     if (speechSynthesis.getVoices().length > 0) {
       setVoice();
     } else {
@@ -148,7 +144,7 @@ function playItalianAudio(text) {
   }
 }
 
-// Quiz System - Simplified and Working Version
+// Quiz System
 class QuizSystem {
   constructor() {
     this.currentQuiz = null;
@@ -225,7 +221,6 @@ class QuizSystem {
       }
     }
 
-    // Shuffle options
     for (let i = options.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [options[i], options[j]] = [options[j], options[i]];
@@ -263,14 +258,12 @@ class QuizSystem {
   selectOption(answer, button) {
     if (button.disabled) return;
 
-    // Remove previous selections
     const options = button.parentNode.querySelectorAll('.quiz-option');
     options.forEach(opt => opt.classList.remove('selected'));
 
     button.classList.add('selected');
     this.selectedAnswer = answer;
 
-    // Auto-check after short delay
     setTimeout(() => {
       this.checkAnswer();
     }, 500);
@@ -286,7 +279,6 @@ class QuizSystem {
     const feedback = selectedButton.closest('.quiz-question').querySelector('.quiz-feedback');
     const options = selectedButton.parentNode.querySelectorAll('.quiz-option');
 
-    // Disable all options
     options.forEach(opt => opt.disabled = true);
 
     if (isCorrect) {
@@ -295,7 +287,6 @@ class QuizSystem {
       this.score++;
     } else {
       selectedButton.classList.add('incorrect');
-      // Show correct answer
       options.forEach(opt => {
         if (opt.textContent === this.currentQuiz.correct) {
           opt.classList.add('correct');
@@ -307,16 +298,13 @@ class QuizSystem {
     this.totalQuestions++;
     feedback.style.display = 'block';
 
-    // Show score
     const scoreDisplay = document.createElement('div');
     scoreDisplay.className = 'quiz-score-display';
     scoreDisplay.innerHTML = '<div class="score-text">Score: ' + this.score + '/' + this.totalQuestions + ' (' + Math.round((this.score / this.totalQuestions) * 100) + '%)</div>';
     feedback.appendChild(scoreDisplay);
 
-    // Reset for next question
     this.selectedAnswer = null;
 
-    // Generate next question after delay
     setTimeout(() => {
       this.addNextQuestion();
     }, 3000);
@@ -326,7 +314,6 @@ class QuizSystem {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
-    // Get topic from container ID
     const containerId = currentContainer.id;
     const topicIndex = containerId.replace('quiz', '');
     const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
@@ -335,13 +322,11 @@ class QuizSystem {
     const nextQuiz = this.generateQuiz(topic);
     if (!nextQuiz) return;
 
-    // Add separator
     const separator = document.createElement('div');
     separator.className = 'quiz-separator';
     separator.innerHTML = '<div style="text-align: center; margin: 1.5rem 0;"><span style="color: #6c757d; font-size: 0.9rem;"><i class="fas fa-arrow-down"></i> Next Question</span></div>';
     currentContainer.appendChild(separator);
 
-    // Add new question
     const nextQuestionDiv = document.createElement('div');
     nextQuestionDiv.className = 'quiz-question';
 
@@ -358,10 +343,8 @@ class QuizSystem {
     nextQuestionDiv.innerHTML = html;
     currentContainer.appendChild(nextQuestionDiv);
 
-    // Update current quiz
     this.currentQuiz = nextQuiz;
 
-    // Scroll to new question
     setTimeout(() => {
       currentContainer.scrollTop = currentContainer.scrollHeight;
     }, 100);
@@ -371,8 +354,8 @@ class QuizSystem {
 // Create global quiz system instance
 const quizSystem = new QuizSystem();
 
-// Toggle quiz function - FIXED VERSION
-function toggleQuiz(quizId) {
+// Global toggle function
+window.toggleQuiz = function(quizId) {
   console.log('toggleQuiz called with:', quizId);
 
   const quiz = document.getElementById(quizId);
@@ -387,18 +370,15 @@ function toggleQuiz(quizId) {
 
     console.log('Starting quiz for:', quizId);
 
-    // Determine topic from quiz ID
     const topicIndex = quizId.replace('quiz', '');
     const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
     const topic = topics[parseInt(topicIndex)] || 'vocabulary';
 
     console.log('Topic:', topic);
 
-    // Reset scores
     quizSystem.score = 0;
     quizSystem.totalQuestions = 0;
 
-    // Generate and render first quiz
     const quizData = quizSystem.generateQuiz(topic);
     if (quizData) {
       console.log('Generated quiz:', quizData);
@@ -410,34 +390,32 @@ function toggleQuiz(quizId) {
     quiz.classList.add('hidden');
     quiz.style.display = 'none';
   }
-}
+};
 
-// Initialize everything when DOM is ready
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded, initializing...');
 
   initializeVocabInteractions();
 
-  // Set up quiz button listeners - FIXED VERSION
-  const quizButtons = document.querySelectorAll('.quiz-btn');
+  // Look for quiz buttons with multiple selectors
+  const quizButtons = document.querySelectorAll('.quiz-btn, button[onclick*="toggleQuiz"]');
   console.log('Found quiz buttons:', quizButtons.length);
 
   quizButtons.forEach((btn, index) => {
     console.log('Setting up quiz button:', index);
 
+    // Remove existing onclick handlers to prevent conflicts
+    btn.removeAttribute('onclick');
+
     btn.addEventListener('click', function(e) {
       e.preventDefault();
       console.log('Quiz button clicked');
 
-      // Extract quiz ID from onclick attribute
-      const onclickAttr = this.getAttribute('onclick');
-      if (onclickAttr) {
-        const match = onclickAttr.match(/toggleQuiz\('([^']+)'\)/);
-        if (match && match[1]) {
-          console.log('Calling toggleQuiz with:', match[1]);
-          toggleQuiz(match[1]);
-        }
-      }
+      // Extract quiz ID from data attribute or generate based on index
+      const quizId = this.getAttribute('data-quiz-id') || 'quiz' + index;
+      console.log('Calling toggleQuiz with:', quizId);
+      toggleQuiz(quizId);
     });
   });
 
