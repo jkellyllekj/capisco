@@ -444,7 +444,6 @@ class QuizSystem {
 
   renderDragDrop(quiz) {
     let html = '<h4>' + quiz.question + '</h4>';
-    html += '<div class="drag-drop-container">';
     html += '<div class="drop-zone" ondrop="quizSystem.dropLetter(event)" ondragover="quizSystem.allowDrop(event)">';
     html += '<div class="current-word" id="currentWord"></div>';
     html += '</div>';
@@ -455,6 +454,7 @@ class QuizSystem {
     html += '</div>';
     html += '<div style="margin: 1rem 0; text-align: center; color: #666;">Or type your answer:</div>';
     html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type your answer..." onkeyup="quizSystem.handleDragDropTyping(event)" style="margin: 0.5rem 0;">';
+    html += '<div class="drag-drop-controls">';
     html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()" style="margin-top: 1rem;">Check Answer</button>';
     html += '<button class="clear-word" onclick="quizSystem.clearWord()" style="margin-top: 0.5rem; margin-left: 0.5rem;">Clear</button>';
     html += '</div>';
@@ -699,6 +699,25 @@ class QuizSystem {
 
     const nextQuiz = this.generateQuiz(topic);
     if (!nextQuiz) return;
+
+    // Remove all but the last answered question to keep only 2 questions visible max
+    const allQuestions = currentContainer.querySelectorAll('.quiz-question');
+    if (allQuestions.length > 1) {
+      // Keep only the most recent answered question, remove older ones
+      for (let i = 0; i < allQuestions.length - 1; i++) {
+        if (allQuestions[i].classList.contains('answered')) {
+          allQuestions[i].remove();
+        }
+      }
+      
+      // Also remove any separators that are no longer needed
+      const separators = currentContainer.querySelectorAll('.quiz-separator');
+      if (separators.length > 0) {
+        for (let i = 0; i < separators.length - 1; i++) {
+          separators[i].remove();
+        }
+      }
+    }
 
     const currentQuestion = currentContainer.querySelector('.quiz-question:last-child');
     
