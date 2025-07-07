@@ -627,7 +627,7 @@ class QuizSystem {
 
     return {
       type: 'listening',
-      question: 'Listen to the Italian word and complete both parts:',
+      question: 'Listen to the Italian word and type what you hear:',
       audio: correct.italian,
       correct: correct.italian, // Keep this for compatibility
       correctItalian: correct.italian.toLowerCase(),
@@ -790,16 +790,7 @@ class QuizSystem {
     let html = '<div class="keyboard-hint">Press SPACE to play audio, then type your answer and press Enter to submit</div>';
     html += '<div class="audio-container">';
     html += '<button class="play-audio-btn" onclick="quizSystem.playQuizAudio(\'' + quiz.audio + '\')"><i class="fas fa-play"></i> Play Audio (Space)</button>';
-    
-    if (quiz.part === 1) {
-      html += '<div class="audio-part-info"><strong>Part 1:</strong> Type what you hear in Italian</div>';
-      html += '<input type="text" class="quiz-input audio-input" placeholder="Type the Italian word..." onkeyup="quizSystem.handleListeningInput(event)" autofocus>';
-    } else {
-      html += '<div class="audio-part-info"><strong>Part 2:</strong> Type the English translation</div>';
-      html += '<div class="previous-answer">✓ Italian: <strong>' + quiz.userItalian + '</strong></div>';
-      html += '<input type="text" class="quiz-input audio-input" placeholder="Type the English meaning..." onkeyup="quizSystem.handleListeningInput(event)" autofocus>';
-    }
-    
+    html += '<input type="text" class="quiz-input audio-input" placeholder="Type the Italian word..." onkeyup="quizSystem.handleListeningInput(event)" autofocus>';
     html += '<div class="audio-controls">';
     html += '<button class="quiz-check" onclick="quizSystem.checkListening()">Check Answer (Enter)</button>';
     html += '<button class="skip-audio-btn" onclick="quizSystem.skipAudioQuestion()">Skip (Can\'t hear audio)</button>';
@@ -1019,81 +1010,27 @@ class QuizSystem {
     }
 
     const userAnswer = input.value.trim();
-    
-    if (this.currentQuiz.part === 1) {
-      // Check Italian part
-      const correctAnswer = this.currentQuiz.correctItalian;
-      const cleanUser = userAnswer.replace(/\s+/g, '').toLowerCase();
-      const cleanCorrect = correctAnswer.replace(/\s+/g, '').toLowerCase();
-      
-      console.log('=== LISTENING PART 1 DEBUG ===');
-      console.log('User typed:', JSON.stringify(userAnswer));
-      console.log('Correct Italian:', JSON.stringify(correctAnswer));
-      console.log('Clean user:', JSON.stringify(cleanUser));
-      console.log('Clean correct:', JSON.stringify(cleanCorrect));
-      
-      const isCorrect = cleanUser === cleanCorrect;
-      console.log('Part 1 result:', isCorrect);
-      console.log('=== END PART 1 DEBUG ===');
+    const correctAnswer = this.currentQuiz.correct;
 
-      if (isCorrect) {
-        // Store the user's correct Italian answer and move to part 2
-        this.currentQuiz.userItalian = userAnswer;
-        this.currentQuiz.part = 2;
-        
-        // Re-render for part 2 by finding the current quiz container
-        const activeQuizContainer = document.querySelector('.quiz-block:not(.hidden)');
-        if (activeQuizContainer) {
-          const currentQuestionDiv = activeQuizContainer.querySelector('.quiz-question:last-child');
-          if (currentQuestionDiv) {
-            // Clear existing content and rebuild
-            let html = '<div class="quiz-question-header">';
-            html += '<h4>' + this.currentQuiz.question + '</h4>';
-            html += '</div>';
-            html += this.renderListeningContent(this.currentQuiz);
-            html += '<div class="quiz-feedback" style="display: none;"></div>';
-            
-            currentQuestionDiv.innerHTML = html;
-            
-            // Focus on the new input
-            setTimeout(() => {
-              const newInput = currentQuestionDiv.querySelector('.audio-input');
-              if (newInput) {
-                newInput.focus();
-                newInput.placeholder = "Type the English meaning...";
-              }
-            }, 100);
-          }
-        }
-      } else {
-        this.selectedAnswer = userAnswer;
-        this.showFeedback(false, 'Incorrect Italian word. The correct answer is "' + this.currentQuiz.vocab.italian + '" which means "' + this.currentQuiz.vocab.english + '".');
-      }
-    } else {
-      // Check English part
-      const correctAnswer = this.currentQuiz.correctEnglish;
-      const cleanUser = userAnswer.replace(/\s+/g, '').toLowerCase();
-      const cleanCorrect = correctAnswer.replace(/\s+/g, '').toLowerCase();
-      
-      console.log('=== LISTENING PART 2 DEBUG ===');
-      console.log('User typed:', JSON.stringify(userAnswer));
-      console.log('Correct English:', JSON.stringify(correctAnswer));
-      console.log('Clean user:', JSON.stringify(cleanUser));
-      console.log('Clean correct:', JSON.stringify(cleanCorrect));
-      
-      const isCorrect = cleanUser === cleanCorrect;
-      console.log('Part 2 result:', isCorrect);
-      console.log('=== END PART 2 DEBUG ===');
+    console.log('=== LISTENING VALIDATION DEBUG ===');
+    console.log('User typed:', JSON.stringify(userAnswer));
+    console.log('Correct answer:', JSON.stringify(correctAnswer));
+    console.log('Quiz type:', this.currentQuiz.type);
+    console.log('Quiz vocab:', this.currentQuiz.vocab);
 
-      this.currentQuiz.userEnglish = userAnswer;
-      this.selectedAnswer = this.currentQuiz.userItalian + ' + ' + userAnswer;
-      
-      if (isCorrect) {
-        this.showFeedback(true, 'Perfect! You correctly heard "' + this.currentQuiz.vocab.italian + '" and translated it to "' + this.currentQuiz.vocab.english + '".');
-      } else {
-        this.showFeedback(false, 'You got the Italian right ("' + this.currentQuiz.userItalian + '"), but the English translation should be "' + this.currentQuiz.vocab.english + '".');
-      }
-    }
+    // Extremely simple validation - just clean whitespace and make lowercase
+    const cleanUser = userAnswer.replace(/\s+/g, '').toLowerCase();
+    const cleanCorrect = correctAnswer.replace(/\s+/g, '').toLowerCase();
+
+    console.log('Clean user:', JSON.stringify(cleanUser));
+    console.log('Clean correct:', JSON.stringify(cleanCorrect));
+
+    const isCorrect = cleanUser === cleanCorrect;
+    console.log('Final result:', isCorrect);
+    console.log('=== END LISTENING VALIDATION DEBUG ===');
+
+    this.selectedAnswer = userAnswer;
+    this.showFeedback(isCorrect, this.currentQuiz.explanation);
   }
 
   skipAudioQuestion() {
