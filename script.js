@@ -301,7 +301,8 @@ class QuizSystem {
     const selectedButton = document.querySelector('.quiz-option.selected');
     if (!selectedButton) return;
 
-    const feedback = selectedButton.closest('.quiz-question').querySelector('.quiz-feedback');
+    const currentQuestion = selectedButton.closest('.quiz-question');
+    const feedback = currentQuestion.querySelector('.quiz-feedback');
     const options = selectedButton.parentNode.querySelectorAll('.quiz-option');
 
     options.forEach(opt => opt.disabled = true);
@@ -327,6 +328,21 @@ class QuizSystem {
     scoreDisplay.className = 'quiz-score-display';
     scoreDisplay.innerHTML = '<div class="score-text">Score: ' + this.score + '/' + this.totalQuestions + ' (' + Math.round((this.score / this.totalQuestions) * 100) + '%)</div>';
     feedback.appendChild(scoreDisplay);
+
+    // Hide previous questions (keep only the last answered one visible)
+    const allQuestions = currentQuestion.parentNode.querySelectorAll('.quiz-question');
+    if (allQuestions.length > 1) {
+      // Hide all but the current (last) question
+      for (let i = 0; i < allQuestions.length - 1; i++) {
+        allQuestions[i].style.display = 'none';
+      }
+      
+      // Also hide separators except the last one
+      const separators = currentQuestion.parentNode.querySelectorAll('.quiz-separator');
+      for (let i = 0; i < separators.length - 1; i++) {
+        separators[i].style.display = 'none';
+      }
+    }
 
     this.selectedAnswer = null;
 
