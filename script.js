@@ -671,6 +671,12 @@ class QuizSystem {
     const container = document.getElementById(containerId);
     if (!container || !quiz) return;
 
+    console.log('=== RENDERING QUIZ DEBUG ===');
+    console.log('Quiz type:', quiz.type);
+    console.log('Quiz correct answer:', quiz.correct);
+    console.log('Quiz vocab:', quiz.vocab);
+    console.log('=== END RENDER DEBUG ===');
+
     let html = '<div class="quiz-question">';
 
     // Always put question at the top for ALL question types
@@ -700,6 +706,8 @@ class QuizSystem {
     html += '</div>';
 
     container.innerHTML = html;
+    
+    // CRITICAL: Set currentQuiz BEFORE any other operations
     this.currentQuiz = quiz;
     
     // Initialize keyboard navigation for this quiz
@@ -985,6 +993,7 @@ class QuizSystem {
     console.log('=== TYPING VALIDATION DEBUG ===');
     console.log('User typed:', JSON.stringify(userAnswer));
     console.log('Correct answer:', JSON.stringify(correctAnswer));
+    console.log('Quiz type:', this.currentQuiz.type);
     console.log('Quiz vocab:', this.currentQuiz.vocab);
 
     // Extremely simple validation - just clean whitespace and make lowercase
@@ -1394,7 +1403,14 @@ class QuizSystem {
     currentQuestion.parentNode.insertBefore(separator, currentQuestion.nextSibling);
     separator.parentNode.insertBefore(nextQuestionDiv, separator.nextSibling);
 
+    // CRITICAL: Update currentQuiz BEFORE any animations or interactions
     this.currentQuiz = nextQuiz;
+    
+    console.log('=== TRANSITION DEBUG ===');
+    console.log('New quiz type:', nextQuiz.type);
+    console.log('New quiz correct:', nextQuiz.correct);
+    console.log('New quiz vocab:', nextQuiz.vocab);
+    console.log('=== END TRANSITION DEBUG ===');
 
     // Step 7: Animate separator and new question in sequence
     setTimeout(() => {
