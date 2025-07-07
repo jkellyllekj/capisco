@@ -171,7 +171,14 @@ class QuizSystem {
           { italian: 'mele', english: 'apples' },
           { italian: 'patate', english: 'potatoes' },
           { italian: 'pomodori', english: 'tomatoes' },
-          { italian: 'formaggio', english: 'cheese' }
+          { italian: 'formaggio', english: 'cheese' },
+          { italian: 'burro', english: 'butter' },
+          { italian: 'latte', english: 'milk' },
+          { italian: 'uova', english: 'eggs' },
+          { italian: 'carne', english: 'meat' },
+          { italian: 'pesce', english: 'fish' },
+          { italian: 'verdure', english: 'vegetables' },
+          { italian: 'frutta', english: 'fruit' }
         ]
       },
       expressions: {
@@ -179,28 +186,43 @@ class QuizSystem {
           { italian: 'Vorrei', english: 'I would like' },
           { italian: 'Quanto costa', english: 'How much does it cost' },
           { italian: 'Un chilo di', english: 'A kilo of' },
-          { italian: 'Mezzo chilo', english: 'Half a kilo' }
+          { italian: 'Mezzo chilo', english: 'Half a kilo' },
+          { italian: 'Mi piace', english: 'I like' },
+          { italian: 'Non mi piace', english: 'I don\'t like' },
+          { italian: 'Perché fa caldo', english: 'Because it\'s hot' },
+          { italian: 'Perché fa freddo', english: 'Because it\'s cold' }
         ]
       },
       dialogue: {
         vocabulary: [
           { italian: 'fresco', english: 'fresh' },
           { italian: 'stagionato', english: 'aged' },
-          { italian: 'ne', english: 'of it/them' }
+          { italian: 'ne', english: 'of it/them' },
+          { italian: 'giovane', english: 'young (cheese)' },
+          { italian: 'tre etti', english: 'three hundred grams' },
+          { italian: 'posso assaggiare', english: 'can I taste' },
+          { italian: 'è fresco', english: 'is it fresh' }
         ]
       },
       extraVocabulary: {
         vocabulary: [
           { italian: 'abito', english: 'suit' },
           { italian: 'passi', english: 'steps' },
-          { italian: 'cinquanta', english: 'fifty' }
+          { italian: 'cinquanta', english: 'fifty' },
+          { italian: 'euro', english: 'euros' },
+          { italian: 'centesimi', english: 'cents' }
         ]
       },
       grammar: {
         vocabulary: [
           { italian: 'ne', english: 'of it/them' },
           { italian: 'lo', english: 'it (masculine)' },
-          { italian: 'la', english: 'it (feminine)' }
+          { italian: 'la', english: 'it (feminine)' },
+          { italian: 'li', english: 'them (masculine)' },
+          { italian: 'le', english: 'them (feminine)' },
+          { italian: 'mi', english: 'to me' },
+          { italian: 'ti', english: 'to you' },
+          { italian: 'ci', english: 'to us' }
         ]
       }
     };
@@ -208,7 +230,10 @@ class QuizSystem {
 
   generateQuiz(topic) {
     const data = this.quizData[topic];
-    if (!data || !data.vocabulary || data.vocabulary.length < 4) return null;
+    if (!data || !data.vocabulary || data.vocabulary.length < 4) {
+      console.log('No data found for topic:', topic);
+      return null;
+    }
 
     const vocab = data.vocabulary;
     const correct = vocab[Math.floor(Math.random() * vocab.length)];
@@ -315,9 +340,7 @@ class QuizSystem {
     if (!currentContainer) return;
 
     const containerId = currentContainer.id;
-    const topicIndex = containerId.replace('quiz', '');
-    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
-    const topic = topics[parseInt(topicIndex)] || 'vocabulary';
+    const topic = this.getTopicFromQuizId(containerId);
 
     const nextQuiz = this.generateQuiz(topic);
     if (!nextQuiz) return;
@@ -349,6 +372,20 @@ class QuizSystem {
       currentContainer.scrollTop = currentContainer.scrollHeight;
     }, 100);
   }
+
+  getTopicFromQuizId(quizId) {
+    // Map quiz IDs to topics based on the lesson structure
+    const quizIdToTopic = {
+      'quiz0': 'seasons',      // Seasons quiz
+      'quiz1': 'vocabulary',   // Main vocabulary quiz  
+      'quiz2': 'expressions',  // Expressions quiz
+      'quiz3': 'dialogue',     // Dialogue quiz
+      'quiz4': 'extraVocabulary', // Extra vocabulary
+      'quiz5': 'grammar'       // Grammar quiz
+    };
+    
+    return quizIdToTopic[quizId] || 'vocabulary';
+  }
 }
 
 // Create global quiz system instance
@@ -370,10 +407,7 @@ window.toggleQuiz = function(quizId) {
 
     console.log('Starting quiz for:', quizId);
 
-    const topicIndex = quizId.replace('quiz', '');
-    const topics = ['seasons', 'vocabulary', 'expressions', 'dialogue', 'extraVocabulary', 'grammar'];
-    const topic = topics[parseInt(topicIndex)] || 'vocabulary';
-
+    const topic = quizSystem.getTopicFromQuizId(quizId);
     console.log('Topic:', topic);
 
     quizSystem.score = 0;
@@ -384,7 +418,7 @@ window.toggleQuiz = function(quizId) {
       console.log('Generated quiz:', quizData);
       quizSystem.renderQuiz(quizData, quizId);
     } else {
-      console.log('Failed to generate quiz');
+      console.log('Failed to generate quiz for topic:', topic);
     }
   } else {
     quiz.classList.add('hidden');
@@ -405,16 +439,28 @@ document.addEventListener('DOMContentLoaded', function() {
   quizButtons.forEach((btn, index) => {
     console.log('Setting up quiz button:', index);
 
+    // Get the original onclick value to extract quiz ID
+    const onclickValue = btn.getAttribute('onclick');
+    let quizId = null;
+    
+    if (onclickValue) {
+      const match = onclickValue.match(/toggleQuiz\('([^']+)'\)/);
+      if (match) {
+        quizId = match[1];
+      }
+    }
+    
+    // If no quiz ID found, generate one based on index
+    if (!quizId) {
+      quizId = 'quiz' + index;
+    }
+
     // Remove existing onclick handlers to prevent conflicts
     btn.removeAttribute('onclick');
 
     btn.addEventListener('click', function(e) {
       e.preventDefault();
-      console.log('Quiz button clicked');
-
-      // Extract quiz ID from data attribute or generate based on index
-      const quizId = this.getAttribute('data-quiz-id') || 'quiz' + index;
-      console.log('Calling toggleQuiz with:', quizId);
+      console.log('Quiz button clicked, quiz ID:', quizId);
       toggleQuiz(quizId);
     });
   });
