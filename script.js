@@ -370,19 +370,26 @@ class QuizSystem {
     if (!container || !quiz) return;
 
     let html = '<div class="quiz-question">';
+    
+    // Always put question at the top for non-drag-drop types
+    if (quiz.type !== 'dragDrop') {
+      html += '<div class="quiz-question-header">';
+      html += '<h4>' + quiz.question + '</h4>';
+      html += '</div>';
+    }
 
     switch (quiz.type) {
       case 'multipleChoice':
-        html += this.renderMultipleChoice(quiz);
+        html += this.renderMultipleChoiceContent(quiz);
         break;
       case 'matching':
-        html += this.renderMatching(quiz);
+        html += this.renderMatchingContent(quiz);
         break;
       case 'listening':
-        html += this.renderListening(quiz);
+        html += this.renderListeningContent(quiz);
         break;
       case 'typing':
-        html += this.renderTyping(quiz);
+        html += this.renderTypingContent(quiz);
         break;
       case 'dragDrop':
         html += this.renderDragDrop(quiz);
@@ -398,7 +405,12 @@ class QuizSystem {
 
   renderMultipleChoice(quiz) {
     let html = '<h4>' + quiz.question + '</h4>';
-    html += '<div class="quiz-options">';
+    html += this.renderMultipleChoiceContent(quiz);
+    return html;
+  }
+
+  renderMultipleChoiceContent(quiz) {
+    let html = '<div class="quiz-options">';
     for (let i = 0; i < quiz.options.length; i++) {
       html += '<button class="quiz-option" onclick="quizSystem.selectOption(\'' + quiz.options[i] + '\', this)">' + quiz.options[i] + '</button>';
     }
@@ -408,7 +420,12 @@ class QuizSystem {
 
   renderMatching(quiz) {
     let html = '<h4>' + quiz.question + '</h4>';
-    html += '<div class="matching-container">';
+    html += this.renderMatchingContent(quiz);
+    return html;
+  }
+
+  renderMatchingContent(quiz) {
+    let html = '<div class="matching-container">';
     html += '<div class="italian-column">';
     quiz.pairs.forEach((pair, index) => {
       html += '<div class="match-item italian-item" data-italian="' + pair.italian + '" onclick="quizSystem.selectMatchItem(this)">' + pair.italian + '</div>';
@@ -426,7 +443,12 @@ class QuizSystem {
 
   renderListening(quiz) {
     let html = '<h4>' + quiz.question + '</h4>';
-    html += '<div class="audio-container">';
+    html += this.renderListeningContent(quiz);
+    return html;
+  }
+
+  renderListeningContent(quiz) {
+    let html = '<div class="audio-container">';
     html += '<button class="play-audio-btn" onclick="quizSystem.playQuizAudio(\'' + quiz.audio + '\')"><i class="fas fa-play"></i> Play Audio</button>';
     html += '<input type="text" class="quiz-input audio-input" placeholder="Type what you hear..." onkeyup="quizSystem.handleTypingInput(event)">';
     html += '<div class="audio-controls">';
@@ -439,7 +461,12 @@ class QuizSystem {
 
   renderTyping(quiz) {
     let html = '<h4>' + quiz.question + '</h4>';
-    html += '<input type="text" class="quiz-input" placeholder="Type your answer..." onkeyup="quizSystem.handleTypingInput(event)">';
+    html += this.renderTypingContent(quiz);
+    return html;
+  }
+
+  renderTypingContent(quiz) {
+    let html = '<input type="text" class="quiz-input" placeholder="Type your answer..." onkeyup="quizSystem.handleTypingInput(event)">';
     html += '<button class="quiz-check" onclick="quizSystem.checkTyping()" style="margin-top: 1rem;">Check Answer</button>';
     return html;
   }
@@ -447,7 +474,9 @@ class QuizSystem {
   renderDragDrop(quiz) {
     let quizId = quiz.vocab.italian; // Use Italian word as unique ID
 
-    let html = '<h4>' + quiz.question + '</h4>';
+    let html = '<div class="quiz-question-header">';
+    html += '<h4>' + quiz.question + '</h4>';
+    html += '</div>';
     html += '<div class="drag-drop-container">';
     html += '<div class="drop-zone">';
     html += '<div class="current-word" id="current-word-' + quizId + '"></div>';
@@ -567,12 +596,13 @@ class QuizSystem {
 
   checkTyping() {
     const input = document.querySelector('.quiz-input');
+    if (!input || !this.currentQuiz) return;
+    
     const userAnswer = input.value.trim();
     const correctAnswer = this.currentQuiz.correct.trim();
 
     console.log('User answer:', `"${userAnswer}"`);
     console.log('Correct answer:', `"${correctAnswer}"`);
-    console.log('Quiz vocab:', this.currentQuiz.vocab);
 
     // Simple direct comparison - case insensitive
     const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase();
@@ -585,9 +615,10 @@ class QuizSystem {
 
   skipAudioQuestion() {
     if (this.currentQuiz && this.currentQuiz.type === 'listening') {
-      const explanation = 'Audio question skipped. The answer was "' + this.currentQuiz.correct + '" which means "' + this.currentQuiz.vocab.english + '".';
+      const explanation = 'Audio question skipped for accessibility. The answer was "' + this.currentQuiz.correct + '" which means "' + this.currentQuiz.vocab.english + '".';
       this.selectedAnswer = 'skipped';
-      this.showFeedback(false, explanation);
+      // Don't count as incorrect - treat as neutral
+      this.showSkippedFeedback(explanation);
     }
   }
 
@@ -663,7 +694,10 @@ class QuizSystem {
 
   showFeedback(isCorrect, explanation) {
     const currentQuestion = document.querySelector('.quiz-question:last-child');
+    if (!currentQuestion) return;
+    
     const feedback = currentQuestion.querySelector('.quiz-feedback');
+    if (!feedback) return;
 
     // Mark question as answered
     currentQuestion.classList.add('answered');
@@ -702,6 +736,45 @@ class QuizSystem {
     const scoreDisplay = document.createElement('div');
     scoreDisplay.className = 'quiz-score-display';
     scoreDisplay.innerHTML = '<div class="score-text">Score: ' + this.score + '/' + this.totalQuestions + ' (' + Math.round((this.score / this.totalQuestions) * 100) + '%)</div>';
+    feedback.appendChild(scoreDisplay);
+
+    this.selectedAnswer = null;
+    this.selectedMatches.clear();
+
+    setTimeout(() => {
+      this.transitionToNextQuestion();
+    }, 3000);
+  }
+
+  showSkippedFeedback(explanation) {
+    const currentQuestion = document.querySelector('.quiz-question:last-child');
+    if (!currentQuestion) return;
+    
+    const feedback = currentQuestion.querySelector('.quiz-feedback');
+    if (!feedback) return;
+
+    // Mark question as answered
+    currentQuestion.classList.add('answered');
+
+    // Disable all interactive elements
+    currentQuestion.querySelectorAll('button, input, .match-item, .draggable-letter').forEach(el => {
+      el.disabled = true;
+      el.style.pointerEvents = 'none';
+    });
+
+    feedback.innerHTML = '<div class="skipped-feedback"><i class="fas fa-forward"></i> ' + explanation + '</div>';
+    
+    // Don't increment total questions for skipped items
+    feedback.style.display = 'block';
+    feedback.setAttribute('data-persistent', 'true');
+
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.className = 'quiz-score-display';
+    if (this.totalQuestions > 0) {
+      scoreDisplay.innerHTML = '<div class="score-text">Score: ' + this.score + '/' + this.totalQuestions + ' (' + Math.round((this.score / this.totalQuestions) * 100) + '%)</div>';
+    } else {
+      scoreDisplay.innerHTML = '<div class="score-text">Score: ' + this.score + '/0 (skipped questions not counted)</div>';
+    }
     feedback.appendChild(scoreDisplay);
 
     this.selectedAnswer = null;

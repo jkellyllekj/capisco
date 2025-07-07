@@ -1276,6 +1276,12 @@ footer {
   border: 1px solid #f5c6cb;
 }
 
+.skipped-feedback {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
 .correct-feedback i, .incorrect-feedback i {
   margin-right: 0.5rem;
 }
@@ -1871,6 +1877,18 @@ footer {
 .quiz-question {
   display: flex;
   flex-direction: column;
+}
+
+.quiz-question-header {
+  order: 1;
+  margin-bottom: 1rem;
+}
+
+.quiz-question-header h4 {
+  margin: 0 0 0.5rem 0;
+  color: #1e293b;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .quiz-question h4 {
