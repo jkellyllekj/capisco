@@ -154,6 +154,9 @@ class QuizSystem {
     this.selectedMatches = new Map();
     this.usedQuestions = new Set(); // Track used questions to avoid repetition
     this.isChecking = false; // Prevent double submissions
+    this.keyboardMode = true; // Enable keyboard navigation
+    this.currentHighlight = 0; // For keyboard navigation
+    this.matchingSelection = { italian: null, english: null }; // For matching games
     this.quizData = {
       seasons: {
         vocabulary: [
@@ -228,6 +231,280 @@ class QuizSystem {
       }
     };
     this.questionTypes = ['multipleChoice', 'matching', 'listening', 'typing', 'dragDrop'];
+  }
+
+  initializeKeyboardNavigation() {
+    // Remove existing keyboard listeners to prevent duplicates
+    document.removeEventListener('keydown', this.handleKeyboardNavigation.bind(this));
+    
+    // Add global keyboard listener
+    document.addEventListener('keydown', this.handleKeyboardNavigation.bind(this));
+  }
+
+  handleKeyboardNavigation(event) {
+    if (!this.currentQuiz) return;
+
+    const key = event.key.toLowerCase();
+    const keyCode = event.keyCode;
+
+    // Prevent default for navigation keys
+    const navigationKeys = ['enter', 'escape', 'f', '1', '2', '3', '4', 'a', 'b', 'c', 'd'];
+    if (navigationKeys.includes(key) || (keyCode >= 49 && keyCode <= 52)) {
+      // Only prevent default if not typing in an input field
+      if (!event.target.matches('input[type="text"], textarea')) {
+        event.preventDefault();
+      }
+    }
+
+    switch (this.currentQuiz.type) {
+      case 'multipleChoice':
+        this.handleMultipleChoiceKeyboard(event);
+        break;
+      case 'matching':
+        this.handleMatchingKeyboard(event);
+        break;
+      case 'listening':
+      case 'typing':
+        this.handleTypingKeyboard(event);
+        break;
+      case 'dragDrop':
+        this.handleDragDropKeyboard(event);
+        break;
+    }
+  }
+
+  handleMultipleChoiceKeyboard(event) {
+    const key = event.key;
+    const options = document.querySelectorAll('.quiz-option');
+    
+    if (!options.length) return;
+
+    // Number keys 1-4 for direct selection
+    if (key >= '1' && key <= '4') {
+      const index = parseInt(key) - 1;
+      if (index < options.length) {
+        // Clear previous selections
+        options.forEach(opt => opt.classList.remove('selected', 'keyboard-highlight'));
+        
+        // Select and highlight the option
+        const selectedOption = options[index];
+        selectedOption.classList.add('selected', 'keyboard-highlight');
+        this.selectedAnswer = selectedOption.textContent;
+        
+        // Auto-submit after short delay
+        setTimeout(() => {
+          this.checkAnswer();
+        }, 500);
+      }
+    }
+    
+    // Arrow keys for navigation
+    else if (key === 'ArrowUp' || key === 'ArrowDown') {
+      event.preventDefault();
+      
+      if (key === 'ArrowUp') {
+        this.currentHighlight = Math.max(0, this.currentHighlight - 1);
+      } else {
+        this.currentHighlight = Math.min(options.length - 1, this.currentHighlight + 1);
+      }
+      
+      // Update visual highlight
+      options.forEach((opt, index) => {
+        opt.classList.toggle('keyboard-highlight', index === this.currentHighlight);
+      });
+    }
+    
+    // Enter to select highlighted option
+    else if (key === 'Enter' && !event.target.matches('input')) {
+      const highlightedOption = options[this.currentHighlight];
+      if (highlightedOption) {
+        options.forEach(opt => opt.classList.remove('selected'));
+        highlightedOption.classList.add('selected');
+        this.selectedAnswer = highlightedOption.textContent;
+        
+        setTimeout(() => {
+          this.checkAnswer();
+        }, 500);
+      }
+    }
+  }
+
+  handleMatchingKeyboard(event) {
+    const key = event.key.toLowerCase();
+    
+    // Numbers 1-4 for Italian column
+    if (key >= '1' && key <= '4') {
+      const index = parseInt(key) - 1;
+      const italianItems = document.querySelectorAll('.italian-item');
+      
+      if (index < italianItems.length) {
+        // Clear previous Italian selection
+        italianItems.forEach(item => item.classList.remove('selected', 'keyboard-highlight'));
+        
+        const selectedItem = italianItems[index];
+        selectedItem.classList.add('selected', 'keyboard-highlight');
+        this.matchingSelection.italian = selectedItem;
+        
+        this.showKeyboardMatchingHint('Italian word selected. Now press A, B, C, or D for English translation.');
+      }
+    }
+    
+    // Letters A-D for English column
+    else if (['a', 'b', 'c', 'd'].includes(key)) {
+      const index = key.charCodeAt(0) - 97; // Convert a-d to 0-3
+      const englishItems = document.querySelectorAll('.english-item');
+      
+      if (index < englishItems.length) {
+        // Clear previous English selection
+        englishItems.forEach(item => item.classList.remove('selected', 'keyboard-highlight'));
+        
+        const selectedItem = englishItems[index];
+        selectedItem.classList.add('selected', 'keyboard-highlight');
+        this.matchingSelection.english = selectedItem;
+        
+        // If we have both selections, attempt to match
+        if (this.matchingSelection.italian && this.matchingSelection.english) {
+          this.attemptKeyboardMatch();
+        } else {
+          this.showKeyboardMatchingHint('English word selected. Now press 1, 2, 3, or 4 for Italian word.');
+        }
+      }
+    }
+    
+    // Enter to check all matches
+    else if (key === 'enter') {
+      const matchedItems = document.querySelectorAll('.match-item.matched');
+      if (matchedItems.length > 0) {
+        this.checkMatching();
+      }
+    }
+    
+    // Escape to clear selections
+    else if (key === 'escape') {
+      this.clearMatchingSelections();
+    }
+  }
+
+  attemptKeyboardMatch() {
+    const italian = this.matchingSelection.italian;
+    const english = this.matchingSelection.english;
+    
+    if (!italian || !english) return;
+    
+    // Check if this is a correct match
+    const isCorrectMatch = this.currentQuiz.pairs.some(pair => 
+      pair.italian === italian.dataset.italian && pair.english === english.dataset.english
+    );
+    
+    if (isCorrectMatch) {
+      // Correct match
+      italian.classList.add('matched');
+      english.classList.add('matched');
+      italian.classList.remove('selected', 'keyboard-highlight');
+      english.classList.remove('selected', 'keyboard-highlight');
+      
+      this.selectedMatches.set(italian.dataset.italian, english.dataset.english);
+      this.showKeyboardMatchingHint('✓ Correct match! Continue matching or press Enter to check answers.');
+    } else {
+      // Incorrect match - show briefly then clear
+      italian.classList.add('incorrect-match');
+      english.classList.add('incorrect-match');
+      
+      setTimeout(() => {
+        italian.classList.remove('incorrect-match', 'selected', 'keyboard-highlight');
+        english.classList.remove('incorrect-match', 'selected', 'keyboard-highlight');
+        this.showKeyboardMatchingHint('✗ Incorrect match. Try again!');
+      }, 1000);
+    }
+    
+    // Clear selections
+    this.matchingSelection = { italian: null, english: null };
+  }
+
+  clearMatchingSelections() {
+    document.querySelectorAll('.match-item').forEach(item => {
+      item.classList.remove('selected', 'keyboard-highlight');
+    });
+    this.matchingSelection = { italian: null, english: null };
+    this.hideKeyboardMatchingHint();
+  }
+
+  showKeyboardMatchingHint(message) {
+    let hint = document.querySelector('.keyboard-matching-hint');
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.className = 'keyboard-matching-hint';
+      hint.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        z-index: 1000;
+        animation: fadeInUp 0.3s ease;
+      `;
+      document.body.appendChild(hint);
+    }
+    hint.textContent = message;
+    hint.style.display = 'block';
+  }
+
+  hideKeyboardMatchingHint() {
+    const hint = document.querySelector('.keyboard-matching-hint');
+    if (hint) {
+      hint.style.display = 'none';
+    }
+  }
+
+  handleTypingKeyboard(event) {
+    const key = event.key;
+    
+    // Auto-focus input if it exists and user starts typing
+    if (key.length === 1 && !event.target.matches('input')) {
+      const input = document.querySelector('.quiz-input:not([disabled])');
+      if (input) {
+        input.focus();
+        // Don't add the character here, let the focus handle it
+        return;
+      }
+    }
+    
+    // Enter to submit (handled in existing handleTypingInput/handleListeningInput)
+    if (key === 'Enter' && event.target.matches('input')) {
+      // Existing logic handles this
+      return;
+    }
+  }
+
+  handleDragDropKeyboard(event) {
+    const key = event.key.toLowerCase();
+    
+    // Auto-focus text input if user starts typing
+    if (key.length === 1 && !event.target.matches('input')) {
+      const input = document.querySelector('.drag-type-input:not([disabled])');
+      if (input) {
+        input.focus();
+        return;
+      }
+    }
+    
+    // Enter to submit (handled in existing handleDragDropTyping)
+    if (key === 'Enter' && event.target.matches('input')) {
+      // Existing logic handles this
+      return;
+    }
+    
+    // Escape to clear
+    if (key === 'escape') {
+      const clearBtn = document.querySelector('.clear-word');
+      if (clearBtn) {
+        clearBtn.click();
+      }
+    }
   }
 
   generateQuiz(topic) {
@@ -404,6 +681,18 @@ class QuizSystem {
 
     container.innerHTML = html;
     this.currentQuiz = quiz;
+    
+    // Initialize keyboard navigation for this quiz
+    this.initializeKeyboardNavigation();
+    this.currentHighlight = 0;
+    
+    // Auto-focus first input if available
+    setTimeout(() => {
+      const input = container.querySelector('input[autofocus]');
+      if (input) {
+        input.focus();
+      }
+    }, 100);
   }
 
   renderMultipleChoice(quiz) {
@@ -413,9 +702,12 @@ class QuizSystem {
   }
 
   renderMultipleChoiceContent(quiz) {
-    let html = '<div class="quiz-options">';
+    let html = '<div class="keyboard-hint">Use keys 1-4 or arrow keys + Enter to select</div>';
+    html += '<div class="quiz-options">';
     for (let i = 0; i < quiz.options.length; i++) {
-      html += '<button class="quiz-option" onclick="quizSystem.selectOption(\'' + quiz.options[i] + '\', this)">' + quiz.options[i] + '</button>';
+      html += '<button class="quiz-option" onclick="quizSystem.selectOption(\'' + quiz.options[i] + '\', this)">';
+      html += '<span class="option-key">' + (i + 1) + '</span> ' + quiz.options[i];
+      html += '</button>';
     }
     html += '</div>';
     return html;
@@ -428,19 +720,27 @@ class QuizSystem {
   }
 
   renderMatchingContent(quiz) {
-    let html = '<div class="matching-container">';
+    let html = '<div class="keyboard-hint">Use keys 1-4 for Italian words, A-D for English words, Enter to check answers</div>';
+    html += '<div class="matching-container">';
     html += '<div class="italian-column">';
+    html += '<h5>Italian (Keys 1-4)</h5>';
     quiz.pairs.forEach((pair, index) => {
-      html += '<div class="match-item italian-item" data-italian="' + pair.italian + '" onclick="quizSystem.selectMatchItem(this)">' + pair.italian + '</div>';
+      html += '<div class="match-item italian-item" data-italian="' + pair.italian + '" onclick="quizSystem.selectMatchItem(this)">';
+      html += '<span class="option-key">' + (index + 1) + '</span> ' + pair.italian;
+      html += '</div>';
     });
     html += '</div>';
     html += '<div class="english-column">';
+    html += '<h5>English (Keys A-D)</h5>';
     quiz.shuffledEnglish.forEach((english, index) => {
-      html += '<div class="match-item english-item" data-english="' + english + '" onclick="quizSystem.selectMatchItem(this)">' + english + '</div>';
+      const letter = String.fromCharCode(65 + index); // A, B, C, D
+      html += '<div class="match-item english-item" data-english="' + english + '" onclick="quizSystem.selectMatchItem(this)">';
+      html += '<span class="option-key">' + letter + '</span> ' + english;
+      html += '</div>';
     });
     html += '</div>';
     html += '</div>';
-    html += '<button class="quiz-check" onclick="quizSystem.checkMatching()" style="margin-top: 1rem;">Check Answers</button>';
+    html += '<button class="quiz-check" onclick="quizSystem.checkMatching()" style="margin-top: 1rem;">Check Answers (Enter)</button>';
     return html;
   }
 
@@ -451,20 +751,21 @@ class QuizSystem {
   }
 
   renderListeningContent(quiz) {
-    let html = '<div class="audio-container">';
+    let html = '<div class="keyboard-hint">Type your answer and press Enter to submit</div>';
+    html += '<div class="audio-container">';
     html += '<button class="play-audio-btn" onclick="quizSystem.playQuizAudio(\'' + quiz.audio + '\')"><i class="fas fa-play"></i> Play Audio</button>';
     
     if (quiz.part === 1) {
       html += '<div class="audio-part-info"><strong>Part 1:</strong> Type what you hear in Italian</div>';
-      html += '<input type="text" class="quiz-input audio-input" placeholder="Type the Italian word..." onkeyup="quizSystem.handleListeningInput(event)">';
+      html += '<input type="text" class="quiz-input audio-input" placeholder="Type the Italian word..." onkeyup="quizSystem.handleListeningInput(event)" autofocus>';
     } else {
       html += '<div class="audio-part-info"><strong>Part 2:</strong> Type the English translation</div>';
       html += '<div class="previous-answer">✓ Italian: <strong>' + quiz.userItalian + '</strong></div>';
-      html += '<input type="text" class="quiz-input audio-input" placeholder="Type the English meaning..." onkeyup="quizSystem.handleListeningInput(event)">';
+      html += '<input type="text" class="quiz-input audio-input" placeholder="Type the English meaning..." onkeyup="quizSystem.handleListeningInput(event)" autofocus>';
     }
     
     html += '<div class="audio-controls">';
-    html += '<button class="quiz-check" onclick="quizSystem.checkListening()">Check Answer</button>';
+    html += '<button class="quiz-check" onclick="quizSystem.checkListening()">Check Answer (Enter)</button>';
     html += '<button class="skip-audio-btn" onclick="quizSystem.skipAudioQuestion()">Skip (Can\'t hear audio)</button>';
     html += '</div>';
     html += '</div>';
@@ -478,8 +779,9 @@ class QuizSystem {
   }
 
   renderTypingContent(quiz) {
-    let html = '<input type="text" class="quiz-input" placeholder="Type your answer..." onkeyup="quizSystem.handleTypingInput(event)">';
-    html += '<button class="quiz-check" onclick="quizSystem.checkTyping()" style="margin-top: 1rem;">Check Answer</button>';
+    let html = '<div class="keyboard-hint">Type your answer and press Enter to submit</div>';
+    html += '<input type="text" class="quiz-input" placeholder="Type your answer..." onkeyup="quizSystem.handleTypingInput(event)" autofocus>';
+    html += '<button class="quiz-check" onclick="quizSystem.checkTyping()" style="margin-top: 1rem;">Check Answer (Enter)</button>';
     return html;
   }
 
@@ -492,7 +794,8 @@ class QuizSystem {
   renderDragDropContent(quiz) {
     let quizId = quiz.vocab.italian; // Use Italian word as unique ID
 
-    let html = '<div class="drag-drop-container">';
+    let html = '<div class="keyboard-hint">Type your answer and press Enter, or use Escape to clear</div>';
+    html += '<div class="drag-drop-container">';
     html += '<div class="drop-zone">';
     html += '<div class="current-word" id="current-word-' + quizId + '"></div>';
     html += '</div>';
@@ -502,11 +805,11 @@ class QuizSystem {
     });
     html += '</div>';
     html += '<div class="drag-drop-input-section">';
-    html += '<p>Or type your answer:</p>';
-    html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type here..." onkeyup="quizSystem.handleDragDropTyping(event)">';
+    html += '<p>Type your answer:</p>';
+    html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type here..." onkeyup="quizSystem.handleDragDropTyping(event)" autofocus>';
     html += '<div class="drag-drop-buttons">';
-    html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()">Check Answer</button>';
-    html += '<button class="clear-word" onclick="quizSystem.clearWord(\'' + quizId + '\')">Clear</button>';
+    html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()">Check Answer (Enter)</button>';
+    html += '<button class="clear-word" onclick="quizSystem.clearWord(\'' + quizId + '\')">Clear (Escape)</button>';
     html += '</div>';
     html += '</div>';
     html += '</div>';
