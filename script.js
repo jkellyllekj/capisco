@@ -484,29 +484,8 @@ class QuizSystem {
   }
 
   renderDragDrop(quiz) {
-    let quizId = quiz.vocab.italian; // Use Italian word as unique ID
-
-    let html = '<div class="quiz-question-header">';
-    html += '<h4>' + quiz.question + '</h4>';
-    html += '</div>';
-    html += '<div class="drag-drop-container">';
-    html += '<div class="drop-zone">';
-    html += '<div class="current-word" id="current-word-' + quizId + '"></div>';
-    html += '</div>';
-    html += '<div class="letter-bank">';
-    quiz.letters.forEach((letter, index) => {
-      html += '<span class="draggable-letter" data-letter="' + letter + '" onclick="quizSystem.addLetter(\'' + letter + '\', this, \'' + quizId + '\')">' + letter.toUpperCase() + '</span>';
-    });
-    html += '</div>';
-    html += '<div class="drag-drop-input-section">';
-    html += '<p>Or type your answer:</p>';
-    html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type here..." onkeyup="quizSystem.handleDragDropTyping(event)">';
-    html += '<div class="drag-drop-buttons">';
-    html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()">Check Answer</button>';
-    html += '<button class="clear-word" onclick="quizSystem.clearWord(\'' + quizId + '\')">Clear</button>';
-    html += '</div>';
-    html += '</div>';
-    html += '</div>';
+    let html = '<h4>' + quiz.question + '</h4>';
+    html += this.renderDragDropContent(quiz);
     return html;
   }
 
