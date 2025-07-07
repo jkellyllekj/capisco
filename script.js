@@ -289,8 +289,8 @@ class QuizSystem {
         // Select and highlight the option
         const selectedOption = options[index];
         selectedOption.classList.add('selected', 'keyboard-highlight');
-        // Extract just the Italian word, removing the key number prefix
-        this.selectedAnswer = selectedOption.textContent.replace(/^\d+\s+/, '').trim();
+        // Get the correct answer from the quiz options array
+        this.selectedAnswer = this.currentQuiz.options[index];
         
         // Auto-submit after short delay
         setTimeout(() => {
@@ -321,8 +321,8 @@ class QuizSystem {
       if (highlightedOption) {
         options.forEach(opt => opt.classList.remove('selected'));
         highlightedOption.classList.add('selected');
-        // Extract just the Italian word, removing the key number prefix
-        this.selectedAnswer = highlightedOption.textContent.replace(/^\d+\s+/, '').trim();
+        // Get the correct answer from the quiz options array
+        this.selectedAnswer = this.currentQuiz.options[this.currentHighlight];
         
         setTimeout(() => {
           this.checkAnswer();
@@ -629,7 +629,7 @@ class QuizSystem {
       type: 'listening',
       question: 'Listen to the Italian word and complete both parts:',
       audio: correct.italian,
-      correct: correct.italian, // Add this for compatibility
+      correct: correct.italian, // Keep this for compatibility
       correctItalian: correct.italian.toLowerCase(),
       correctEnglish: correct.english.toLowerCase(),
       explanation: 'You heard "' + correct.italian + '" which means "' + correct.english + '".',
@@ -851,8 +851,8 @@ class QuizSystem {
     options.forEach(opt => opt.classList.remove('selected'));
 
     button.classList.add('selected');
-    // Extract just the Italian word, removing the key number prefix
-    this.selectedAnswer = answer.replace(/^\d+\s+/, '').trim();
+    // Store the clean answer without any prefix
+    this.selectedAnswer = answer;
 
     setTimeout(() => {
       this.checkAnswer();
@@ -979,14 +979,13 @@ class QuizSystem {
       return;
     }
 
-    const userAnswer = input.value;
+    const userAnswer = input.value.trim();
     const correctAnswer = this.currentQuiz.correct;
 
     console.log('=== TYPING VALIDATION DEBUG ===');
     console.log('User typed:', JSON.stringify(userAnswer));
     console.log('Correct answer:', JSON.stringify(correctAnswer));
-    console.log('User length:', userAnswer.length);
-    console.log('Correct length:', correctAnswer.length);
+    console.log('Quiz vocab:', this.currentQuiz.vocab);
 
     // Extremely simple validation - just clean whitespace and make lowercase
     const cleanUser = userAnswer.replace(/\s+/g, '').toLowerCase();
