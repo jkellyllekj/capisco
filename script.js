@@ -153,6 +153,7 @@ class QuizSystem {
     this.questionsAnswered = 0;
     this.selectedAnswer = null;
     this.selectedMatches = new Map();
+    this.usedQuestions = new Set(); // Track used questions to avoid repetition
     this.quizData = {
       seasons: {
         vocabulary: [
@@ -237,22 +238,52 @@ class QuizSystem {
     }
 
     const vocab = data.vocabulary;
-    const questionType = this.questionTypes[Math.floor(Math.random() * this.questionTypes.length)];
     
-    switch (questionType) {
-      case 'multipleChoice':
-        return this.generateMultipleChoice(vocab);
-      case 'matching':
-        return this.generateMatching(vocab);
-      case 'listening':
-        return this.generateListening(vocab);
-      case 'typing':
-        return this.generateTyping(vocab);
-      case 'dragDrop':
-        return this.generateDragDrop(vocab);
-      default:
-        return this.generateMultipleChoice(vocab);
+    // Reset used questions if we've used them all
+    if (this.usedQuestions.size >= vocab.length * this.questionTypes.length) {
+      this.usedQuestions.clear();
     }
+    
+    let attempts = 0;
+    let quiz = null;
+    
+    // Try to generate a unique question
+    while (attempts < 50) {
+      const questionType = this.questionTypes[Math.floor(Math.random() * this.questionTypes.length)];
+      
+      switch (questionType) {
+        case 'multipleChoice':
+          quiz = this.generateMultipleChoice(vocab);
+          break;
+        case 'matching':
+          quiz = this.generateMatching(vocab);
+          break;
+        case 'listening':
+          quiz = this.generateListening(vocab);
+          break;
+        case 'typing':
+          quiz = this.generateTyping(vocab);
+          break;
+        case 'dragDrop':
+          quiz = this.generateDragDrop(vocab);
+          break;
+        default:
+          quiz = this.generateMultipleChoice(vocab);
+      }
+      
+      if (quiz) {
+        const questionKey = `${questionType}-${quiz.vocab ? quiz.vocab.italian : 'matching'}`;
+        if (!this.usedQuestions.has(questionKey)) {
+          this.usedQuestions.add(questionKey);
+          return quiz;
+        }
+      }
+      
+      attempts++;
+    }
+    
+    // If we can't find a unique question, just return any question
+    return this.generateMultipleChoice(vocab);
   }
 
   generateMultipleChoice(vocab) {
@@ -499,7 +530,12 @@ class QuizSystem {
   checkTyping() {
     const input = document.querySelector('.quiz-input');
     const userAnswer = input.value.toLowerCase().trim();
-    const isCorrect = userAnswer === this.currentQuiz.correct;
+    const correctAnswer = this.currentQuiz.correct.toLowerCase().trim();
+    
+    // For listening questions, be more flexible with accents and case
+    const isCorrect = userAnswer === correctAnswer || 
+                     userAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '') === 
+                     correctAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     
     this.selectedAnswer = userAnswer;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
@@ -699,8 +735,10 @@ window.toggleQuiz = function(quizId) {
     const topic = quizSystem.getTopicFromQuizId(quizId);
     console.log('Topic:', topic);
 
+    // Reset quiz state for new topic
     quizSystem.score = 0;
     quizSystem.totalQuestions = 0;
+    quizSystem.usedQuestions.clear();
 
     const quizData = quizSystem.generateQuiz(topic);
     if (quizData) {
