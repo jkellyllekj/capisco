@@ -1622,7 +1622,7 @@ footer {
 
 /* Quiz Question Separation */
 .quiz-question.answered {
-  transition: all 0.5s ease !important;
+  transition: all 0.6s ease !important;
   opacity: 0.7 !important;
   border-left: 4px solid #28a745 !important;
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
@@ -1633,6 +1633,24 @@ footer {
   position: relative;
   border: 1px solid #bfdbfe !important;
   transform: scale(0.95);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.quiz-question.answered::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .quiz-question.answered .quiz-feedback {
@@ -1682,26 +1700,53 @@ footer {
 }
 
 .new-question {
-  transition: all 0.6s ease;
-  animation: slideInUp 0.6s ease-out;
+  transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
   border-left: 4px solid #667eea;
   background: white !important;
   position: relative;
   margin-top: 1rem;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
+.new-question::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
 
+.new-question:hover::before {
+  opacity: 1;
+}
 
 @keyframes slideInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
+}
+
+/* Smooth height transitions for quiz container */
+.quiz-block {
+  transition: height 0.4s ease-out;
+  overflow: hidden;
+}
+
+/* Ensure separator transitions are smooth */
+.quiz-separator {
+  transition: all 0.4s ease-out;
+  overflow: hidden;
 }
 
 .quiz-feedback {

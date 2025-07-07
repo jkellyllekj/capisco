@@ -566,8 +566,16 @@ class QuizSystem {
     const normalizedUser = userAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const normalizedCorrect = correctAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     
-    // Check exact match first, then normalized match
-    const isCorrect = userAnswer === correctAnswer || normalizedUser === normalizedCorrect;
+    // Also check for common variations and remove extra spaces
+    const cleanUser = normalizedUser.replace(/\s+/g, ' ').trim();
+    const cleanCorrect = normalizedCorrect.replace(/\s+/g, ' ').trim();
+    
+    // Check multiple variations for matching
+    const isCorrect = userAnswer === correctAnswer || 
+                     normalizedUser === normalizedCorrect ||
+                     cleanUser === cleanCorrect ||
+                     userAnswer === this.currentQuiz.correct.toLowerCase() ||
+                     normalizedUser === this.currentQuiz.correct.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     
     this.selectedAnswer = userAnswer;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
@@ -701,49 +709,63 @@ class QuizSystem {
     const nextQuiz = this.generateQuiz(topic);
     if (!nextQuiz) return;
 
-    // Store the current scroll position relative to the quiz container
-    const containerRect = currentContainer.getBoundingClientRect();
-    const initialScrollTop = window.pageYOffset;
-
-    // Remove all but the last answered question to keep only 2 questions visible max
     const allQuestions = currentContainer.querySelectorAll('.quiz-question');
+    
+    // Step 1: Remove the oldest question (previously answered) with smooth fade out
     if (allQuestions.length > 1) {
-      // Keep only the most recent answered question, remove older ones
-      for (let i = 0; i < allQuestions.length - 1; i++) {
-        if (allQuestions[i].classList.contains('answered')) {
-          allQuestions[i].remove();
-        }
-      }
+      const oldestQuestion = allQuestions[0];
+      oldestQuestion.style.transition = 'all 0.4s ease-out';
+      oldestQuestion.style.height = oldestQuestion.offsetHeight + 'px';
+      oldestQuestion.style.opacity = '0';
+      oldestQuestion.style.transform = 'translateY(-20px)';
+      oldestQuestion.style.marginBottom = '0';
       
-      // Also remove any separators that are no longer needed
-      const separators = currentContainer.querySelectorAll('.quiz-separator');
-      if (separators.length > 0) {
-        for (let i = 0; i < separators.length - 1; i++) {
-          separators[i].remove();
-        }
-      }
+      setTimeout(() => {
+        oldestQuestion.style.height = '0';
+        oldestQuestion.style.padding = '0';
+        oldestQuestion.style.margin = '0';
+        
+        setTimeout(() => {
+          oldestQuestion.remove();
+          
+          // Remove corresponding separator
+          const separators = currentContainer.querySelectorAll('.quiz-separator');
+          if (separators.length > 0) {
+            separators[0].remove();
+          }
+        }, 400);
+      }, 200);
     }
 
-    const currentQuestion = currentContainer.querySelector('.quiz-question:last-child');
+    // Step 2: Get the current (most recent) answered question
+    const currentQuestion = allQuestions[allQuestions.length - 1];
     
-    // Compact the current question smoothly
-    currentQuestion.style.transition = 'all 0.5s ease-out';
-    currentQuestion.style.transform = 'scale(0.95)';
-    currentQuestion.style.marginBottom = '0.5rem';
-    currentQuestion.style.opacity = '0.7';
+    // Step 3: Smoothly compact and slide up the current answered question
+    setTimeout(() => {
+      currentQuestion.style.transition = 'all 0.6s ease-out';
+      currentQuestion.style.transform = 'scale(0.95) translateY(-10px)';
+      currentQuestion.style.opacity = '0.7';
+      currentQuestion.style.marginBottom = '0.5rem';
+      currentQuestion.style.filter = 'blur(0.5px)';
+    }, 200);
 
-    // Create separator
+    // Step 4: Create separator with initial hidden state
     const separator = document.createElement('div');
     separator.className = 'quiz-separator';
     separator.innerHTML = '<div style="text-align: center; margin: 0.3rem 0; color: #ccc; font-size: 0.8rem;">• • •</div>';
+    separator.style.opacity = '0';
+    separator.style.transition = 'opacity 0.4s ease-out';
     
-    // Create next question container
+    // Step 5: Create new question with fixed height to prevent jumping
     const nextQuestionDiv = document.createElement('div');
     nextQuestionDiv.className = 'quiz-question new-question';
+    
+    // Set up initial state - invisible but reserve space
     nextQuestionDiv.style.opacity = '0';
-    nextQuestionDiv.style.transform = 'translateY(20px)';
-    nextQuestionDiv.style.transition = 'all 0.6s ease-out';
-
+    nextQuestionDiv.style.transform = 'translateY(30px)';
+    nextQuestionDiv.style.transition = 'all 0.7s ease-out';
+    
+    // Generate the HTML content
     let html = '';
     switch (nextQuiz.type) {
       case 'multipleChoice':
@@ -766,32 +788,34 @@ class QuizSystem {
     html += '<div class="quiz-feedback" style="display: none;"></div>';
     nextQuestionDiv.innerHTML = html;
     
-    // Insert separator and next question
+    // Step 6: Insert elements into DOM
     currentQuestion.parentNode.insertBefore(separator, currentQuestion.nextSibling);
     separator.parentNode.insertBefore(nextQuestionDiv, separator.nextSibling);
 
     this.currentQuiz = nextQuiz;
 
-    // Animate the new question in without affecting page scroll
+    // Step 7: Animate separator and new question in sequence
+    setTimeout(() => {
+      separator.style.opacity = '0.5';
+    }, 600);
+
     setTimeout(() => {
       nextQuestionDiv.style.opacity = '1';
       nextQuestionDiv.style.transform = 'translateY(0)';
       
-      // Maintain scroll position - don't auto-scroll to new question
-      // Only adjust scroll if the new question would be completely out of view
-      const newQuestionRect = nextQuestionDiv.getBoundingClientRect();
+      // Gentle scroll adjustment only if needed
+      const containerRect = currentContainer.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
       
-      // Only scroll if the new question is significantly below the viewport
-      if (newQuestionRect.top > viewportHeight - 100) {
-        // Smooth, minimal scroll to just bring the question into view
-        nextQuestionDiv.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'end',
-          inline: 'nearest'
+      // Only scroll if the container is mostly out of view
+      if (containerRect.bottom > viewportHeight + 50) {
+        // Use a gentle scroll that doesn't jump
+        window.scrollBy({
+          top: Math.min(100, containerRect.bottom - viewportHeight + 50),
+          behavior: 'smooth'
         });
       }
-    }, 100);
+    }, 800);
   }
 
   getTopicFromQuizId(quizId) {
