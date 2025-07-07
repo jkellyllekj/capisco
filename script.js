@@ -694,22 +694,29 @@ class QuizSystem {
         this.currentQuiz.userItalian = userAnswer;
         this.currentQuiz.part = 2;
         
-        // Re-render for part 2
-        const container = document.querySelector('.quiz-question:last-child');
-        if (container) {
-          let html = '<div class="quiz-question-header">';
-          html += '<h4>' + this.currentQuiz.question + '</h4>';
-          html += '</div>';
-          html += this.renderListeningContent(this.currentQuiz);
-          html += '<div class="quiz-feedback" style="display: none;"></div>';
-          
-          container.innerHTML = html;
-          
-          // Focus on the new input
-          setTimeout(() => {
-            const newInput = container.querySelector('.audio-input');
-            if (newInput) newInput.focus();
-          }, 100);
+        // Re-render for part 2 by finding the current quiz container
+        const activeQuizContainer = document.querySelector('.quiz-block:not(.hidden)');
+        if (activeQuizContainer) {
+          const currentQuestionDiv = activeQuizContainer.querySelector('.quiz-question:last-child');
+          if (currentQuestionDiv) {
+            // Clear existing content and rebuild
+            let html = '<div class="quiz-question-header">';
+            html += '<h4>' + this.currentQuiz.question + '</h4>';
+            html += '</div>';
+            html += this.renderListeningContent(this.currentQuiz);
+            html += '<div class="quiz-feedback" style="display: none;"></div>';
+            
+            currentQuestionDiv.innerHTML = html;
+            
+            // Focus on the new input
+            setTimeout(() => {
+              const newInput = currentQuestionDiv.querySelector('.audio-input');
+              if (newInput) {
+                newInput.focus();
+                newInput.placeholder = "Type the English meaning...";
+              }
+            }, 100);
+          }
         }
       } else {
         this.selectedAnswer = userAnswer;
