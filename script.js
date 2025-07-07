@@ -144,7 +144,7 @@ function playItalianAudio(text) {
   }
 }
 
-// Quiz System
+// Enhanced Quiz System with Multiple Question Types
 class QuizSystem {
   constructor() {
     this.currentQuiz = null;
@@ -226,6 +226,7 @@ class QuizSystem {
         ]
       }
     };
+    this.questionTypes = ['multipleChoice', 'matching', 'listening', 'typing', 'dragDrop'];
   }
 
   generateQuiz(topic) {
@@ -236,6 +237,25 @@ class QuizSystem {
     }
 
     const vocab = data.vocabulary;
+    const questionType = this.questionTypes[Math.floor(Math.random() * this.questionTypes.length)];
+    
+    switch (questionType) {
+      case 'multipleChoice':
+        return this.generateMultipleChoice(vocab);
+      case 'matching':
+        return this.generateMatching(vocab);
+      case 'listening':
+        return this.generateListening(vocab);
+      case 'typing':
+        return this.generateTyping(vocab);
+      case 'dragDrop':
+        return this.generateDragDrop(vocab);
+      default:
+        return this.generateMultipleChoice(vocab);
+    }
+  }
+
+  generateMultipleChoice(vocab) {
     const correct = vocab[Math.floor(Math.random() * vocab.length)];
     const options = [correct];
 
@@ -256,7 +276,62 @@ class QuizSystem {
       question: 'What is the Italian word for "' + correct.english + '"?',
       options: options.map(opt => opt.italian),
       correct: correct.italian,
-      explanation: '"' + correct.italian + '" means "' + correct.english + '" in English.'
+      explanation: '"' + correct.italian + '" means "' + correct.english + '" in English.',
+      vocab: correct
+    };
+  }
+
+  generateMatching(vocab) {
+    const pairs = vocab.slice(0, Math.min(4, vocab.length));
+    const shuffledEnglish = [...pairs.map(p => p.english)].sort(() => Math.random() - 0.5);
+    
+    return {
+      type: 'matching',
+      question: 'Match the Italian words with their English translations',
+      pairs: pairs,
+      shuffledEnglish: shuffledEnglish,
+      explanation: 'Great matching! These are important vocabulary words.',
+      matches: new Map()
+    };
+  }
+
+  generateListening(vocab) {
+    const correct = vocab[Math.floor(Math.random() * vocab.length)];
+    
+    return {
+      type: 'listening',
+      question: 'Listen to the Italian word and type what you hear:',
+      audio: correct.italian,
+      correct: correct.italian.toLowerCase(),
+      explanation: 'You heard "' + correct.italian + '" which means "' + correct.english + '".',
+      vocab: correct
+    };
+  }
+
+  generateTyping(vocab) {
+    const correct = vocab[Math.floor(Math.random() * vocab.length)];
+    
+    return {
+      type: 'typing',
+      question: 'Type the Italian word for "' + correct.english + '":',
+      correct: correct.italian.toLowerCase(),
+      explanation: 'The correct answer is "' + correct.italian + '".',
+      vocab: correct
+    };
+  }
+
+  generateDragDrop(vocab) {
+    const correct = vocab[Math.floor(Math.random() * vocab.length)];
+    const letters = correct.italian.split('').sort(() => Math.random() - 0.5);
+    
+    return {
+      type: 'dragDrop',
+      question: 'Drag the letters to spell the Italian word for "' + correct.english + '":',
+      letters: letters,
+      correct: correct.italian,
+      explanation: 'The correct spelling is "' + correct.italian + '".',
+      vocab: correct,
+      currentWord: []
     };
   }
 
@@ -265,19 +340,92 @@ class QuizSystem {
     if (!container || !quiz) return;
 
     let html = '<div class="quiz-question">';
-    html += '<h4>' + quiz.question + '</h4>';
-    html += '<div class="quiz-options">';
-
-    for (let i = 0; i < quiz.options.length; i++) {
-      html += '<button class="quiz-option" onclick="quizSystem.selectOption(\'' + quiz.options[i] + '\', this)">' + quiz.options[i] + '</button>';
+    
+    switch (quiz.type) {
+      case 'multipleChoice':
+        html += this.renderMultipleChoice(quiz);
+        break;
+      case 'matching':
+        html += this.renderMatching(quiz);
+        break;
+      case 'listening':
+        html += this.renderListening(quiz);
+        break;
+      case 'typing':
+        html += this.renderTyping(quiz);
+        break;
+      case 'dragDrop':
+        html += this.renderDragDrop(quiz);
+        break;
     }
 
-    html += '</div>';
     html += '<div class="quiz-feedback" style="display: none;"></div>';
     html += '</div>';
 
     container.innerHTML = html;
     this.currentQuiz = quiz;
+  }
+
+  renderMultipleChoice(quiz) {
+    let html = '<h4>' + quiz.question + '</h4>';
+    html += '<div class="quiz-options">';
+    for (let i = 0; i < quiz.options.length; i++) {
+      html += '<button class="quiz-option" onclick="quizSystem.selectOption(\'' + quiz.options[i] + '\', this)">' + quiz.options[i] + '</button>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  renderMatching(quiz) {
+    let html = '<h4>' + quiz.question + '</h4>';
+    html += '<div class="matching-container">';
+    html += '<div class="italian-column">';
+    quiz.pairs.forEach((pair, index) => {
+      html += '<div class="match-item italian-item" data-italian="' + pair.italian + '" onclick="quizSystem.selectMatchItem(this)">' + pair.italian + '</div>';
+    });
+    html += '</div>';
+    html += '<div class="english-column">';
+    quiz.shuffledEnglish.forEach((english, index) => {
+      html += '<div class="match-item english-item" data-english="' + english + '" onclick="quizSystem.selectMatchItem(this)">' + english + '</div>';
+    });
+    html += '</div>';
+    html += '</div>';
+    html += '<button class="quiz-check" onclick="quizSystem.checkMatching()" style="margin-top: 1rem;">Check Answers</button>';
+    return html;
+  }
+
+  renderListening(quiz) {
+    let html = '<h4>' + quiz.question + '</h4>';
+    html += '<div class="audio-container">';
+    html += '<button class="play-audio-btn" onclick="quizSystem.playQuizAudio(\'' + quiz.audio + '\')"><i class="fas fa-play"></i> Play Audio</button>';
+    html += '<input type="text" class="quiz-input audio-input" placeholder="Type what you hear..." onkeyup="quizSystem.handleTypingInput(event)">';
+    html += '<button class="quiz-check" onclick="quizSystem.checkTyping()" style="margin-top: 1rem;">Check Answer</button>';
+    html += '</div>';
+    return html;
+  }
+
+  renderTyping(quiz) {
+    let html = '<h4>' + quiz.question + '</h4>';
+    html += '<input type="text" class="quiz-input" placeholder="Type your answer..." onkeyup="quizSystem.handleTypingInput(event)">';
+    html += '<button class="quiz-check" onclick="quizSystem.checkTyping()" style="margin-top: 1rem;">Check Answer</button>';
+    return html;
+  }
+
+  renderDragDrop(quiz) {
+    let html = '<h4>' + quiz.question + '</h4>';
+    html += '<div class="drag-drop-container">';
+    html += '<div class="letter-bank">';
+    quiz.letters.forEach((letter, index) => {
+      html += '<span class="draggable-letter" draggable="true" data-letter="' + letter + '" onclick="quizSystem.addLetter(\'' + letter + '\', this)">' + letter + '</span>';
+    });
+    html += '</div>';
+    html += '<div class="drop-zone" ondrop="quizSystem.dropLetter(event)" ondragover="quizSystem.allowDrop(event)">';
+    html += '<div class="current-word" id="currentWord"></div>';
+    html += '</div>';
+    html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()" style="margin-top: 1rem;">Check Answer</button>';
+    html += '<button class="clear-word" onclick="quizSystem.clearWord()" style="margin-top: 0.5rem; margin-left: 0.5rem;">Clear</button>';
+    html += '</div>';
+    return html;
   }
 
   selectOption(answer, button) {
@@ -294,31 +442,145 @@ class QuizSystem {
     }, 500);
   }
 
+  selectMatchItem(item) {
+    const allItems = item.parentNode.parentNode.querySelectorAll('.match-item');
+    const selectedItems = item.parentNode.parentNode.querySelectorAll('.match-item.selected');
+    
+    if (item.classList.contains('selected')) {
+      item.classList.remove('selected');
+      return;
+    }
+    
+    if (selectedItems.length >= 2) {
+      selectedItems.forEach(si => si.classList.remove('selected'));
+    }
+    
+    item.classList.add('selected');
+    
+    const newSelected = item.parentNode.parentNode.querySelectorAll('.match-item.selected');
+    if (newSelected.length === 2) {
+      const italian = newSelected[0].classList.contains('italian-item') ? newSelected[0] : newSelected[1];
+      const english = newSelected[0].classList.contains('english-item') ? newSelected[0] : newSelected[1];
+      
+      if (italian && english) {
+        italian.classList.add('matched');
+        english.classList.add('matched');
+        newSelected.forEach(item => item.classList.remove('selected'));
+        
+        this.selectedMatches.set(italian.dataset.italian, english.dataset.english);
+      }
+    }
+  }
+
+  checkMatching() {
+    const pairs = this.currentQuiz.pairs;
+    let correct = 0;
+    
+    pairs.forEach(pair => {
+      if (this.selectedMatches.get(pair.italian) === pair.english) {
+        correct++;
+      }
+    });
+    
+    const isCorrect = correct === pairs.length;
+    this.showFeedback(isCorrect, this.currentQuiz.explanation);
+  }
+
+  playQuizAudio(text) {
+    playItalianAudio(text);
+  }
+
+  handleTypingInput(event) {
+    if (event.key === 'Enter') {
+      this.checkTyping();
+    }
+  }
+
+  checkTyping() {
+    const input = document.querySelector('.quiz-input');
+    const userAnswer = input.value.toLowerCase().trim();
+    const isCorrect = userAnswer === this.currentQuiz.correct;
+    
+    this.selectedAnswer = userAnswer;
+    this.showFeedback(isCorrect, this.currentQuiz.explanation);
+  }
+
+  addLetter(letter, element) {
+    if (element.style.visibility === 'hidden') return;
+    
+    const currentWordDiv = document.getElementById('currentWord');
+    const letterSpan = document.createElement('span');
+    letterSpan.textContent = letter;
+    letterSpan.className = 'word-letter';
+    letterSpan.onclick = () => this.removeLetter(letterSpan, letter, element);
+    
+    currentWordDiv.appendChild(letterSpan);
+    this.currentQuiz.currentWord.push(letter);
+    
+    element.style.visibility = 'hidden';
+  }
+
+  removeLetter(letterSpan, letter, originalElement) {
+    letterSpan.remove();
+    const index = this.currentQuiz.currentWord.indexOf(letter);
+    if (index > -1) {
+      this.currentQuiz.currentWord.splice(index, 1);
+    }
+    originalElement.style.visibility = 'visible';
+  }
+
+  clearWord() {
+    document.getElementById('currentWord').innerHTML = '';
+    this.currentQuiz.currentWord = [];
+    document.querySelectorAll('.draggable-letter').forEach(letter => {
+      letter.style.visibility = 'visible';
+    });
+  }
+
+  checkDragDrop() {
+    const userWord = this.currentQuiz.currentWord.join('').toLowerCase();
+    const isCorrect = userWord === this.currentQuiz.correct.toLowerCase();
+    
+    this.selectedAnswer = userWord;
+    this.showFeedback(isCorrect, this.currentQuiz.explanation);
+  }
+
   checkAnswer() {
     if (!this.selectedAnswer || !this.currentQuiz) return;
 
     const isCorrect = this.selectedAnswer === this.currentQuiz.correct;
-    const selectedButton = document.querySelector('.quiz-option.selected');
-    if (!selectedButton) return;
+    this.showFeedback(isCorrect, this.currentQuiz.explanation);
+  }
 
-    const currentQuestion = selectedButton.closest('.quiz-question');
+  showFeedback(isCorrect, explanation) {
+    const currentQuestion = document.querySelector('.quiz-question:last-child');
     const feedback = currentQuestion.querySelector('.quiz-feedback');
-    const options = selectedButton.parentNode.querySelectorAll('.quiz-option');
-
-    options.forEach(opt => opt.disabled = true);
+    
+    // Disable all interactive elements
+    currentQuestion.querySelectorAll('button, input, .match-item, .draggable-letter').forEach(el => {
+      el.disabled = true;
+      el.style.pointerEvents = 'none';
+    });
 
     if (isCorrect) {
-      selectedButton.classList.add('correct');
-      feedback.innerHTML = '<div class="correct-feedback"><i class="fas fa-check"></i> Correct! ' + this.currentQuiz.explanation + '</div>';
+      feedback.innerHTML = '<div class="correct-feedback"><i class="fas fa-check"></i> Correct! ' + explanation + '</div>';
       this.score++;
     } else {
-      selectedButton.classList.add('incorrect');
-      options.forEach(opt => {
-        if (opt.textContent === this.currentQuiz.correct) {
-          opt.classList.add('correct');
-        }
-      });
-      feedback.innerHTML = '<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect. The correct answer is "' + this.currentQuiz.correct + '". ' + this.currentQuiz.explanation + '</div>';
+      let correctAnswer = '';
+      if (this.currentQuiz.type === 'multipleChoice') {
+        correctAnswer = ' The correct answer is "' + this.currentQuiz.correct + '".';
+        // Highlight correct option
+        currentQuestion.querySelectorAll('.quiz-option').forEach(opt => {
+          if (opt.textContent === this.currentQuiz.correct) {
+            opt.classList.add('correct');
+          } else if (opt.classList.contains('selected')) {
+            opt.classList.add('incorrect');
+          }
+        });
+      } else {
+        correctAnswer = ' The correct answer is "' + this.currentQuiz.correct + '".';
+      }
+      feedback.innerHTML = '<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect.' + correctAnswer + ' ' + explanation + '</div>';
     }
 
     this.totalQuestions++;
@@ -345,6 +607,7 @@ class QuizSystem {
     }
 
     this.selectedAnswer = null;
+    this.selectedMatches.clear();
 
     setTimeout(() => {
       this.addNextQuestion();
@@ -369,16 +632,26 @@ class QuizSystem {
     const nextQuestionDiv = document.createElement('div');
     nextQuestionDiv.className = 'quiz-question';
 
-    let html = '<h4>' + nextQuiz.question + '</h4>';
-    html += '<div class="quiz-options">';
-
-    for (let i = 0; i < nextQuiz.options.length; i++) {
-      html += '<button class="quiz-option" onclick="quizSystem.selectOption(\'' + nextQuiz.options[i] + '\', this)">' + nextQuiz.options[i] + '</button>';
+    let html = '';
+    switch (nextQuiz.type) {
+      case 'multipleChoice':
+        html += this.renderMultipleChoice(nextQuiz);
+        break;
+      case 'matching':
+        html += this.renderMatching(nextQuiz);
+        break;
+      case 'listening':
+        html += this.renderListening(nextQuiz);
+        break;
+      case 'typing':
+        html += this.renderTyping(nextQuiz);
+        break;
+      case 'dragDrop':
+        html += this.renderDragDrop(nextQuiz);
+        break;
     }
 
-    html += '</div>';
     html += '<div class="quiz-feedback" style="display: none;"></div>';
-
     nextQuestionDiv.innerHTML = html;
     currentContainer.appendChild(nextQuestionDiv);
 
