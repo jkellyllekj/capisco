@@ -987,9 +987,9 @@ class QuizSystem {
     console.log('Quiz type:', this.currentQuiz.type);
     console.log('Quiz vocab:', this.currentQuiz.vocab);
 
-    // Extremely simple validation - just clean whitespace and make lowercase
-    const cleanUser = userAnswer.replace(/\s+/g, '').toLowerCase();
-    const cleanCorrect = correctAnswer.replace(/\s+/g, '').toLowerCase();
+    // Simple validation - normalize whitespace and case
+    const cleanUser = userAnswer.toLowerCase().trim();
+    const cleanCorrect = correctAnswer.toLowerCase().trim();
 
     console.log('Clean user:', JSON.stringify(cleanUser));
     console.log('Clean correct:', JSON.stringify(cleanCorrect));
@@ -1018,9 +1018,9 @@ class QuizSystem {
     console.log('Quiz type:', this.currentQuiz.type);
     console.log('Quiz vocab:', this.currentQuiz.vocab);
 
-    // Extremely simple validation - just clean whitespace and make lowercase
-    const cleanUser = userAnswer.replace(/\s+/g, '').toLowerCase();
-    const cleanCorrect = correctAnswer.replace(/\s+/g, '').toLowerCase();
+    // Simple validation - normalize whitespace and case
+    const cleanUser = userAnswer.toLowerCase().trim();
+    const cleanCorrect = correctAnswer.toLowerCase().trim();
 
     console.log('Clean user:', JSON.stringify(cleanUser));
     console.log('Clean correct:', JSON.stringify(cleanCorrect));
@@ -1116,9 +1116,9 @@ class QuizSystem {
     console.log('User length:', userWord.length);
     console.log('Correct length:', correctAnswer.length);
 
-    // Extremely simple validation - just clean whitespace and make lowercase
-    const cleanUser = userWord.replace(/\s+/g, '').toLowerCase();
-    const cleanCorrect = correctAnswer.replace(/\s+/g, '').toLowerCase();
+    // Simple validation - normalize whitespace and case
+    const cleanUser = userWord.toLowerCase().trim();
+    const cleanCorrect = correctAnswer.toLowerCase().trim();
 
     console.log('Clean user:', JSON.stringify(cleanUser));
     console.log('Clean correct:', JSON.stringify(cleanCorrect));
