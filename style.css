@@ -385,7 +385,7 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -393,14 +393,15 @@ footer {
 .back-button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.3rem;
   color: #6366f1;
   text-decoration: none;
   font-weight: 600;
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
   transition: all 0.3s ease;
   background: rgba(99, 102, 241, 0.1);
+  font-size: 0.85rem;
 }
 
 .back-button:hover {
@@ -411,41 +412,42 @@ footer {
 
 .chapter-indicator {
   color: #64748b;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   font-weight: 500;
   background: rgba(100, 116, 139, 0.1);
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 16px;
 }
 
 .lesson-title {
   text-align: center;
-  padding: 1.5rem 1rem;
+  padding: 0.8rem 1rem;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: white;
 }
 
 .lesson-title h1 {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-size: clamp(1.2rem, 3.5vw, 2rem);
   font-weight: 700;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.3rem 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 1px 2px rgba(255,255,255,0.8);
 }
 
 .lesson-title h1 i {
   color: #ffffff;
   background: #ff6b6b;
-  padding: 1rem;
-  border-radius: 12px;
+  padding: 0.6rem;
+  border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-size: 0.8em;
 }
 
 .lesson-subtitle {
-  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
   opacity: 0.9;
   margin: 0;
   font-weight: 400;
@@ -1027,21 +1029,57 @@ footer {
   }
 
   .lesson-nav {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
+    padding: 0.4rem 0.8rem;
+    gap: 0.5rem;
+  }
+
+  .back-button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    gap: 0.2rem;
+  }
+
+  .chapter-indicator {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
   }
 
   .lesson-title {
-    padding: 1rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .lesson-title h1 {
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    gap: 0.4rem;
+    margin: 0 0 0.2rem 0;
+  }
+
+  .lesson-title h1 i {
+    padding: 0.4rem;
+    font-size: 0.7em;
+  }
+
+  .lesson-subtitle {
+    font-size: clamp(0.7rem, 1.8vw, 0.85rem);
   }
 
   .lesson-container {
-    padding: 1rem;
+    padding: 0.8rem;
   }
 
   .content-card {
-    padding: 1.5rem;
+    padding: 1rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.2rem;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .section-header h2 i {
+    padding: 0.5rem;
+    font-size: 0.9rem;
   }
 
   .chapter-grid {
@@ -1061,6 +1099,11 @@ footer {
   .visual-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .lesson-visual {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1075,12 +1118,78 @@ footer {
     margin-bottom: 1rem;
   }
 
+  .lesson-nav {
+    padding: 0.3rem 0.6rem;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .back-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    gap: 0.15rem;
+  }
+
+  .chapter-indicator {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+  }
+
+  .lesson-title {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .lesson-title h1 {
+    font-size: clamp(0.9rem, 2.8vw, 1.2rem);
+    gap: 0.3rem;
+    margin: 0 0 0.15rem 0;
+  }
+
+  .lesson-title h1 i {
+    padding: 0.3rem;
+    font-size: 0.6em;
+  }
+
+  .lesson-subtitle {
+    font-size: clamp(0.65rem, 1.6vw, 0.8rem);
+  }
+
   .lesson-container {
-    padding: 0.75rem;
+    padding: 0.6rem;
   }
 
   .content-card {
+    padding: 0.8rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.1rem;
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .section-header h2 i {
+    padding: 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  .lesson-visual {
+    padding: 0.8rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .vocab-item {
+    padding: 0.6rem;
+  }
+
+  .vocab-category {
     padding: 1rem;
+  }
+
+  .quiz-btn {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    margin-top: 1rem;
   }
 }
 
