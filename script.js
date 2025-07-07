@@ -344,7 +344,7 @@ class QuizSystem {
     return {
       type: 'typing',
       question: 'Type the Italian word for "' + correct.english + '":',
-      correct: correct.italian.toLowerCase(),
+      correct: correct.italian,
       explanation: 'The correct answer is "' + correct.italian + '".',
       vocab: correct
     };
@@ -563,6 +563,10 @@ class QuizSystem {
     const userAnswer = input.value.toLowerCase().trim();
     const correctAnswer = this.currentQuiz.correct.toLowerCase().trim();
 
+    console.log('User answer:', `"${userAnswer}"`);
+    console.log('Correct answer:', `"${correctAnswer}"`);
+    console.log('Quiz vocab:', this.currentQuiz.vocab);
+
     // For listening questions, be more flexible with accents and case
     const normalizedUser = userAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const normalizedCorrect = correctAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -571,12 +575,12 @@ class QuizSystem {
     const cleanUser = normalizedUser.replace(/\s+/g, ' ').trim();
     const cleanCorrect = normalizedCorrect.replace(/\s+/g, ' ').trim();
 
-    // Check multiple variations for matching
+    // Check multiple variations for matching - simplified logic
     const isCorrect = userAnswer === correctAnswer || 
                      normalizedUser === normalizedCorrect ||
-                     cleanUser === cleanCorrect ||
-                     userAnswer === this.currentQuiz.correct.toLowerCase() ||
-                     normalizedUser === this.currentQuiz.correct.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                     cleanUser === cleanCorrect;
+
+    console.log('Is correct:', isCorrect);
 
     this.selectedAnswer = userAnswer;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
