@@ -566,7 +566,8 @@ class QuizSystem {
     const normalizedUser = userAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const normalizedCorrect = correctAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     
-    const isCorrect = normalizedUser === normalizedCorrect;
+    // Check exact match first, then normalized match
+    const isCorrect = userAnswer === correctAnswer || normalizedUser === normalizedCorrect;
     
     this.selectedAnswer = userAnswer;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
@@ -700,6 +701,10 @@ class QuizSystem {
     const nextQuiz = this.generateQuiz(topic);
     if (!nextQuiz) return;
 
+    // Store the current scroll position relative to the quiz container
+    const containerRect = currentContainer.getBoundingClientRect();
+    const initialScrollTop = window.pageYOffset;
+
     // Remove all but the last answered question to keep only 2 questions visible max
     const allQuestions = currentContainer.querySelectorAll('.quiz-question');
     if (allQuestions.length > 1) {
@@ -721,22 +726,22 @@ class QuizSystem {
 
     const currentQuestion = currentContainer.querySelector('.quiz-question:last-child');
     
-    // Compact the current question
+    // Compact the current question smoothly
     currentQuestion.style.transition = 'all 0.5s ease-out';
     currentQuestion.style.transform = 'scale(0.95)';
-    currentQuestion.style.marginBottom = '1rem';
-    currentQuestion.style.opacity = '0.8';
+    currentQuestion.style.marginBottom = '0.5rem';
+    currentQuestion.style.opacity = '0.7';
 
     // Create separator
     const separator = document.createElement('div');
     separator.className = 'quiz-separator';
-    separator.innerHTML = '<div style="text-align: center; margin: 0.5rem 0; color: #ccc; font-size: 0.8rem;">• • •</div>';
+    separator.innerHTML = '<div style="text-align: center; margin: 0.3rem 0; color: #ccc; font-size: 0.8rem;">• • •</div>';
     
     // Create next question container
     const nextQuestionDiv = document.createElement('div');
     nextQuestionDiv.className = 'quiz-question new-question';
     nextQuestionDiv.style.opacity = '0';
-    nextQuestionDiv.style.transform = 'translateY(30px)';
+    nextQuestionDiv.style.transform = 'translateY(20px)';
     nextQuestionDiv.style.transition = 'all 0.6s ease-out';
 
     let html = '';
@@ -761,23 +766,31 @@ class QuizSystem {
     html += '<div class="quiz-feedback" style="display: none;"></div>';
     nextQuestionDiv.innerHTML = html;
     
-    // Insert separator and next question at the current scroll position
+    // Insert separator and next question
     currentQuestion.parentNode.insertBefore(separator, currentQuestion.nextSibling);
     separator.parentNode.insertBefore(nextQuestionDiv, separator.nextSibling);
 
     this.currentQuiz = nextQuiz;
 
-    // Smooth scroll to keep the new question in view
+    // Animate the new question in without affecting page scroll
     setTimeout(() => {
       nextQuestionDiv.style.opacity = '1';
       nextQuestionDiv.style.transform = 'translateY(0)';
       
-      // Scroll the new question into view smoothly
-      nextQuestionDiv.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center',
-        inline: 'nearest'
-      });
+      // Maintain scroll position - don't auto-scroll to new question
+      // Only adjust scroll if the new question would be completely out of view
+      const newQuestionRect = nextQuestionDiv.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      
+      // Only scroll if the new question is significantly below the viewport
+      if (newQuestionRect.top > viewportHeight - 100) {
+        // Smooth, minimal scroll to just bring the question into view
+        nextQuestionDiv.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'end',
+          inline: 'nearest'
+        });
+      }
     }, 100);
   }
 
