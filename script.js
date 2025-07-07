@@ -445,13 +445,13 @@ class QuizSystem {
   renderDragDrop(quiz) {
     let html = '<h4>' + quiz.question + '</h4>';
     html += '<div class="drag-drop-container">';
+    html += '<div class="drop-zone" ondrop="quizSystem.dropLetter(event)" ondragover="quizSystem.allowDrop(event)">';
+    html += '<div class="current-word" id="currentWord"></div>';
+    html += '</div>';
     html += '<div class="letter-bank">';
     quiz.letters.forEach((letter, index) => {
       html += '<span class="draggable-letter" draggable="true" data-letter="' + letter + '" onclick="quizSystem.addLetter(\'' + letter + '\', this)">' + letter + '</span>';
     });
-    html += '</div>';
-    html += '<div class="drop-zone" ondrop="quizSystem.dropLetter(event)" ondragover="quizSystem.allowDrop(event)">';
-    html += '<div class="current-word" id="currentWord"></div>';
     html += '</div>';
     html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()" style="margin-top: 1rem;">Check Answer</button>';
     html += '<button class="clear-word" onclick="quizSystem.clearWord()" style="margin-top: 0.5rem; margin-left: 0.5rem;">Clear</button>';
@@ -506,15 +506,22 @@ class QuizSystem {
   checkMatching() {
     const pairs = this.currentQuiz.pairs;
     let correct = 0;
+    let detailedFeedback = '';
     
     pairs.forEach(pair => {
       if (this.selectedMatches.get(pair.italian) === pair.english) {
         correct++;
+      } else {
+        detailedFeedback += `"${pair.italian}" means "${pair.english}". `;
       }
     });
     
     const isCorrect = correct === pairs.length;
-    this.showFeedback(isCorrect, this.currentQuiz.explanation);
+    const explanation = isCorrect ? 
+      'Perfect matching! You got all the translations correct.' : 
+      `You matched ${correct} out of ${pairs.length} correctly. ${detailedFeedback}`;
+    
+    this.showFeedback(isCorrect, explanation);
   }
 
   playQuizAudio(text) {
@@ -533,9 +540,10 @@ class QuizSystem {
     const correctAnswer = this.currentQuiz.correct.toLowerCase().trim();
     
     // For listening questions, be more flexible with accents and case
-    const isCorrect = userAnswer === correctAnswer || 
-                     userAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '') === 
-                     correctAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const normalizedUser = userAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const normalizedCorrect = correctAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    
+    const isCorrect = normalizedUser === normalizedCorrect;
     
     this.selectedAnswer = userAnswer;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
@@ -613,7 +621,7 @@ class QuizSystem {
             opt.classList.add('incorrect');
           }
         });
-      } else {
+      } else if (this.currentQuiz.type !== 'matching') {
         correctAnswer = ' The correct answer is "' + this.currentQuiz.correct + '".';
       }
       feedback.innerHTML = '<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect.' + correctAnswer + ' ' + explanation + '</div>';
@@ -627,30 +635,15 @@ class QuizSystem {
     scoreDisplay.innerHTML = '<div class="score-text">Score: ' + this.score + '/' + this.totalQuestions + ' (' + Math.round((this.score / this.totalQuestions) * 100) + '%)</div>';
     feedback.appendChild(scoreDisplay);
 
-    // Hide previous questions (keep only the last answered one visible)
-    const allQuestions = currentQuestion.parentNode.querySelectorAll('.quiz-question');
-    if (allQuestions.length > 1) {
-      // Hide all but the current (last) question
-      for (let i = 0; i < allQuestions.length - 1; i++) {
-        allQuestions[i].style.display = 'none';
-      }
-      
-      // Also hide separators except the last one
-      const separators = currentQuestion.parentNode.querySelectorAll('.quiz-separator');
-      for (let i = 0; i < separators.length - 1; i++) {
-        separators[i].style.display = 'none';
-      }
-    }
-
     this.selectedAnswer = null;
     this.selectedMatches.clear();
 
     setTimeout(() => {
-      this.addNextQuestion();
+      this.transitionToNextQuestion();
     }, 3000);
   }
 
-  addNextQuestion() {
+  transitionToNextQuestion() {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) return;
 
@@ -660,13 +653,20 @@ class QuizSystem {
     const nextQuiz = this.generateQuiz(topic);
     if (!nextQuiz) return;
 
-    const separator = document.createElement('div');
-    separator.className = 'quiz-separator';
-    separator.innerHTML = '<div style="text-align: center; margin: 1.5rem 0;"><span style="color: #6c757d; font-size: 0.9rem;"><i class="fas fa-arrow-down"></i> Next Question</span></div>';
-    currentContainer.appendChild(separator);
+    const currentQuestion = currentContainer.querySelector('.quiz-question:last-child');
+    
+    // Fade out current question and slide up
+    currentQuestion.style.transition = 'all 0.5s ease-out';
+    currentQuestion.style.opacity = '0.7';
+    currentQuestion.style.transform = 'translateY(-20px)';
+    currentQuestion.style.marginBottom = '1rem';
 
+    // Create next question
     const nextQuestionDiv = document.createElement('div');
-    nextQuestionDiv.className = 'quiz-question';
+    nextQuestionDiv.className = 'quiz-question new-question';
+    nextQuestionDiv.style.opacity = '0';
+    nextQuestionDiv.style.transform = 'translateY(20px)';
+    nextQuestionDiv.style.transition = 'all 0.6s ease-out';
 
     let html = '';
     switch (nextQuiz.type) {
@@ -689,13 +689,35 @@ class QuizSystem {
 
     html += '<div class="quiz-feedback" style="display: none;"></div>';
     nextQuestionDiv.innerHTML = html;
-    currentContainer.appendChild(nextQuestionDiv);
+    
+    // Insert next question immediately after current one
+    currentQuestion.parentNode.insertBefore(nextQuestionDiv, currentQuestion.nextSibling);
 
     this.currentQuiz = nextQuiz;
 
+    // Animate in the new question
     setTimeout(() => {
-      currentContainer.scrollTop = currentContainer.scrollHeight;
-    }, 100);
+      nextQuestionDiv.style.opacity = '1';
+      nextQuestionDiv.style.transform = 'translateY(0)';
+      
+      // Hide all previous questions except the one that just finished
+      const allQuestions = currentContainer.querySelectorAll('.quiz-question');
+      for (let i = 0; i < allQuestions.length - 1; i++) {
+        if (allQuestions[i] !== currentQuestion) {
+          allQuestions[i].style.display = 'none';
+        }
+      }
+      
+      // Hide separators
+      const separators = currentContainer.querySelectorAll('.quiz-separator');
+      separators.forEach(sep => sep.style.display = 'none');
+      
+    }, 50);
+
+    // After animation, hide the previous question
+    setTimeout(() => {
+      currentQuestion.style.display = 'none';
+    }, 700);
   }
 
   getTopicFromQuizId(quizId) {
