@@ -629,6 +629,7 @@ class QuizSystem {
       type: 'listening',
       question: 'Listen to the Italian word and complete both parts:',
       audio: correct.italian,
+      correct: correct.italian, // Add this for compatibility
       correctItalian: correct.italian.toLowerCase(),
       correctEnglish: correct.english.toLowerCase(),
       explanation: 'You heard "' + correct.italian + '" which means "' + correct.english + '".',
@@ -710,6 +711,14 @@ class QuizSystem {
       const input = container.querySelector('input[autofocus]');
       if (input) {
         input.focus();
+      }
+      
+      // Also highlight first option for multiple choice
+      if (quiz.type === 'multipleChoice') {
+        const options = container.querySelectorAll('.quiz-option');
+        if (options.length > 0) {
+          options[0].classList.add('keyboard-highlight');
+        }
       }
     }, 100);
   }

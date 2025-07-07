@@ -2422,6 +2422,37 @@ footer {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.keyboard-hint {
+  background: #f8f9ff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+  font-weight: 500;
+}
+
+.quiz-option.keyboard-highlight {
+  border-color: #667eea !important;
+  background: #f0f4ff !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+}
+
+.option-key {
+  display: inline-block;
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-right: 0.5rem;
+  min-width: 1.2rem;
+  text-align: center;
+}
+
 .audio-input {
   display: block;
   margin: 1rem auto;
