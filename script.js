@@ -1403,23 +1403,40 @@ window.toggleQuiz = function(quizId) {
     quiz = document.createElement('div');
     quiz.id = quizId;
     quiz.className = 'quiz-block hidden';
+    quiz.style.cssText = 'display: block; margin: 1rem 0; padding: 1rem; border: 2px solid #e9ecef; border-radius: 8px; background: #f8f9ff; min-height: 200px;';
     
     // Find the quiz button that was clicked
-    const quizButton = document.querySelector(`[onclick*="${quizId}"], .quiz-btn`);
-    if (quizButton && quizButton.parentNode) {
+    const allQuizButtons = document.querySelectorAll('.quiz-btn, button[onclick*="toggleQuiz"]');
+    let targetButton = null;
+    
+    // Find the specific button that calls this quiz ID
+    allQuizButtons.forEach(btn => {
+      const onclick = btn.getAttribute('onclick') || '';
+      if (onclick.includes(quizId)) {
+        targetButton = btn;
+      }
+    });
+    
+    if (targetButton && targetButton.parentNode) {
       // Insert the quiz container after the button's parent element
-      quizButton.parentNode.insertAdjacentElement('afterend', quiz);
+      targetButton.parentNode.insertAdjacentElement('afterend', quiz);
     } else {
-      // Fallback: append to document body
-      document.body.appendChild(quiz);
+      // Fallback: find the section containing the button and append there
+      const section = document.querySelector('.lesson-section, .vocab-section, main, body');
+      if (section) {
+        section.appendChild(quiz);
+      }
     }
   }
 
   if (quiz.classList.contains('hidden')) {
     quiz.classList.remove('hidden');
     quiz.style.display = 'block';
+    quiz.style.visibility = 'visible';
+    quiz.style.opacity = '1';
 
     console.log('Starting quiz for:', quizId);
+    console.log('Quiz container created and visible:', quiz);
 
     const topic = quizSystem.getTopicFromQuizId(quizId);
     console.log('Topic:', topic);
@@ -1433,8 +1450,17 @@ window.toggleQuiz = function(quizId) {
     if (quizData) {
       console.log('Generated quiz:', quizData);
       quizSystem.renderQuiz(quizData, quizId);
+      
+      // Double-check visibility after rendering
+      setTimeout(() => {
+        quiz.style.display = 'block';
+        quiz.style.visibility = 'visible';
+        quiz.style.opacity = '1';
+        console.log('Quiz rendered and should be visible');
+      }, 100);
     } else {
       console.log('Failed to generate quiz for topic:', topic);
+      quiz.innerHTML = '<p style="color: red; font-weight: bold;">Error: Could not generate quiz. Please try again.</p>';
     }
   } else {
     quiz.classList.add('hidden');
