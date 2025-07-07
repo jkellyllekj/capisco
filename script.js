@@ -289,7 +289,8 @@ class QuizSystem {
         // Select and highlight the option
         const selectedOption = options[index];
         selectedOption.classList.add('selected', 'keyboard-highlight');
-        this.selectedAnswer = selectedOption.textContent;
+        // Extract just the Italian word, removing the key number prefix
+        this.selectedAnswer = selectedOption.textContent.replace(/^\d+\s+/, '').trim();
         
         // Auto-submit after short delay
         setTimeout(() => {
@@ -320,7 +321,8 @@ class QuizSystem {
       if (highlightedOption) {
         options.forEach(opt => opt.classList.remove('selected'));
         highlightedOption.classList.add('selected');
-        this.selectedAnswer = highlightedOption.textContent;
+        // Extract just the Italian word, removing the key number prefix
+        this.selectedAnswer = highlightedOption.textContent.replace(/^\d+\s+/, '').trim();
         
         setTimeout(() => {
           this.checkAnswer();
@@ -462,6 +464,23 @@ class QuizSystem {
 
   handleTypingKeyboard(event) {
     const key = event.key;
+    
+    // Space bar to play audio for listening questions
+    if (key === ' ' && !event.target.matches('input') && this.currentQuiz.type === 'listening') {
+      event.preventDefault();
+      const playBtn = document.querySelector('.play-audio-btn');
+      if (playBtn) {
+        playBtn.click();
+        // Auto-focus input after playing audio
+        setTimeout(() => {
+          const input = document.querySelector('.audio-input');
+          if (input) {
+            input.focus();
+          }
+        }, 100);
+      }
+      return;
+    }
     
     // Auto-focus input if it exists and user starts typing
     if (key.length === 1 && !event.target.matches('input')) {
@@ -751,9 +770,9 @@ class QuizSystem {
   }
 
   renderListeningContent(quiz) {
-    let html = '<div class="keyboard-hint">Type your answer and press Enter to submit</div>';
+    let html = '<div class="keyboard-hint">Press SPACE to play audio, then type your answer and press Enter to submit</div>';
     html += '<div class="audio-container">';
-    html += '<button class="play-audio-btn" onclick="quizSystem.playQuizAudio(\'' + quiz.audio + '\')"><i class="fas fa-play"></i> Play Audio</button>';
+    html += '<button class="play-audio-btn" onclick="quizSystem.playQuizAudio(\'' + quiz.audio + '\')"><i class="fas fa-play"></i> Play Audio (Space)</button>';
     
     if (quiz.part === 1) {
       html += '<div class="audio-part-info"><strong>Part 1:</strong> Type what you hear in Italian</div>';
@@ -823,7 +842,8 @@ class QuizSystem {
     options.forEach(opt => opt.classList.remove('selected'));
 
     button.classList.add('selected');
-    this.selectedAnswer = answer;
+    // Extract just the Italian word, removing the key number prefix
+    this.selectedAnswer = answer.replace(/^\d+\s+/, '').trim();
 
     setTimeout(() => {
       this.checkAnswer();
@@ -904,6 +924,13 @@ class QuizSystem {
 
   playQuizAudio(text) {
     playItalianAudio(text);
+    // Auto-focus input after audio starts playing
+    setTimeout(() => {
+      const input = document.querySelector('.audio-input');
+      if (input) {
+        input.focus();
+      }
+    }, 300);
   }
 
   handleTypingInput(event) {
