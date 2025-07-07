@@ -370,7 +370,7 @@ class QuizSystem {
     if (!container || !quiz) return;
 
     let html = '<div class="quiz-question">';
-    
+
     // Always put question at the top for non-drag-drop types
     if (quiz.type !== 'dragDrop') {
       html += '<div class="quiz-question-header">';
@@ -597,7 +597,7 @@ class QuizSystem {
   checkTyping() {
     const input = document.querySelector('.quiz-input');
     if (!input || !this.currentQuiz) return;
-    
+
     const userAnswer = input.value.trim();
     const correctAnswer = this.currentQuiz.correct.trim();
 
@@ -695,18 +695,26 @@ class QuizSystem {
   showFeedback(isCorrect, explanation) {
     const currentQuestion = document.querySelector('.quiz-question:last-child');
     if (!currentQuestion) return;
-    
+
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     if (!feedback) return;
 
     // Mark question as answered
     currentQuestion.classList.add('answered');
 
-    // Disable all interactive elements
-    currentQuestion.querySelectorAll('button, input, .match-item, .draggable-letter').forEach(el => {
+    // Disable all interactive elements more carefully
+    currentQuestion.querySelectorAll('button:not(.quiz-check), input, .match-item, .draggable-letter').forEach(el => {
       el.disabled = true;
       el.style.pointerEvents = 'none';
     });
+
+    // Disable check button separately after a short delay
+    setTimeout(() => {
+      currentQuestion.querySelectorAll('.quiz-check').forEach(el => {
+        el.disabled = true;
+        el.style.pointerEvents = 'none';
+      });
+    }, 100);
 
     if (isCorrect) {
       feedback.innerHTML = '<div class="correct-feedback"><i class="fas fa-check"></i> Correct! ' + explanation + '</div>';
@@ -749,21 +757,29 @@ class QuizSystem {
   showSkippedFeedback(explanation) {
     const currentQuestion = document.querySelector('.quiz-question:last-child');
     if (!currentQuestion) return;
-    
+
     const feedback = currentQuestion.querySelector('.quiz-feedback');
     if (!feedback) return;
 
     // Mark question as answered
     currentQuestion.classList.add('answered');
 
-    // Disable all interactive elements
-    currentQuestion.querySelectorAll('button, input, .match-item, .draggable-letter').forEach(el => {
+    // Disable all interactive elements more carefully
+    currentQuestion.querySelectorAll('button:not(.quiz-check), input, .match-item, .draggable-letter').forEach(el => {
       el.disabled = true;
       el.style.pointerEvents = 'none';
     });
 
+    // Disable check button separately after a short delay
+    setTimeout(() => {
+      currentQuestion.querySelectorAll('.quiz-check').forEach(el => {
+        el.disabled = true;
+        el.style.pointerEvents = 'none';
+      });
+    }, 100);
+
     feedback.innerHTML = '<div class="skipped-feedback"><i class="fas fa-forward"></i> ' + explanation + '</div>';
-    
+
     // Don't increment total questions for skipped items
     feedback.style.display = 'block';
     feedback.setAttribute('data-persistent', 'true');
