@@ -1,4 +1,3 @@
-
 // Initialize interactive vocab elements
 function initializeVocabInteractions() {
   // Initialize info buttons
@@ -238,19 +237,19 @@ class QuizSystem {
     }
 
     const vocab = data.vocabulary;
-    
+
     // Reset used questions if we've used them all
     if (this.usedQuestions.size >= vocab.length * this.questionTypes.length) {
       this.usedQuestions.clear();
     }
-    
+
     let attempts = 0;
     let quiz = null;
-    
+
     // Try to generate a unique question
     while (attempts < 50) {
       const questionType = this.questionTypes[Math.floor(Math.random() * this.questionTypes.length)];
-      
+
       switch (questionType) {
         case 'multipleChoice':
           quiz = this.generateMultipleChoice(vocab);
@@ -270,7 +269,7 @@ class QuizSystem {
         default:
           quiz = this.generateMultipleChoice(vocab);
       }
-      
+
       if (quiz) {
         const questionKey = `${questionType}-${quiz.vocab ? quiz.vocab.italian : 'matching'}`;
         if (!this.usedQuestions.has(questionKey)) {
@@ -278,10 +277,10 @@ class QuizSystem {
           return quiz;
         }
       }
-      
+
       attempts++;
     }
-    
+
     // If we can't find a unique question, just return any question
     return this.generateMultipleChoice(vocab);
   }
@@ -315,7 +314,7 @@ class QuizSystem {
   generateMatching(vocab) {
     const pairs = vocab.slice(0, Math.min(4, vocab.length));
     const shuffledEnglish = [...pairs.map(p => p.english)].sort(() => Math.random() - 0.5);
-    
+
     return {
       type: 'matching',
       question: 'Match the Italian words with their English translations',
@@ -328,7 +327,7 @@ class QuizSystem {
 
   generateListening(vocab) {
     const correct = vocab[Math.floor(Math.random() * vocab.length)];
-    
+
     return {
       type: 'listening',
       question: 'Listen to the Italian word and type what you hear:',
@@ -341,7 +340,7 @@ class QuizSystem {
 
   generateTyping(vocab) {
     const correct = vocab[Math.floor(Math.random() * vocab.length)];
-    
+
     return {
       type: 'typing',
       question: 'Type the Italian word for "' + correct.english + '":',
@@ -354,7 +353,7 @@ class QuizSystem {
   generateDragDrop(vocab) {
     const correct = vocab[Math.floor(Math.random() * vocab.length)];
     const letters = correct.italian.split('').sort(() => Math.random() - 0.5);
-    
+
     return {
       type: 'dragDrop',
       question: 'Drag the letters to spell the Italian word for "' + correct.english + '":',
@@ -371,7 +370,7 @@ class QuizSystem {
     if (!container || !quiz) return;
 
     let html = '<div class="quiz-question">';
-    
+
     switch (quiz.type) {
       case 'multipleChoice':
         html += this.renderMultipleChoice(quiz);
@@ -443,20 +442,22 @@ class QuizSystem {
   }
 
   renderDragDrop(quiz) {
+    let quizId = quiz.vocab.italian; // Use Italian word as unique ID
+
     let html = '<h4>' + quiz.question + '</h4>';
-    html += '<div class="drop-zone" ondrop="quizSystem.dropLetter(event)" ondragover="quizSystem.allowDrop(event)">';
-    html += '<div class="current-word" id="currentWord"></div>';
+    html += '<div class="drag-drop-container">';
+    html += '<div class="drop-zone">';
+    html += '<div class="current-word" id="current-word-' + quizId + '"></div>';
     html += '</div>';
     html += '<div class="letter-bank">';
     quiz.letters.forEach((letter, index) => {
-      html += '<span class="draggable-letter" draggable="true" data-letter="' + letter + '" onclick="quizSystem.addLetter(\'' + letter + '\', this)">' + letter + '</span>';
+      html += '<span class="draggable-letter" data-letter="' + letter + '" onclick="addLetter(\'' + quizId + '\', \'' + letter + '\', this)">' + letter.toUpperCase() + '</span>';
     });
     html += '</div>';
-    html += '<div style="margin: 1rem 0; text-align: center; color: #666;">Or type your answer:</div>';
-    html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type your answer..." onkeyup="quizSystem.handleDragDropTyping(event)" style="margin: 0.5rem 0;">';
-    html += '<div class="drag-drop-controls">';
-    html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()" style="margin-top: 1rem;">Check Answer</button>';
-    html += '<button class="clear-word" onclick="quizSystem.clearWord()" style="margin-top: 0.5rem; margin-left: 0.5rem;">Clear</button>';
+    html += '<p>Or type your answer:</p>';
+    html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type here...">';
+    html += '<button class="quiz-check" onclick="window.quizManager.checkDragDrop()">Check Answer</button>';
+    html += '<button class="clear-word" onclick="clearWord(\'' + quizId + '\')">Clear</button>';
     html += '</div>';
     return html;
   }
@@ -478,33 +479,33 @@ class QuizSystem {
   selectMatchItem(item) {
     // Don't allow interaction if already matched
     if (item.classList.contains('matched')) return;
-    
+
     const container = item.parentNode.parentNode;
     const selectedItems = container.querySelectorAll('.match-item.selected');
-    
+
     if (item.classList.contains('selected')) {
       item.classList.remove('selected');
       return;
     }
-    
+
     // If we already have 2 selected items, clear them first
     if (selectedItems.length >= 2) {
       selectedItems.forEach(si => si.classList.remove('selected'));
     }
-    
+
     item.classList.add('selected');
-    
+
     const newSelected = container.querySelectorAll('.match-item.selected');
     if (newSelected.length === 2) {
       const italian = newSelected[0].classList.contains('italian-item') ? newSelected[0] : newSelected[1];
       const english = newSelected[0].classList.contains('english-item') ? newSelected[0] : newSelected[1];
-      
+
       if (italian && english && italian !== english) {
         // Check if this is a correct match
         const isCorrectMatch = this.currentQuiz.pairs.some(pair => 
           pair.italian === italian.dataset.italian && pair.english === english.dataset.english
         );
-        
+
         if (isCorrectMatch) {
           // Correct match - mark as matched with green
           italian.classList.add('matched');
@@ -514,13 +515,13 @@ class QuizSystem {
           // Incorrect match - flash red and clear selection
           italian.classList.add('incorrect-match');
           english.classList.add('incorrect-match');
-          
+
           setTimeout(() => {
             italian.classList.remove('incorrect-match');
             english.classList.remove('incorrect-match');
           }, 1000);
         }
-        
+
         newSelected.forEach(item => item.classList.remove('selected'));
       }
     }
@@ -530,7 +531,7 @@ class QuizSystem {
     const pairs = this.currentQuiz.pairs;
     let correct = 0;
     let detailedFeedback = '';
-    
+
     pairs.forEach(pair => {
       if (this.selectedMatches.get(pair.italian) === pair.english) {
         correct++;
@@ -538,12 +539,12 @@ class QuizSystem {
         detailedFeedback += `"${pair.italian}" means "${pair.english}". `;
       }
     });
-    
+
     const isCorrect = correct === pairs.length;
     const explanation = isCorrect ? 
       'Perfect matching! You got all the translations correct.' : 
       `You matched ${correct} out of ${pairs.length} correctly. ${detailedFeedback}`;
-    
+
     this.showFeedback(isCorrect, explanation);
   }
 
@@ -561,38 +562,38 @@ class QuizSystem {
     const input = document.querySelector('.quiz-input');
     const userAnswer = input.value.toLowerCase().trim();
     const correctAnswer = this.currentQuiz.correct.toLowerCase().trim();
-    
+
     // For listening questions, be more flexible with accents and case
     const normalizedUser = userAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const normalizedCorrect = correctAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    
+
     // Also check for common variations and remove extra spaces
     const cleanUser = normalizedUser.replace(/\s+/g, ' ').trim();
     const cleanCorrect = normalizedCorrect.replace(/\s+/g, ' ').trim();
-    
+
     // Check multiple variations for matching
     const isCorrect = userAnswer === correctAnswer || 
                      normalizedUser === normalizedCorrect ||
                      cleanUser === cleanCorrect ||
                      userAnswer === this.currentQuiz.correct.toLowerCase() ||
                      normalizedUser === this.currentQuiz.correct.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    
+
     this.selectedAnswer = userAnswer;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
   }
 
   addLetter(letter, element) {
     if (element.style.visibility === 'hidden') return;
-    
+
     const currentWordDiv = document.getElementById('currentWord');
     const letterSpan = document.createElement('span');
     letterSpan.textContent = letter;
     letterSpan.className = 'word-letter';
     letterSpan.onclick = () => this.removeLetter(letterSpan, letter, element);
-    
+
     currentWordDiv.appendChild(letterSpan);
     this.currentQuiz.currentWord.push(letter);
-    
+
     element.style.visibility = 'hidden';
   }
 
@@ -622,21 +623,21 @@ class QuizSystem {
   checkDragDrop() {
     const typedInput = document.querySelector('.drag-type-input');
     let userWord = '';
-    
+
     // Check if user typed or used drag-drop
     if (typedInput && typedInput.value.trim()) {
       userWord = typedInput.value.toLowerCase().trim();
     } else {
       userWord = this.currentQuiz.currentWord.join('').toLowerCase();
     }
-    
+
     if (!userWord) {
       alert('Please provide an answer using either the letters or the text input.');
       return;
     }
-    
+
     const isCorrect = userWord === this.currentQuiz.correct.toLowerCase();
-    
+
     this.selectedAnswer = userWord;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
   }
@@ -651,10 +652,10 @@ class QuizSystem {
   showFeedback(isCorrect, explanation) {
     const currentQuestion = document.querySelector('.quiz-question:last-child');
     const feedback = currentQuestion.querySelector('.quiz-feedback');
-    
+
     // Mark question as answered
     currentQuestion.classList.add('answered');
-    
+
     // Disable all interactive elements
     currentQuestion.querySelectorAll('button, input, .match-item, .draggable-letter').forEach(el => {
       el.disabled = true;
@@ -710,7 +711,7 @@ class QuizSystem {
     if (!nextQuiz) return;
 
     const allQuestions = currentContainer.querySelectorAll('.quiz-question');
-    
+
     // Step 1: Remove the oldest question (previously answered) with smooth fade out
     if (allQuestions.length > 1) {
       const oldestQuestion = allQuestions[0];
@@ -719,15 +720,15 @@ class QuizSystem {
       oldestQuestion.style.opacity = '0';
       oldestQuestion.style.transform = 'translateY(-20px)';
       oldestQuestion.style.marginBottom = '0';
-      
+
       setTimeout(() => {
         oldestQuestion.style.height = '0';
         oldestQuestion.style.padding = '0';
         oldestQuestion.style.margin = '0';
-        
+
         setTimeout(() => {
           oldestQuestion.remove();
-          
+
           // Remove corresponding separator
           const separators = currentContainer.querySelectorAll('.quiz-separator');
           if (separators.length > 0) {
@@ -739,7 +740,7 @@ class QuizSystem {
 
     // Step 2: Get the current (most recent) answered question
     const currentQuestion = allQuestions[allQuestions.length - 1];
-    
+
     // Step 3: Smoothly compact and slide up the current answered question
     setTimeout(() => {
       currentQuestion.style.transition = 'all 0.6s ease-out';
@@ -755,16 +756,16 @@ class QuizSystem {
     separator.innerHTML = '<div style="text-align: center; margin: 0.3rem 0; color: #ccc; font-size: 0.8rem;">• • •</div>';
     separator.style.opacity = '0';
     separator.style.transition = 'opacity 0.4s ease-out';
-    
+
     // Step 5: Create new question with fixed height to prevent jumping
     const nextQuestionDiv = document.createElement('div');
     nextQuestionDiv.className = 'quiz-question new-question';
-    
+
     // Set up initial state - invisible but reserve space
     nextQuestionDiv.style.opacity = '0';
     nextQuestionDiv.style.transform = 'translateY(30px)';
     nextQuestionDiv.style.transition = 'all 0.7s ease-out';
-    
+
     // Generate the HTML content
     let html = '';
     switch (nextQuiz.type) {
@@ -787,7 +788,7 @@ class QuizSystem {
 
     html += '<div class="quiz-feedback" style="display: none;"></div>';
     nextQuestionDiv.innerHTML = html;
-    
+
     // Step 6: Insert elements into DOM
     currentQuestion.parentNode.insertBefore(separator, currentQuestion.nextSibling);
     separator.parentNode.insertBefore(nextQuestionDiv, separator.nextSibling);
@@ -802,11 +803,11 @@ class QuizSystem {
     setTimeout(() => {
       nextQuestionDiv.style.opacity = '1';
       nextQuestionDiv.style.transform = 'translateY(0)';
-      
+
       // Gentle scroll adjustment only if needed
       const containerRect = currentContainer.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      
+
       // Only scroll if the container is mostly out of view
       if (containerRect.bottom > viewportHeight + 50) {
         // Use a gentle scroll that doesn't jump
@@ -828,7 +829,7 @@ class QuizSystem {
       'quiz4': 'extraVocabulary', // Extra vocabulary
       'quiz5': 'grammar'       // Grammar quiz
     };
-    
+
     return quizIdToTopic[quizId] || 'vocabulary';
   }
 }
@@ -889,14 +890,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get the original onclick value to extract quiz ID
     const onclickValue = btn.getAttribute('onclick');
     let quizId = null;
-    
+
     if (onclickValue) {
       const match = onclickValue.match(/toggleQuiz\('([^']+)'\)/);
       if (match) {
         quizId = match[1];
       }
     }
-    
+
     // If no quiz ID found, generate one based on index
     if (!quizId) {
       quizId = 'quiz' + index;
