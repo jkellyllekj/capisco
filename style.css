@@ -2281,10 +2281,46 @@ footer {
   margin: 1rem auto;
 }
 
+.audio-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.skip-audio-btn {
+  background: linear-gradient(135deg, #6c757d, #495057);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.skip-audio-btn:hover {
+  background: linear-gradient(135deg, #495057, #343a40);
+  transform: translateY(-1px);
+}
+
 /* Drag and Drop Quiz Styles */
 .drag-drop-container {
   text-align: center;
   padding: 1rem;
+}
+
+.drag-drop-input-section {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.drag-drop-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
 .letter-bank {

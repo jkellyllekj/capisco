@@ -429,7 +429,10 @@ class QuizSystem {
     html += '<div class="audio-container">';
     html += '<button class="play-audio-btn" onclick="quizSystem.playQuizAudio(\'' + quiz.audio + '\')"><i class="fas fa-play"></i> Play Audio</button>';
     html += '<input type="text" class="quiz-input audio-input" placeholder="Type what you hear..." onkeyup="quizSystem.handleTypingInput(event)">';
-    html += '<button class="quiz-check" onclick="quizSystem.checkTyping()" style="margin-top: 1rem;">Check Answer</button>';
+    html += '<div class="audio-controls">';
+    html += '<button class="quiz-check" onclick="quizSystem.checkTyping()">Check Answer</button>';
+    html += '<button class="skip-audio-btn" onclick="quizSystem.skipAudioQuestion()">Skip (Can\'t hear audio)</button>';
+    html += '</div>';
     html += '</div>';
     return html;
   }
@@ -454,10 +457,14 @@ class QuizSystem {
       html += '<span class="draggable-letter" data-letter="' + letter + '" onclick="quizSystem.addLetter(\'' + letter + '\', this, \'' + quizId + '\')">' + letter.toUpperCase() + '</span>';
     });
     html += '</div>';
+    html += '<div class="drag-drop-input-section">';
     html += '<p>Or type your answer:</p>';
     html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type here..." onkeyup="quizSystem.handleDragDropTyping(event)">';
+    html += '<div class="drag-drop-buttons">';
     html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()">Check Answer</button>';
     html += '<button class="clear-word" onclick="quizSystem.clearWord(\'' + quizId + '\')">Clear</button>';
+    html += '</div>';
+    html += '</div>';
     html += '</div>';
     return html;
   }
@@ -560,30 +567,28 @@ class QuizSystem {
 
   checkTyping() {
     const input = document.querySelector('.quiz-input');
-    const userAnswer = input.value.toLowerCase().trim();
-    const correctAnswer = this.currentQuiz.correct.toLowerCase().trim();
+    const userAnswer = input.value.trim();
+    const correctAnswer = this.currentQuiz.correct.trim();
 
     console.log('User answer:', `"${userAnswer}"`);
     console.log('Correct answer:', `"${correctAnswer}"`);
     console.log('Quiz vocab:', this.currentQuiz.vocab);
 
-    // For listening questions, be more flexible with accents and case
-    const normalizedUser = userAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const normalizedCorrect = correctAnswer.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
-    // Also check for common variations and remove extra spaces
-    const cleanUser = normalizedUser.replace(/\s+/g, ' ').trim();
-    const cleanCorrect = normalizedCorrect.replace(/\s+/g, ' ').trim();
-
-    // Check multiple variations for matching - simplified logic
-    const isCorrect = userAnswer === correctAnswer || 
-                     normalizedUser === normalizedCorrect ||
-                     cleanUser === cleanCorrect;
+    // Simple direct comparison - case insensitive
+    const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase();
 
     console.log('Is correct:', isCorrect);
 
     this.selectedAnswer = userAnswer;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
+  }
+
+  skipAudioQuestion() {
+    if (this.currentQuiz && this.currentQuiz.type === 'listening') {
+      const explanation = 'Audio question skipped. The answer was "' + this.currentQuiz.correct + '" which means "' + this.currentQuiz.vocab.english + '".';
+      this.selectedAnswer = 'skipped';
+      this.showFeedback(false, explanation);
+    }
   }
 
   addLetter(letter, element, quizId) {
