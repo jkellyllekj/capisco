@@ -613,7 +613,11 @@ class QuizSystem {
   handleTypingInput(event) {
     if (event.key === 'Enter') {
       event.preventDefault();
-      this.checkTyping();
+      event.stopPropagation();
+      // Small delay to ensure any autocomplete is settled
+      setTimeout(() => {
+        this.checkTyping();
+      }, 50);
     }
   }
 
@@ -621,24 +625,23 @@ class QuizSystem {
     const input = document.querySelector('.quiz-input');
     if (!input || !this.currentQuiz) return;
 
-    const userAnswer = input.value.trim();
-    const correctAnswer = this.currentQuiz.correct.trim();
+    // Get the actual current value from the input
+    const userAnswer = input.value;
+    const correctAnswer = this.currentQuiz.correct;
 
-    console.log('User answer:', `"${userAnswer}"`);
-    console.log('Correct answer:', `"${correctAnswer}"`);
-    console.log('User answer length:', userAnswer.length);
-    console.log('Correct answer length:', correctAnswer.length);
+    console.log('Raw user answer:', `"${userAnswer}"`);
+    console.log('Raw correct answer:', `"${correctAnswer}"`);
 
-    // Clean both answers - remove any hidden characters and normalize
-    const cleanUserAnswer = userAnswer.toLowerCase().replace(/\s+/g, ' ').trim();
-    const cleanCorrectAnswer = correctAnswer.toLowerCase().replace(/\s+/g, ' ').trim();
+    // Simple normalization - just trim and lowercase
+    const normalizedUser = userAnswer.trim().toLowerCase();
+    const normalizedCorrect = correctAnswer.trim().toLowerCase();
 
-    console.log('Clean user answer:', `"${cleanUserAnswer}"`);
-    console.log('Clean correct answer:', `"${cleanCorrectAnswer}"`);
+    console.log('Normalized user:', `"${normalizedUser}"`);
+    console.log('Normalized correct:', `"${normalizedCorrect}"`);
 
-    const isCorrect = cleanUserAnswer === cleanCorrectAnswer;
+    const isCorrect = normalizedUser === normalizedCorrect;
 
-    console.log('Is correct:', isCorrect);
+    console.log('Validation result:', isCorrect);
 
     this.selectedAnswer = userAnswer;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
@@ -691,7 +694,10 @@ class QuizSystem {
   handleDragDropTyping(event) {
     if (event.key === 'Enter') {
       event.preventDefault();
-      this.checkDragDrop();
+      event.stopPropagation();
+      setTimeout(() => {
+        this.checkDragDrop();
+      }, 50);
     }
   }
 
@@ -711,14 +717,14 @@ class QuizSystem {
       return;
     }
 
-    // Clean both answers for comparison
-    const cleanUserAnswer = userWord.toLowerCase().replace(/\s+/g, ' ').trim();
-    const cleanCorrectAnswer = this.currentQuiz.correct.toLowerCase().replace(/\s+/g, ' ').trim();
+    // Simple normalization - just trim and lowercase
+    const normalizedUser = userWord.trim().toLowerCase();
+    const normalizedCorrect = this.currentQuiz.correct.trim().toLowerCase();
 
-    console.log('Drag-drop user answer:', `"${cleanUserAnswer}"`);
-    console.log('Drag-drop correct answer:', `"${cleanCorrectAnswer}"`);
+    console.log('Drag-drop user answer:', `"${normalizedUser}"`);
+    console.log('Drag-drop correct answer:', `"${normalizedCorrect}"`);
 
-    const isCorrect = cleanUserAnswer === cleanCorrectAnswer;
+    const isCorrect = normalizedUser === normalizedCorrect;
 
     this.selectedAnswer = userWord;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
