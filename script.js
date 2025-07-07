@@ -612,6 +612,7 @@ class QuizSystem {
 
   handleTypingInput(event) {
     if (event.key === 'Enter') {
+      event.preventDefault();
       this.checkTyping();
     }
   }
@@ -625,9 +626,17 @@ class QuizSystem {
 
     console.log('User answer:', `"${userAnswer}"`);
     console.log('Correct answer:', `"${correctAnswer}"`);
+    console.log('User answer length:', userAnswer.length);
+    console.log('Correct answer length:', correctAnswer.length);
 
-    // Simple direct comparison - case insensitive
-    const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase();
+    // Clean both answers - remove any hidden characters and normalize
+    const cleanUserAnswer = userAnswer.toLowerCase().replace(/\s+/g, ' ').trim();
+    const cleanCorrectAnswer = correctAnswer.toLowerCase().replace(/\s+/g, ' ').trim();
+
+    console.log('Clean user answer:', `"${cleanUserAnswer}"`);
+    console.log('Clean correct answer:', `"${cleanCorrectAnswer}"`);
+
+    const isCorrect = cleanUserAnswer === cleanCorrectAnswer;
 
     console.log('Is correct:', isCorrect);
 
@@ -681,6 +690,7 @@ class QuizSystem {
 
   handleDragDropTyping(event) {
     if (event.key === 'Enter') {
+      event.preventDefault();
       this.checkDragDrop();
     }
   }
@@ -691,9 +701,9 @@ class QuizSystem {
 
     // Check if user typed or used drag-drop
     if (typedInput && typedInput.value.trim()) {
-      userWord = typedInput.value.toLowerCase().trim();
+      userWord = typedInput.value.trim();
     } else {
-      userWord = this.currentQuiz.currentWord.join('').toLowerCase();
+      userWord = this.currentQuiz.currentWord.join('');
     }
 
     if (!userWord) {
@@ -701,7 +711,14 @@ class QuizSystem {
       return;
     }
 
-    const isCorrect = userWord === this.currentQuiz.correct.toLowerCase();
+    // Clean both answers for comparison
+    const cleanUserAnswer = userWord.toLowerCase().replace(/\s+/g, ' ').trim();
+    const cleanCorrectAnswer = this.currentQuiz.correct.toLowerCase().replace(/\s+/g, ' ').trim();
+
+    console.log('Drag-drop user answer:', `"${cleanUserAnswer}"`);
+    console.log('Drag-drop correct answer:', `"${cleanCorrectAnswer}"`);
+
+    const isCorrect = cleanUserAnswer === cleanCorrectAnswer;
 
     this.selectedAnswer = userWord;
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
