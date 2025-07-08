@@ -240,7 +240,7 @@ class QuizSystem {
 
     // Add global keyboard listener
     document.addEventListener('keydown', this.handleKeyboardNavigation.bind(this));
-    
+
     // Add separate global space bar listener for audio playback
     document.addEventListener('keydown', this.handleGlobalSpaceBar.bind(this));
   }
@@ -253,7 +253,7 @@ class QuizSystem {
         const input = event.target;
         const cursorPos = input.selectionStart;
         const inputValue = input.value;
-        
+
         // Only play audio if input is empty or cursor is at very beginning
         if (inputValue.length === 0 || cursorPos === 0) {
           event.preventDefault();
@@ -497,7 +497,7 @@ class QuizSystem {
         const input = event.target;
         const cursorPos = input.selectionStart;
         const inputValue = input.value;
-        
+
         // Play audio if input is empty or cursor is at beginning and first char would be space
         if (inputValue.length === 0 || (cursorPos === 0 && inputValue[0] !== ' ')) {
           event.preventDefault();
@@ -871,7 +871,8 @@ class QuizSystem {
     html += '<div class="current-word" id="current-word-' + quizId + '"></div>';
     html += '</div>';
     html += '<div class="letter-bank">';
-    quiz.letters.forEach((letter, index) => {
+```text
+quiz.letters.forEach((letter, index) => {
       html += '<span class="draggable-letter" data-letter="' + letter + '" onclick="quizSystem.addLetter(\'' + letter + '\', this, \'' + quizId + '\')">' + letter.toUpperCase() + '</span>';
     });
     html += '</div>';
@@ -894,7 +895,7 @@ class QuizSystem {
     options.forEach(opt => opt.classList.remove('selected'));
 
     button.classList.add('selected');
-    
+
     // Store the clean answer without any formatting
     this.selectedAnswer = answer;
 
@@ -1219,6 +1220,10 @@ class QuizSystem {
   }
 
   showFeedback(isCorrect, explanation) {
+    console.log('=== SHOWING FEEDBACK ===');
+    console.log('Is correct:', isCorrect);
+    console.log('Explanation:', explanation);
+
     const currentQuestion = document.querySelector('.quiz-question:last-child');
     if (!currentQuestion) {
       console.log('No current question found for feedback');
@@ -1627,3 +1632,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
   console.log('Initialization complete');
 });
+
+showFeedback(isCorrect, explanation) {
+    console.log('=== SHOWING FEEDBACK ===');
+    console.log('Is correct:', isCorrect);
+    console.log('Explanation:', explanation);
+
+    const container = document.getElementById(this.currentQuizId);
+    if (!container) return;
+
+    const feedbackDiv = container.querySelector('.quiz-feedback');
+    if (!feedbackDiv) return;
+
+    // Create next button for manual control
+    const nextButtonHtml = isCorrect ? 
+      '<button class="quiz-check secondary" onclick="quizSystem.nextQuestion()" style="margin-top: 1rem;"><i class="fas fa-arrow-right"></i> Next Question</button>' :
+      '<button class="quiz-check secondary" onclick="quizSystem.nextQuestion()" style="margin-top: 1rem;"><i class="fas fa-redo"></i> Try Again</button>';
+
+    feedbackDiv.innerHTML = `
+      <div class="feedback-content ${isCorrect ? 'correct' : 'incorrect'}">
+        <div class="feedback-icon">
+          <i class="fas ${isCorrect ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+        </div>
+        <div class="feedback-text">
+          <strong>${isCorrect ? 'Corretto!' : 'Non corretto'}</strong>
+          <p>${explanation}</p>
+        </div>
+        ${nextButtonHtml}
+      </div>
+    `;
+
+    feedbackDiv.style.display = 'block';
+
+    // Update score only for correct answers
+    if (isCorrect) {
+      this.score++;
+      this.totalQuestions++;
+
+      // Auto-advance only on correct answers after longer delay
+      setTimeout(() => {
+        this.nextQuestion();
+      }, 3500);
+    } else {
+      // For incorrect answers, let user manually advance
+      // Clear the input for retry
+      const input = container.querySelector('.quiz-input, .audio-input');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+    }
+  }
