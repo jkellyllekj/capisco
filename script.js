@@ -885,14 +885,21 @@ class QuizSystem {
   }
 
   selectOption(answer, button) {
-    if (button.disabled) return;
+    if (button.disabled || button.style.pointerEvents === 'none') return;
 
     const options = button.parentNode.querySelectorAll('.quiz-option');
     options.forEach(opt => opt.classList.remove('selected'));
 
     button.classList.add('selected');
-    // Store the clean answer without any prefix
+    
+    // Store the clean answer without any formatting
     this.selectedAnswer = answer;
+
+    console.log('=== OPTION SELECTED DEBUG ===');
+    console.log('Selected answer:', JSON.stringify(this.selectedAnswer));
+    console.log('Current quiz correct:', JSON.stringify(this.currentQuiz.correct));
+    console.log('Button text:', button.textContent);
+    console.log('=== END OPTION SELECT DEBUG ===');
 
     setTimeout(() => {
       this.checkAnswer();
@@ -1173,35 +1180,54 @@ class QuizSystem {
   }
 
   checkAnswer() {
-    if (!this.selectedAnswer || !this.currentQuiz) return;
+    if (!this.currentQuiz) {
+      console.log('No current quiz found');
+      return;
+    }
+
+    if (!this.selectedAnswer) {
+      console.log('No answer selected');
+      return;
+    }
+
+    console.log('=== CHECKING ANSWER DEBUG ===');
+    console.log('Selected answer:', JSON.stringify(this.selectedAnswer));
+    console.log('Correct answer:', JSON.stringify(this.currentQuiz.correct));
+    console.log('Quiz type:', this.currentQuiz.type);
 
     const isCorrect = this.selectedAnswer === this.currentQuiz.correct;
+    console.log('Is correct:', isCorrect);
+    console.log('=== END CHECK ANSWER DEBUG ===');
+
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
   }
 
   showFeedback(isCorrect, explanation) {
     const currentQuestion = document.querySelector('.quiz-question:last-child');
-    if (!currentQuestion) return;
+    if (!currentQuestion) {
+      console.log('No current question found for feedback');
+      return;
+    }
 
     const feedback = currentQuestion.querySelector('.quiz-feedback');
-    if (!feedback) return;
+    if (!feedback) {
+      console.log('No feedback element found');
+      return;
+    }
+
+    console.log('=== SHOWING FEEDBACK ===');
+    console.log('Is correct:', isCorrect);
+    console.log('Explanation:', explanation);
 
     // Mark question as answered
     currentQuestion.classList.add('answered');
 
-    // Disable all interactive elements more carefully
-    currentQuestion.querySelectorAll('button:not(.quiz-check), input, .match-item, .draggable-letter').forEach(el => {
+    // Disable all interactive elements immediately and comprehensively
+    currentQuestion.querySelectorAll('button, input, .match-item, .draggable-letter, .quiz-option').forEach(el => {
       el.disabled = true;
       el.style.pointerEvents = 'none';
+      el.style.opacity = '0.7';
     });
-
-    // Disable check button separately after a short delay
-    setTimeout(() => {
-      currentQuestion.querySelectorAll('.quiz-check').forEach(el => {
-        el.disabled = true;
-        el.style.pointerEvents = 'none';
-      });
-    }, 100);
 
     if (isCorrect) {
       feedback.innerHTML = '<div class="correct-feedback"><i class="fas fa-check"></i> Correct! ' + explanation + '</div>';
@@ -1290,13 +1316,26 @@ class QuizSystem {
 
   transitionToNextQuestion() {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
-    if (!currentContainer) return;
+    if (!currentContainer) {
+      console.log('No current container found for transition');
+      return;
+    }
 
     const containerId = currentContainer.id;
     const topic = this.getTopicFromQuizId(containerId);
 
+    console.log('=== TRANSITION TO NEXT QUESTION ===');
+    console.log('Container ID:', containerId);
+    console.log('Topic:', topic);
+
     const nextQuiz = this.generateQuiz(topic);
-    if (!nextQuiz) return;
+    if (!nextQuiz) {
+      console.log('Failed to generate next quiz');
+      return;
+    }
+
+    console.log('Generated next quiz:', nextQuiz.type);
+    console.log('=== END TRANSITION DEBUG ===');
 
     const allQuestions = currentContainer.querySelectorAll('.quiz-question');
 
