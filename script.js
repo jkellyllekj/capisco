@@ -248,35 +248,38 @@ class QuizSystem {
   handleGlobalSpaceBar(event) {
     // Only handle space bar for listening questions
     if (event.key === ' ' && this.currentQuiz && this.currentQuiz.type === 'listening') {
-      // Check if we're typing in the middle of a word
+      // Check if we're in an input field
       if (event.target.matches('input')) {
         const input = event.target;
         const cursorPos = input.selectionStart;
         const inputValue = input.value;
         
-        // Don't interfere if user is typing in middle of word
-        if (inputValue.length > 0 && cursorPos > 0 && cursorPos < inputValue.length) {
-          return; // Let normal space typing happen
-        }
-        
-        // Don't interfere if there's already text and cursor is at end
-        if (inputValue.length > 0 && cursorPos === inputValue.length) {
-          return; // Let normal space typing happen
-        }
-      }
-      
-      // Play audio
-      event.preventDefault();
-      const playBtn = document.querySelector('.play-audio-btn');
-      if (playBtn) {
-        playBtn.click();
-        // Re-focus input after audio
-        setTimeout(() => {
-          const input = document.querySelector('.audio-input');
-          if (input) {
-            input.focus();
+        // Only play audio if input is empty or cursor is at very beginning
+        if (inputValue.length === 0 || cursorPos === 0) {
+          event.preventDefault();
+          const playBtn = document.querySelector('.play-audio-btn');
+          if (playBtn) {
+            playBtn.click();
+            // Re-focus input after audio
+            setTimeout(() => {
+              input.focus();
+            }, 100);
           }
-        }, 100);
+        }
+        // Otherwise, let normal space typing happen
+      } else {
+        // Not in input field, play audio and focus input
+        event.preventDefault();
+        const playBtn = document.querySelector('.play-audio-btn');
+        if (playBtn) {
+          playBtn.click();
+          setTimeout(() => {
+            const input = document.querySelector('.audio-input');
+            if (input) {
+              input.focus();
+            }
+          }, 100);
+        }
       }
     }
   }
@@ -1190,6 +1193,14 @@ class QuizSystem {
       return;
     }
 
+    // Prevent multiple submissions
+    if (this.isChecking) {
+      console.log('Already checking answer, ignoring...');
+      return;
+    }
+
+    this.isChecking = true;
+
     console.log('=== CHECKING ANSWER DEBUG ===');
     console.log('Selected answer:', JSON.stringify(this.selectedAnswer));
     console.log('Correct answer:', JSON.stringify(this.currentQuiz.correct));
@@ -1200,6 +1211,11 @@ class QuizSystem {
     console.log('=== END CHECK ANSWER DEBUG ===');
 
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
+
+    // Reset checking flag after feedback is shown
+    setTimeout(() => {
+      this.isChecking = false;
+    }, 1000);
   }
 
   showFeedback(isCorrect, explanation) {
@@ -1555,6 +1571,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!quizId) {
       quizId = 'quiz' + index;
     }
+
+    // Store the quizId on the button for later reference
+    btn.dataset.quizId = quizId;
 
     // Remove existing onclick handlers to prevent conflicts
     btn.removeAttribute('onclick');
