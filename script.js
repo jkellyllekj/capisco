@@ -1334,6 +1334,8 @@ class QuizSystem {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) {
       console.log('No current container found for transition');
+      console.log('Available quiz blocks:', document.querySelectorAll('.quiz-block').length);
+      console.log('Hidden quiz blocks:', document.querySelectorAll('.quiz-block.hidden').length);
       return;
     }
 
@@ -1343,10 +1345,13 @@ class QuizSystem {
     console.log('=== TRANSITION TO NEXT QUESTION ===');
     console.log('Container ID:', containerId);
     console.log('Topic:', topic);
+    console.log('Current container classes:', currentContainer.className);
+    console.log('Current container visible:', currentContainer.style.display);
 
     const nextQuiz = this.generateQuiz(topic);
     if (!nextQuiz) {
-      console.log('Failed to generate next quiz');
+      console.log('Failed to generate next quiz for topic:', topic);
+      console.log('Available topics in quizData:', Object.keys(this.quizData));
       return;
     }
 
@@ -1472,15 +1477,35 @@ class QuizSystem {
   getTopicFromQuizId(quizId) {
     // Map quiz IDs to topics based on the lesson structure
     const quizIdToTopic = {
-      'quiz0': 'seasons',      // Seasons quiz
-      'quiz1': 'vocabulary',   // Main vocabulary quiz  
-      'quiz2': 'expressions',  // Expressions quiz
-      'quiz3': 'dialogue',     // Dialogue quiz
-      'quiz4': 'extraVocabulary', // Extra vocabulary
-      'quiz5': 'grammar'       // Grammar quiz
+      'quiz0': 'seasons',           // Seasons quiz
+      'quiz1': 'vocabulary',        // Main vocabulary quiz  
+      'quiz2': 'expressions',       // Expressions quiz
+      'quiz3': 'dialogue',          // Dialogue quiz
+      'quiz4': 'extraVocabulary',   // Extra vocabulary
+      'quiz5': 'grammar'            // Grammar quiz
     };
 
-    return quizIdToTopic[quizId] || 'vocabulary';
+    // If the quizId doesn't match our predefined ones, 
+    // extract the base topic from the section context
+    if (quizIdToTopic[quizId]) {
+      return quizIdToTopic[quizId];
+    }
+
+    // Default mapping based on common patterns
+    if (quizId.includes('seasons') || quizId.includes('0')) {
+      return 'seasons';
+    } else if (quizId.includes('expressions') || quizId.includes('2')) {
+      return 'expressions';
+    } else if (quizId.includes('dialogue') || quizId.includes('3')) {
+      return 'dialogue';
+    } else if (quizId.includes('extra') || quizId.includes('4')) {
+      return 'extraVocabulary';
+    } else if (quizId.includes('grammar') || quizId.includes('5')) {
+      return 'grammar';
+    }
+
+    // Default fallback
+    return 'vocabulary';
   }
 }
 
@@ -1500,16 +1525,27 @@ function toggleQuiz(quizId) {
 
     // Find the button that was clicked by looking for the one with this quizId
     const clickedButton = Array.from(document.querySelectorAll('button')).find(btn => {
-      const onclick = btn.getAttribute('onclick') || '';
-      return onclick.includes(quizId);
+      return btn.dataset.quizId === quizId || 
+             (btn.getAttribute('onclick') || '').includes(quizId);
     });
 
     if (clickedButton) {
       // Insert quiz right after the button
       clickedButton.insertAdjacentElement('afterend', quiz);
+      console.log('Quiz container inserted after button');
     } else {
-      // Fallback to body
-      document.body.appendChild(quiz);
+      // Fallback: find the quiz container in the current section
+      const allButtons = document.querySelectorAll('.quiz-btn');
+      if (allButtons.length > 0) {
+        // Find the button that's most likely to be the one that was clicked
+        const buttonIndex = parseInt(quizId.replace('quiz', '')) || 0;
+        const targetButton = allButtons[buttonIndex] || allButtons[allButtons.length - 1];
+        targetButton.insertAdjacentElement('afterend', quiz);
+        console.log('Quiz container inserted after fallback button');
+      } else {
+        document.body.appendChild(quiz);
+        console.log('Quiz container appended to body as fallback');
+      }
     }
 
     console.log('Quiz container created and inserted into DOM');
@@ -1523,7 +1559,7 @@ function toggleQuiz(quizId) {
   console.log('Quiz container should now be visible:', quiz);
 
   const topic = quizSystem.getTopicFromQuizId(quizId);
-  console.log('Topic:', topic);
+  console.log('Topic mapped to:', topic);
 
   const quizData = quizSystem.generateQuiz(topic);
   if (quizData) {
@@ -1564,12 +1600,14 @@ document.addEventListener('DOMContentLoaded', function() {
       const match = onclickValue.match(/toggleQuiz\('([^']+)'\)/);
       if (match) {
         quizId = match[1];
+        console.log('Found quiz ID from onclick:', quizId);
       }
     }
 
     // If no quiz ID found, generate one based on index
     if (!quizId) {
       quizId = 'quiz' + index;
+      console.log('Generated quiz ID:', quizId);
     }
 
     // Store the quizId on the button for later reference
@@ -1583,6 +1621,8 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('Quiz button clicked, quiz ID:', quizId);
       toggleQuiz(quizId);
     });
+
+    console.log('Quiz button setup complete for:', quizId);
   });
 
   console.log('Initialization complete');
