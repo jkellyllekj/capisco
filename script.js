@@ -871,8 +871,7 @@ class QuizSystem {
     html += '<div class="current-word" id="current-word-' + quizId + '"></div>';
     html += '</div>';
     html += '<div class="letter-bank">';
-```text
-quiz.letters.forEach((letter, index) => {
+    quiz.letters.forEach((letter, index) => {
       html += '<span class="draggable-letter" data-letter="' + letter + '" onclick="quizSystem.addLetter(\'' + letter + '\', this, \'' + quizId + '\')">' + letter.toUpperCase() + '</span>';
     });
     html += '</div>';
@@ -1339,8 +1338,6 @@ quiz.letters.forEach((letter, index) => {
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) {
       console.log('No current container found for transition');
-      console.log('Available quiz blocks:', document.querySelectorAll('.quiz-block').length);
-      console.log('Hidden quiz blocks:', document.querySelectorAll('.quiz-block.hidden').length);
       return;
     }
 
@@ -1350,13 +1347,10 @@ quiz.letters.forEach((letter, index) => {
     console.log('=== TRANSITION TO NEXT QUESTION ===');
     console.log('Container ID:', containerId);
     console.log('Topic:', topic);
-    console.log('Current container classes:', currentContainer.className);
-    console.log('Current container visible:', currentContainer.style.display);
 
     const nextQuiz = this.generateQuiz(topic);
     if (!nextQuiz) {
       console.log('Failed to generate next quiz for topic:', topic);
-      console.log('Available topics in quizData:', Object.keys(this.quizData));
       return;
     }
 
@@ -1365,82 +1359,55 @@ quiz.letters.forEach((letter, index) => {
 
     const allQuestions = currentContainer.querySelectorAll('.quiz-question');
 
-    // Step 1: Remove the oldest question (previously answered) with smooth fade out
+    // Step 1: Remove the oldest question if we have more than 1
     if (allQuestions.length > 1) {
       const oldestQuestion = allQuestions[0];
       oldestQuestion.style.transition = 'all 0.4s ease-out';
-      oldestQuestion.style.height = oldestQuestion.offsetHeight + 'px';
       oldestQuestion.style.opacity = '0';
       oldestQuestion.style.transform = 'translateY(-20px)';
-      oldestQuestion.style.marginBottom = '0';
 
       setTimeout(() => {
-        oldestQuestion.style.height = '0';
-        oldestQuestion.style.padding = '0';
-        oldestQuestion.style.margin = '0';
-
-        setTimeout(() => {
-          oldestQuestion.remove();
-
-          // Remove corresponding separator
-          const separators = currentContainer.querySelectorAll('.quiz-separator');
-          if (separators.length > 0) {
-            separators[0].remove();
-          }
-        }, 400);
-      }, 200);
+        oldestQuestion.remove();
+        // Remove corresponding separator
+        const separators = currentContainer.querySelectorAll('.quiz-separator');
+        if (separators.length > 0) {
+          separators[0].remove();
+        }
+      }, 400);
     }
 
-    // Step 2: Get the current (most recent) answered question
+    // Step 2: Get the current answered question
     const currentQuestion = allQuestions[allQuestions.length - 1];
 
-    // Step 3: Smoothly compact and slide up the current answered question
+    // Step 3: Compact the current answered question
     setTimeout(() => {
       currentQuestion.style.transition = 'all 0.6s ease-out';
-      currentQuestion.style.transform = 'scale(0.95) translateY(-10px)';
+      currentQuestion.style.transform = 'scale(0.95)';
       currentQuestion.style.opacity = '0.7';
       currentQuestion.style.marginBottom = '0.5rem';
-      currentQuestion.style.filter = 'blur(0.5px)';
     }, 200);
 
-    // Step 4: Create separator with initial hidden state
+    // Step 4: Create separator
     const separator = document.createElement('div');
     separator.className = 'quiz-separator';
     separator.innerHTML = '<div style="text-align: center; margin: 0.3rem 0; color: #ccc; font-size: 0.8rem;">• • •</div>';
     separator.style.opacity = '0';
     separator.style.transition = 'opacity 0.4s ease-out';
 
-    // Step 5: Create new question with fixed height to prevent jumping
+    // Step 5: Create new question
     const nextQuestionDiv = document.createElement('div');
     nextQuestionDiv.className = 'quiz-question new-question';
-
-    // Set up initial state - invisible but reserve space
     nextQuestionDiv.style.opacity = '0';
     nextQuestionDiv.style.transform = 'translateY(30px)';
     nextQuestionDiv.style.transition = 'all 0.7s ease-out';
 
-    // Generate the HTML content
-    let html = '';
-    switch (nextQuiz.type) {
-      case 'multipleChoice':
-        html += this.renderMultipleChoice(nextQuiz);
-        break;
-      case 'matching':
-        html += this.renderMatching(nextQuiz);
-        break;
-      case 'listening':
-        html += this.renderListening(nextQuiz);
-        break;
-      case 'typing':
-        html += this.renderTyping(nextQuiz);
-        break;
-      case 'dragDrop':
-        html += this.renderDragDrop(nextQuiz);
-        break;
+    // Generate the HTML content using the existing render method
+    this.renderQuiz(nextQuiz, 'temp-container');
+    const tempContainer = document.getElementById('temp-container');
+    if (tempContainer) {
+      nextQuestionDiv.innerHTML = tempContainer.innerHTML;
+      tempContainer.remove();
     }
-
-    html += '<div class="quiz-feedback" style="display: none;"></div>';
-    nextQuestionDiv.innerHTML = html;
 
     // Step 6: Insert elements into DOM
     currentQuestion.parentNode.insertBefore(separator, currentQuestion.nextSibling);
@@ -1448,6 +1415,10 @@ quiz.letters.forEach((letter, index) => {
 
     // CRITICAL: Update currentQuiz BEFORE any animations or interactions
     this.currentQuiz = nextQuiz;
+
+    // Initialize keyboard navigation for the new question
+    this.initializeKeyboardNavigation();
+    this.currentHighlight = 0;
 
     console.log('=== TRANSITION DEBUG ===');
     console.log('New quiz type:', nextQuiz.type);
@@ -1464,17 +1435,18 @@ quiz.letters.forEach((letter, index) => {
       nextQuestionDiv.style.opacity = '1';
       nextQuestionDiv.style.transform = 'translateY(0)';
 
-      // Gentle scroll adjustment only if needed
-      const containerRect = currentContainer.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
+      // Auto-focus first input if available
+      const input = nextQuestionDiv.querySelector('input[autofocus]');
+      if (input) {
+        input.focus();
+      }
 
-      // Only scroll if the container is mostly out of view
-      if (containerRect.bottom > viewportHeight + 50) {
-        // Use a gentle scroll that doesn't jump
-        window.scrollBy({
-          top: Math.min(100, containerRect.bottom - viewportHeight + 50),
-          behavior: 'smooth'
-        });
+      // Highlight first option for multiple choice
+      if (nextQuiz.type === 'multipleChoice') {
+        const options = nextQuestionDiv.querySelectorAll('.quiz-option');
+        if (options.length > 0) {
+          options[0].classList.add('keyboard-highlight');
+        }
       }
     }, 800);
   }
@@ -1633,53 +1605,3 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('Initialization complete');
 });
 
-showFeedback(isCorrect, explanation) {
-    console.log('=== SHOWING FEEDBACK ===');
-    console.log('Is correct:', isCorrect);
-    console.log('Explanation:', explanation);
-
-    const container = document.getElementById(this.currentQuizId);
-    if (!container) return;
-
-    const feedbackDiv = container.querySelector('.quiz-feedback');
-    if (!feedbackDiv) return;
-
-    // Create next button for manual control
-    const nextButtonHtml = isCorrect ? 
-      '<button class="quiz-check secondary" onclick="quizSystem.nextQuestion()" style="margin-top: 1rem;"><i class="fas fa-arrow-right"></i> Next Question</button>' :
-      '<button class="quiz-check secondary" onclick="quizSystem.nextQuestion()" style="margin-top: 1rem;"><i class="fas fa-redo"></i> Try Again</button>';
-
-    feedbackDiv.innerHTML = `
-      <div class="feedback-content ${isCorrect ? 'correct' : 'incorrect'}">
-        <div class="feedback-icon">
-          <i class="fas ${isCorrect ? 'fa-check-circle' : 'fa-times-circle'}"></i>
-        </div>
-        <div class="feedback-text">
-          <strong>${isCorrect ? 'Corretto!' : 'Non corretto'}</strong>
-          <p>${explanation}</p>
-        </div>
-        ${nextButtonHtml}
-      </div>
-    `;
-
-    feedbackDiv.style.display = 'block';
-
-    // Update score only for correct answers
-    if (isCorrect) {
-      this.score++;
-      this.totalQuestions++;
-
-      // Auto-advance only on correct answers after longer delay
-      setTimeout(() => {
-        this.nextQuestion();
-      }, 3500);
-    } else {
-      // For incorrect answers, let user manually advance
-      // Clear the input for retry
-      const input = container.querySelector('.quiz-input, .audio-input');
-      if (input) {
-        input.value = '';
-        input.focus();
-      }
-    }
-  }
