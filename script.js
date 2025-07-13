@@ -1605,8 +1605,7 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('Initialization complete');
 });
 
-// Add the new vocabulary data for Presentazioni Personali lesson.
-const vocabularyData analysis: This update adds new vocabulary data to the `vocabularyData` object in `script.js` for the "Presentazioni Personali" lesson.
+// The vocabulary data is already integrated into the QuizSystem class above
 <replit_final_file>
 // Initialize interactive vocab elements
 function initializeVocabInteractions() {
