@@ -1,3 +1,4 @@
+
 // Initialize interactive vocab elements
 function initializeVocabInteractions() {
   // Initialize info buttons
@@ -155,7 +156,7 @@ class QuizSystem {
     this.usedQuestions = new Set(); // Track used questions to avoid repetition
     this.isChecking = false; // Prevent double submissions
     this.keyboardMode = true; // Enable keyboard navigation
-    this.currentHighlight = 0; // For keyboardnavigation
+    this.currentHighlight = 0; // For keyboard navigation
     this.matchingSelection = { italian: null, english: null }; // For matching games
     this.quizData = {
       introductions: {
@@ -1723,8 +1724,7 @@ class QuizSystem {
       return 'dialogue';
     } else if (quizId.includes('extra') || quizId.includes('4')) {
       return 'extraVocabulary';
-    } else if (Fixing syntax errors and improving the logic of the generateQuiz method.```text
-quizId.includes('grammar') || quizId.includes('5')) {
+    } else if (quizId.includes('grammar') || quizId.includes('5')) {
       return 'grammar';
     }
 
