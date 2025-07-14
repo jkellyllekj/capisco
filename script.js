@@ -875,7 +875,9 @@ class QuizSystem {
         }
       }
 
-      attempts< 50) {
+      attempts++;
+      if (attempts >= 50) break;
+      
       const questionType = this.questionTypes[Math.floor(Math.random() * this.questionTypes.length)];
       switch (questionType) {
         case 'multipleChoice':
@@ -904,7 +906,6 @@ class QuizSystem {
           return quiz;
         }
       }
-      attempts++;
     }
 
     // If we can't find a unique question, just return any question
