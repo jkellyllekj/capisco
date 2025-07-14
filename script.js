@@ -877,35 +877,6 @@ class QuizSystem {
 
       attempts++;
       if (attempts >= 50) break;
-      
-      const questionType = this.questionTypes[Math.floor(Math.random() * this.questionTypes.length)];
-      switch (questionType) {
-        case 'multipleChoice':
-          quiz = this.generateMultipleChoice(vocab);
-          break;
-        case 'matching':
-          quiz = this.generateMatching(vocab);
-          break;
-        case 'listening':
-          quiz = this.generateListening(vocab);
-          break;
-        case 'typing':
-          quiz = this.generateTyping(vocab);
-          break;
-        case 'dragDrop':
-          quiz = this.generateDragDrop(vocab);
-          break;
-        default:
-          quiz = this.generateMultipleChoice(vocab);
-      }
-
-      if (quiz) {
-        const questionKey = `${questionType}-${quiz.vocab ? quiz.vocab.italian : 'matching'}`;
-        if (!this.usedQuestions.has(questionKey)) {
-          this.usedQuestions.add(questionKey);
-          return quiz;
-        }
-      }
     }
 
     // If we can't find a unique question, just return any question
@@ -1752,7 +1723,8 @@ class QuizSystem {
       return 'dialogue';
     } else if (quizId.includes('extra') || quizId.includes('4')) {
       return 'extraVocabulary';
-    } else if (quizId.includes('grammar') || quizId.includes('5')) {
+    } else if (Fixing syntax errors and improving the logic of the generateQuiz method.```text
+quizId.includes('grammar') || quizId.includes('5')) {
       return 'grammar';
     }
 
