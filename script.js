@@ -158,6 +158,64 @@ class QuizSystem {
     this.currentHighlight = 0; // For keyboard navigation
     this.matchingSelection = { italian: null, english: null }; // For matching games
     this.quizData = {
+      introductions: {
+        vocabulary: [
+          { italian: 'Mi chiamo', english: 'My name is' },
+          { italian: 'allegra', english: 'cheerful (feminine)' },
+          { italian: 'giovane', english: 'young' },
+          { italian: 'gioiosa', english: 'joyful (feminine)' },
+          { italian: 'grande', english: 'big/great' }
+        ]
+      },
+      places: {
+        vocabulary: [
+          { italian: 'Vengo da', english: 'I come from' },
+          { italian: 'Abito a', english: 'I live in' },
+          { italian: 'Palermo', english: 'Palermo' },
+          { italian: 'Londra', english: 'London' },
+          { italian: 'Brighton', english: 'Brighton' },
+          { italian: 'Germania', english: 'Germany' },
+          { italian: 'Napoli', english: 'Naples' },
+          { italian: 'Roma', english: 'Rome' }
+        ]
+      },
+      weather: {
+        vocabulary: [
+          { italian: 'caldo', english: 'hot' },
+          { italian: 'nuvoloso', english: 'cloudy' },
+          { italian: 'piovoso', english: 'rainy' },
+          { italian: 'sabato', english: 'Saturday' },
+          { italian: 'domenica', english: 'Sunday' },
+          { italian: 'la mattina', english: 'the morning' },
+          { italian: 'la sera', english: 'the evening' }
+        ]
+      },
+      activities: {
+        vocabulary: [
+          { italian: 'camminare', english: 'to walk' },
+          { italian: 'giardinaggio', english: 'gardening' },
+          { italian: 'fare yoga', english: 'to do yoga' },
+          { italian: 'felice', english: 'happy' },
+          { italian: 'mi fa stare bene', english: 'it makes me feel good' },
+          { italian: 'mi rende felice', english: 'it makes me happy' }
+        ]
+      },
+      dialogue_presentazioni: {
+        vocabulary: [
+          { italian: 'da dove vieni', english: 'where do you come from' },
+          { italian: 'che cosa ti piace fare', english: 'what do you like to do' },
+          { italian: 'mi piace camminare', english: 'I like walking' },
+          { italian: 'e tu', english: 'and you' }
+        ]
+      },
+      grammar_reflexive: {
+        vocabulary: [
+          { italian: 'mi chiamo', english: 'my name is (I call myself)' },
+          { italian: 'ti chiami', english: 'your name is (you call yourself)' },
+          { italian: 'mi alzo', english: 'I get up' },
+          { italian: 'a che ora ti alzi', english: 'what time do you get up' }
+        ]
+      },
       seasons: {
         vocabulary: [
           { italian: 'primavera', english: 'spring' },
@@ -1454,12 +1512,21 @@ class QuizSystem {
   getTopicFromQuizId(quizId) {
     // Map quiz IDs to topics based on the lesson structure
     const quizIdToTopic = {
+      // Al Mercato lesson
       'quiz0': 'seasons',           // Seasons quiz
       'quiz1': 'vocabulary',        // Main vocabulary quiz  
       'quiz2': 'expressions',       // Expressions quiz
       'quiz3': 'dialogue',          // Dialogue quiz
       'quiz4': 'extraVocabulary',   // Extra vocabulary
-      'quiz5': 'grammar'            // Grammar quiz
+      'quiz5': 'grammar',           // Grammar quiz
+      
+      // Presentazioni Personali lesson
+      'quiz0': 'introductions',     // Introductions
+      'quiz1': 'places',            // Places and origins
+      'quiz2': 'weather',           // Weather and time
+      'quiz3': 'activities',        // Activities and hobbies
+      'quiz4': 'dialogue_presentazioni', // Dialogue
+      'quiz5': 'grammar_reflexive'  // Reflexive verbs
     };
 
     // If the quizId doesn't match our predefined ones, 
@@ -1605,8 +1672,6 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('Initialization complete');
 });
 
-// The vocabulary data is already integrated into the QuizSystem class above
-<replit_final_file>
 // Initialize interactive vocab elements
 function initializeVocabInteractions() {
   // Initialize info buttons
