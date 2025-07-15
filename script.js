@@ -972,14 +972,17 @@ class QuizSystem {
   generateListening(vocab) {
     const correct = vocab[Math.floor(Math.random() * vocab.length)];
 
+    // Ensure the audio text and correct answer are the same for listening questions
+    const audioText = correct.audio || correct.italian;
+
     return {
       type: 'listening',
       question: 'Listen to the Italian word and type what you hear:',
-      audio: correct.italian,
-      correct: correct.italian, // Keep this for compatibility
-      correctItalian: correct.italian.toLowerCase(),
+      audio: audioText,
+      correct: audioText, // CRITICAL: This must match the audio
+      correctItalian: audioText.toLowerCase(),
       correctEnglish: correct.english.toLowerCase(),
-      explanation: 'You heard "' + correct.italian + '" which means "' + correct.english + '".',
+      explanation: 'You heard "' + audioText + '" which means "' + correct.english + '".',
       vocab: correct,
       part: 1, // Track which part we're on (1 = Italian, 2 = English)
       userItalian: '', // Store user's Italian answer
@@ -1344,26 +1347,55 @@ class QuizSystem {
     if (event.key === 'Enter') {
       event.preventDefault();
       event.stopPropagation();
+      
       // Prevent multiple submissions
       if (this.isChecking) {
         console.log('Already checking, ignoring Enter key');
-        return;
+        return false;
       }
+
+      // Validate we have an input value
+      const input = event.target;
+      if (!input || !input.value.trim()) {
+        console.log('No input value, cannot submit');
+        return false;
+      }
+
       this.isChecking = true;
       console.log('Setting isChecking to true for listening');
+
+      // Safety timeout to prevent permanent freeze
+      const safetyTimeout = setTimeout(() => {
+        console.log('Safety timeout triggered - resetting isChecking flag');
+        this.isChecking = false;
+        
+        // Re-enable input if it got disabled
+        const inputs = document.querySelectorAll('.audio-input[readonly]');
+        inputs.forEach(inp => {
+          if (!inp.dataset.persistent) {
+            inp.readOnly = false;
+            inp.style.backgroundColor = '';
+            inp.style.cursor = '';
+          }
+        });
+      }, 5000); // 5 second safety net
 
       // Add immediate timeout to prevent hanging
       setTimeout(() => {
         try {
           this.checkListening();
+          clearTimeout(safetyTimeout); // Cancel safety timeout if successful
         } catch (error) {
           console.error('Error in checkListening:', error);
+          clearTimeout(safetyTimeout);
         } finally {
           // Always reset the flag
           this.isChecking = false;
           console.log('Reset isChecking to false for listening');
         }
       }, 50);
+      
+      return false;
     }
   }
 
@@ -1471,17 +1503,19 @@ class QuizSystem {
     console.log('Audio played:', JSON.stringify(this.currentQuiz.audio));
     console.log('Quiz vocab:', this.currentQuiz.vocab);
 
-    // Enhanced validation - check multiple possible correct answers
+    // CRITICAL FIX: The audio should be the source of truth for listening questions
+    const audioText = this.currentQuiz.audio || this.currentQuiz.vocab.audio || this.currentQuiz.vocab.italian || correctAnswer;
+    
     const cleanUser = userAnswer.toLowerCase().trim();
+    const cleanAudio = audioText.toLowerCase().trim();
     const cleanCorrect = correctAnswer.toLowerCase().trim();
-    const cleanAudio = this.currentQuiz.audio ? this.currentQuiz.audio.toLowerCase().trim() : cleanCorrect;
 
     console.log('Clean user:', JSON.stringify(cleanUser));
+    console.log('Clean audio (source of truth):', JSON.stringify(cleanAudio));
     console.log('Clean correct:', JSON.stringify(cleanCorrect));
-    console.log('Clean audio:', JSON.stringify(cleanAudio));
 
-    // Check if user answer matches either the correct answer OR the audio text
-    let isCorrect = cleanUser === cleanCorrect || cleanUser === cleanAudio;
+    // For listening questions, the user should match what they HEARD, not necessarily the "correct" field
+    let isCorrect = cleanUser === cleanAudio;
     
     // Also check vocab.italian if it exists (fallback)
     if (!isCorrect && this.currentQuiz.vocab && this.currentQuiz.vocab.italian) {
@@ -1490,11 +1524,14 @@ class QuizSystem {
       console.log('Checked vocab.italian:', JSON.stringify(cleanVocabItalian), 'Result:', isCorrect);
     }
 
-    // Additional fuzzy matching for common variations
+    // Additional fuzzy matching for accents and common variations
     if (!isCorrect) {
-      // Remove common articles and prepositions for better matching
+      const removeAccents = (text) => {
+        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      };
+      
       const normalizeForMatching = (text) => {
-        return text.toLowerCase()
+        return removeAccents(text.toLowerCase())
           .replace(/^(il|la|lo|gli|le|i|un|una|uno|del|della|dello|dei|delle|degli|di|da|a|in|con|per|su|fra|tra)\s+/g, '')
           .replace(/\s+(il|la|lo|gli|le|i|un|una|uno|del|della|dello|dei|delle|degli|di|da|a|in|con|per|su|fra|tra)$/g, '')
           .replace(/\s+/g, ' ')
@@ -1502,11 +1539,10 @@ class QuizSystem {
       };
       
       const normalizedUser = normalizeForMatching(cleanUser);
-      const normalizedCorrect = normalizeForMatching(cleanCorrect);
       const normalizedAudio = normalizeForMatching(cleanAudio);
       
-      isCorrect = normalizedUser === normalizedCorrect || normalizedUser === normalizedAudio;
-      console.log('Fuzzy matching - User:', normalizedUser, 'Correct:', normalizedCorrect, 'Audio:', normalizedAudio, 'Result:', isCorrect);
+      isCorrect = normalizedUser === normalizedAudio;
+      console.log('Fuzzy matching - User:', normalizedUser, 'Audio:', normalizedAudio, 'Result:', isCorrect);
     }
 
     console.log('Final result:', isCorrect);
@@ -1516,11 +1552,10 @@ class QuizSystem {
     
     // Use try-catch to prevent any showFeedback errors from hanging the system
     try {
-      // Use the actual audio text for feedback if it differs from correct answer
-      const actualAnswer = this.currentQuiz.audio || correctAnswer;
+      // Always use the audio text for feedback since that's what they heard
       const explanation = isCorrect ? 
-        `Correct! You heard "${actualAnswer}" which means "${this.currentQuiz.vocab.english}".` :
-        `The correct answer is "${actualAnswer}" which means "${this.currentQuiz.vocab.english}".`;
+        `Correct! You heard "${audioText}" which means "${this.currentQuiz.vocab.english}".` :
+        `The correct answer is "${audioText}" which means "${this.currentQuiz.vocab.english}".`;
       
       this.showFeedback(isCorrect, explanation);
     } catch (error) {
