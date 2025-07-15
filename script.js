@@ -1017,20 +1017,29 @@ class QuizSystem {
     };
   }
 
-  renderQuiz(quiz, containerId) {
-    const container = document.getElementById(containerId);
+  renderQuiz(quiz, containerOrId) {
+    let container;
+    
+    // Handle both element and ID
+    if (typeof containerOrId === 'string') {
+      container = document.getElementById(containerOrId);
+    } else {
+      container = containerOrId;
+    }
+    
     if (!container || !quiz) return;
 
     console.log('=== RENDERING QUIZ DEBUG ===');
     console.log('Quiz type:', quiz.type);
     console.log('Quiz correct answer:', quiz.correct);
     console.log('Quiz vocab:', quiz.vocab);
+    console.log('Container:', container.id || container.className);
     console.log('=== END RENDER DEBUG ===');
 
     // CRITICAL: Set currentQuiz FIRST to prevent race conditions
     this.currentQuiz = quiz;
 
-    let html = '<div class="quiz-question">';
+    let html = '<div class="quiz-question active-question">';
 
     // Always put question at the top for ALL question types
     html += '<div class="quiz-question-header">';
@@ -1075,14 +1084,15 @@ class QuizSystem {
     // Auto-focus first input if available
     setTimeout(() => {
       const input = container.querySelector('input[autofocus]');
-      if (input && input.offsetParent !== null) {
+      if (input && input.offsetParent !== null && !input.disabled && !input.readOnly) {
         input.focus();
+        console.log('Auto-focused input:', input.className);
       }
 
       // Also highlight first option for multiple choice
       if (quiz.type === 'multipleChoice') {
         const options = container.querySelectorAll('.quiz-option');
-        if (options.length > 0) {
+        if (options.length > 0 && !options[0].disabled) {
           options[0].classList.add('keyboard-highlight');
         }
       }
@@ -1829,7 +1839,8 @@ class QuizSystem {
       return;
     }
 
-    const currentQuestion = activeQuizContainer.querySelector('.quiz-question:last-child');
+    // Find the ACTIVE question (not just the last one)
+    const currentQuestion = activeQuizContainer.querySelector('.quiz-question.active-question, .quiz-question:not(.answered):last-child, .quiz-question:last-child');
     if (!currentQuestion) {
       console.log('No current question found for feedback');
       this.isChecking = false; // Ensure flag is reset
@@ -1846,10 +1857,11 @@ class QuizSystem {
       console.log('Created missing feedback element');
     }
 
-    // Mark question as answered
+    // Mark question as answered and remove active state
     currentQuestion.classList.add('answered');
+    currentQuestion.classList.remove('active-question');
 
-    // More careful element disabling that won't cause freezing
+    // ONLY disable elements in the CURRENT question being answered
     try {
       const elementsToDisable = currentQuestion.querySelectorAll('button:not(.quiz-feedback button), input, .match-item, .draggable-letter, .quiz-option');
       elementsToDisable.forEach(el => {
@@ -1857,10 +1869,12 @@ class QuizSystem {
           if (el.tagName === 'INPUT') {
             // For inputs, make them readonly but keep them functional
             el.readOnly = true;
+            el.setAttribute('data-persistent', 'true'); // Mark as intentionally disabled
             el.style.backgroundColor = '#f8f9fa';
             el.style.cursor = 'not-allowed';
           } else {
             el.disabled = true;
+            el.setAttribute('data-persistent', 'true'); // Mark as intentionally disabled
             el.style.pointerEvents = 'none';
             el.style.opacity = '0.7';
           }
@@ -2003,9 +2017,29 @@ class QuizSystem {
 
     const allQuestions = currentContainer.querySelectorAll('.quiz-question');
 
-    // Step 1: Remove the oldest question if we have more than 1
-    if (allQuestions.length > 1) {
+    // Step 1: Clean up and remove the oldest question if we have more than 2
+    if (allQuestions.length > 2) {
       const oldestQuestion = allQuestions[0];
+      
+      // Clean up event listeners and disabled states before removing
+      const oldInputs = oldestQuestion.querySelectorAll('input');
+      oldInputs.forEach(input => {
+        input.removeEventListener('keyup', this.handleListeningInput);
+        input.removeEventListener('keydown', this.handleDragDropTyping);
+        input.readOnly = false;
+        input.disabled = false;
+        input.style.backgroundColor = '';
+        input.style.cursor = '';
+        input.style.pointerEvents = '';
+      });
+      
+      const oldButtons = oldestQuestion.querySelectorAll('button');
+      oldButtons.forEach(button => {
+        button.disabled = false;
+        button.style.pointerEvents = '';
+        button.style.opacity = '';
+      });
+      
       oldestQuestion.style.transition = 'all 0.4s ease-out';
       oldestQuestion.style.opacity = '0';
       oldestQuestion.style.transform = 'translateY(-20px)';
@@ -2025,13 +2059,16 @@ class QuizSystem {
     // Step 2: Get the current answered question
     const currentQuestion = allQuestions[allQuestions.length - 1];
 
-    // Step 3: Compact the current answered question
+    // Step 3: Compact the current answered question (keep it disabled as answered)
     setTimeout(() => {
       if (currentQuestion && currentQuestion.parentNode) {
         currentQuestion.style.transition = 'all 0.6s ease-out';
         currentQuestion.style.transform = 'scale(0.95)';
         currentQuestion.style.opacity = '0.7';
         currentQuestion.style.marginBottom = '0.5rem';
+        
+        // Ensure this answered question stays disabled
+        currentQuestion.classList.add('answered-question');
       }
     }, 200);
 
@@ -2042,54 +2079,29 @@ class QuizSystem {
     separator.style.opacity = '0';
     separator.style.transition = 'opacity 0.4s ease-out';
 
-    // Step 5: Create new question
-    const nextQuestionDiv = document.createElement('div');
-    nextQuestionDiv.className = 'quiz-question new-question';
-    nextQuestionDiv.style.opacity = '0';
-    nextQuestionDiv.style.transform = 'translateY(30px)';
-    nextQuestionDiv.style.transition = 'all 0.7s ease-out';
+    // Step 5: Create new question container
+    const nextQuestionContainer = document.createElement('div');
+    nextQuestionContainer.className = 'quiz-question-container new-question-container';
+    nextQuestionContainer.style.opacity = '0';
+    nextQuestionContainer.style.transform = 'translateY(30px)';
+    nextQuestionContainer.style.transition = 'all 0.7s ease-out';
 
     // CRITICAL: Update currentQuiz BEFORE rendering
     this.currentQuiz = nextQuiz;
 
-    // Generate the HTML content directly
-    let html = '<div class="quiz-question">';
-    html += '<div class="quiz-question-header">';
-    html += '<h4>' + nextQuiz.question + '</h4>';
-    html += '</div>';
+    // Reset checking state for new question
+    this.isChecking = false;
+    this.selectedAnswer = null;
+    this.selectedMatches.clear();
 
-    switch (nextQuiz.type) {
-      case 'multipleChoice':
-        html += this.renderMultipleChoiceContent(nextQuiz);
-        break;
-      case 'matching':
-        html += this.renderMatchingContent(nextQuiz);
-        break;
-      case 'listening':
-        html += this.renderListeningContent(nextQuiz);
-        break;
-      case 'typing':
-        html += this.renderTypingContent(nextQuiz);
-        break;
-      case 'dragDrop':
-        html += this.renderDragDropContent(nextQuiz);
-        break;
-    }
-
-    html += '<div class="quiz-feedback" style="display: none;"></div>';
-    html += '</div>';
-
-    nextQuestionDiv.innerHTML = html;
-
-    // Step 6: Insert elements into DOM
+    // Step 6: Insert separator and new question container
     if (currentQuestion && currentQuestion.parentNode) {
       currentQuestion.parentNode.insertBefore(separator, currentQuestion.nextSibling);
-      separator.parentNode.insertBefore(nextQuestionDiv, separator.nextSibling);
+      separator.parentNode.insertBefore(nextQuestionContainer, separator.nextSibling);
     }
 
-    // Initialize keyboard navigation for the new question
-    this.initializeKeyboardNavigation();
-    this.currentHighlight = 0;
+    // Step 7: Render the new quiz content
+    this.renderQuiz(nextQuiz, nextQuestionContainer);
 
     console.log('=== TRANSITION DEBUG ===');
     console.log('New quiz type:', nextQuiz.type);
@@ -2097,24 +2109,25 @@ class QuizSystem {
     console.log('New quiz vocab:', nextQuiz.vocab);
     console.log('=== END TRANSITION DEBUG ===');
 
-    // Step 7: Animate separator and new question in sequence
+    // Step 8: Animate separator and new question in sequence
     setTimeout(() => {
       separator.style.opacity = '0.5';
     }, 600);
 
     setTimeout(() => {
-      nextQuestionDiv.style.opacity = '1';
-      nextQuestionDiv.style.transform = 'translateY(0)';
+      nextQuestionContainer.style.opacity = '1';
+      nextQuestionContainer.style.transform = 'translateY(0)';
 
       // Auto-focus first input if available
-      const input = nextQuestionDiv.querySelector('input[autofocus]');
-      if (input) {
+      const input = nextQuestionContainer.querySelector('input[autofocus]');
+      if (input && !input.disabled && !input.readOnly) {
         input.focus();
+        console.log('Focused new input:', input.className);
       }
 
       // Highlight first option for multiple choice
       if (nextQuiz.type === 'multipleChoice') {
-        const options = nextQuestionDiv.querySelectorAll('.quiz-option');
+        const options = nextQuestionContainer.querySelectorAll('.quiz-option');
         if (options.length > 0) {
           options[0].classList.add('keyboard-highlight');
         }
