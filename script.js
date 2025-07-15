@@ -996,6 +996,9 @@ class QuizSystem {
     console.log('Quiz vocab:', quiz.vocab);
     console.log('=== END RENDER DEBUG ===');
 
+    // CRITICAL: Set currentQuiz FIRST to prevent race conditions
+    this.currentQuiz = quiz;
+
     let html = '<div class="quiz-question">';
 
     // Always put question at the top for ALL question types
@@ -1003,6 +1006,7 @@ class QuizSystem {
     html += '<h4>' + quiz.question + '</h4>';
     html += '</div>';
 
+    // Add content based on question type
     switch (quiz.type) {
       case 'multipleChoice':
         html += this.renderMultipleChoiceContent(quiz);
@@ -1019,6 +1023,8 @@ class QuizSystem {
       case 'dragDrop':
         html += this.renderDragDropContent(quiz);
         break;
+      default:
+        html += this.renderMultipleChoiceContent(quiz);
     }
 
     html += '<div class="quiz-feedback" style="display: none;"></div>';
@@ -1026,17 +1032,19 @@ class QuizSystem {
 
     container.innerHTML = html;
 
-    // CRITICAL: Set currentQuiz BEFORE any other operations
-    this.currentQuiz = quiz;
-
     // Initialize keyboard navigation for this quiz
     this.initializeKeyboardNavigation();
     this.currentHighlight = 0;
 
+    // Clear any previous state
+    this.selectedAnswer = null;
+    this.selectedMatches.clear();
+    this.isChecking = false;
+
     // Auto-focus first input if available
     setTimeout(() => {
       const input = container.querySelector('input[autofocus]');
-      if (input) {
+      if (input && input.offsetParent !== null) {
         input.focus();
       }
 
@@ -1108,7 +1116,7 @@ class QuizSystem {
   }
 
   renderDragDropContent(quiz) {
-    let quizId = quiz.vocab.italian; // Use Italian word as unique ID
+    let quizId = quiz.vocab.italian.replace(/[^a-zA-Z0-9]/g, ''); // Clean ID for DOM
 
     let html = '<div class="keyboard-hint">Type your answer and press Enter, or use Escape to clear</div>';
     html += '<div class="drag-drop-container">';
@@ -1117,7 +1125,8 @@ class QuizSystem {
     html += '</div>';
     html += '<div class="letter-bank">';
     quiz.letters.forEach((letter, index) => {
-      html += '<span class="draggable-letter" data-letter="' + letter + '" onclick="quizSystem.addLetter(\'' + letter + '\', this, \'' + quizId + '\')">' + letter.toUpperCase() + '</span>';
+      const cleanLetter = letter.replace(/'/g, "\\'");
+      html += '<span class="draggable-letter" data-letter="' + cleanLetter + '" onclick="quizSystem.addLetter(\'' + cleanLetter + '\', this, \'' + quizId + '\')">' + letter.toUpperCase() + '</span>';
     });
     html += '</div>';
     html += '<div class="drag-drop-input-section">';
@@ -1247,7 +1256,6 @@ class QuizSystem {
 
       setTimeout(() => {
         this.checkTyping();
-        this.isChecking = false;
       }, 100);
     }
   }
@@ -1262,7 +1270,6 @@ class QuizSystem {
 
       setTimeout(() => {
         this.checkListening();
-        this.isChecking = false;
       }, 100);
     }
   }
@@ -1271,6 +1278,7 @@ class QuizSystem {
     const input = document.querySelector('.quiz-input');
     if (!input || !this.currentQuiz) {
       console.log('Input or quiz not found');
+      this.isChecking = false;
       return;
     }
 
@@ -1383,24 +1391,29 @@ class QuizSystem {
 
       setTimeout(() => {
         this.checkDragDrop();
-        this.isChecking = false;
       }, 100);
     }
   }
 
   checkDragDrop() {
+    if (!this.currentQuiz) {
+      this.isChecking = false;
+      return;
+    }
+
     const typedInput = document.querySelector('.drag-type-input');
     let userWord = '';
 
     // Check if user typed or used drag-drop
     if (typedInput && typedInput.value.trim()) {
       userWord = typedInput.value.trim();
-    } else {
+    } else if (this.currentQuiz.currentWord) {
       userWord = this.currentQuiz.currentWord.join('');
     }
 
     if (!userWord) {
       alert('Please provide an answer using either the letters or the text input.');
+      this.isChecking = false;
       return;
     }
 
@@ -1468,6 +1481,9 @@ class QuizSystem {
     console.log('Is correct:', isCorrect);
     console.log('Explanation:', explanation);
 
+    // Reset checking flag immediately
+    this.isChecking = false;
+
     // Find the current active quiz container
     const activeQuizContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!activeQuizContainer) {
@@ -1490,10 +1506,6 @@ class QuizSystem {
       currentQuestion.appendChild(feedback);
       console.log('Created missing feedback element');
     }
-
-    console.log('=== SHOWING FEEDBACK ===');
-    console.log('Is correct:', isCorrect);
-    console.log('Explanation:', explanation);
 
     // Mark question as answered
     currentQuestion.classList.add('answered');
