@@ -972,21 +972,24 @@ class QuizSystem {
   generateListening(vocab) {
     const correct = vocab[Math.floor(Math.random() * vocab.length)];
 
-    // Ensure the audio text and correct answer are the same for listening questions
+    // CRITICAL FIX: Ensure the audio text and correct answer are EXACTLY the same
     const audioText = correct.audio || correct.italian;
 
     return {
       type: 'listening',
       question: 'Listen to the Italian word and type what you hear:',
       audio: audioText,
-      correct: audioText, // CRITICAL: This must match the audio
+      correct: audioText, // CRITICAL: This must exactly match the audio
       correctItalian: audioText.toLowerCase(),
       correctEnglish: correct.english.toLowerCase(),
       explanation: 'You heard "' + audioText + '" which means "' + correct.english + '".',
-      vocab: correct,
-      part: 1, // Track which part we're on (1 = Italian, 2 = English)
-      userItalian: '', // Store user's Italian answer
-      userEnglish: '' // Store user's English answer
+      vocab: {
+        ...correct,
+        italian: audioText // Ensure vocab.italian also matches audio
+      },
+      part: 1,
+      userItalian: '',
+      userEnglish: ''
     };
   }
 
@@ -1498,43 +1501,35 @@ class QuizSystem {
     }
 
     const userAnswer = input.value.trim();
+
+    // CRITICAL FIX: For listening questions, the audio is the definitive source of truth
+    const audioText = this.currentQuiz.audio;
     const correctAnswer = this.currentQuiz.correct;
 
     // Safety check
-    if (!correctAnswer) {
-      console.error('No correct answer found in quiz');
+    if (!audioText) {
+      console.error('No audio text found in quiz');
       this.isChecking = false;
       return;
     }
 
     console.log('=== LISTENING VALIDATION DEBUG ===');
     console.log('User typed:', JSON.stringify(userAnswer));
-    console.log('Correct answer:', JSON.stringify(correctAnswer));
-    console.log('Audio played:', JSON.stringify(this.currentQuiz.audio));
+    console.log('Audio played (SOURCE OF TRUTH):', JSON.stringify(audioText));
+    console.log('Correct field:', JSON.stringify(correctAnswer));
     console.log('Quiz vocab:', this.currentQuiz.vocab);
 
-    // CRITICAL FIX: The audio should be the source of truth for listening questions
-    const audioText = this.currentQuiz.audio || this.currentQuiz.vocab.audio || this.currentQuiz.vocab.italian || correctAnswer;
-    
     const cleanUser = userAnswer.toLowerCase().trim();
     const cleanAudio = audioText.toLowerCase().trim();
-    const cleanCorrect = correctAnswer.toLowerCase().trim();
 
     console.log('Clean user:', JSON.stringify(cleanUser));
-    console.log('Clean audio (source of truth):', JSON.stringify(cleanAudio));
-    console.log('Clean correct:', JSON.stringify(cleanCorrect));
+    console.log('Clean audio (comparing against):', JSON.stringify(cleanAudio));
 
-    // For listening questions, the user should match what they HEARD, not necessarily the "correct" field
+    // PRIMARY CHECK: Does user input match the audio exactly?
     let isCorrect = cleanUser === cleanAudio;
-    
-    // Also check vocab.italian if it exists (fallback)
-    if (!isCorrect && this.currentQuiz.vocab && this.currentQuiz.vocab.italian) {
-      const cleanVocabItalian = this.currentQuiz.vocab.italian.toLowerCase().trim();
-      isCorrect = cleanUser === cleanVocabItalian;
-      console.log('Checked vocab.italian:', JSON.stringify(cleanVocabItalian), 'Result:', isCorrect);
-    }
+    console.log('Exact audio match:', isCorrect);
 
-    // Additional fuzzy matching for accents and common variations
+    // SECONDARY CHECK: Fuzzy matching for accents and common variations
     if (!isCorrect) {
       const removeAccents = (text) => {
         return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
