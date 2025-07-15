@@ -1980,7 +1980,7 @@ footer {
 
 .letter-picker-buttons {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap,
   gap: 0.5rem;
   margin: 1rem 0;
 }
@@ -2509,6 +2509,36 @@ footer {
 }
 
 /* Drag and Drop Quiz Styles */
+.drag-drop-container {
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.drag-drop-input-section {
+  order: 1;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9ff;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+}
+
+.drag-drop-input-section p {
+  margin: 0 0 0.75rem 0;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.drop-zone {
+  order: 2;
+  margin-bottom: 1rem;
+}
+
+.letter-bank {
+  order: 3;
+}
+
 .drag-drop-container {
   text-align: center;
   padding: 1rem;

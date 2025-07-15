@@ -1120,6 +1120,14 @@ class QuizSystem {
 
     let html = '<div class="keyboard-hint">Type your answer and press Enter, or use Escape to clear</div>';
     html += '<div class="drag-drop-container">';
+    html += '<div class="drag-drop-input-section">';
+    html += '<p><strong>Type your answer:</strong></p>';
+    html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type here..." onkeydown="quizSystem.handleDragDropTyping(event)" oninput="quizSystem.handleDragDropInput(event)" autofocus>';
+    html += '<div class="drag-drop-buttons">';
+    html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()">Check Answer (Enter)</button>';
+    html += '<button class="clear-word" onclick="quizSystem.clearWord(\'' + quizId + '\')">Clear (Escape)</button>';
+    html += '</div>';
+    html += '</div>';
     html += '<div class="drop-zone">';
     html += '<div class="current-word" id="current-word-' + quizId + '"></div>';
     html += '</div>';
@@ -1129,33 +1137,12 @@ class QuizSystem {
       html += '<span class="draggable-letter" data-letter="' + cleanLetter + '" onclick="quizSystem.addLetter(\'' + cleanLetter + '\', this, \'' + quizId + '\')">' + letter.toUpperCase() + '</span>';
     });
     html += '</div>';
-    html += '<div class="drag-drop-input-section">';
-    html += '<p>Type your answer:</p>';
-    html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type here..." onkeydown="quizSystem.handleDragDropTyping(event)" oninput="quizSystem.handleDragDropInput(event)" autofocus>';
-    html += '<div class="drag-drop-buttons">';
-    html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()">Check Answer (Enter)</button>';
-    html += '<button class="clear-word" onclick="quizSystem.clearWord(\'' + quizId + '\')">Clear (Escape)</button>';
-    html += '</div>';
-    html += '</div>';
     html += '</div>';
     return html;
   }
 
   selectOption(answer, button) {
-    // Check if this element is disabled or already answered
-    if (button.disabled || 
-        button.style.pointerEvents === 'none' || 
-        button.classList.contains('quiz-answered') ||
-        this.isChecking) {
-      console.log('Button interaction blocked - disabled or already checking');
-      return;
-    }
-
-    // Verify we have a current quiz
-    if (!this.currentQuiz) {
-      console.log('No current quiz found, ignoring selection');
-      return;
-    }
+    if (button.disabled || button.style.pointerEvents === 'none') return;
 
     const options = button.parentNode.querySelectorAll('.quiz-option');
     options.forEach(opt => opt.classList.remove('selected'));
@@ -1170,9 +1157,6 @@ class QuizSystem {
     console.log('Current quiz correct:', JSON.stringify(this.currentQuiz.correct));
     console.log('Button text:', button.textContent);
     console.log('=== END OPTION SELECT DEBUG ===');
-
-    // Prevent double-checking
-    this.isChecking = true;
 
     setTimeout(() => {
       this.checkAnswer();
@@ -1291,20 +1275,12 @@ class QuizSystem {
   }
 
   checkTyping() {
-    // Prevent multiple submissions
-    if (this.isChecking) {
-      console.log('Already checking typing answer, ignoring...');
-      return;
-    }
-
     const input = document.querySelector('.quiz-input');
     if (!input || !this.currentQuiz) {
       console.log('Input or quiz not found');
       this.isChecking = false;
       return;
     }
-
-    this.isChecking = true;
 
     const userAnswer = input.value.trim();
     const correctAnswer = this.currentQuiz.correct;
@@ -1428,8 +1404,10 @@ class QuizSystem {
         input.value = '';
       }
       // Also clear the drag-drop area
-      const quizId = this.currentQuiz.vocab.italian.replace(/[^a-zA-Z0-9]/g, '');
-      this.clearWord(quizId);
+      if (this.currentQuiz && this.currentQuiz.vocab) {
+        const quizId = this.currentQuiz.vocab.italian.replace(/[^a-zA-Z0-9]/g, '');
+        this.clearWord(quizId);
+      }
     }
   }
 
@@ -1475,27 +1453,31 @@ class QuizSystem {
     console.log('=== END DRAG-DROP VALIDATION DEBUG ===');
 
     this.selectedAnswer = userWord;
+    
+    // Reset checking flag immediately to prevent freezing
+    this.isChecking = false;
+    
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
   }
 
   checkAnswer() {
     if (!this.currentQuiz) {
       console.log('No current quiz found');
-      this.isChecking = false;
       return;
     }
 
     if (!this.selectedAnswer) {
       console.log('No answer selected');
-      this.isChecking = false;
       return;
     }
 
-    // Prevent multiple submissions more aggressively
+    // Prevent multiple submissions
     if (this.isChecking) {
       console.log('Already checking answer, ignoring...');
       return;
     }
+
+    this.isChecking = true;
 
     console.log('=== CHECKING ANSWER DEBUG ===');
     console.log('Selected answer:', JSON.stringify(this.selectedAnswer));
@@ -1507,6 +1489,11 @@ class QuizSystem {
     console.log('=== END CHECK ANSWER DEBUG ===');
 
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
+
+    // Reset checking flag after feedback is shown
+    setTimeout(() => {
+      this.isChecking = false;
+    }, 1000);
   }
 
   showFeedback(isCorrect, explanation) {
@@ -1514,7 +1501,7 @@ class QuizSystem {
     console.log('Is correct:', isCorrect);
     console.log('Explanation:', explanation);
 
-    // Reset checking flag immediately
+    // Reset checking flag immediately to prevent freezing
     this.isChecking = false;
 
     // Find the current active quiz container
@@ -1543,25 +1530,17 @@ class QuizSystem {
     // Mark question as answered
     currentQuestion.classList.add('answered');
 
-    // More careful disabling - only disable the specific elements we need
-    currentQuestion.querySelectorAll('input').forEach(el => {
-      el.disabled = true;
+    // Disable all interactive elements more carefully to prevent input freezing
+    const elementsToDisable = currentQuestion.querySelectorAll('button:not(.quiz-feedback button), input, .match-item, .draggable-letter, .quiz-option');
+    elementsToDisable.forEach(el => {
+      if (el.tagName === 'INPUT') {
+        el.readOnly = true;
+        el.style.backgroundColor = '#f8f9fa';
+      } else {
+        el.disabled = true;
+      }
       el.style.pointerEvents = 'none';
       el.style.opacity = '0.7';
-    });
-
-    // For buttons, only disable interaction, don't break the styling completely
-    currentQuestion.querySelectorAll('button').forEach(el => {
-      el.disabled = true;
-      el.style.pointerEvents = 'none';
-      // Don't change opacity too much to keep visibility
-      el.style.opacity = '0.8';
-    });
-
-    // For quiz options, mark as answered but don't break the layout
-    currentQuestion.querySelectorAll('.quiz-option').forEach(el => {
-      el.classList.add('quiz-answered');
-      el.style.pointerEvents = 'none';
     });
 
     if (isCorrect) {
@@ -1650,12 +1629,6 @@ class QuizSystem {
   }
 
   transitionToNextQuestion() {
-    // Reset all state first
-    this.selectedAnswer = null;
-    this.selectedMatches.clear();
-    this.isChecking = false;
-    this.currentHighlight = 0;
-
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) {
       console.log('No current container found for transition');
@@ -1838,9 +1811,29 @@ class QuizSystem {
       };
     }
 
+    console.log('=== TOPIC MAPPING DEBUG ===');
+    console.log('Quiz ID:', quizId);
+    console.log('Current path:', currentPath);
+    console.log('Is Al Mercato:', isAlMercato);
+    console.log('Is Presentazioni:', isPresentazioni);
+    console.log('Topic mapping:', quizIdToTopic);
+    console.log('=== END TOPIC MAPPING DEBUG ===');
+
     // If the quizId matches our predefined ones, return the topic
     if (quizIdToTopic[quizId]) {
+      console.log('Found direct mapping for', quizId, ':', quizIdToTopic[quizId]);
       return quizIdToTopic[quizId];
+    }
+
+    // For numbered quiz IDs, extract the number and map it
+    const numberMatch = quizId.match(/quiz(\d+)/);
+    if (numberMatch) {
+      const quizNumber = parseInt(numberMatch[1]);
+      const mappedQuizId = 'quiz' + quizNumber;
+      if (quizIdToTopic[mappedQuizId]) {
+        console.log('Found number mapping for', quizId, ':', quizIdToTopic[mappedQuizId]);
+        return quizIdToTopic[mappedQuizId];
+      }
     }
 
     // Default mapping based on common patterns
@@ -1871,8 +1864,10 @@ class QuizSystem {
 
     // Default fallback based on current page
     if (isPresentazioni) {
+      console.log('Using fallback: introductions');
       return 'introductions';
     } else {
+      console.log('Using fallback: vocabulary');
       return 'vocabulary';
     }
   }
