@@ -1388,27 +1388,61 @@ class QuizSystem {
     console.log('=== TYPING VALIDATION DEBUG ===');
     console.log('User typed:', JSON.stringify(userAnswer));
     console.log('Correct answer:', JSON.stringify(correctAnswer));
-    console.log('Quiz type:', this.currentQuiz.type);
     console.log('Quiz vocab:', this.currentQuiz.vocab);
 
-    // Simple validation - normalize whitespace and case
+    // Enhanced validation
     const cleanUser = userAnswer.toLowerCase().trim();
     const cleanCorrect = correctAnswer.toLowerCase().trim();
 
     console.log('Clean user:', JSON.stringify(cleanUser));
     console.log('Clean correct:', JSON.stringify(cleanCorrect));
 
-    const isCorrect = cleanUser === cleanCorrect;
+    // Check for exact match first
+    let isCorrect = cleanUser === cleanCorrect;
+
+    // Also check against vocab.italian if available
+    if (!isCorrect && this.currentQuiz.vocab && this.currentQuiz.vocab.italian) {
+      const cleanVocabItalian = this.currentQuiz.vocab.italian.toLowerCase().trim();
+      isCorrect = cleanUser === cleanVocabItalian;
+      console.log('Checked vocab.italian:', cleanVocabItalian, 'Result:', isCorrect);
+    }
+
+    // Additional fuzzy matching for accents and articles
+    if (!isCorrect) {
+      const removeAccents = (text) => {
+        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      };
+      
+      const normalizeForMatching = (text) => {
+        return removeAccents(text.toLowerCase())
+          .replace(/^(il|la|lo|gli|le|i|un|una|uno)\s+/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
+      
+      const normalizedUser = normalizeForMatching(cleanUser);
+      const normalizedCorrect = normalizeForMatching(cleanCorrect);
+      
+      isCorrect = normalizedUser === normalizedCorrect;
+      console.log('Fuzzy matching:', normalizedUser, '===', normalizedCorrect, 'Result:', isCorrect);
+    }
+
     console.log('Final result:', isCorrect);
     console.log('=== END VALIDATION DEBUG ===');
 
     this.selectedAnswer = userAnswer;
     
-    // Use try-catch to prevent any showFeedback errors from hanging the system
+    // Ensure we always reset the checking flag
     try {
-      this.showFeedback(isCorrect, this.currentQuiz.explanation);
+      const explanation = isCorrect ? 
+        `Correct! The answer is "${correctAnswer}".` :
+        `The correct answer is "${correctAnswer}". ${this.currentQuiz.explanation || ''}`;
+      
+      this.showFeedback(isCorrect, explanation);
     } catch (error) {
       console.error('Error in showFeedback:', error);
+    } finally {
+      // Always reset the flag
       this.isChecking = false;
     }
   }
@@ -1434,17 +1468,47 @@ class QuizSystem {
     console.log('=== LISTENING VALIDATION DEBUG ===');
     console.log('User typed:', JSON.stringify(userAnswer));
     console.log('Correct answer:', JSON.stringify(correctAnswer));
-    console.log('Quiz type:', this.currentQuiz.type);
+    console.log('Audio played:', JSON.stringify(this.currentQuiz.audio));
     console.log('Quiz vocab:', this.currentQuiz.vocab);
 
-    // Simple validation - normalize whitespace and case
+    // Enhanced validation - check multiple possible correct answers
     const cleanUser = userAnswer.toLowerCase().trim();
     const cleanCorrect = correctAnswer.toLowerCase().trim();
+    const cleanAudio = this.currentQuiz.audio ? this.currentQuiz.audio.toLowerCase().trim() : cleanCorrect;
 
     console.log('Clean user:', JSON.stringify(cleanUser));
     console.log('Clean correct:', JSON.stringify(cleanCorrect));
+    console.log('Clean audio:', JSON.stringify(cleanAudio));
 
-    const isCorrect = cleanUser === cleanCorrect;
+    // Check if user answer matches either the correct answer OR the audio text
+    let isCorrect = cleanUser === cleanCorrect || cleanUser === cleanAudio;
+    
+    // Also check vocab.italian if it exists (fallback)
+    if (!isCorrect && this.currentQuiz.vocab && this.currentQuiz.vocab.italian) {
+      const cleanVocabItalian = this.currentQuiz.vocab.italian.toLowerCase().trim();
+      isCorrect = cleanUser === cleanVocabItalian;
+      console.log('Checked vocab.italian:', JSON.stringify(cleanVocabItalian), 'Result:', isCorrect);
+    }
+
+    // Additional fuzzy matching for common variations
+    if (!isCorrect) {
+      // Remove common articles and prepositions for better matching
+      const normalizeForMatching = (text) => {
+        return text.toLowerCase()
+          .replace(/^(il|la|lo|gli|le|i|un|una|uno|del|della|dello|dei|delle|degli|di|da|a|in|con|per|su|fra|tra)\s+/g, '')
+          .replace(/\s+(il|la|lo|gli|le|i|un|una|uno|del|della|dello|dei|delle|degli|di|da|a|in|con|per|su|fra|tra)$/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
+      
+      const normalizedUser = normalizeForMatching(cleanUser);
+      const normalizedCorrect = normalizeForMatching(cleanCorrect);
+      const normalizedAudio = normalizeForMatching(cleanAudio);
+      
+      isCorrect = normalizedUser === normalizedCorrect || normalizedUser === normalizedAudio;
+      console.log('Fuzzy matching - User:', normalizedUser, 'Correct:', normalizedCorrect, 'Audio:', normalizedAudio, 'Result:', isCorrect);
+    }
+
     console.log('Final result:', isCorrect);
     console.log('=== END LISTENING VALIDATION DEBUG ===');
 
@@ -1452,7 +1516,13 @@ class QuizSystem {
     
     // Use try-catch to prevent any showFeedback errors from hanging the system
     try {
-      this.showFeedback(isCorrect, this.currentQuiz.explanation);
+      // Use the actual audio text for feedback if it differs from correct answer
+      const actualAnswer = this.currentQuiz.audio || correctAnswer;
+      const explanation = isCorrect ? 
+        `Correct! You heard "${actualAnswer}" which means "${this.currentQuiz.vocab.english}".` :
+        `The correct answer is "${actualAnswer}" which means "${this.currentQuiz.vocab.english}".`;
+      
+      this.showFeedback(isCorrect, explanation);
     } catch (error) {
       console.error('Error in showFeedback:', error);
       this.isChecking = false;
@@ -1595,7 +1665,9 @@ class QuizSystem {
     }
 
     if (!userWord) {
-      alert('Please provide an answer using either the letters or the text input.');
+      // Don't show alert, just provide helpful feedback
+      console.log('No answer provided');
+      this.showFeedback(false, 'Please provide an answer using either the letters or the text input.');
       this.isChecking = false;
       return;
     }
@@ -1612,27 +1684,54 @@ class QuizSystem {
     console.log('=== DRAG-DROP VALIDATION DEBUG ===');
     console.log('User answer:', JSON.stringify(userWord));
     console.log('Correct answer:', JSON.stringify(correctAnswer));
-    console.log('User length:', userWord.length);
-    console.log('Correct length:', correctAnswer.length);
+    console.log('Current quiz vocab:', this.currentQuiz.vocab);
 
-    // Simple validation - normalize whitespace and case
+    // Enhanced validation - handle multiple possible correct forms
     const cleanUser = userWord.toLowerCase().trim();
     const cleanCorrect = correctAnswer.toLowerCase().trim();
 
     console.log('Clean user:', JSON.stringify(cleanUser));
     console.log('Clean correct:', JSON.stringify(cleanCorrect));
 
-    const isCorrect = cleanUser === cleanCorrect;
+    // Check for exact match first
+    let isCorrect = cleanUser === cleanCorrect;
+
+    // Also check against vocab.italian if available
+    if (!isCorrect && this.currentQuiz.vocab && this.currentQuiz.vocab.italian) {
+      const cleanVocabItalian = this.currentQuiz.vocab.italian.toLowerCase().trim();
+      isCorrect = cleanUser === cleanVocabItalian;
+      console.log('Checked vocab.italian:', cleanVocabItalian, 'Result:', isCorrect);
+    }
+
+    // Additional fuzzy matching for accents and common variations
+    if (!isCorrect) {
+      const removeAccents = (text) => {
+        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      };
+      
+      const userNoAccents = removeAccents(cleanUser);
+      const correctNoAccents = removeAccents(cleanCorrect);
+      
+      isCorrect = userNoAccents === correctNoAccents;
+      console.log('Accent-free comparison:', userNoAccents, '===', correctNoAccents, 'Result:', isCorrect);
+    }
+
     console.log('Final result:', isCorrect);
     console.log('=== END DRAG-DROP VALIDATION DEBUG ===');
 
     this.selectedAnswer = userWord;
     
-    // Use try-catch to prevent any showFeedback errors from hanging the system
+    // Ensure we always reset the checking flag
     try {
-      this.showFeedback(isCorrect, this.currentQuiz.explanation);
+      const explanation = isCorrect ? 
+        `Correct! The answer is "${correctAnswer}".` :
+        `The correct answer is "${correctAnswer}". ${this.currentQuiz.explanation || ''}`;
+      
+      this.showFeedback(isCorrect, explanation);
     } catch (error) {
       console.error('Error in showFeedback:', error);
+    } finally {
+      // Always reset the flag
       this.isChecking = false;
     }
   }
@@ -1681,16 +1780,24 @@ class QuizSystem {
     // Reset checking flag immediately to prevent freezing
     this.isChecking = false;
 
+    // Clear any checking timeout
+    if (this.checkingTimeout) {
+      clearTimeout(this.checkingTimeout);
+      this.checkingTimeout = null;
+    }
+
     // Find the current active quiz container
     const activeQuizContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!activeQuizContainer) {
       console.log('No active quiz container found');
+      this.isChecking = false; // Ensure flag is reset
       return;
     }
 
     const currentQuestion = activeQuizContainer.querySelector('.quiz-question:last-child');
     if (!currentQuestion) {
       console.log('No current question found for feedback');
+      this.isChecking = false; // Ensure flag is reset
       return;
     }
 
@@ -1707,58 +1814,86 @@ class QuizSystem {
     // Mark question as answered
     currentQuestion.classList.add('answered');
 
-    // Disable interactive elements more carefully to prevent freezing
-    const elementsToDisable = currentQuestion.querySelectorAll('button:not(.quiz-feedback button), input, .match-item, .draggable-letter, .quiz-option');
-    elementsToDisable.forEach(el => {
-      if (el.tagName === 'INPUT') {
-        // For inputs, make them readonly but don't disable completely
-        el.readOnly = true;
-        el.style.backgroundColor = '#f8f9fa';
-        el.style.cursor = 'not-allowed';
-        // Don't set pointer-events to none on inputs as it can cause issues
-      } else {
-        el.disabled = true;
-        el.style.pointerEvents = 'none';
-        el.style.opacity = '0.7';
-      }
-    });
-
-    if (isCorrect) {
-      feedback.innerHTML = '<div class="correct-feedback"><i class="fas fa-check"></i> Correct! ' + explanation + '</div>';
-      this.score++;
-    } else {
-      let correctAnswer = '';
-      if (this.currentQuiz.type === 'multipleChoice') {
-        correctAnswer = ' The correct answer is "' + this.currentQuiz.correct + '".';
-        // Highlight correct option
-        currentQuestion.querySelectorAll('.quiz-option').forEach(opt => {
-          if (opt.textContent.includes(this.currentQuiz.correct)) {
-            opt.classList.add('correct');
-          } else if (opt.classList.contains('selected')) {
-            opt.classList.add('incorrect');
+    // More careful element disabling that won't cause freezing
+    try {
+      const elementsToDisable = currentQuestion.querySelectorAll('button:not(.quiz-feedback button), input, .match-item, .draggable-letter, .quiz-option');
+      elementsToDisable.forEach(el => {
+        try {
+          if (el.tagName === 'INPUT') {
+            // For inputs, make them readonly but keep them functional
+            el.readOnly = true;
+            el.style.backgroundColor = '#f8f9fa';
+            el.style.cursor = 'not-allowed';
+          } else {
+            el.disabled = true;
+            el.style.pointerEvents = 'none';
+            el.style.opacity = '0.7';
           }
-        });
-      } else if (this.currentQuiz.type !== 'matching') {
-        correctAnswer = ' The correct answer is "' + this.currentQuiz.correct + '".';
-      }
-      feedback.innerHTML = '<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect.' + correctAnswer + ' ' + explanation + '</div>';
+        } catch (elementError) {
+          console.warn('Error disabling element:', elementError);
+        }
+      });
+    } catch (disableError) {
+      console.warn('Error disabling elements:', disableError);
     }
 
-    this.totalQuestions++;
-    feedback.style.display = 'block';
-    feedback.setAttribute('data-persistent', 'true');
+    // Build feedback content safely
+    try {
+      if (isCorrect) {
+        feedback.innerHTML = '<div class="correct-feedback"><i class="fas fa-check"></i> Correct! ' + (explanation || 'Well done!') + '</div>';
+        this.score++;
+      } else {
+        let correctAnswer = '';
+        if (this.currentQuiz && this.currentQuiz.type === 'multipleChoice') {
+          correctAnswer = ' The correct answer is "' + (this.currentQuiz.correct || 'unknown') + '".';
+          // Safely highlight correct option
+          try {
+            currentQuestion.querySelectorAll('.quiz-option').forEach(opt => {
+              if (opt.textContent && this.currentQuiz.correct && opt.textContent.includes(this.currentQuiz.correct)) {
+                opt.classList.add('correct');
+              } else if (opt.classList.contains('selected')) {
+                opt.classList.add('incorrect');
+              }
+            });
+          } catch (highlightError) {
+            console.warn('Error highlighting options:', highlightError);
+          }
+        } else if (this.currentQuiz && this.currentQuiz.type !== 'matching') {
+          correctAnswer = ' The correct answer is "' + (this.currentQuiz.correct || 'unknown') + '".';
+        }
+        feedback.innerHTML = '<div class="incorrect-feedback"><i class="fas fa-times"></i> Incorrect.' + correctAnswer + ' ' + (explanation || '') + '</div>';
+      }
 
-    const scoreDisplay = document.createElement('div');
-    scoreDisplay.className = 'quiz-score-display';
-    scoreDisplay.innerHTML = '<div class="score-text">Score: ' + this.score + '/' + this.totalQuestions + ' (' + Math.round((this.score / this.totalQuestions) * 100) + '%)</div>';
-    feedback.appendChild(scoreDisplay);
+      this.totalQuestions++;
+      feedback.style.display = 'block';
+      feedback.setAttribute('data-persistent', 'true');
 
+      const scoreDisplay = document.createElement('div');
+      scoreDisplay.className = 'quiz-score-display';
+      scoreDisplay.innerHTML = '<div class="score-text">Score: ' + this.score + '/' + this.totalQuestions + ' (' + Math.round((this.score / this.totalQuestions) * 100) + '%)</div>';
+      feedback.appendChild(scoreDisplay);
+
+    } catch (feedbackError) {
+      console.error('Error creating feedback:', feedbackError);
+      // Fallback simple feedback
+      feedback.innerHTML = '<div class="' + (isCorrect ? 'correct' : 'incorrect') + '-feedback">Answer processed. ' + (explanation || '') + '</div>';
+      feedback.style.display = 'block';
+    }
+
+    // Clean up state
     this.selectedAnswer = null;
     this.selectedMatches.clear();
 
-    setTimeout(() => {
+    // Set transition timeout with safety
+    try {
+      setTimeout(() => {
+        this.transitionToNextQuestion();
+      }, 3000);
+    } catch (timeoutError) {
+      console.error('Error setting transition timeout:', timeoutError);
+      // Immediate transition if timeout fails
       this.transitionToNextQuestion();
-    }, 3000);
+    }
   }
 
   showSkippedFeedback(explanation) {
