@@ -533,31 +533,20 @@ class QuizSystem {
   handleGlobalSpaceBar(event) {
     // Only handle space bar for listening questions
     if (event.key === ' ' && this.currentQuiz && this.currentQuiz.type === 'listening') {
-      // Check if we're in an input field
-      if (event.target.matches('input')) {
-        const input = event.target;
-        const cursorPos = input.selectionStart;
-        const inputValue = input.value;
-
-        // Only play audio if input is empty or cursor is at very beginning
-        if (inputValue.length === 0 || cursorPos === 0) {
-          event.preventDefault();
-          const playBtn = document.querySelector('.play-audio-btn');
-          if (playBtn) {
-            playBtn.click();
-            // Re-focus input after audio
-            setTimeout(() => {
-              input.focus();
-            }, 100);
-          }
-        }
-        // Otherwise, let normal space typing happen
-      } else {
-        // Not in input field, play audio and focus input
-        event.preventDefault();
-        const playBtn = document.querySelector('.play-audio-btn');
-        if (playBtn) {
-          playBtn.click();
+      // Always prevent default and play audio for listening questions
+      event.preventDefault();
+      
+      const playBtn = document.querySelector('.play-audio-btn');
+      if (playBtn) {
+        playBtn.click();
+        
+        // Re-focus input after audio if we're in an input field
+        if (event.target.matches('input')) {
+          setTimeout(() => {
+            event.target.focus();
+          }, 100);
+        } else {
+          // Focus input if not already focused
           setTimeout(() => {
             const input = document.querySelector('.audio-input');
             if (input) {
@@ -774,32 +763,20 @@ class QuizSystem {
   handleTypingKeyboard(event) {
     const key = event.key;
 
-    // Space bar to play audio for listening questions - handle even when input is focused
+    // Space bar to play audio for listening questions - always play audio
     if (key === ' ' && this.currentQuiz.type === 'listening') {
-      // Check if we're in an input field
-      if (event.target.matches('input')) {
-        // If cursor is at the beginning of the input or input is empty, play audio
-        const input = event.target;
-        const cursorPos = input.selectionStart;
-        const inputValue = input.value;
-
-        // Play audio if input is empty or cursor is at beginning and first char would be space
-        if (inputValue.length === 0 || (cursorPos === 0 && inputValue[0] !== ' ')) {
-          event.preventDefault();
-          const playBtn = document.querySelector('.play-audio-btn');
-          if (playBtn) {
-            playBtn.click();
-          }
-          return;
-        }
-        // Otherwise, let the space be typed normally
-      } else {
-        // Not in input field, definitely play audio
-        event.preventDefault();
-        const playBtn = document.querySelector('.play-audio-btn');
-        if (playBtn) {
-          playBtn.click();
-          // Auto-focus input after playing audio
+      event.preventDefault();
+      const playBtn = document.querySelector('.play-audio-btn');
+      if (playBtn) {
+        playBtn.click();
+        
+        // Re-focus input if we were in one
+        if (event.target.matches('input')) {
+          setTimeout(() => {
+            event.target.focus();
+          }, 100);
+        } else {
+          // Focus input if not already focused
           setTimeout(() => {
             const input = document.querySelector('.audio-input');
             if (input) {
@@ -807,8 +784,8 @@ class QuizSystem {
             }
           }, 100);
         }
-        return;
       }
+      return;
     }
 
     // Auto-focus input if it exists and user starts typing
