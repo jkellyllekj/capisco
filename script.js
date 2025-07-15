@@ -829,8 +829,9 @@ class QuizSystem {
 
   generateQuiz(topic) {
     const data = this.quizData[topic];
-    if (!data || !data.vocabulary || data.vocabulary.length < 4) {
+    if (!data || !data.vocabulary || data.vocabulary.length === 0) {
       console.log('No data found for topic:', topic);
+      console.log('Available topics:', Object.keys(this.quizData));
       return null;
     }
 
@@ -848,39 +849,44 @@ class QuizSystem {
     while (attempts < 50) {
       const questionType = this.questionTypes[Math.floor(Math.random() * this.questionTypes.length)];
 
-      switch (questionType) {
-        case 'multipleChoice':
-          quiz = this.generateMultipleChoice(vocab);
-          break;
-        case 'matching':
-          quiz = this.generateMatching(vocab);
-          break;
-        case 'listening':
-          quiz = this.generateListening(vocab);
-          break;
-        case 'typing':
-          quiz = this.generateTyping(vocab);
-          break;
-        case 'dragDrop':
-          quiz = this.generateDragDrop(vocab);
-          break;
-        default:
-          quiz = this.generateMultipleChoice(vocab);
-      }
-
-      if (quiz) {
-        const questionKey = `${questionType}-${quiz.vocab ? quiz.vocab.italian : 'matching'}`;
-        if (!this.usedQuestions.has(questionKey)) {
-          this.usedQuestions.add(questionKey);
-          return quiz;
+      try {
+        switch (questionType) {
+          case 'multipleChoice':
+            quiz = this.generateMultipleChoice(vocab);
+            break;
+          case 'matching':
+            quiz = this.generateMatching(vocab);
+            break;
+          case 'listening':
+            quiz = this.generateListening(vocab);
+            break;
+          case 'typing':
+            quiz = this.generateTyping(vocab);
+            break;
+          case 'dragDrop':
+            quiz = this.generateDragDrop(vocab);
+            break;
+          default:
+            quiz = this.generateMultipleChoice(vocab);
         }
+
+        if (quiz) {
+          const questionKey = `${questionType}-${quiz.vocab ? quiz.vocab.italian : 'matching'}`;
+          if (!this.usedQuestions.has(questionKey)) {
+            this.usedQuestions.add(questionKey);
+            return quiz;
+          }
+        }
+      } catch (error) {
+        console.error('Error generating quiz:', error);
       }
 
       attempts++;
       if (attempts >= 50) break;
     }
 
-    // If we can't find a unique question, just return any question
+    // If we can't find a unique question, clear used questions and try again
+    this.usedQuestions.clear();
     return this.generateMultipleChoice(vocab);
   }
 
@@ -888,13 +894,24 @@ class QuizSystem {
     const correct = vocab[Math.floor(Math.random() * vocab.length)];
     const options = [correct];
 
-    while (options.length < 4) {
+    // If we have less than 4 vocab items, pad with duplicates but different answer text
+    while (options.length < 4 && options.length < vocab.length) {
       const random = vocab[Math.floor(Math.random() * vocab.length)];
-      if (!options.includes(random)) {
+      if (!options.find(opt => opt.italian === random.italian)) {
         options.push(random);
       }
     }
 
+    // If we still don't have 4 options, create fake ones
+    while (options.length < 4) {
+      const fakeOption = {
+        italian: 'fake_' + Math.random().toString(36).substr(2, 9),
+        english: 'fake answer'
+      };
+      options.push(fakeOption);
+    }
+
+    // Shuffle options
     for (let i = options.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [options[i], options[j]] = [options[j], options[i]];
@@ -1451,7 +1468,14 @@ class QuizSystem {
     console.log('Is correct:', isCorrect);
     console.log('Explanation:', explanation);
 
-    const currentQuestion = document.querySelector('.quiz-question:last-child');
+    // Find the current active quiz container
+    const activeQuizContainer = document.querySelector('.quiz-block:not(.hidden)');
+    if (!activeQuizContainer) {
+      console.log('No active quiz container found');
+      return;
+    }
+
+    const currentQuestion = activeQuizContainer.querySelector('.quiz-question:last-child');
     if (!currentQuestion) {
       console.log('No current question found for feedback');
       return;
@@ -1680,24 +1704,45 @@ class QuizSystem {
   }
 
   getTopicFromQuizId(quizId) {
-    // Map quiz IDs to topics based on the lesson structure
-    const quizIdToTopic = {
-      'quiz0': 'seasons',           // Seasons quiz
-      'quiz1': 'vocabulary',        // Main vocabulary quiz  
-      'quiz2': 'expressions',       // Expressions quiz
-      'quiz3': 'dialogue',          // Dialogue quiz
-      'quiz4': 'extraVocabulary',   // Extra vocabulary
-      'quiz5': 'grammar',           // Grammar quiz
-      'quiz6': 'introductions',
-      'quiz7': 'places',
-      'quiz8': 'weather',
-      'quiz9': 'activities',
-      'quiz10': 'dialogue_presentazioni',
-      'quiz11': 'grammar_reflexive'
-    };
+    // Detect which page we're on to determine correct topic mapping
+    const currentPath = window.location.pathname;
+    const isAlMercato = currentPath.includes('al-mercato');
+    const isPresentazioni = currentPath.includes('presentazioni-personali');
+    
+    // Map quiz IDs to topics based on the lesson structure and current page
+    let quizIdToTopic = {};
+    
+    if (isAlMercato) {
+      quizIdToTopic = {
+        'quiz0': 'seasons',           // Seasons quiz
+        'quiz1': 'vocabulary',        // Main vocabulary quiz  
+        'quiz2': 'expressions',       // Expressions quiz
+        'quiz3': 'dialogue',          // Dialogue quiz
+        'quiz4': 'extraVocabulary',   // Extra vocabulary
+        'quiz5': 'grammar'            // Grammar quiz
+      };
+    } else if (isPresentazioni) {
+      quizIdToTopic = {
+        'quiz0': 'introductions',     // Introductions quiz
+        'quiz1': 'places',            // Places quiz
+        'quiz2': 'weather',           // Weather quiz
+        'quiz3': 'activities',        // Activities quiz
+        'quiz4': 'dialogue_presentazioni', // Dialogue quiz
+        'quiz5': 'grammar_reflexive'  // Grammar quiz
+      };
+    } else {
+      // Default mapping for main page or other pages
+      quizIdToTopic = {
+        'quiz0': 'seasons',
+        'quiz1': 'vocabulary',
+        'quiz2': 'expressions',
+        'quiz3': 'dialogue',
+        'quiz4': 'extraVocabulary',
+        'quiz5': 'grammar'
+      };
+    }
 
-    // If the quizId doesn't match our predefined ones, 
-    // extract the base topic from the section context
+    // If the quizId matches our predefined ones, return the topic
     if (quizIdToTopic[quizId]) {
       return quizIdToTopic[quizId];
     }
@@ -1728,8 +1773,12 @@ class QuizSystem {
       return 'grammar';
     }
 
-    // Default fallback
-    return 'vocabulary';
+    // Default fallback based on current page
+    if (isPresentazioni) {
+      return 'introductions';
+    } else {
+      return 'vocabulary';
+    }
   }
 }
 
