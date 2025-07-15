@@ -1142,7 +1142,20 @@ class QuizSystem {
   }
 
   selectOption(answer, button) {
-    if (button.disabled || button.style.pointerEvents === 'none') return;
+    // Check if this element is disabled or already answered
+    if (button.disabled || 
+        button.style.pointerEvents === 'none' || 
+        button.classList.contains('quiz-answered') ||
+        this.isChecking) {
+      console.log('Button interaction blocked - disabled or already checking');
+      return;
+    }
+
+    // Verify we have a current quiz
+    if (!this.currentQuiz) {
+      console.log('No current quiz found, ignoring selection');
+      return;
+    }
 
     const options = button.parentNode.querySelectorAll('.quiz-option');
     options.forEach(opt => opt.classList.remove('selected'));
@@ -1157,6 +1170,9 @@ class QuizSystem {
     console.log('Current quiz correct:', JSON.stringify(this.currentQuiz.correct));
     console.log('Button text:', button.textContent);
     console.log('=== END OPTION SELECT DEBUG ===');
+
+    // Prevent double-checking
+    this.isChecking = true;
 
     setTimeout(() => {
       this.checkAnswer();
@@ -1275,12 +1291,20 @@ class QuizSystem {
   }
 
   checkTyping() {
+    // Prevent multiple submissions
+    if (this.isChecking) {
+      console.log('Already checking typing answer, ignoring...');
+      return;
+    }
+
     const input = document.querySelector('.quiz-input');
     if (!input || !this.currentQuiz) {
       console.log('Input or quiz not found');
       this.isChecking = false;
       return;
     }
+
+    this.isChecking = true;
 
     const userAnswer = input.value.trim();
     const correctAnswer = this.currentQuiz.correct;
@@ -1457,21 +1481,21 @@ class QuizSystem {
   checkAnswer() {
     if (!this.currentQuiz) {
       console.log('No current quiz found');
+      this.isChecking = false;
       return;
     }
 
     if (!this.selectedAnswer) {
       console.log('No answer selected');
+      this.isChecking = false;
       return;
     }
 
-    // Prevent multiple submissions
+    // Prevent multiple submissions more aggressively
     if (this.isChecking) {
       console.log('Already checking answer, ignoring...');
       return;
     }
-
-    this.isChecking = true;
 
     console.log('=== CHECKING ANSWER DEBUG ===');
     console.log('Selected answer:', JSON.stringify(this.selectedAnswer));
@@ -1483,11 +1507,6 @@ class QuizSystem {
     console.log('=== END CHECK ANSWER DEBUG ===');
 
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
-
-    // Reset checking flag after feedback is shown
-    setTimeout(() => {
-      this.isChecking = false;
-    }, 1000);
   }
 
   showFeedback(isCorrect, explanation) {
@@ -1524,11 +1543,25 @@ class QuizSystem {
     // Mark question as answered
     currentQuestion.classList.add('answered');
 
-    // Disable all interactive elements immediately and comprehensively
-    currentQuestion.querySelectorAll('button, input, .match-item, .draggable-letter, .quiz-option').forEach(el => {
+    // More careful disabling - only disable the specific elements we need
+    currentQuestion.querySelectorAll('input').forEach(el => {
       el.disabled = true;
       el.style.pointerEvents = 'none';
       el.style.opacity = '0.7';
+    });
+
+    // For buttons, only disable interaction, don't break the styling completely
+    currentQuestion.querySelectorAll('button').forEach(el => {
+      el.disabled = true;
+      el.style.pointerEvents = 'none';
+      // Don't change opacity too much to keep visibility
+      el.style.opacity = '0.8';
+    });
+
+    // For quiz options, mark as answered but don't break the layout
+    currentQuestion.querySelectorAll('.quiz-option').forEach(el => {
+      el.classList.add('quiz-answered');
+      el.style.pointerEvents = 'none';
     });
 
     if (isCorrect) {
@@ -1617,6 +1650,12 @@ class QuizSystem {
   }
 
   transitionToNextQuestion() {
+    // Reset all state first
+    this.selectedAnswer = null;
+    this.selectedMatches.clear();
+    this.isChecking = false;
+    this.currentHighlight = 0;
+
     const currentContainer = document.querySelector('.quiz-block:not(.hidden)');
     if (!currentContainer) {
       console.log('No current container found for transition');
