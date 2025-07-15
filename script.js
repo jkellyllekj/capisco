@@ -1481,10 +1481,14 @@ class QuizSystem {
       return;
     }
 
-    const feedback = currentQuestion.querySelector('.quiz-feedback');
+    let feedback = currentQuestion.querySelector('.quiz-feedback');
     if (!feedback) {
-      console.log('No feedback element found');
-      return;
+      // Create feedback element if it doesn't exist
+      feedback = document.createElement('div');
+      feedback.className = 'quiz-feedback';
+      feedback.style.display = 'none';
+      currentQuestion.appendChild(feedback);
+      console.log('Created missing feedback element');
     }
 
     console.log('=== SHOWING FEEDBACK ===');
@@ -1619,10 +1623,12 @@ class QuizSystem {
       oldestQuestion.style.transform = 'translateY(-20px)';
 
       setTimeout(() => {
-        oldestQuestion.remove();
+        if (oldestQuestion.parentNode) {
+          oldestQuestion.remove();
+        }
         // Remove corresponding separator
         const separators = currentContainer.querySelectorAll('.quiz-separator');
-        if (separators.length > 0) {
+        if (separators.length > 0 && separators[0].parentNode) {
           separators[0].remove();
         }
       }, 400);
@@ -1633,10 +1639,12 @@ class QuizSystem {
 
     // Step 3: Compact the current answered question
     setTimeout(() => {
-      currentQuestion.style.transition = 'all 0.6s ease-out';
-      currentQuestion.style.transform = 'scale(0.95)';
-      currentQuestion.style.opacity = '0.7';
-      currentQuestion.style.marginBottom = '0.5rem';
+      if (currentQuestion && currentQuestion.parentNode) {
+        currentQuestion.style.transition = 'all 0.6s ease-out';
+        currentQuestion.style.transform = 'scale(0.95)';
+        currentQuestion.style.opacity = '0.7';
+        currentQuestion.style.marginBottom = '0.5rem';
+      }
     }, 200);
 
     // Step 4: Create separator
@@ -1653,20 +1661,43 @@ class QuizSystem {
     nextQuestionDiv.style.transform = 'translateY(30px)';
     nextQuestionDiv.style.transition = 'all 0.7s ease-out';
 
-    // Generate the HTML content using the existing render method
-    this.renderQuiz(nextQuiz, 'temp-container');
-    const tempContainer = document.getElementById('temp-container');
-    if (tempContainer) {
-      nextQuestionDiv.innerHTML = tempContainer.innerHTML;
-      tempContainer.remove();
+    // CRITICAL: Update currentQuiz BEFORE rendering
+    this.currentQuiz = nextQuiz;
+
+    // Generate the HTML content directly
+    let html = '<div class="quiz-question">';
+    html += '<div class="quiz-question-header">';
+    html += '<h4>' + nextQuiz.question + '</h4>';
+    html += '</div>';
+
+    switch (nextQuiz.type) {
+      case 'multipleChoice':
+        html += this.renderMultipleChoiceContent(nextQuiz);
+        break;
+      case 'matching':
+        html += this.renderMatchingContent(nextQuiz);
+        break;
+      case 'listening':
+        html += this.renderListeningContent(nextQuiz);
+        break;
+      case 'typing':
+        html += this.renderTypingContent(nextQuiz);
+        break;
+      case 'dragDrop':
+        html += this.renderDragDropContent(nextQuiz);
+        break;
     }
 
-    // Step 6: Insert elements into DOM
-    currentQuestion.parentNode.insertBefore(separator, currentQuestion.nextSibling);
-    separator.parentNode.insertBefore(nextQuestionDiv, separator.nextSibling);
+    html += '<div class="quiz-feedback" style="display: none;"></div>';
+    html += '</div>';
 
-    // CRITICAL: Update currentQuiz BEFORE any animations or interactions
-    this.currentQuiz = nextQuiz;
+    nextQuestionDiv.innerHTML = html;
+
+    // Step 6: Insert elements into DOM
+    if (currentQuestion && currentQuestion.parentNode) {
+      currentQuestion.parentNode.insertBefore(separator, currentQuestion.nextSibling);
+      separator.parentNode.insertBefore(nextQuestionDiv, separator.nextSibling);
+    }
 
     // Initialize keyboard navigation for the new question
     this.initializeKeyboardNavigation();
@@ -1787,6 +1818,13 @@ const quizSystem = new QuizSystem();
 
 // Global toggle function
 function toggleQuiz(quizId) {
+  // Hide any other open quiz blocks first
+  document.querySelectorAll('.quiz-block:not(.hidden)').forEach(openQuiz => {
+    if (openQuiz.id !== quizId) {
+      openQuiz.classList.add('hidden');
+    }
+  });
+
   let quiz = document.getElementById(quizId);
   if (!quiz) {
     quiz = document.createElement('div');
@@ -1809,9 +1847,18 @@ function toggleQuiz(quizId) {
       }
     }
   }
+  
+  // Clear any existing content and reset
+  quiz.innerHTML = '';
   quiz.classList.remove('hidden');
   quiz.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; margin: 1rem 0; padding: 1rem; border: 2px solid #e9ecef; border-radius: 8px; background: #f8f9ff; min-height: 200px;';
+  
   const topic = quizSystem.getTopicFromQuizId(quizId);
+  console.log('=== TOGGLE QUIZ DEBUG ===');
+  console.log('Quiz ID:', quizId);
+  console.log('Topic:', topic);
+  console.log('=== END TOGGLE DEBUG ===');
+  
   const quizData = quizSystem.generateQuiz(topic);
   if (quizData) {
     quizSystem.renderQuiz(quizData, quizId);
@@ -1820,7 +1867,7 @@ function toggleQuiz(quizId) {
     quiz.style.opacity = '1';
     quiz.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   } else {
-    quiz.innerHTML = '<p style="color: red; font-weight: bold;">Error: Could not generate quiz. Please try again.</p>';
+    quiz.innerHTML = '<p style="color: red; font-weight: bold;">Error: Could not generate quiz for topic "' + topic + '". Please try again.</p>';
   }
 }
 
