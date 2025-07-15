@@ -158,6 +158,10 @@ class QuizSystem {
     this.keyboardMode = true; // Enable keyboard navigation
     this.currentHighlight = 0; // For keyboard navigation
     this.matchingSelection = { italian: null, english: null }; // For matching games
+    this.checkingTimeout = null; // Safety timeout for checking
+    
+    // Add safety reset mechanism
+    this.setupSafetyReset();
     this.quizData = {
       introductions: {
         vocabulary: [
@@ -488,6 +492,30 @@ class QuizSystem {
       }
     };
     this.questionTypes = ['multipleChoice', 'matching', 'listening', 'typing', 'dragDrop'];
+  }
+
+  setupSafetyReset() {
+    // Safety mechanism to prevent permanent freezing
+    setInterval(() => {
+      if (this.isChecking) {
+        console.log('Safety check: isChecking has been true for too long, resetting...');
+        this.isChecking = false;
+        
+        // Clear any pending timeout
+        if (this.checkingTimeout) {
+          clearTimeout(this.checkingTimeout);
+          this.checkingTimeout = null;
+        }
+        
+        // Re-enable any disabled inputs
+        const disabledInputs = document.querySelectorAll('input[readonly]:not([data-persistent])');
+        disabledInputs.forEach(input => {
+          input.readOnly = false;
+          input.style.backgroundColor = '';
+          input.style.cursor = '';
+        });
+      }
+    }, 2000); // Check every 2 seconds
   }
 
   initializeKeyboardNavigation() {
@@ -1290,14 +1318,25 @@ class QuizSystem {
       event.preventDefault();
       event.stopPropagation();
       // Prevent multiple submissions
-      if (this.isChecking) return;
+      if (this.isChecking) {
+        console.log('Already checking, ignoring Enter key');
+        return;
+      }
       this.isChecking = true;
+      console.log('Setting isChecking to true for typing');
 
+      // Add immediate timeout to prevent hanging
       setTimeout(() => {
-        this.checkTyping();
-        // Always reset the flag after checking
-        this.isChecking = false;
-      }, 100);
+        try {
+          this.checkTyping();
+        } catch (error) {
+          console.error('Error in checkTyping:', error);
+        } finally {
+          // Always reset the flag
+          this.isChecking = false;
+          console.log('Reset isChecking to false for typing');
+        }
+      }, 50);
     }
   }
 
@@ -1306,14 +1345,25 @@ class QuizSystem {
       event.preventDefault();
       event.stopPropagation();
       // Prevent multiple submissions
-      if (this.isChecking) return;
+      if (this.isChecking) {
+        console.log('Already checking, ignoring Enter key');
+        return;
+      }
       this.isChecking = true;
+      console.log('Setting isChecking to true for listening');
 
+      // Add immediate timeout to prevent hanging
       setTimeout(() => {
-        this.checkListening();
-        // Always reset the flag after checking
-        this.isChecking = false;
-      }, 100);
+        try {
+          this.checkListening();
+        } catch (error) {
+          console.error('Error in checkListening:', error);
+        } finally {
+          // Always reset the flag
+          this.isChecking = false;
+          console.log('Reset isChecking to false for listening');
+        }
+      }, 50);
     }
   }
 
@@ -1327,6 +1377,13 @@ class QuizSystem {
 
     const userAnswer = input.value.trim();
     const correctAnswer = this.currentQuiz.correct;
+
+    // Safety check
+    if (!correctAnswer) {
+      console.error('No correct answer found in quiz');
+      this.isChecking = false;
+      return;
+    }
 
     console.log('=== TYPING VALIDATION DEBUG ===');
     console.log('User typed:', JSON.stringify(userAnswer));
@@ -1346,7 +1403,14 @@ class QuizSystem {
     console.log('=== END VALIDATION DEBUG ===');
 
     this.selectedAnswer = userAnswer;
-    this.showFeedback(isCorrect, this.currentQuiz.explanation);
+    
+    // Use try-catch to prevent any showFeedback errors from hanging the system
+    try {
+      this.showFeedback(isCorrect, this.currentQuiz.explanation);
+    } catch (error) {
+      console.error('Error in showFeedback:', error);
+      this.isChecking = false;
+    }
   }
 
   checkListening() {
@@ -1359,6 +1423,13 @@ class QuizSystem {
 
     const userAnswer = input.value.trim();
     const correctAnswer = this.currentQuiz.correct;
+
+    // Safety check
+    if (!correctAnswer) {
+      console.error('No correct answer found in quiz');
+      this.isChecking = false;
+      return;
+    }
 
     console.log('=== LISTENING VALIDATION DEBUG ===');
     console.log('User typed:', JSON.stringify(userAnswer));
@@ -1378,7 +1449,14 @@ class QuizSystem {
     console.log('=== END LISTENING VALIDATION DEBUG ===');
 
     this.selectedAnswer = userAnswer;
-    this.showFeedback(isCorrect, this.currentQuiz.explanation);
+    
+    // Use try-catch to prevent any showFeedback errors from hanging the system
+    try {
+      this.showFeedback(isCorrect, this.currentQuiz.explanation);
+    } catch (error) {
+      console.error('Error in showFeedback:', error);
+      this.isChecking = false;
+    }
   }
 
   skipAudioQuestion() {
@@ -1467,14 +1545,25 @@ class QuizSystem {
       event.preventDefault();
       event.stopPropagation();
       // Prevent multiple submissions
-      if (this.isChecking) return;
+      if (this.isChecking) {
+        console.log('Already checking, ignoring Enter key');
+        return;
+      }
       this.isChecking = true;
+      console.log('Setting isChecking to true for drag-drop');
 
+      // Add immediate timeout to prevent hanging
       setTimeout(() => {
-        this.checkDragDrop();
-        // Always reset the flag after checking
-        this.isChecking = false;
-      }, 100);
+        try {
+          this.checkDragDrop();
+        } catch (error) {
+          console.error('Error in checkDragDrop:', error);
+        } finally {
+          // Always reset the flag
+          this.isChecking = false;
+          console.log('Reset isChecking to false for drag-drop');
+        }
+      }, 50);
     } else if (event.key === 'Escape') {
       event.preventDefault();
       const input = event.target;
@@ -1513,6 +1602,13 @@ class QuizSystem {
 
     const correctAnswer = this.currentQuiz.correct;
 
+    // Safety check
+    if (!correctAnswer) {
+      console.error('No correct answer found in quiz');
+      this.isChecking = false;
+      return;
+    }
+
     console.log('=== DRAG-DROP VALIDATION DEBUG ===');
     console.log('User answer:', JSON.stringify(userWord));
     console.log('Correct answer:', JSON.stringify(correctAnswer));
@@ -1531,7 +1627,14 @@ class QuizSystem {
     console.log('=== END DRAG-DROP VALIDATION DEBUG ===');
 
     this.selectedAnswer = userWord;
-    this.showFeedback(isCorrect, this.currentQuiz.explanation);
+    
+    // Use try-catch to prevent any showFeedback errors from hanging the system
+    try {
+      this.showFeedback(isCorrect, this.currentQuiz.explanation);
+    } catch (error) {
+      console.error('Error in showFeedback:', error);
+      this.isChecking = false;
+    }
   }
 
   checkAnswer() {
@@ -1604,17 +1707,20 @@ class QuizSystem {
     // Mark question as answered
     currentQuestion.classList.add('answered');
 
-    // Disable all interactive elements more carefully to prevent input freezing
+    // Disable interactive elements more carefully to prevent freezing
     const elementsToDisable = currentQuestion.querySelectorAll('button:not(.quiz-feedback button), input, .match-item, .draggable-letter, .quiz-option');
     elementsToDisable.forEach(el => {
       if (el.tagName === 'INPUT') {
+        // For inputs, make them readonly but don't disable completely
         el.readOnly = true;
         el.style.backgroundColor = '#f8f9fa';
+        el.style.cursor = 'not-allowed';
+        // Don't set pointer-events to none on inputs as it can cause issues
       } else {
         el.disabled = true;
+        el.style.pointerEvents = 'none';
+        el.style.opacity = '0.7';
       }
-      el.style.pointerEvents = 'none';
-      el.style.opacity = '0.7';
     });
 
     if (isCorrect) {
