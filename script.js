@@ -1099,6 +1099,19 @@ class QuizSystem {
     let html = '<div class="keyboard-hint">Press SPACE to play audio, then type your answer and press Enter to submit</div>';
     html += '<div class="audio-container">';
     html += '<button class="play-audio-btn" onclick="quizSystem.playQuizAudio(\'' + quiz.audio + '\')"><i class="fas fa-play"></i> Play Audio (Space)</button>';
+    html += '<div class="accent-helper">';
+    html += '<div class="accent-buttons">';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'à\')">à</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'è\')">è</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'é\')">é</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ì\')">ì</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'í\')">í</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ò\')">ò</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ó\')">ó</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ù\')">ù</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ú\')">ú</button>';
+    html += '</div>';
+    html += '</div>';
     html += '<input type="text" class="quiz-input audio-input" placeholder="Type the Italian word..." onkeyup="quizSystem.handleListeningInput(event)" autofocus>';
     html += '<div class="audio-controls">';
     html += '<button class="quiz-check" onclick="quizSystem.checkListening()">Check Answer (Enter)</button>';
@@ -1110,6 +1123,19 @@ class QuizSystem {
 
   renderTypingContent(quiz) {
     let html = '<div class="keyboard-hint">Type your answer and press Enter to submit</div>';
+    html += '<div class="accent-helper">';
+    html += '<div class="accent-buttons">';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'à\')">à</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'è\')">è</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'é\')">é</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ì\')">ì</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'í\')">í</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ò\')">ò</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ó\')">ó</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ù\')">ù</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ú\')">ú</button>';
+    html += '</div>';
+    html += '</div>';
     html += '<input type="text" class="quiz-input" placeholder="Type your answer..." onkeyup="quizSystem.handleTypingInput(event)" autofocus>';
     html += '<button class="quiz-check" onclick="quizSystem.checkTyping()" style="margin-top: 1rem;">Check Answer (Enter)</button>';
     return html;
@@ -1122,6 +1148,19 @@ class QuizSystem {
     html += '<div class="drag-drop-container">';
     html += '<div class="drag-drop-input-section">';
     html += '<p><strong>Type your answer:</strong></p>';
+    html += '<div class="accent-helper">';
+    html += '<div class="accent-buttons">';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'à\')">à</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'è\')">è</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'é\')">é</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ì\')">ì</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'í\')">í</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ò\')">ò</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ó\')">ó</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ù\')">ù</button>';
+    html += '<button class="accent-btn" onclick="quizSystem.insertAccent(\'ú\')">ú</button>';
+    html += '</div>';
+    html += '</div>';
     html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type here..." onkeydown="quizSystem.handleDragDropTyping(event)" oninput="quizSystem.handleDragDropInput(event)" autofocus>';
     html += '<div class="drag-drop-buttons">';
     html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()">Check Answer (Enter)</button>';
@@ -1256,6 +1295,8 @@ class QuizSystem {
 
       setTimeout(() => {
         this.checkTyping();
+        // Always reset the flag after checking
+        this.isChecking = false;
       }, 100);
     }
   }
@@ -1270,6 +1311,8 @@ class QuizSystem {
 
       setTimeout(() => {
         this.checkListening();
+        // Always reset the flag after checking
+        this.isChecking = false;
       }, 100);
     }
   }
@@ -1310,6 +1353,7 @@ class QuizSystem {
     const input = document.querySelector('.audio-input');
     if (!input || !this.currentQuiz) {
       console.log('Input or quiz not found');
+      this.isChecking = false;
       return;
     }
 
@@ -1343,6 +1387,38 @@ class QuizSystem {
       this.selectedAnswer = 'skipped';
       // Don't count as incorrect - treat as neutral
       this.showSkippedFeedback(explanation);
+    }
+  }
+
+  insertAccent(accentChar) {
+    // Find the currently focused input field
+    const activeInput = document.activeElement;
+    
+    // Check if the active element is one of our quiz inputs
+    if (activeInput && (activeInput.classList.contains('quiz-input') || activeInput.classList.contains('audio-input') || activeInput.classList.contains('drag-type-input'))) {
+      const startPos = activeInput.selectionStart;
+      const endPos = activeInput.selectionEnd;
+      const inputValue = activeInput.value;
+      
+      // Insert the accent character at the cursor position
+      const newValue = inputValue.substring(0, startPos) + accentChar + inputValue.substring(endPos);
+      activeInput.value = newValue;
+      
+      // Move cursor after the inserted character
+      activeInput.setSelectionRange(startPos + 1, startPos + 1);
+      
+      // Keep focus on the input
+      activeInput.focus();
+    } else {
+      // If no input is focused, try to focus the first available input
+      const inputs = document.querySelectorAll('.quiz-input, .audio-input, .drag-type-input');
+      if (inputs.length > 0) {
+        const firstInput = inputs[0];
+        firstInput.focus();
+        firstInput.value += accentChar;
+        // Move cursor to end
+        firstInput.setSelectionRange(firstInput.value.length, firstInput.value.length);
+      }
     }
   }
 
@@ -1396,6 +1472,8 @@ class QuizSystem {
 
       setTimeout(() => {
         this.checkDragDrop();
+        // Always reset the flag after checking
+        this.isChecking = false;
       }, 100);
     } else if (event.key === 'Escape') {
       event.preventDefault();
@@ -1453,10 +1531,6 @@ class QuizSystem {
     console.log('=== END DRAG-DROP VALIDATION DEBUG ===');
 
     this.selectedAnswer = userWord;
-    
-    // Reset checking flag immediately to prevent freezing
-    this.isChecking = false;
-    
     this.showFeedback(isCorrect, this.currentQuiz.explanation);
   }
 

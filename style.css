@@ -2069,6 +2069,46 @@ footer {
   transform: none;
 }
 
+/* Accent Character Helper */
+.accent-helper {
+  margin: 0.75rem 0;
+  text-align: center;
+}
+
+.accent-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.accent-btn {
+  background: linear-gradient(135deg, #f8f9ff 0%, #e9ecef 100%);
+  border: 2px solid #6366f1;
+  color: #6366f1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+.accent-btn:hover {
+  background: #6366f1;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.accent-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.4);
+}
+
 /* Enhanced focus styles for accessibility */
 .quiz-option:focus,
 .quiz-check:focus,
