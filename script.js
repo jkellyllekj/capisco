@@ -1131,7 +1131,7 @@ class QuizSystem {
     html += '</div>';
     html += '<div class="drag-drop-input-section">';
     html += '<p>Type your answer:</p>';
-    html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type here..." onkeyup="quizSystem.handleDragDropTyping(event)" autofocus>';
+    html += '<input type="text" class="quiz-input drag-type-input" placeholder="Type here..." onkeydown="quizSystem.handleDragDropTyping(event)" oninput="quizSystem.handleDragDropInput(event)" autofocus>';
     html += '<div class="drag-drop-buttons">';
     html += '<button class="quiz-check" onclick="quizSystem.checkDragDrop()">Check Answer (Enter)</button>';
     html += '<button class="clear-word" onclick="quizSystem.clearWord(\'' + quizId + '\')">Clear (Escape)</button>';
@@ -1381,6 +1381,11 @@ class QuizSystem {
     });
   }
 
+  handleDragDropInput(event) {
+    // Allow normal typing without interference
+    return true;
+  }
+
   handleDragDropTyping(event) {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -1392,6 +1397,15 @@ class QuizSystem {
       setTimeout(() => {
         this.checkDragDrop();
       }, 100);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      const input = event.target;
+      if (input) {
+        input.value = '';
+      }
+      // Also clear the drag-drop area
+      const quizId = this.currentQuiz.vocab.italian.replace(/[^a-zA-Z0-9]/g, '');
+      this.clearWord(quizId);
     }
   }
 
@@ -1407,7 +1421,7 @@ class QuizSystem {
     // Check if user typed or used drag-drop
     if (typedInput && typedInput.value.trim()) {
       userWord = typedInput.value.trim();
-    } else if (this.currentQuiz.currentWord) {
+    } else if (this.currentQuiz.currentWord && this.currentQuiz.currentWord.length > 0) {
       userWord = this.currentQuiz.currentWord.join('');
     }
 

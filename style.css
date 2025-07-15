@@ -1920,7 +1920,8 @@ footer {
 .quiz-question .quiz-input,
 .quiz-question .letter-picker-answer,
 .quiz-question .flashcard,
-.quiz-question .audio-quiz-container {
+.quiz-question .audio-quiz-container,
+.quiz-question .drag-drop-container {
   order: 2;
 }
 
@@ -2517,6 +2518,32 @@ footer {
   margin-top: 1.5rem;
   padding-top: 1rem;
   border-top: 1px solid #e9ecef;
+}
+
+.drag-type-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin: 1rem 0;
+  transition: border-color 0.3s ease;
+  background: white;
+  color: #333;
+}
+
+.drag-type-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: white;
+}
+
+.drag-type-input:disabled {
+  background: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
 }
 
 .drag-drop-buttons {
