@@ -1,0 +1,23 @@
+
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="50%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#ec4899"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" fill="url(#bg512)"/>
+  
+  <!-- Italian flag -->
+  <rect x="128" y="160" width="85" height="192" fill="#009246"/>
+  <rect x="213" y="160" width="86" height="192" fill="#ffffff"/>
+  <rect x="299" y="160" width="85" height="192" fill="#ce2b37"/>
+  
+  <!-- Graduation cap -->
+  <path d="M384 224l-128-48-128 48 128 48 128-48z" fill="white" opacity="0.95"/>
+  <path d="M352 256v64c0 16-24 32-96 32s-96-16-96-32v-64" stroke="white" stroke-width="20" fill="none" opacity="0.95"/>
+  <circle cx="384" cy="256" r="12" fill="white" opacity="0.95"/>
+</svg>
