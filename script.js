@@ -113,7 +113,7 @@ function playItalianAudio(text) {
 
     function setVoice() {
       const voices = speechSynthesis.getVoices();
-      console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+      console.log('Available voices for Italian audio:', voices.length);
 
       let italianVoice = voices.find(voice => 
         voice.lang === 'it-IT' && voice.localService === true
@@ -130,17 +130,55 @@ function playItalianAudio(text) {
         console.log('No Italian voice found, using default with it-IT lang');
       }
 
-      speechSynthesis.speak(utterance);
+      utterance.onstart = () => {
+        console.log('Speech started for:', text);
+      };
+
+      utterance.onend = () => {
+        console.log('Speech ended for:', text);
+      };
+
+      utterance.onerror = (error) => {
+        console.error('Speech synthesis error:', error);
+        console.log('Fallback: showing text instead of audio');
+        alert(`Audio error. Text was: "${text}"`);
+      };
+
+      try {
+        speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.error('Error calling speechSynthesis.speak:', error);
+        alert(`Audio not working. Text was: "${text}"`);
+      }
     }
 
     if (speechSynthesis.getVoices().length > 0) {
       setVoice();
     } else {
-      speechSynthesis.addEventListener('voiceschanged', setVoice, { once: true });
+      // Add a timeout in case voiceschanged never fires
+      let voicesLoaded = false;
+      
+      const voicesChangedHandler = () => {
+        if (!voicesLoaded) {
+          voicesLoaded = true;
+          setVoice();
+        }
+      };
+      
+      speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler, { once: true });
+      
+      // Fallback timeout
+      setTimeout(() => {
+        if (!voicesLoaded) {
+          console.log('Voices loading timeout, trying anyway...');
+          voicesLoaded = true;
+          setVoice();
+        }
+      }, 1000);
     }
   } else {
-    console.log('Would play audio for: ' + text);
-    alert('Audio not supported. Text: ' + text);
+    console.log('Speech synthesis not supported');
+    alert(`Audio not supported in this browser. Text was: "${text}"`);
   }
 }
 

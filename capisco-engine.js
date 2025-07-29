@@ -464,28 +464,34 @@ class CapiscoEngine {
     
     // Count word frequency
     words.forEach(word => {
-      if (word.length > 2) { // Skip very short words
+      if (word.length > 1) { // Include shorter words for more vocabulary
         wordFrequency[word] = (wordFrequency[word] || 0) + 1;
       }
     });
     
     console.log('Word frequency analysis found', Object.keys(wordFrequency).length, 'unique words');
     
-    // Get most frequent meaningful words, excluding common words for the detected language
-    const sortedWords = Object.entries(wordFrequency)
+    // Get ALL meaningful words, not just frequent ones
+    const allWords = Object.entries(wordFrequency)
       .filter(([word, freq]) => {
-        return freq >= 1 && 
-               !commonWords.includes(word) && 
-               word.length > 2 &&
+        return !commonWords.includes(word) && 
+               word.length > 1 &&
                !word.match(/^\d+$/) && // Exclude numbers
                !word.match(/^[^\w]+$/); // Exclude punctuation-only
       })
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 25); // Take top 25 words for comprehensive coverage
+      .sort(([,a], [,b]) => b - a);
     
-    console.log('Selected vocabulary words:', sortedWords.map(([word]) => word));
+    console.log('All meaningful words found:', allWords.length);
     
-    const vocabulary = await Promise.all(sortedWords.map(async ([word, frequency]) => {
+    // Take up to 50 words for comprehensive coverage
+    const selectedWords = allWords.slice(0, 50);
+    console.log('Selected vocabulary words:', selectedWords.map(([word]) => word));
+    
+    // Also extract phrases and multi-word expressions
+    const phrases = this.extractPhrases(transcript, language);
+    console.log('Extracted phrases:', phrases.length);
+    
+    const vocabulary = await Promise.all(selectedWords.map(async ([word, frequency]) => {
       const context = this.findWordContext(word, transcript);
       const baseForm = await this.getBaseForm(word, language);
       const linguisticInfo = await this.getCompleteLinguisticInfo(baseForm, language);
@@ -509,8 +515,76 @@ class CapiscoEngine {
       };
     }));
     
-    console.log('Generated comprehensive vocabulary with translations:', vocabulary.length, 'items');
-    return vocabulary;
+    // Add phrases as vocabulary items
+    const phraseVocab = phrases.map(phrase => ({
+      word: phrase.text,
+      baseForm: phrase.text,
+      english: phrase.translation,
+      partOfSpeech: 'phrase',
+      gender: null,
+      plural: null,
+      pronunciation: this.generatePronunciation(phrase.text, language),
+      context: phrase.context,
+      frequency: 1,
+      difficulty: 'intermediate',
+      category: 'expressions',
+      etymology: 'Multi-word expression',
+      usage: phrase.usage,
+      culturalNotes: phrase.culturalNotes || 'Common expression in daily conversation',
+      examples: [phrase.context]
+    }));
+    
+    const allVocabulary = [...vocabulary, ...phraseVocab];
+    console.log('Generated comprehensive vocabulary with translations:', allVocabulary.length, 'items');
+    return allVocabulary;
+  }
+
+  extractPhrases(transcript, language) {
+    const phrases = [];
+    const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 10);
+    
+    // Common Italian phrases to look for
+    const commonPhrases = [
+      { pattern: /mi chiamo/gi, translation: 'my name is', usage: 'introduction' },
+      { pattern: /come stai/gi, translation: 'how are you', usage: 'greeting' },
+      { pattern: /va bene/gi, translation: 'it\'s okay/alright', usage: 'agreement' },
+      { pattern: /per favore/gi, translation: 'please', usage: 'politeness' },
+      { pattern: /scusa(mi)?/gi, translation: 'excuse me/sorry', usage: 'apology' },
+      { pattern: /non capisco/gi, translation: 'I don\'t understand', usage: 'communication' },
+      { pattern: /parli inglese/gi, translation: 'do you speak English', usage: 'language help' },
+      { pattern: /quanto costa/gi, translation: 'how much does it cost', usage: 'shopping' },
+      { pattern: /dov[e']?\s+/gi, translation: 'where is', usage: 'asking directions' },
+      { pattern: /che cosa/gi, translation: 'what', usage: 'questions' },
+      { pattern: /che ora/gi, translation: 'what time', usage: 'time questions' },
+      { pattern: /buongiorno/gi, translation: 'good morning', usage: 'greeting' },
+      { pattern: /buonasera/gi, translation: 'good evening', usage: 'greeting' },
+      { pattern: /buonanotte/gi, translation: 'good night', usage: 'farewell' },
+      { pattern: /arrivederci/gi, translation: 'goodbye', usage: 'farewell' },
+      { pattern: /a presto/gi, translation: 'see you soon', usage: 'farewell' },
+      { pattern: /mi piace/gi, translation: 'I like', usage: 'preferences' },
+      { pattern: /non mi piace/gi, translation: 'I don\'t like', usage: 'preferences' },
+      { pattern: /molto bene/gi, translation: 'very well/good', usage: 'approval' },
+      { pattern: /di niente/gi, translation: 'you\'re welcome', usage: 'politeness' }
+    ];
+    
+    sentences.forEach(sentence => {
+      commonPhrases.forEach(({ pattern, translation, usage }) => {
+        const matches = sentence.match(pattern);
+        if (matches) {
+          matches.forEach(match => {
+            phrases.push({
+              text: match.toLowerCase(),
+              translation: translation,
+              context: sentence.trim(),
+              usage: usage,
+              culturalNotes: `Common ${usage} expression in Italian`
+            });
+          });
+        }
+      });
+    });
+    
+    return phrases;
   }
 
   getCommonWords(language) {
@@ -1507,19 +1581,89 @@ class CapiscoEngine {
 
   pronounceWord(word) {
     if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech first
+      speechSynthesis.cancel();
+      
       const utterance = new SpeechSynthesisUtterance(word);
       utterance.lang = 'it-IT';
       utterance.rate = 0.8;
-      speechSynthesis.speak(utterance);
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      // Wait for voices to load if needed
+      const setVoice = () => {
+        const voices = speechSynthesis.getVoices();
+        console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+
+        // Find Italian voice
+        let italianVoice = voices.find(voice => 
+          voice.lang === 'it-IT' && voice.localService === true
+        ) || voices.find(voice => 
+          voice.lang === 'it-IT'
+        ) || voices.find(voice => 
+          voice.lang.startsWith('it')
+        );
+
+        if (italianVoice) {
+          utterance.voice = italianVoice;
+          console.log('Selected Italian voice:', italianVoice.name, italianVoice.lang);
+        } else {
+          console.log('No Italian voice found, using default with it-IT lang');
+        }
+
+        speechSynthesis.speak(utterance);
+      };
+
+      if (speechSynthesis.getVoices().length > 0) {
+        setVoice();
+      } else {
+        speechSynthesis.addEventListener('voiceschanged', setVoice, { once: true });
+      }
+    } else {
+      console.log('Speech synthesis not supported');
+      alert('Audio not supported in this browser');
     }
   }
 
   playTranscript(transcript) {
     if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech first
+      speechSynthesis.cancel();
+      
       const utterance = new SpeechSynthesisUtterance(transcript);
       utterance.lang = 'it-IT';
       utterance.rate = 0.7;
-      speechSynthesis.speak(utterance);
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      // Wait for voices to load if needed
+      const setVoice = () => {
+        const voices = speechSynthesis.getVoices();
+
+        // Find Italian voice
+        let italianVoice = voices.find(voice => 
+          voice.lang === 'it-IT' && voice.localService === true
+        ) || voices.find(voice => 
+          voice.lang === 'it-IT'
+        ) || voices.find(voice => 
+          voice.lang.startsWith('it')
+        );
+
+        if (italianVoice) {
+          utterance.voice = italianVoice;
+        }
+
+        speechSynthesis.speak(utterance);
+      };
+
+      if (speechSynthesis.getVoices().length > 0) {
+        setVoice();
+      } else {
+        speechSynthesis.addEventListener('voiceschanged', setVoice, { once: true });
+      }
+    } else {
+      console.log('Speech synthesis not supported');
+      alert('Audio not supported in this browser');
     }
   }
 
@@ -1585,38 +1729,68 @@ class CapiscoEngine {
     // Play the audio segment
     if ('speechSynthesis' in window) {
       speechSynthesis.cancel();
+      
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = this.currentLesson.sourceLanguage === 'it' ? 'it-IT' : 'en-US';
       utterance.rate = 0.8;
       utterance.pitch = 1.0;
       utterance.volume = 1.0;
 
-      // Find Italian voice
-      const voices = speechSynthesis.getVoices();
-      let targetVoice = voices.find(voice => 
-        voice.lang === utterance.lang && voice.localService === true
-      ) || voices.find(voice => 
-        voice.lang === utterance.lang
-      );
+      // Enhanced voice selection
+      const setVoiceAndPlay = () => {
+        const voices = speechSynthesis.getVoices();
+        console.log('Playing audio for:', text, 'Language:', utterance.lang);
+        
+        let targetVoice = voices.find(voice => 
+          voice.lang === utterance.lang && voice.localService === true
+        ) || voices.find(voice => 
+          voice.lang === utterance.lang
+        ) || voices.find(voice => 
+          voice.lang.startsWith(utterance.lang.split('-')[0])
+        );
 
-      if (targetVoice) {
-        utterance.voice = targetVoice;
-      }
+        if (targetVoice) {
+          utterance.voice = targetVoice;
+          console.log('Selected voice:', targetVoice.name, targetVoice.lang);
+        }
 
-      speechSynthesis.speak(utterance);
-      
+        speechSynthesis.speak(utterance);
+      };
+
       // Visual feedback
-      const button = event.target.closest('button');
+      const button = event?.target?.closest('button');
       if (button) {
         const originalContent = button.innerHTML;
         button.innerHTML = '<i class="fas fa-stop"></i> Playing...';
         button.style.background = '#f59e0b';
+        button.disabled = true;
         
         utterance.onend = () => {
           button.innerHTML = originalContent;
           button.style.background = '#10b981';
+          button.disabled = false;
+        };
+
+        utterance.onerror = (error) => {
+          console.error('Speech synthesis error:', error);
+          button.innerHTML = originalContent;
+          button.style.background = '#ef4444';
+          button.disabled = false;
+          setTimeout(() => {
+            button.style.background = '#10b981';
+          }, 2000);
         };
       }
+
+      // Set voice and play
+      if (speechSynthesis.getVoices().length > 0) {
+        setVoiceAndPlay();
+      } else {
+        speechSynthesis.addEventListener('voiceschanged', setVoiceAndPlay, { once: true });
+      }
+    } else {
+      console.log('Speech synthesis not supported');
+      alert('Audio not supported in this browser');
     }
   }
 
