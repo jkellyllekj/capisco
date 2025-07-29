@@ -74,6 +74,19 @@ class CapiscoEngine {
       // Step 2: Analyze language and content
       await this.updateProcessingStep(1);
       const analysis = await this.analyzeContent(transcript, sourceLanguage);
+      
+      // Show language detection result
+      if (!sourceLanguage || sourceLanguage === '') {
+        console.log(`Language auto-detected as: ${analysis.detectedLanguage}`);
+        // Update the form to show detected language
+        const sourceSelect = document.getElementById('source-language');
+        if (sourceSelect) {
+          sourceSelect.value = analysis.detectedLanguage;
+          // Highlight that language was detected
+          sourceSelect.style.background = '#d1fae5';
+          sourceSelect.style.border = '2px solid #10b981';
+        }
+      }
 
       // Step 3: Identify vocabulary
       await this.updateProcessingStep(2);
@@ -217,10 +230,17 @@ class CapiscoEngine {
   }
 
   async analyzeContent(transcript, sourceLanguage) {
-    // Enhanced content analysis - in real app would use advanced NLP/AI
+    // Enhanced content analysis with actual language detection
     const wordCount = transcript.split(/\s+/).length;
     const avgWordsPerSentence = transcript.split(/[.!?]+/).length > 0 ? 
       wordCount / transcript.split(/[.!?]+/).length : 10;
+    
+    // Auto-detect language if not provided
+    let detectedLanguage = sourceLanguage;
+    if (!sourceLanguage || sourceLanguage === '') {
+      detectedLanguage = this.detectLanguageFromTranscript(transcript);
+      console.log('Auto-detected language:', detectedLanguage);
+    }
     
     // Determine difficulty based on sentence complexity and vocabulary
     let difficultyLevel = 'beginner';
@@ -228,13 +248,59 @@ class CapiscoEngine {
     if (avgWordsPerSentence > 20 || wordCount > 1000) difficultyLevel = 'advanced';
     
     return {
-      detectedLanguage: sourceLanguage || 'it',
+      detectedLanguage: detectedLanguage,
       topics: this.extractTopicsFromTranscript(transcript),
       difficultyLevel: difficultyLevel,
       keyThemes: this.extractKeyThemes(transcript),
       wordCount: wordCount,
       estimatedStudyTime: Math.ceil(wordCount / 100) * 5 // 5 min per 100 words
     };
+  }
+
+  detectLanguageFromTranscript(transcript) {
+    // Simple language detection based on common words and patterns
+    const text = transcript.toLowerCase();
+    
+    // Italian indicators
+    const italianWords = ['che', 'con', 'per', 'una', 'del', 'della', 'sono', 'hanno', 'molto', 'anche', 'quando', 'dove', 'come', 'cosa', 'tutto', 'tutti', 'mi', 'chiamo', 'ciao', 'bene', 'grazie', 'prego', 'scusi', 'tempo', 'oggi', 'ieri', 'domani'];
+    const italianCount = italianWords.filter(word => text.includes(' ' + word + ' ') || text.startsWith(word + ' ') || text.endsWith(' ' + word)).length;
+    
+    // Spanish indicators  
+    const spanishWords = ['que', 'con', 'por', 'una', 'del', 'son', 'tienen', 'mucho', 'también', 'cuando', 'donde', 'como', 'qué', 'todo', 'todos', 'me', 'llamo', 'hola', 'bien', 'gracias', 'por favor', 'disculpe'];
+    const spanishCount = spanishWords.filter(word => text.includes(' ' + word + ' ') || text.startsWith(word + ' ') || text.endsWith(' ' + word)).length;
+    
+    // French indicators
+    const frenchWords = ['que', 'avec', 'pour', 'une', 'du', 'sont', 'ont', 'beaucoup', 'aussi', 'quand', 'où', 'comment', 'quoi', 'tout', 'tous', 'me', 'appelle', 'bonjour', 'bien', 'merci', 's\'il vous plaît'];
+    const frenchCount = frenchWords.filter(word => text.includes(' ' + word + ' ') || text.startsWith(word + ' ') || text.endsWith(' ' + word)).length;
+    
+    // English indicators
+    const englishWords = ['the', 'and', 'for', 'are', 'have', 'that', 'this', 'with', 'they', 'what', 'when', 'where', 'how', 'all', 'my', 'name', 'hello', 'good', 'thank', 'please', 'sorry'];
+    const englishCount = englishWords.filter(word => text.includes(' ' + word + ' ') || text.startsWith(word + ' ') || text.endsWith(' ' + word)).length;
+    
+    console.log('Language detection scores:', {
+      italian: italianCount,
+      spanish: spanishCount, 
+      french: frenchCount,
+      english: englishCount
+    });
+    
+    // Determine the most likely language
+    const scores = [
+      { lang: 'it', score: italianCount },
+      { lang: 'es', score: spanishCount },
+      { lang: 'fr', score: frenchCount },
+      { lang: 'en', score: englishCount }
+    ];
+    
+    const maxScore = Math.max(...scores.map(s => s.score));
+    if (maxScore === 0) {
+      console.log('No language detected, defaulting to Italian');
+      return 'it'; // Default to Italian if no clear match
+    }
+    
+    const detectedLang = scores.find(s => s.score === maxScore).lang;
+    console.log('Detected language:', detectedLang, 'with score:', maxScore);
+    return detectedLang;
   }
 
   extractTopicsFromTranscript(transcript) {
@@ -957,34 +1023,171 @@ class CapiscoEngine {
 
   startInteractiveVideo() {
     const videoContent = document.getElementById('video-content');
+    
+    // Initialize video simulation state
+    this.videoState = {
+      isPlaying: false,
+      currentTime: 0,
+      duration: 180, // 3 minutes for demo
+      currentSegment: 0,
+      segments: [
+        "Ciao a tutti! Mi chiamo Marco e oggi parleremo del tempo.",
+        "In Italia, abbiamo quattro stagioni: primavera, estate, autunno e inverno.",
+        "Mi piace molto l'estate perché fa caldo e posso andare al mare.",
+        "E voi, quale stagione preferite? La primavera è bella perché i fiori sbocciano.",
+        "L'autunno ha colori meravigliosi, e l'inverno... beh, fa freddo ma è romantico.",
+        "Oggi il tempo è nuvoloso, ma domani dovrebbe fare bel tempo.",
+        "Preferisco quando c'è il sole. Il sole mi rende felice!"
+      ]
+    };
+    
     videoContent.innerHTML = `
-      <div style="color: white; text-align: left;">
-        <div style="background: rgba(102, 126, 234, 0.2); padding: 2rem; border-radius: 8px;">
-          <h3><i class="fas fa-magic"></i> Interactive Learning Mode Active!</h3>
-          <p><strong>Features enabled:</strong></p>
-          <ul style="text-align: left; margin: 1rem 0;">
-            <li><i class="fas fa-mouse-pointer"></i> Click on any word in subtitles for instant translation</li>
-            <li><i class="fas fa-pause"></i> Video pauses automatically when new vocabulary appears</li>
-            <li><i class="fas fa-redo"></i> Replay any segment as many times as needed</li>
-            <li><i class="fas fa-chart-line"></i> Track your progress as you learn</li>
-            <li><i class="fas fa-gamepad"></i> Mini-quizzes at natural break points</li>
-          </ul>
-          <p style="opacity: 0.9;"><em>In a real implementation, the original YouTube video would play here with all these interactive overlays!</em></p>
-          <div class="demo-controls" style="margin-top: 2rem;">
-            <button onclick="capisco.simulateVideoSegment(0)" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">
-              <i class="fas fa-play"></i> Demo Segment 1
+      <div style="color: white; text-align: center;">
+        <div class="video-player-simulation" style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 2rem; border-radius: 8px; position: relative;">
+          <div class="video-display" style="background: #000; padding: 3rem 2rem; border-radius: 8px; margin-bottom: 1rem; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div id="video-status" style="font-size: 1.5rem; margin-bottom: 1rem;">
+              <i class="fas fa-play-circle" style="font-size: 3rem; color: #667eea; margin-bottom: 1rem;"></i>
+              <div>Press Play to Start Interactive Video</div>
+            </div>
+            <div id="video-timeline" style="width: 80%; background: #333; height: 6px; border-radius: 3px; margin: 1rem 0; position: relative;">
+              <div id="progress-bar" style="width: 0%; background: #667eea; height: 100%; border-radius: 3px; transition: width 0.3s ease;"></div>
+            </div>
+            <div id="time-display" style="color: #ccc; font-size: 0.9rem;">0:00 / 3:00</div>
+          </div>
+          
+          <div class="video-controls" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+            <button id="play-pause-btn" onclick="capisco.togglePlayPause()" style="background: #667eea; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+              <i class="fas fa-play"></i> Play Video
             </button>
-            <button onclick="capisco.simulateVideoSegment(1)" style="background: #f59e0b; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">
-              <i class="fas fa-play"></i> Demo Segment 2
+            <button onclick="capisco.restartVideo()" style="background: #6b7280; color: white; border: none; padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer;">
+              <i class="fas fa-undo"></i> Restart
             </button>
-            <button onclick="capisco.showComprehensionCheck()" style="background: #8b5cf6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
-              <i class="fas fa-question"></i> Comprehension Check
+            <button onclick="capisco.skipSegment()" style="background: #f59e0b; color: white; border: none; padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer;">
+              <i class="fas fa-forward"></i> Skip 10s
             </button>
+          </div>
+          
+          <div class="interactive-features" style="background: rgba(102, 126, 234, 0.1); padding: 1rem; border-radius: 8px; text-align: left;">
+            <h4><i class="fas fa-magic"></i> Interactive Features Active:</h4>
+            <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+              <li><i class="fas fa-closed-captioning"></i> Click subtitle words for instant translation</li>
+              <li><i class="fas fa-pause"></i> Auto-pause on new vocabulary</li>
+              <li><i class="fas fa-redo"></i> Replay any segment easily</li>
+              <li><i class="fas fa-gamepad"></i> Comprehension checkpoints</li>
+            </ul>
           </div>
         </div>
       </div>
     `;
+    
+    // Show subtitle overlay
     document.getElementById('subtitle-overlay').style.display = 'block';
+    this.updateSubtitle("Ready to start - Press Play!");
+  }
+
+  togglePlayPause() {
+    if (!this.videoState) return;
+    
+    const playBtn = document.getElementById('play-pause-btn');
+    const videoStatus = document.getElementById('video-status');
+    
+    if (this.videoState.isPlaying) {
+      // Pause video
+      this.videoState.isPlaying = false;
+      clearInterval(this.videoTimer);
+      playBtn.innerHTML = '<i class="fas fa-play"></i> Resume';
+      videoStatus.innerHTML = '<i class="fas fa-pause-circle" style="font-size: 3rem; color: #f59e0b; margin-bottom: 1rem;"></i><div>Video Paused</div>';
+    } else {
+      // Play video
+      this.videoState.isPlaying = true;
+      playBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+      videoStatus.innerHTML = '<i class="fas fa-play-circle" style="font-size: 3rem; color: #10b981; margin-bottom: 1rem;"></i><div>Video Playing</div>';
+      
+      this.startVideoSimulation();
+    }
+  }
+
+  startVideoSimulation() {
+    if (this.videoTimer) clearInterval(this.videoTimer);
+    
+    this.videoTimer = setInterval(() => {
+      if (!this.videoState.isPlaying) return;
+      
+      this.videoState.currentTime += 1;
+      this.updateVideoDisplay();
+      
+      // Check if we should show a new subtitle
+      const segmentTime = Math.floor(this.videoState.currentTime / 25); // ~25 seconds per segment
+      if (segmentTime < this.videoState.segments.length && segmentTime !== this.videoState.currentSegment) {
+        this.videoState.currentSegment = segmentTime;
+        this.updateSubtitle(this.videoState.segments[segmentTime]);
+      }
+      
+      // End video if duration reached
+      if (this.videoState.currentTime >= this.videoState.duration) {
+        this.endVideo();
+      }
+    }, 1000);
+  }
+
+  updateVideoDisplay() {
+    const progressBar = document.getElementById('progress-bar');
+    const timeDisplay = document.getElementById('time-display');
+    
+    if (progressBar) {
+      const progressPercent = (this.videoState.currentTime / this.videoState.duration) * 100;
+      progressBar.style.width = progressPercent + '%';
+    }
+    
+    if (timeDisplay) {
+      const currentMin = Math.floor(this.videoState.currentTime / 60);
+      const currentSec = this.videoState.currentTime % 60;
+      const totalMin = Math.floor(this.videoState.duration / 60);
+      const totalSec = this.videoState.duration % 60;
+      timeDisplay.textContent = `${currentMin}:${currentSec.toString().padStart(2, '0')} / ${totalMin}:${totalSec.toString().padStart(2, '0')}`;
+    }
+  }
+
+  updateSubtitle(text) {
+    const subtitleElement = document.getElementById('current-subtitle');
+    if (subtitleElement) {
+      this.highlightVocabulary(text);
+    }
+  }
+
+  restartVideo() {
+    if (this.videoTimer) clearInterval(this.videoTimer);
+    this.videoState.currentTime = 0;
+    this.videoState.currentSegment = 0;
+    this.videoState.isPlaying = false;
+    
+    const playBtn = document.getElementById('play-pause-btn');
+    const videoStatus = document.getElementById('video-status');
+    
+    playBtn.innerHTML = '<i class="fas fa-play"></i> Play Video';
+    videoStatus.innerHTML = '<i class="fas fa-play-circle" style="font-size: 3rem; color: #667eea; margin-bottom: 1rem;"></i><div>Video Ready to Start</div>';
+    
+    this.updateVideoDisplay();
+    this.updateSubtitle("Ready to start - Press Play!");
+  }
+
+  skipSegment() {
+    if (!this.videoState) return;
+    this.videoState.currentTime = Math.min(this.videoState.currentTime + 10, this.videoState.duration);
+    this.updateVideoDisplay();
+  }
+
+  endVideo() {
+    if (this.videoTimer) clearInterval(this.videoTimer);
+    this.videoState.isPlaying = false;
+    
+    const playBtn = document.getElementById('play-pause-btn');
+    const videoStatus = document.getElementById('video-status');
+    
+    playBtn.innerHTML = '<i class="fas fa-redo"></i> Restart';
+    videoStatus.innerHTML = '<i class="fas fa-check-circle" style="font-size: 3rem; color: #10b981; margin-bottom: 1rem;"></i><div>Video Complete!</div>';
+    
+    this.updateSubtitle("Video completed! Great job learning!");
   }
 
   simulateVideoSegment(segmentIndex) {
