@@ -13,22 +13,47 @@ class CapiscoEngine {
   }
 
   initializeEventListeners() {
-    document.getElementById('lesson-generator').addEventListener('submit', (e) => {
+    const form = document.getElementById('lesson-generator');
+    if (!form) {
+      console.error('Lesson generator form not found');
+      return;
+    }
+    
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
+      console.log('Form submitted, generating lesson...');
       this.generateLesson();
     });
   }
 
   async generateLesson() {
-    const videoUrl = document.getElementById('video-url').value;
-    const transcriptFile = document.getElementById('transcript-file').files[0];
-    const sourceLanguage = document.getElementById('source-language').value;
-    const targetLanguage = document.getElementById('target-language').value;
+    const videoUrlElement = document.getElementById('video-url');
+    const transcriptFileElement = document.getElementById('transcript-file');
+    const sourceLanguageElement = document.getElementById('source-language');
+    const targetLanguageElement = document.getElementById('target-language');
+
+    if (!videoUrlElement || !transcriptFileElement || !sourceLanguageElement || !targetLanguageElement) {
+      console.error('Form elements not found');
+      alert('Error: Form elements not found. Please refresh the page and try again.');
+      return;
+    }
+
+    const videoUrl = videoUrlElement.value.trim();
+    const transcriptFile = transcriptFileElement.files[0];
+    const sourceLanguage = sourceLanguageElement.value;
+    const targetLanguage = targetLanguageElement.value;
 
     if (!videoUrl && !transcriptFile) {
       alert('Please provide either a YouTube URL or upload a transcript file.');
       return;
     }
+
+    if (!targetLanguage) {
+      alert('Please select your native language for explanations.');
+      return;
+    }
+
+    console.log('Starting lesson generation...', { videoUrl, hasFile: !!transcriptFile, sourceLanguage, targetLanguage });
 
     this.showProcessingStatus();
     
@@ -91,8 +116,20 @@ class CapiscoEngine {
   }
 
   showProcessingStatus() {
-    document.getElementById('processing-status').classList.add('active');
-    document.getElementById('generate-btn').disabled = true;
+    const statusElement = document.getElementById('processing-status');
+    const btnElement = document.getElementById('generate-btn');
+    
+    if (statusElement) {
+      statusElement.classList.add('active');
+    } else {
+      console.error('Processing status element not found');
+    }
+    
+    if (btnElement) {
+      btnElement.disabled = true;
+    } else {
+      console.error('Generate button element not found');
+    }
   }
 
   hideProcessingStatus() {
@@ -1023,10 +1060,33 @@ class CapiscoEngine {
   pauseOnNewWords() {
     alert("⏸️ Auto-pause enabled! Video will pause when new vocabulary appears so you can study it.");
   }
+
+  // Debug function to test if everything is working
+  testCapisco() {
+    console.log('Capisco test function called');
+    alert('Capisco is working! Try submitting the form with a YouTube URL.');
+    return true;
+  }
 }
+
+// Add global test function
+window.testCapisco = function() {
+  if (window.capisco) {
+    return window.capisco.testCapisco();
+  } else {
+    console.error('Capisco not initialized');
+    alert('Capisco not initialized. Please refresh the page.');
+    return false;
+  }
+};
 
 // Initialize Capisco when page loads
 let capisco;
 document.addEventListener('DOMContentLoaded', function() {
-  capisco = new CapiscoEngine();
+  try {
+    capisco = new CapiscoEngine();
+    console.log('Capisco initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize Capisco:', error);
+  }
 });
