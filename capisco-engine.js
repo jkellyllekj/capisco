@@ -483,9 +483,9 @@ class CapiscoEngine {
     
     console.log('All meaningful words found:', allWords.length);
     
-    // Take up to 50 words for comprehensive coverage
-    const selectedWords = allWords.slice(0, 50);
-    console.log('Selected vocabulary words:', selectedWords.map(([word]) => word));
+    // Take ALL meaningful words for comprehensive coverage
+    const selectedWords = allWords;
+    console.log('Selected vocabulary words (all):', selectedWords.length, 'words:', selectedWords.slice(0, 10).map(([word]) => word), '...');
     
     // Also extract phrases and multi-word expressions
     const phrases = this.extractPhrases(transcript, language);
@@ -1150,44 +1150,44 @@ class CapiscoEngine {
     const sections = [];
 
     // 1. Core Vocabulary Section (most frequent words)
-    const coreVocab = vocabulary.filter(v => v.frequency >= 2).slice(0, 10);
+    const coreVocab = vocabulary.filter(v => v.frequency >= 2);
     if (coreVocab.length > 0) {
       sections.push({
         title: 'Core Vocabulary',
         vocabulary: coreVocab,
         icon: 'fa-star',
-        description: 'The most important words from this content'
+        description: `The most frequent words from this content (${coreVocab.length} words)`
       });
     }
 
     // 2. Group by part of speech for better learning structure
-    const verbs = vocabulary.filter(v => v.partOfSpeech === 'verb').slice(0, 8);
+    const verbs = vocabulary.filter(v => v.partOfSpeech === 'verb');
     if (verbs.length > 0) {
       sections.push({
         title: 'Verbs & Actions',
         vocabulary: verbs,
         icon: 'fa-running',
-        description: 'Action words and verb forms'
+        description: `Action words and verb forms (${verbs.length} words)`
       });
     }
 
-    const nouns = vocabulary.filter(v => v.partOfSpeech === 'noun').slice(0, 8);
+    const nouns = vocabulary.filter(v => v.partOfSpeech === 'noun');
     if (nouns.length > 0) {
       sections.push({
         title: 'Nouns & Objects',
         vocabulary: nouns,
         icon: 'fa-cube',
-        description: 'People, places, and things'
+        description: `People, places, and things (${nouns.length} words)`
       });
     }
 
-    const adjectives = vocabulary.filter(v => v.partOfSpeech === 'adjective').slice(0, 6);
+    const adjectives = vocabulary.filter(v => v.partOfSpeech === 'adjective');
     if (adjectives.length > 0) {
       sections.push({
         title: 'Descriptive Words',
         vocabulary: adjectives,
         icon: 'fa-palette',
-        description: 'Adjectives and descriptive terms'
+        description: `Adjectives and descriptive terms (${adjectives.length} words)`
       });
     }
 
@@ -1197,14 +1197,14 @@ class CapiscoEngine {
       v.partOfSpeech === 'interjection' ||
       v.usage.includes('expression') ||
       v.usage.includes('phrase')
-    ).slice(0, 6);
+    );
     
     if (expressions.length > 0) {
       sections.push({
         title: 'Expressions & Phrases',
         vocabulary: expressions,
         icon: 'fa-comments',
-        description: 'Common expressions and useful phrases'
+        description: `Common expressions and useful phrases (${expressions.length} items)`
       });
     }
 
@@ -1212,39 +1212,58 @@ class CapiscoEngine {
     const culturalWords = vocabulary.filter(v => 
       v.culturalNotes && 
       v.culturalNotes !== 'Cultural significance to be explored'
-    ).slice(0, 5);
+    );
     
     if (culturalWords.length > 0) {
       sections.push({
         title: 'Cultural Context',
         vocabulary: culturalWords,
         icon: 'fa-globe-europe',
-        description: 'Terms with cultural significance'
+        description: `Terms with cultural significance (${culturalWords.length} words)`
       });
     }
 
-    // 5. If no specific sections, create general ones
-    if (sections.length === 0) {
-      const firstHalf = vocabulary.slice(0, Math.ceil(vocabulary.length / 2));
-      const secondHalf = vocabulary.slice(Math.ceil(vocabulary.length / 2));
-      
-      sections.push({
-        title: 'Essential Vocabulary',
-        vocabulary: firstHalf,
-        icon: 'fa-star',
-        description: 'Key words from this content'
-      });
-      
-      if (secondHalf.length > 0) {
+    // 5. Remaining vocabulary by frequency
+    const remainingVocab = vocabulary.filter(v => 
+      !coreVocab.includes(v) && 
+      !verbs.includes(v) && 
+      !nouns.includes(v) && 
+      !adjectives.includes(v) && 
+      !expressions.includes(v) && 
+      !culturalWords.includes(v)
+    );
+
+    if (remainingVocab.length > 0) {
+      // Split remaining vocabulary into manageable chunks
+      const chunkSize = 25;
+      for (let i = 0; i < remainingVocab.length; i += chunkSize) {
+        const chunk = remainingVocab.slice(i, i + chunkSize);
+        const sectionNumber = Math.floor(i / chunkSize) + 1;
         sections.push({
-          title: 'Additional Vocabulary',
-          vocabulary: secondHalf,
+          title: `Additional Vocabulary ${sectionNumber}`,
+          vocabulary: chunk,
           icon: 'fa-plus',
-          description: 'More important terms'
+          description: `More vocabulary from this content (${chunk.length} words)`
         });
       }
     }
 
+    // 6. If no specific sections were created, create frequency-based sections
+    if (sections.length === 0) {
+      const chunkSize = 30;
+      for (let i = 0; i < vocabulary.length; i += chunkSize) {
+        const chunk = vocabulary.slice(i, i + chunkSize);
+        const sectionNumber = Math.floor(i / chunkSize) + 1;
+        sections.push({
+          title: `Vocabulary Section ${sectionNumber}`,
+          vocabulary: chunk,
+          icon: 'fa-book',
+          description: `Words from this content (${chunk.length} words)`
+        });
+      }
+    }
+
+    console.log(`Generated ${sections.length} vocabulary sections with total ${vocabulary.length} words`);
     return sections;
   }
 
