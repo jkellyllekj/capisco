@@ -7,7 +7,7 @@ class CapiscoEngine {
       'step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6'
     ];
     this.currentStep = 0;
-    this.maxDuration = 120; // 2 minutes for free version
+    this.maxDuration = null; // No time limitations for now
     
     this.initializeEventListeners();
   }
@@ -37,10 +37,9 @@ class CapiscoEngine {
       await this.updateProcessingStep(0);
       const transcript = await this.extractTranscript(videoUrl, transcriptFile);
       
-      // Check duration limit
-      if (this.estimateTranscriptDuration(transcript) > this.maxDuration) {
-        throw new Error('Video exceeds 2-minute limit for free version. Please upgrade or use a shorter video.');
-      }
+      // No duration limits - process any length transcript
+      const estimatedDuration = this.estimateTranscriptDuration(transcript);
+      console.log(`Processing transcript: ~${Math.ceil(estimatedDuration/60)} minutes of content`);
 
       // Step 2: Analyze language and content
       await this.updateProcessingStep(1);
@@ -147,75 +146,150 @@ class CapiscoEngine {
   }
 
   async analyzeContent(transcript, sourceLanguage) {
-    // Mock content analysis - in real app would use NLP/AI
+    // Enhanced content analysis - in real app would use advanced NLP/AI
+    const wordCount = transcript.split(/\s+/).length;
+    const avgWordsPerSentence = transcript.split(/[.!?]+/).length > 0 ? 
+      wordCount / transcript.split(/[.!?]+/).length : 10;
+    
+    // Determine difficulty based on sentence complexity and vocabulary
+    let difficultyLevel = 'beginner';
+    if (avgWordsPerSentence > 15 || wordCount > 500) difficultyLevel = 'intermediate';
+    if (avgWordsPerSentence > 20 || wordCount > 1000) difficultyLevel = 'advanced';
+    
     return {
       detectedLanguage: sourceLanguage || 'it',
-      topics: ['weather', 'seasons', 'preferences'],
-      difficultyLevel: 'beginner',
-      keyThemes: ['Tempo (Weather)', 'Stagioni (Seasons)', 'Preferenze (Preferences)']
+      topics: this.extractTopicsFromTranscript(transcript),
+      difficultyLevel: difficultyLevel,
+      keyThemes: this.extractKeyThemes(transcript),
+      wordCount: wordCount,
+      estimatedStudyTime: Math.ceil(wordCount / 100) * 5 // 5 min per 100 words
     };
   }
 
-  async extractVocabulary(transcript, analysis) {
-    // Mock vocabulary extraction - in real app would use advanced NLP
-    return [
-      {
-        word: 'stagioni',
-        baseForm: 'stagione',
-        partOfSpeech: 'noun',
-        gender: 'f',
-        context: 'abbiamo quattro stagioni',
-        frequency: 2
-      },
-      {
-        word: 'primavera',
-        baseForm: 'primavera',
-        partOfSpeech: 'noun',
-        gender: 'f',
-        context: 'La primavera è bella',
-        frequency: 2
-      },
-      {
-        word: 'estate',
-        baseForm: 'estate',
-        partOfSpeech: 'noun',
-        gender: 'f',
-        context: 'Mi piace molto l\'estate',
-        frequency: 1
-      },
-      {
-        word: 'autunno',
-        baseForm: 'autunno',
-        partOfSpeech: 'noun',
-        gender: 'm',
-        context: 'L\'autunno ha colori meravigliosi',
-        frequency: 1
-      },
-      {
-        word: 'inverno',
-        baseForm: 'inverno',
-        partOfSpeech: 'noun',
-        gender: 'm',
-        context: 'l\'inverno... fa freddo',
-        frequency: 1
-      },
-      {
-        word: 'preferite',
-        baseForm: 'preferire',
-        partOfSpeech: 'verb',
-        gender: null,
-        context: 'quale stagione preferite?',
-        frequency: 1
-      },
-      {
-        word: 'sole',
-        baseForm: 'sole',
-        partOfSpeech: 'noun',
-        gender: 'm',
-        context: 'quando c\'è il sole',
-        frequency: 2
+  extractTopicsFromTranscript(transcript) {
+    // Simple topic detection - in real app would use advanced NLP
+    const topics = [];
+    const topicKeywords = {
+      'food': ['mangiare', 'cibo', 'ristorante', 'cucinare', 'ricetta'],
+      'travel': ['viaggiare', 'aereo', 'hotel', 'vacanza', 'paese'],
+      'family': ['famiglia', 'madre', 'padre', 'figlio', 'fratello'],
+      'work': ['lavoro', 'ufficio', 'collega', 'riunione', 'progetto'],
+      'hobbies': ['tempo libero', 'sport', 'musica', 'leggere', 'film'],
+      'weather': ['tempo', 'sole', 'pioggia', 'freddo', 'caldo'],
+      'shopping': ['comprare', 'negozio', 'mercato', 'prezzo', 'soldi']
+    };
+    
+    Object.entries(topicKeywords).forEach(([topic, keywords]) => {
+      if (keywords.some(keyword => transcript.toLowerCase().includes(keyword))) {
+        topics.push(topic);
       }
-    ];
+    });
+    
+    return topics.length > 0 ? topics : ['general conversation'];
+  }
+
+  extractKeyThemes(transcript) {
+    // Extract 3-5 key themes from the content
+    const themes = [];
+    const text = transcript.toLowerCase();
+    
+    // This would be much more sophisticated in a real implementation
+    if (text.includes('mangiare') || text.includes('cibo')) themes.push('Food & Dining');
+    if (text.includes('famiglia') || text.includes('casa')) themes.push('Family & Home');
+    if (text.includes('lavoro') || text.includes('ufficio')) themes.push('Work & Career');
+    if (text.includes('viaggiare') || text.includes('vacanza')) themes.push('Travel & Adventure');
+    if (text.includes('tempo') && text.includes('pioggia')) themes.push('Weather & Climate');
+    if (text.includes('sport') || text.includes('giocare')) themes.push('Sports & Recreation');
+    
+    return themes.length > 0 ? themes : ['Daily Conversation'];
+  }
+
+  async extractVocabulary(transcript, analysis) {
+    // Enhanced vocabulary extraction - in real app would use advanced NLP
+    const words = transcript.toLowerCase().match(/\b[a-zA-Zàáâäãåąčćđèéêëēėęğìíîïıķľłńññòóôöõøœř][a-zA-Zàáâäãåąčćđèéêëēėęğìíîïıķľłńññòóôöõøœř']*\b/g) || [];
+    const wordFrequency = {};
+    
+    // Count word frequency
+    words.forEach(word => {
+      if (word.length > 2) { // Skip very short words
+        wordFrequency[word] = (wordFrequency[word] || 0) + 1;
+      }
+    });
+    
+    // Get most frequent meaningful words
+    const sortedWords = Object.entries(wordFrequency)
+      .filter(([word, freq]) => freq >= 1 && !this.isCommonWord(word))
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 15); // Take top 15 words
+    
+    return sortedWords.map(([word, frequency]) => {
+      const context = this.findWordContext(word, transcript);
+      return {
+        word: word,
+        baseForm: this.getBaseForm(word),
+        partOfSpeech: this.guessPartOfSpeech(word),
+        gender: this.guessGender(word),
+        context: context,
+        frequency: frequency,
+        difficulty: this.assessWordDifficulty(word),
+        category: this.categorizeWord(word, analysis.topics)
+      };
+    });
+  }
+
+  isCommonWord(word) {
+    const commonWords = ['che', 'con', 'per', 'una', 'del', 'della', 'degli', 'delle', 'sono', 'hanno', 'molto', 'anche', 'quando', 'dove', 'come', 'cosa', 'tutto', 'tutti', 'ogni', 'più', 'meno'];
+    return commonWords.includes(word.toLowerCase());
+  }
+
+  findWordContext(word, transcript) {
+    const sentences = transcript.split(/[.!?]+/);
+    for (let sentence of sentences) {
+      if (sentence.toLowerCase().includes(word.toLowerCase())) {
+        return sentence.trim();
+      }
+    }
+    return `Context with "${word}"`;
+  }
+
+  getBaseForm(word) {
+    // Simple heuristics - in real app would use proper lemmatization
+    if (word.endsWith('are') || word.endsWith('ere') || word.endsWith('ire')) return word;
+    if (word.endsWith('i') && word.length > 3) return word.slice(0, -1) + 'o';
+    if (word.endsWith('e') && word.length > 3) return word.slice(0, -1) + 'a';
+    return word;
+  }
+
+  guessPartOfSpeech(word) {
+    if (word.endsWith('are') || word.endsWith('ere') || word.endsWith('ire')) return 'verb';
+    if (word.endsWith('mente')) return 'adverb';
+    if (word.endsWith('zione') || word.endsWith('sione')) return 'noun';
+    return 'noun'; // Default assumption
+  }
+
+  guessGender(word) {
+    if (word.endsWith('a') || word.endsWith('e') || word.endsWith('zione')) return 'f';
+    if (word.endsWith('o') || word.endsWith('ore')) return 'm';
+    return null;
+  }
+
+  assessWordDifficulty(word) {
+    if (word.length <= 4) return 'basic';
+    if (word.length <= 7) return 'intermediate';
+    return 'advanced';
+  }
+
+  categorizeWord(word, topics) {
+    // Categorize based on detected topics
+    const foodWords = ['mangiare', 'cibo', 'pane', 'pasta', 'pizza'];
+    const familyWords = ['famiglia', 'madre', 'padre', 'figlio'];
+    const travelWords = ['viaggiare', 'aereo', 'hotel', 'paese'];
+    
+    if (foodWords.some(fw => word.includes(fw))) return 'food';
+    if (familyWords.some(fw => word.includes(fw))) return 'family';
+    if (travelWords.some(tw => word.includes(tw))) return 'travel';
+    
+    return topics[0] || 'general';
   }
 
   async generateTranslations(vocabulary, sourceLanguage, targetLanguage) {
@@ -287,32 +361,207 @@ class CapiscoEngine {
       vocabulary: vocabulary,
       translations: translations,
       quizData: quizData,
-      sections: this.generateLessonSections(vocabulary, translations, analysis)
+      sections: this.generateLessonSections(vocabulary, translations, analysis),
+      learningPath: this.createLearningPath(analysis, vocabulary),
+      studyGuide: this.generateStudyGuide(analysis, vocabulary, transcript)
     };
+  }
+
+  createLearningPath(analysis, vocabulary) {
+    const path = [];
+    
+    // Step 1: Introduction & Context
+    path.push({
+      step: 1,
+      title: 'Context & Overview',
+      description: `Understand the main topic: ${analysis.keyThemes.join(', ')}`,
+      activities: ['Listen to original', 'Read transcript', 'Identify main ideas']
+    });
+
+    // Step 2: Core Vocabulary
+    path.push({
+      step: 2,
+      title: 'Essential Words',
+      description: 'Master the most important vocabulary',
+      activities: ['Study word meanings', 'Practice pronunciation', 'Learn gender/forms']
+    });
+
+    // Step 3: Grammar in Context
+    path.push({
+      step: 3,
+      title: 'Language Patterns',
+      description: 'Understand how the language works',
+      activities: ['Identify verb forms', 'Study sentence structure', 'Practice patterns']
+    });
+
+    // Step 4: Active Practice
+    path.push({
+      step: 4,
+      title: 'Interactive Practice',
+      description: 'Test your understanding',
+      activities: ['Complete quizzes', 'Practice speaking', 'Write examples']
+    });
+
+    // Step 5: Integration
+    path.push({
+      step: 5,
+      title: 'Full Comprehension',
+      description: 'Put it all together',
+      activities: ['Listen again', 'Summarize content', 'Create your own examples']
+    });
+
+    return path;
+  }
+
+  generateStudyGuide(analysis, vocabulary, transcript) {
+    return {
+      overview: `This ${analysis.difficulty} level content covers ${analysis.keyThemes.join(', ')}. Estimated study time: ${analysis.estimatedStudyTime} minutes.`,
+      keyPoints: this.extractKeyPoints(transcript),
+      grammarNotes: this.identifyGrammarPatterns(vocabulary),
+      culturalNotes: this.generateCulturalNotes(analysis.topics),
+      practiceActivities: this.suggestPracticeActivities(analysis.topics, analysis.difficulty)
+    };
+  }
+
+  extractKeyPoints(transcript) {
+    // Extract 3-5 key points from the content
+    const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 10);
+    return sentences.slice(0, 3).map(s => s.trim());
+  }
+
+  identifyGrammarPatterns(vocabulary) {
+    const patterns = [];
+    const verbs = vocabulary.filter(v => v.partOfSpeech === 'verb');
+    const nouns = vocabulary.filter(v => v.partOfSpeech === 'noun');
+    
+    if (verbs.length > 0) {
+      patterns.push(`Verb forms: ${verbs.map(v => v.baseForm).join(', ')}`);
+    }
+    if (nouns.filter(n => n.gender === 'f').length > 0) {
+      patterns.push('Feminine nouns (use "la/una")');
+    }
+    if (nouns.filter(n => n.gender === 'm').length > 0) {
+      patterns.push('Masculine nouns (use "il/un")');
+    }
+    
+    return patterns;
+  }
+
+  generateCulturalNotes(topics) {
+    const notes = [];
+    if (topics.includes('food')) {
+      notes.push('Italian food culture: meals are social events, quality ingredients matter');
+    }
+    if (topics.includes('family')) {
+      notes.push('Family is central in Italian culture - formal/informal address is important');
+    }
+    if (topics.includes('work')) {
+      notes.push('Italian business culture values relationships and personal connections');
+    }
+    return notes;
+  }
+
+  suggestPracticeActivities(topics, difficulty) {
+    const activities = [
+      'Re-watch the original video with subtitles',
+      'Practice repeating key phrases aloud',
+      'Write your own sentences using the new vocabulary'
+    ];
+    
+    if (difficulty !== 'beginner') {
+      activities.push('Try to summarize the content in Italian');
+      activities.push('Find similar videos on the same topic');
+    }
+    
+    return activities;
   }
 
   generateLessonSections(vocabulary, translations, analysis) {
     const sections = [];
 
-    // Group vocabulary by themes
-    const themes = {
-      'Seasons': ['primavera', 'estate', 'autunno', 'inverno'],
-      'Weather': ['sole', 'tempo', 'caldo', 'freddo'],
-      'Actions & Preferences': ['preferire', 'piace']
-    };
+    // 1. Core Vocabulary Section (most frequent words)
+    const coreVocab = vocabulary.filter(v => v.frequency >= 2).slice(0, 8);
+    if (coreVocab.length > 0) {
+      sections.push({
+        title: 'Core Vocabulary',
+        vocabulary: coreVocab,
+        icon: 'fa-star',
+        description: 'The most important words from this content'
+      });
+    }
 
-    Object.entries(themes).forEach(([theme, words]) => {
-      const themeVocab = vocabulary.filter(v => words.includes(v.baseForm));
-      if (themeVocab.length > 0) {
+    // 2. Group by categories/topics
+    const categories = this.groupVocabularyByCategory(vocabulary);
+    Object.entries(categories).forEach(([category, words]) => {
+      if (words.length >= 2) {
         sections.push({
-          title: theme,
-          vocabulary: themeVocab,
-          icon: this.getThemeIcon(theme)
+          title: this.formatCategoryTitle(category),
+          vocabulary: words,
+          icon: this.getThemeIcon(category),
+          description: `Key terms related to ${category}`
         });
       }
     });
 
-    return sections;
+    // 3. Grammar Patterns Section (verbs and complex structures)
+    const grammarWords = vocabulary.filter(v => v.partOfSpeech === 'verb' || v.difficulty === 'advanced');
+    if (grammarWords.length > 0) {
+      sections.push({
+        title: 'Grammar & Advanced Terms',
+        vocabulary: grammarWords,
+        icon: 'fa-cogs',
+        description: 'Verbs and more complex language structures'
+      });
+    }
+
+    // 4. Cultural Context Section (if content seems culturally specific)
+    const culturalWords = vocabulary.filter(v => this.isCulturallySpecific(v.word));
+    if (culturalWords.length > 0) {
+      sections.push({
+        title: 'Cultural Context',
+        vocabulary: culturalWords,
+        icon: 'fa-globe-europe',
+        description: 'Terms with cultural significance'
+      });
+    }
+
+    return sections.length > 0 ? sections : [
+      {
+        title: 'All Vocabulary',
+        vocabulary: vocabulary,
+        icon: 'fa-book',
+        description: 'Complete vocabulary from this content'
+      }
+    ];
+  }
+
+  groupVocabularyByCategory(vocabulary) {
+    const categories = {};
+    vocabulary.forEach(word => {
+      const category = word.category || 'general';
+      if (!categories[category]) categories[category] = [];
+      categories[category].push(word);
+    });
+    return categories;
+  }
+
+  formatCategoryTitle(category) {
+    const titles = {
+      'food': 'Food & Dining',
+      'family': 'Family & Relationships',
+      'travel': 'Travel & Places',
+      'work': 'Work & Professional',
+      'hobbies': 'Hobbies & Interests',
+      'weather': 'Weather & Nature',
+      'shopping': 'Shopping & Commerce',
+      'general': 'General Vocabulary'
+    };
+    return titles[category] || category.charAt(0).toUpperCase() + category.slice(1);
+  }
+
+  isCulturallySpecific(word) {
+    const culturalWords = ['piazza', 'gelato', 'cappuccino', 'pasta', 'pizza', 'ciao', 'bene', 'grazie'];
+    return culturalWords.includes(word.toLowerCase());
   }
 
   getThemeIcon(theme) {
