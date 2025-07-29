@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capisco - Learn Any Language from YouTube</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .capisco-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .upload-section {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    
+    .input-group input, .input-group select, .input-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    
+    .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .generate-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+    
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    }
+    
+    .generate-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .processing-status {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      background: #f8fafc;
+      border-radius: 12px;
+      margin-top: 1rem;
+    }
+    
+    .processing-status.active {
+      display: block;
+    }
+    
+    .status-step {
+      padding: 0.5rem 0;
+      color: #64748b;
+    }
+    
+    .status-step.active {
+      color: #667eea;
+      font-weight: 600;
+    }
+    
+    .status-step.complete {
+      color: #10b981;
+    }
+    
+    .generated-lesson {
+      display: none;
+      margin-top: 2rem;
+    }
+    
+    .generated-lesson.active {
+      display: block;
+    }
+    
+    .limitation-notice {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      color: #92400e;
+    }
+  </style>
+</head>
+<body>
+  <header class="capisco-header">
+    <h1><i class="fas fa-brain"></i> Capisco</h1>
+    <p class="subtitle">Turn any YouTube video into an interactive language lesson</p>
+  </header>
+
+  <main class="container">
+    <div class="upload-section">
+      <h2><i class="fas fa-upload"></i> Create Your Lesson</h2>
+      
+      <div class="limitation-notice">
+        <i class="fas fa-clock"></i> <strong>Free Version:</strong> Limited to 2-minute videos. 
+        <a href="#upgrade">Upgrade for 10-minute videos</a>
+      </div>
+
+      <form id="lesson-generator">
+        <div class="input-group">
+          <label for="video-url">YouTube Video URL</label>
+          <input type="url" id="video-url" placeholder="https://youtube.com/watch?v=..." required>
+          <small>Or upload a transcript file below</small>
+        </div>
+
+        <div class="input-group">
+          <label for="transcript-file">Upload Transcript (Optional)</label>
+          <input type="file" id="transcript-file" accept=".txt,.srt,.vtt">
+        </div>
+
+        <div class="input-group">
+          <label for="source-language">Source Language</label>
+          <select id="source-language" required>
+            <option value="">Auto-detect</option>
+            <option value="it">Italian</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="pt">Portuguese</option>
+            <option value="ru">Russian</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="zh">Chinese</option>
+            <option value="ar">Arabic</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="target-language">Your Language (for translations)</label>
+          <select id="target-language" required>
+            <option value="en">English</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+            <option value="pt">Portuguese</option>
+            <option value="ru">Russian</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="zh">Chinese</option>
+          </select>
+        </div>
+
+        <button type="submit" class="generate-btn" id="generate-btn">
+          <i class="fas fa-magic"></i> Generate Interactive Lesson
+        </button>
+      </form>
+
+      <div class="processing-status" id="processing-status">
+        <h3><i class="fas fa-cog fa-spin"></i> Creating Your Lesson</h3>
+        <div class="status-step" id="step-1">1. Extracting transcript...</div>
+        <div class="status-step" id="step-2">2. Analyzing language and content...</div>
+        <div class="status-step" id="step-3">3. Identifying key vocabulary...</div>
+        <div class="status-step" id="step-4">4. Generating translations and pronunciations...</div>
+        <div class="status-step" id="step-5">5. Creating interactive elements...</div>
+        <div class="status-step" id="step-6">6. Building your personalized lesson...</div>
+      </div>
+    </div>
+
+    <div class="generated-lesson" id="generated-lesson">
+      <!-- Dynamic lesson content will be inserted here -->
+    </div>
+  </main>
+
+  <script src="capisco-engine.js"></script>
+</body>
+</html>
