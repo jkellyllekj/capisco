@@ -732,22 +732,7 @@ class CapiscoEngine {
     };
   }
 
-  generatePronunciation(word) {
-    // Basic Italian pronunciation rules
-    return word.toLowerCase()
-      .replace(/c(?=[ie])/g, 'CH')
-      .replace(/g(?=[ie])/g, 'J')
-      .replace(/gli/g, 'LYI')
-      .replace(/gn/g, 'NY')
-      .replace(/sc(?=[ie])/g, 'SH')
-      .replace(/([aeiou])/g, (match, vowel) => vowel.toUpperCase())
-      .replace(/(.)/g, (match, char, index) => {
-        if (index === Math.floor(word.length / 2)) {
-          return char.toUpperCase();
-        }
-        return char;
-      });
-  }
+  
 
   isCommonWord(word) {
     const commonWords = ['che', 'con', 'per', 'una', 'del', 'della', 'degli', 'delle', 'sono', 'hanno', 'molto', 'anche', 'quando', 'dove', 'come', 'cosa', 'tutto', 'tutti', 'ogni', 'più', 'meno'];
@@ -764,7 +749,7 @@ class CapiscoEngine {
     return `Context with "${word}"`;
   }
 
-  getBaseForm(word) {
+  async getBaseForm(word, language) {
     // Simple heuristics - in real app would use proper lemmatization
     if (word.endsWith('are') || word.endsWith('ere') || word.endsWith('ire')) return word;
     if (word.endsWith('i') && word.length > 3) return word.slice(0, -1) + 'o';
@@ -772,17 +757,49 @@ class CapiscoEngine {
     return word;
   }
 
-  guessPartOfSpeech(word) {
+  guessPartOfSpeech(word, language) {
     if (word.endsWith('are') || word.endsWith('ere') || word.endsWith('ire')) return 'verb';
     if (word.endsWith('mente')) return 'adverb';
     if (word.endsWith('zione') || word.endsWith('sione')) return 'noun';
     return 'noun'; // Default assumption
   }
 
-  guessGender(word) {
+  guessGender(word, language) {
     if (word.endsWith('a') || word.endsWith('e') || word.endsWith('zione')) return 'f';
     if (word.endsWith('o') || word.endsWith('ore')) return 'm';
     return null;
+  }
+
+  generatePlural(word, language) {
+    // Simple Italian plural rules
+    if (language === 'it') {
+      if (word.endsWith('a')) return word.slice(0, -1) + 'e';
+      if (word.endsWith('o')) return word.slice(0, -1) + 'i';
+      if (word.endsWith('e')) return word.slice(0, -1) + 'i';
+      if (word.endsWith('co')) return word.slice(0, -2) + 'chi';
+      if (word.endsWith('go')) return word.slice(0, -2) + 'ghi';
+    }
+    return word + 's'; // Default for other languages
+  }
+
+  generatePronunciation(word, language) {
+    if (language === 'it') {
+      // Basic Italian pronunciation rules
+      return word.toLowerCase()
+        .replace(/c(?=[ie])/g, 'CH')
+        .replace(/g(?=[ie])/g, 'J')
+        .replace(/gli/g, 'LYI')
+        .replace(/gn/g, 'NY')
+        .replace(/sc(?=[ie])/g, 'SH')
+        .replace(/([aeiou])/g, (match, vowel) => vowel.toUpperCase())
+        .replace(/(.)/g, (match, char, index) => {
+          if (index === Math.floor(word.length / 2)) {
+            return char.toUpperCase();
+          }
+          return char;
+        });
+    }
+    return word; // Default for other languages
   }
 
   assessWordDifficulty(word) {
