@@ -1240,11 +1240,10 @@ class CapiscoEngine {
     // Create lesson page structure similar to Al Mercato
     let html = `
       <div class="lesson-container" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
-        <!-- Lesson Header -->
-        <header class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3rem 2rem; border-radius: 20px; margin-bottom: 2rem; text-align: center;">
-          <h1><i class="fas fa-book-open"></i> ${lesson.title}</h1>
-          <p class="lesson-subtitle">Generated from your video content</p>
-          <div class="lesson-meta" style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">
+        <!-- Compact Lesson Header -->
+        <header class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem 2rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
+          <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem;"><i class="fas fa-book-open"></i> ${lesson.title}</h1>
+          <div class="lesson-meta" style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap; font-size: 0.9rem;">
             <span><i class="fas fa-signal"></i> ${lesson.difficulty.charAt(0).toUpperCase() + lesson.difficulty.slice(1)}</span>
             <span><i class="fas fa-language"></i> ${lesson.sourceLanguage.toUpperCase()}</span>
             <span><i class="fas fa-clock"></i> ${lesson.studyGuide.overview.match(/\d+ minutes/)?.[0] || '5-10 minutes'}</span>
@@ -1252,33 +1251,29 @@ class CapiscoEngine {
           </div>
           
           <!-- Mode Toggle -->
-          <div class="mode-toggle" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
-            <button id="study-mode-btn" class="mode-btn active" onclick="capisco.setLearningMode('study')" style="background: rgba(255,255,255,0.3); border: none; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+          <div class="mode-toggle" style="display: flex; gap: 0.5rem; justify-content: center;">
+            <button id="study-mode-btn" class="mode-btn active" onclick="capisco.setLearningMode('study')" style="background: rgba(255,255,255,0.3); border: none; color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
               <i class="fas fa-book"></i> Study Mode
             </button>
-            <button id="watch-mode-btn" class="mode-btn" onclick="capisco.setLearningMode('watch')" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+            <button id="watch-mode-btn" class="mode-btn" onclick="capisco.setLearningMode('watch')" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
               <i class="fas fa-video"></i> Watch Mode
             </button>
           </div>
         </header>
 
-        <!-- Study Guide Overview -->
-        <section class="lesson-section overview-section" style="background: white; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
-          <div class="section-header">
-            <h2><i class="fas fa-compass"></i> Lesson Overview</h2>
-          </div>
-          <div class="overview-content" style="line-height: 1.8;">
-            <p style="font-size: 1.1rem; margin-bottom: 1rem;">${lesson.studyGuide.overview}</p>
-            <div class="key-themes" style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
-              <h4><i class="fas fa-tags"></i> Key Themes:</h4>
-              <div class="theme-tags" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+        <!-- Compact Study Guide Overview -->
+        <section class="lesson-section overview-section" style="background: white; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
+          <div class="overview-content" style="line-height: 1.6;">
+            <p style="font-size: 1rem; margin-bottom: 0.75rem;">${lesson.studyGuide.overview}</p>
+            <div class="key-themes" style="background: #f8fafc; padding: 0.75rem; border-radius: 6px;">
+              <div class="theme-tags" style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
                 ${(Array.isArray(lesson.studyGuide.keyPoints) ? lesson.studyGuide.keyPoints : lesson.studyGuide.keyThemes || []).map(theme => {
                   if (typeof theme === 'object' && theme.display) {
-                    return `<span style="background: #667eea; color: white; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.9rem;" title="${theme.original}">${theme.english}</span>`;
+                    return `<span style="background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 10px; font-size: 0.8rem;" title="${theme.original}">${theme.english}</span>`;
                   } else if (typeof theme === 'object' && theme.english) {
-                    return `<span style="background: #667eea; color: white; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.9rem;" title="${theme.original}">${theme.english}</span>`;
+                    return `<span style="background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 10px; font-size: 0.8rem;" title="${theme.original}">${theme.english}</span>`;
                   } else {
-                    return `<span style="background: #667eea; color: white; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.9rem;">${theme}</span>`;
+                    return `<span style="background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 10px; font-size: 0.8rem;">${theme}</span>`;
                   }
                 }).join('')}
               </div>
@@ -1305,34 +1300,34 @@ class CapiscoEngine {
             </div>
             
             <div class="vocabulary-section">
-              <ul class="vocab-list" style="list-style: none; padding: 0; display: grid; gap: 1rem;">
+              <ul class="vocab-list" style="list-style: none; padding: 0; display: grid; gap: 0.5rem;">
       `;
 
       section.vocabulary.forEach((vocab, vocabIndex) => {
           html += `
-                <li class="vocab-item" style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #667eea; margin-bottom: 1rem;">
-                  <div class="vocab-content" style="display: flex; justify-content: space-between; align-items: start;">
-                    <div class="vocab-text" style="flex: 1;">
-                      <div class="italian-word" style="font-size: 1.4rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">
+                <li class="vocab-item" style="background: #f8fafc; padding: 0.75rem; border-radius: 8px; border-left: 3px solid #667eea; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                  <div class="vocab-content" style="flex: 1;">
+                    <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.25rem;">
+                      <span class="italian-word" style="font-size: 1.1rem; font-weight: 700; color: #1e293b;">
                         ${vocab.baseForm || vocab.word}
-                        ${vocab.gender ? `<span class="gender-tag" style="background: ${vocab.gender === 'f' ? '#f472b6' : vocab.gender === 'm' ? '#60a5fa' : '#10b981'}; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; margin-left: 0.5rem;">${vocab.gender === 'f' ? 'fem' : vocab.gender === 'm' ? 'masc' : vocab.gender}</span>` : ''}
-                        ${vocab.partOfSpeech ? `<span class="pos-tag" style="background: #e2e8f0; color: #475569; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; margin-left: 0.5rem;">${vocab.partOfSpeech}</span>` : ''}
-                      </div>
-                      <div class="english-translation" style="font-size: 1.2rem; color: #059669; font-weight: 600; margin-bottom: 0.5rem;">${vocab.english}</div>
-                      <div class="pronunciation" style="font-style: italic; color: #0891b2; font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem;">/${vocab.pronunciation}/</div>
-                      ${vocab.plural ? `<div class="plural-form" style="font-size: 0.9rem; color: #7c3aed; margin-bottom: 0.5rem;"><strong>Plural:</strong> ${vocab.plural}</div>` : ''}
-                      ${vocab.context ? `<div class="context" style="margin-top: 0.5rem; padding: 0.75rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px; font-size: 0.9rem; font-style: italic; border-left: 3px solid #667eea;"><strong>Context:</strong> "${vocab.context}"</div>` : ''}
-                      ${vocab.usage ? `<div class="usage-notes" style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 6px; font-size: 0.85rem; color: #065f46;"><strong>Usage:</strong> ${vocab.usage}</div>` : ''}
-                      ${vocab.examples && vocab.examples.length > 0 ? `<div class="examples" style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(251, 191, 36, 0.1); border-radius: 6px; font-size: 0.85rem; color: #92400e;"><strong>Examples:</strong> ${vocab.examples.slice(0, 2).join(', ')}</div>` : ''}
+                      </span>
+                      ${vocab.gender ? `<span class="gender-tag" style="background: ${vocab.gender === 'f' ? '#f472b6' : vocab.gender === 'm' ? '#60a5fa' : '#10b981'}; color: white; padding: 0.1rem 0.4rem; border-radius: 8px; font-size: 0.7rem;">${vocab.gender === 'f' ? 'fem' : vocab.gender === 'm' ? 'masc' : vocab.gender}</span>` : ''}
+                      ${vocab.partOfSpeech ? `<span class="pos-tag" style="background: #e2e8f0; color: #475569; padding: 0.1rem 0.4rem; border-radius: 8px; font-size: 0.7rem;">${vocab.partOfSpeech}</span>` : ''}
+                      <span class="english-translation" style="font-size: 1rem; color: #059669; font-weight: 600;">${vocab.english}</span>
                     </div>
-                    <div class="vocab-controls" style="display: flex; flex-direction: column; gap: 0.5rem; margin-left: 1rem;">
-                      <button class="info-btn" data-info="${this.formatWordInfo(vocab)}" data-gender="${vocab.gender || ''}" data-plural="${vocab.plural || ''}" style="background: #667eea; color: white; border: none; padding: 0.5rem; border-radius: 6px; cursor: pointer; font-size: 1rem;">
-                        <i class="fas fa-info-circle"></i>
-                      </button>
-                      <button class="speaker-btn" data-italian="${vocab.baseForm || vocab.word}" style="background: #10b981; color: white; border: none; padding: 0.5rem; border-radius: 6px; cursor: pointer; font-size: 1rem;">
-                        <i class="fas fa-volume-up"></i>
-                      </button>
+                    <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; color: #64748b;">
+                      <span class="pronunciation" style="font-style: italic;">/${vocab.pronunciation}/</span>
+                      ${vocab.plural ? `<span><strong>Plural:</strong> ${vocab.plural}</span>` : ''}
+                      ${vocab.context ? `<span class="context" style="font-style: italic; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${vocab.context}">"${vocab.context}"</span>` : ''}
                     </div>
+                  </div>
+                  <div class="vocab-controls" style="display: flex; gap: 0.5rem; margin-left: 1rem;">
+                    <button class="info-btn" data-info="${this.formatWordInfo(vocab)}" data-gender="${vocab.gender || ''}" data-plural="${vocab.plural || ''}" style="background: #667eea; color: white; border: none; padding: 0.4rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                      <i class="fas fa-info-circle"></i>
+                    </button>
+                    <button class="speaker-btn" data-italian="${vocab.baseForm || vocab.word}" style="background: #10b981; color: white; border: none; padding: 0.4rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                      <i class="fas fa-volume-up"></i>
+                    </button>
                   </div>
                 </li>
           `;
