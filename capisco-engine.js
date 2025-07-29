@@ -121,17 +121,42 @@ class CapiscoEngine {
 
   async extractYouTubeTranscript(videoUrl) {
     // In a real implementation, this would use YouTube API or a transcript extraction service
-    // For demo purposes, we'll use a mock transcript
+    // For demo purposes, we'll use mock transcripts in different languages
     const videoId = this.extractVideoId(videoUrl);
     
-    // Mock Italian transcript for demonstration
-    return `Ciao a tutti! Mi chiamo Marco e oggi parleremo del tempo. 
-    In Italia, abbiamo quattro stagioni: primavera, estate, autunno e inverno. 
-    Mi piace molto l'estate perché fa caldo e posso andare al mare. 
-    E voi, quale stagione preferite? La primavera è bella perché i fiori sbocciano. 
-    L'autunno ha colori meravigliosi, e l'inverno... beh, fa freddo ma è romantico.
-    Oggi il tempo è nuvoloso, ma domani dovrebbe fare bel tempo.
-    Preferisco quando c'è il sole. Il sole mi rende felice!`;
+    // Mock transcripts for demonstration - randomly select one to show multilingual capability
+    const mockTranscripts = {
+      italian: `Ciao a tutti! Mi chiamo Marco e oggi parleremo del tempo. 
+      In Italia, abbiamo quattro stagioni: primavera, estate, autunno e inverno. 
+      Mi piace molto l'estate perché fa caldo e posso andare al mare. 
+      E voi, quale stagione preferite? La primavera è bella perché i fiori sbocciano. 
+      L'autunno ha colori meravigliosi, e l'inverno... beh, fa freddo ma è romantico.
+      Oggi il tempo è nuvoloso, ma domani dovrebbe fare bel tempo.
+      Preferisco quando c'è il sole. Il sole mi rende felice!`,
+      
+      english: `Hi everyone! Welcome to my cooking channel. Today we're making traditional pasta carbonara. 
+      First, you'll need eggs, pecorino cheese, guanciale, and spaghetti. 
+      The key is timing - you want the pasta hot but not so hot that it scrambles the eggs.
+      Many people add cream, but that's not authentic. The creaminess comes from the eggs and cheese.
+      Let me show you step by step how to get that perfect silky texture.`,
+      
+      french: `Bonjour tout le monde! Aujourd'hui nous visitons le marché aux puces de Paris.
+      C'est un endroit magnifique pour trouver des antiquités et des objets vintage.
+      Regardez cette belle lampe art déco! Le vendeur dit qu'elle date des années 1920.
+      J'adore flâner dans ces allées et découvrir des trésors cachés.
+      Combien coûte ce vase? Ah, c'est un peu cher pour moi aujourd'hui.`,
+      
+      spanish: `¡Hola amigos! Estamos en Barcelona y vamos a explorar las tapas típicas.
+      Aquí tenemos jamón ibérico, manchego, y estas deliciosas croquetas.
+      La cultura de las tapas es muy importante en España. No es solo comida, es socializar.
+      Nos gusta ir de bar en bar, tomando una tapa y una cerveza en cada sitio.
+      ¿Cuál es vuestra tapa favorita? ¡Déjamelo en los comentarios!`
+    };
+    
+    // Randomly return one for demo - in real app would be based on actual video content
+    const languages = Object.keys(mockTranscripts);
+    const randomLang = languages[Math.floor(Math.random() * languages.length)];
+    return mockTranscripts[randomLang];
   }
 
   extractVideoId(url) {
