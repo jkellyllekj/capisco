@@ -777,7 +777,7 @@ class CapiscoEngine {
 
   displayLesson(lesson) {
     const lessonContainer = document.getElementById('generated-lesson');
-    const html = this.generateLessonHTML(lesson);
+    const html = this.generateStructuredLessonHTML(lesson);
     lessonContainer.innerHTML = html;
     lessonContainer.classList.add('active');
     
@@ -792,153 +792,234 @@ class CapiscoEngine {
     // Store current lesson for future reference/saving
     this.currentLesson = lesson;
     
-    // Initialize interactive elements
-    this.initializeLessonInteractivity();
+    // Initialize interactive elements like Al Mercato
+    this.initializeStructuredLessonInteractivity();
   }
 
-  generateLessonHTML(lesson) {
+  generateStructuredLessonHTML(lesson) {
+    // Create lesson page structure similar to Al Mercato
     let html = `
-      <div class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 20px; margin-bottom: 2rem;">
-        <h2><i class="fas fa-graduation-cap"></i> ${lesson.title}</h2>
-        <p>Difficulty: ${lesson.difficulty} | Language: ${lesson.sourceLanguage.toUpperCase()}</p>
-        
-        <!-- Interactive Video Player -->
-        <div class="interactive-video-container" style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 12px; margin-top: 1rem;">
-          <div class="video-controls-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h4><i class="fas fa-play-circle"></i> Interactive Video Learning</h4>
-            <div class="learning-mode-toggle">
-              <button id="study-mode-btn" class="mode-btn active" onclick="capisco.setLearningMode('study')" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; margin-right: 0.5rem; cursor: pointer;">
-                <i class="fas fa-book"></i> Study Mode
-              </button>
-              <button id="watch-mode-btn" class="mode-btn" onclick="capisco.setLearningMode('watch')" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
-                <i class="fas fa-eye"></i> Watch Mode
-              </button>
-            </div>
+      <div class="lesson-container" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+        <!-- Lesson Header -->
+        <header class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3rem 2rem; border-radius: 20px; margin-bottom: 2rem; text-align: center;">
+          <h1><i class="fas fa-book-open"></i> ${lesson.title}</h1>
+          <p class="lesson-subtitle">Generated from your video content</p>
+          <div class="lesson-meta" style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">
+            <span><i class="fas fa-signal"></i> ${lesson.difficulty.charAt(0).toUpperCase() + lesson.difficulty.slice(1)}</span>
+            <span><i class="fas fa-language"></i> ${lesson.sourceLanguage.toUpperCase()}</span>
+            <span><i class="fas fa-clock"></i> ${lesson.studyGuide.overview.match(/\d+ minutes/)?.[0] || '5-10 minutes'}</span>
+            <span><i class="fas fa-list"></i> ${lesson.vocabulary.length} vocabulary items</span>
           </div>
           
-          <!-- Video Player Simulation -->
-          <div id="video-player" style="background: #000; border-radius: 8px; padding: 2rem; text-align: center; position: relative; min-height: 300px;">
-            <div id="video-content" style="color: white;">
-              <div class="video-placeholder" style="background: linear-gradient(45deg, #333, #555); padding: 4rem 2rem; border-radius: 8px;">
-                <i class="fas fa-video" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.7;"></i>
-                <h3>Interactive Video Player</h3>
-                <p style="opacity: 0.8;">Original YouTube video would play here with interactive subtitles</p>
-                <button onclick="capisco.startInteractiveVideo()" style="background: #667eea; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; cursor: pointer; margin-top: 1rem;">
-                  <i class="fas fa-play"></i> Start Interactive Learning
-                </button>
-              </div>
-            </div>
-            
-            <!-- Interactive Subtitle Overlay -->
-            <div id="subtitle-overlay" style="position: absolute; bottom: 20px; left: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 1rem; border-radius: 8px; display: none;">
-              <div id="current-subtitle" style="font-size: 1.2rem; margin-bottom: 0.5rem;"></div>
-              <div id="subtitle-controls" style="display: flex; gap: 0.5rem; justify-content: center;">
-                <button class="subtitle-btn" onclick="capisco.translateCurrentSegment()" style="background: #667eea; border: none; color: white; padding: 0.3rem 0.8rem; border-radius: 4px; cursor: pointer;">
-                  <i class="fas fa-language"></i> Translate
-                </button>
-                <button class="subtitle-btn" onclick="capisco.showVocabularyHelp()" style="background: #10b981; border: none; color: white; padding: 0.3rem 0.8rem; border-radius: 4px; cursor: pointer;">
-                  <i class="fas fa-book"></i> Vocabulary
-                </button>
-                <button class="subtitle-btn" onclick="capisco.replaySegment()" style="background: #f59e0b; border: none; color: white; padding: 0.3rem 0.8rem; border-radius: 4px; cursor: pointer;">
-                  <i class="fas fa-redo"></i> Replay
-                </button>
+          <!-- Mode Toggle -->
+          <div class="mode-toggle" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+            <button id="study-mode-btn" class="mode-btn active" onclick="capisco.setLearningMode('study')" style="background: rgba(255,255,255,0.3); border: none; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+              <i class="fas fa-book"></i> Study Mode
+            </button>
+            <button id="watch-mode-btn" class="mode-btn" onclick="capisco.setLearningMode('watch')" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+              <i class="fas fa-video"></i> Watch Mode
+            </button>
+          </div>
+        </header>
+
+        <!-- Study Guide Overview -->
+        <section class="lesson-section overview-section" style="background: white; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+          <div class="section-header">
+            <h2><i class="fas fa-compass"></i> Lesson Overview</h2>
+          </div>
+          <div class="overview-content" style="line-height: 1.8;">
+            <p style="font-size: 1.1rem; margin-bottom: 1rem;">${lesson.studyGuide.overview}</p>
+            <div class="key-themes" style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+              <h4><i class="fas fa-tags"></i> Key Themes:</h4>
+              <div class="theme-tags" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                ${lesson.studyGuide.keyPoints.map(theme => 
+                  `<span style="background: #667eea; color: white; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.9rem;">${theme}</span>`
+                ).join('')}
               </div>
             </div>
           </div>
-          
-          <!-- Video Learning Controls -->
-          <div class="video-learning-controls" style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-            <button onclick="capisco.toggleSubtitles()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
-              <i class="fas fa-closed-captioning"></i> Interactive Subtitles
-            </button>
-            <button onclick="capisco.enableVocabularyMode()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
-              <i class="fas fa-highlight"></i> Highlight Vocabulary
-            </button>
-            <button onclick="capisco.setVideoSpeed(0.75)" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
-              <i class="fas fa-tachometer-alt"></i> Slow (0.75x)
-            </button>
-            <button onclick="capisco.pauseOnNewWords()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
-              <i class="fas fa-pause"></i> Pause on New Words
-            </button>
-          </div>
-        </div>
-        
-        <!-- Learning Progress -->
-        <div class="learning-progress" style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-          <h4><i class="fas fa-chart-line"></i> Your Progress</h4>
-          <div class="progress-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
-            <div class="stat-item">
-              <div style="font-size: 1.5rem; font-weight: bold;">0%</div>
-              <div style="font-size: 0.9rem; opacity: 0.8;">Video Watched</div>
-            </div>
-            <div class="stat-item">
-              <div style="font-size: 1.5rem; font-weight: bold;">0/${lesson.vocabulary.length}</div>
-              <div style="font-size: 0.9rem; opacity: 0.8;">Words Learned</div>
-            </div>
-            <div class="stat-item">
-              <div style="font-size: 1.5rem; font-weight: bold;">0</div>
-              <div style="font-size: 0.9rem; opacity: 0.8;">Segments Mastered</div>
-            </div>
-          </div>
-        </div>
-      </div>
+        </section>
     `;
 
-    // Generate sections
-    lesson.sections.forEach((section, index) => {
+    // Generate vocabulary sections like Al Mercato
+    lesson.sections.forEach((section, sectionIndex) => {
+      const sectionId = `section-${sectionIndex}`;
       html += `
-        <div class="lesson-section" style="background: white; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+        <section class="lesson-section" style="background: white; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
           <div class="section-header">
-            <h3><i class="fas ${section.icon}"></i> ${section.title}</h3>
+            <h2><i class="fas ${section.icon}"></i> ${section.title}</h2>
+            <div class="section-translation">
+              <span class="translation-text">${section.description}</span>
+            </div>
           </div>
-          <div class="vocabulary-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+          <div class="content-card">
+            <div class="lesson-visual" style="text-align: center; margin-bottom: 2rem; padding: 2rem; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 12px;">
+              <i class="fas ${section.icon}" style="font-size: 3rem; color: #667eea; margin-bottom: 1rem;"></i>
+              <p style="font-style: italic; color: #64748b;">${section.description}</p>
+            </div>
+            
+            <div class="vocabulary-section">
+              <ul class="vocab-list" style="list-style: none; padding: 0; display: grid; gap: 1rem;">
       `;
 
-      section.vocabulary.forEach(vocab => {
-        const translation = lesson.translations[vocab.baseForm];
+      section.vocabulary.forEach((vocab, vocabIndex) => {
+        const translation = lesson.translations[vocab.baseForm] || lesson.translations[vocab.word];
         if (translation) {
           html += `
-            <div class="vocab-card" style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 1rem; transition: all 0.3s ease;">
-              <div class="vocab-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h4 style="margin: 0; color: #667eea;">${vocab.baseForm}</h4>
-                <div class="vocab-controls">
-                  <button class="info-btn" onclick="capisco.showWordInfo('${vocab.baseForm}')" style="background: none; border: none; color: #667eea; cursor: pointer; margin-right: 0.5rem;">
-                    <i class="fas fa-info-circle"></i>
-                  </button>
-                  <button class="speaker-btn" onclick="capisco.pronounceWord('${vocab.baseForm}')" style="background: none; border: none; color: #10b981; cursor: pointer;">
-                    <i class="fas fa-volume-up"></i>
-                  </button>
-                </div>
-              </div>
-              <p style="margin: 0.5rem 0; font-weight: 600;">${translation.english}</p>
-              <p style="margin: 0.5rem 0; font-size: 0.9rem; color: #64748b;">/${translation.pronunciation}/</p>
-              ${vocab.gender ? `<span class="gender-badge" style="background: ${vocab.gender === 'f' ? '#f472b6' : '#60a5fa'}; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem;">${vocab.gender}</span>` : ''}
-              <div class="context" style="margin-top: 0.5rem; font-style: italic; font-size: 0.9rem; color: #64748b;">
-                "${vocab.context}"
-              </div>
-            </div>
+                <li class="vocab-item" style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #667eea;">
+                  <div class="vocab-content" style="display: flex; justify-content: space-between; align-items: start;">
+                    <div class="vocab-text">
+                      <div class="italian-word" style="font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">
+                        ${vocab.baseForm || vocab.word}
+                        ${vocab.gender ? `<span class="gender-tag" style="background: ${vocab.gender === 'f' ? '#f472b6' : '#60a5fa'}; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; margin-left: 0.5rem;">${vocab.gender}</span>` : ''}
+                      </div>
+                      <div class="english-translation" style="font-size: 1.1rem; color: #64748b; margin-bottom: 0.5rem;">${translation.english}</div>
+                      <div class="pronunciation" style="font-style: italic; color: #94a3b8; font-size: 0.9rem;">/${translation.pronunciation}/</div>
+                      ${vocab.context ? `<div class="context" style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(102, 126, 234, 0.1); border-radius: 6px; font-size: 0.9rem; font-style: italic;">"${vocab.context}"</div>` : ''}
+                    </div>
+                    <div class="vocab-controls">
+                      <button class="info-btn" data-info="${translation.etymology || translation.usage || 'Click for more information about this word'}" data-gender="${vocab.gender || ''}" data-plural="${vocab.plural || ''}" style="background: none; border: none; color: #667eea; cursor: pointer; margin-right: 0.5rem; font-size: 1.1rem;">
+                        <i class="fas fa-info-circle"></i>
+                      </button>
+                      <button class="speaker-btn" data-italian="${vocab.baseForm || vocab.word}" style="background: none; border: none; color: #10b981; cursor: pointer; font-size: 1.1rem;">
+                        <i class="fas fa-volume-up"></i>
+                      </button>
+                    </div>
+                  </div>
+                </li>
           `;
         }
       });
 
       html += `
+              </ul>
+            </div>
+            <button class="quiz-btn" onclick="toggleQuiz('quiz-${sectionIndex}')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 1.5rem; transition: all 0.3s ease;">
+              <i class="fas fa-gamepad"></i> Practice ${section.title}
+            </button>
+            <div id="quiz-${sectionIndex}" class="quiz-block hidden">
+              <!-- Quiz content will be dynamically generated -->
+            </div>
           </div>
-          <button class="quiz-btn" onclick="capisco.startQuiz('${section.title.toLowerCase()}', ${index})" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 1rem;">
-            <i class="fas fa-gamepad"></i> Practice ${section.title}
-          </button>
-          <div id="quiz-${index}" class="quiz-container" style="display: none; margin-top: 1rem;"></div>
-        </div>
+        </section>
       `;
     });
+
+    // Cultural Context Section if available
+    if (lesson.studyGuide.culturalNotes && lesson.studyGuide.culturalNotes.length > 0) {
+      html += `
+        <section class="lesson-section cultural-section" style="background: white; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+          <div class="section-header">
+            <h2><i class="fas fa-globe-europe"></i> Cultural Context</h2>
+          </div>
+          <div class="cultural-content">
+            ${lesson.studyGuide.culturalNotes.map(note => 
+              `<div class="cultural-note" style="background: #f0f4f8; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #38b2ac;">
+                <i class="fas fa-lightbulb" style="color: #38b2ac; margin-right: 0.5rem;"></i>
+                ${note}
+              </div>`
+            ).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    // Practice Activities Section
+    html += `
+        <section class="lesson-section practice-section" style="background: white; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+          <div class="section-header">
+            <h2><i class="fas fa-dumbbell"></i> Practice Activities</h2>
+          </div>
+          <div class="activities-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            ${lesson.studyGuide.practiceActivities.map((activity, index) => 
+              `<div class="activity-card" style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <i class="fas fa-check-circle" style="color: #10b981; margin-right: 0.5rem;"></i>
+                ${activity}
+              </div>`
+            ).join('')}
+          </div>
+        </section>
+
+        <!-- Watch Mode Section (Hidden by default) -->
+        <div id="watch-mode-content" style="display: none;">
+          <section class="lesson-section watch-section" style="background: white; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+            <div class="section-header">
+              <h2><i class="fas fa-video"></i> Watch & Practice</h2>
+            </div>
+            <div class="watch-content">
+              <p style="margin-bottom: 1rem; font-size: 1.1rem;">Now that you've studied the vocabulary, practice with audio segments from the original content:</p>
+              <div class="audio-segments" style="display: grid; gap: 1rem;">
+                ${this.generateAudioSegments(lesson)}
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    `;
 
     return html;
   }
 
-  initializeLessonInteractivity() {
-    // Initialize the existing quiz system with the new dynamic data
-    if (typeof quizSystem !== 'undefined') {
-      // Update quiz data with the generated content
-      this.integrateWithExistingQuizSystem();
+  generateAudioSegments(lesson) {
+    if (!lesson.videoData || !lesson.videoData.segments) return '';
+    
+    return lesson.videoData.segments
+      .filter(segment => segment.hasInteraction)
+      .slice(0, 6) // Limit to first 6 interactive segments
+      .map((segment, index) => `
+        <div class="audio-segment" style="background: #f8fafc; padding: 1rem; border-radius: 8px; border-left: 4px solid #667eea;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="segment-text" style="flex: 1;">
+              <p style="font-weight: 600; margin-bottom: 0.5rem;">"${segment.text}"</p>
+              <div class="segment-vocab" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                ${segment.vocabulary.map(vocab => 
+                  `<span style="background: #667eea; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem;">${vocab.word}</span>`
+                ).join('')}
+              </div>
+            </div>
+            <button onclick="capisco.playSegmentAudio('${segment.text}', ${index})" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
+              <i class="fas fa-play"></i> Listen
+            </button>
+          </div>
+        </div>
+      `).join('');
+  }
+
+  initializeStructuredLessonInteractivity() {
+    // Initialize vocab interactions like in Al Mercato
+    setTimeout(() => {
+      if (typeof initializeVocabInteractions === 'function') {
+        initializeVocabInteractions();
+      }
+      
+      // Update quiz system with generated lesson data
+      if (typeof quizSystem !== 'undefined' && this.currentLesson) {
+        this.updateQuizSystemWithLessonData();
+      }
+    }, 100);
+  }
+
+  updateQuizSystemWithLessonData() {
+    // Create dynamic quiz data from lesson content
+    const dynamicQuizData = {
+      generated_content: {
+        vocabulary: this.currentLesson.vocabulary.map(vocab => {
+          const translation = this.currentLesson.translations[vocab.baseForm] || this.currentLesson.translations[vocab.word];
+          return {
+            italian: vocab.baseForm || vocab.word,
+            english: translation ? translation.english : vocab.english || 'translation',
+            gender: vocab.gender || '',
+            plural: vocab.plural || '',
+            info: translation ? (translation.etymology + ' ' + translation.usage) : vocab.context || 'Additional information about this word.',
+            audio: vocab.baseForm || vocab.word
+          };
+        })
+      }
+    };
+
+    // Add to quiz system
+    if (quizSystem && quizSystem.quizData) {
+      Object.assign(quizSystem.quizData, dynamicQuizData);
     }
   }
 
@@ -989,10 +1070,11 @@ class CapiscoEngine {
     }
   }
 
-  // Interactive Video Methods
+  // Learning Mode Methods
   setLearningMode(mode) {
     const studyBtn = document.getElementById('study-mode-btn');
     const watchBtn = document.getElementById('watch-mode-btn');
+    const watchContent = document.getElementById('watch-mode-content');
     
     if (mode === 'study') {
       studyBtn.classList.add('active');
@@ -1000,25 +1082,72 @@ class CapiscoEngine {
       studyBtn.style.background = 'rgba(255,255,255,0.3)';
       watchBtn.style.background = 'rgba(255,255,255,0.1)';
       this.enableStudyMode();
+      if (watchContent) watchContent.style.display = 'none';
     } else {
       watchBtn.classList.add('active');
       studyBtn.classList.remove('active');
       watchBtn.style.background = 'rgba(255,255,255,0.3)';
       studyBtn.style.background = 'rgba(255,255,255,0.1)';
       this.enableWatchMode();
+      if (watchContent) watchContent.style.display = 'block';
     }
   }
 
   enableStudyMode() {
-    // Enable all interactive features for deep learning
-    console.log('Study Mode: Interactive subtitles, vocabulary overlays, and pause-on-new-words enabled');
-    document.getElementById('subtitle-overlay').style.display = 'block';
+    console.log('Study Mode: Focus on vocabulary, grammar, and detailed learning');
+    // Scroll to vocabulary sections
+    const firstSection = document.querySelector('.lesson-section:not(.overview-section)');
+    if (firstSection) {
+      firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   enableWatchMode() {
-    // Minimal interruptions, focus on comprehension
-    console.log('Watch Mode: Minimal interruptions, focus on natural viewing experience');
-    document.getElementById('subtitle-overlay').style.display = 'none';
+    console.log('Watch Mode: Practice with audio segments and reinforcement');
+    // Scroll to watch mode content
+    const watchContent = document.getElementById('watch-mode-content');
+    if (watchContent) {
+      watchContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  playSegmentAudio(text, segmentIndex) {
+    // Play the audio segment
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = this.currentLesson.sourceLanguage === 'it' ? 'it-IT' : 'en-US';
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      // Find Italian voice
+      const voices = speechSynthesis.getVoices();
+      let targetVoice = voices.find(voice => 
+        voice.lang === utterance.lang && voice.localService === true
+      ) || voices.find(voice => 
+        voice.lang === utterance.lang
+      );
+
+      if (targetVoice) {
+        utterance.voice = targetVoice;
+      }
+
+      speechSynthesis.speak(utterance);
+      
+      // Visual feedback
+      const button = event.target.closest('button');
+      if (button) {
+        const originalContent = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-stop"></i> Playing...';
+        button.style.background = '#f59e0b';
+        
+        utterance.onend = () => {
+          button.innerHTML = originalContent;
+          button.style.background = '#10b981';
+        };
+      }
+    }
   }
 
   startInteractiveVideo() {
