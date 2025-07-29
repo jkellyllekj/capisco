@@ -37,8 +37,13 @@ class CapiscoEngine {
       await this.updateProcessingStep(0);
       const transcript = await this.extractTranscript(videoUrl, transcriptFile);
       
-      // No duration limits - process any length transcript
+      // Check 5-minute limit
       const estimatedDuration = this.estimateTranscriptDuration(transcript);
+      if (estimatedDuration > 300) { // 5 minutes = 300 seconds
+        alert(`This video appears to be ~${Math.ceil(estimatedDuration/60)} minutes long. Please use a video that's 5 minutes or shorter for optimal learning. You can always process multiple shorter segments!`);
+        this.hideProcessingStatus();
+        return;
+      }
       console.log(`Processing transcript: ~${Math.ceil(estimatedDuration/60)} minutes of content`);
 
       // Step 2: Analyze language and content
@@ -121,10 +126,14 @@ class CapiscoEngine {
 
   async extractYouTubeTranscript(videoUrl) {
     // In a real implementation, this would use YouTube API or a transcript extraction service
-    // For demo purposes, we'll use mock transcripts in different languages
+    // For demo purposes, we'll use mock transcripts that simulate 5-minute content
     const videoId = this.extractVideoId(videoUrl);
     
-    // Mock transcripts for demonstration - randomly select one to show multilingual capability
+    if (!videoId) {
+      throw new Error('Please provide a valid YouTube URL (e.g., https://youtube.com/watch?v=ABC123)');
+    }
+    
+    // Mock transcripts for demonstration - simulating real 5-minute content
     const mockTranscripts = {
       italian: `Ciao a tutti! Mi chiamo Marco e oggi parleremo del tempo. 
       In Italia, abbiamo quattro stagioni: primavera, estate, autunno e inverno. 
@@ -668,7 +677,17 @@ class CapiscoEngine {
     const html = this.generateLessonHTML(lesson);
     lessonContainer.innerHTML = html;
     lessonContainer.classList.add('active');
-    lessonContainer.scrollIntoView({ behavior: 'smooth' });
+    
+    // Smooth scroll to lesson with a small delay for better UX
+    setTimeout(() => {
+      lessonContainer.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }, 500);
+    
+    // Store current lesson for future reference/saving
+    this.currentLesson = lesson;
     
     // Initialize interactive elements
     this.initializeLessonInteractivity();
