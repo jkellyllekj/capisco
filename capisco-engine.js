@@ -388,8 +388,70 @@ class CapiscoEngine {
       quizData: quizData,
       sections: this.generateLessonSections(vocabulary, translations, analysis),
       learningPath: this.createLearningPath(analysis, vocabulary),
-      studyGuide: this.generateStudyGuide(analysis, vocabulary, transcript)
+      studyGuide: this.generateStudyGuide(analysis, vocabulary, transcript),
+      videoData: this.prepareVideoData(transcript, vocabulary),
+      interactiveElements: this.createInteractiveVideoElements(transcript, vocabulary)
     };
+  }
+
+  prepareVideoData(transcript, vocabulary) {
+    // Split transcript into timed segments for interactive playback
+    const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 10);
+    const segments = sentences.map((sentence, index) => ({
+      id: index,
+      text: sentence.trim(),
+      startTime: index * 3, // Approximate 3 seconds per sentence
+      endTime: (index + 1) * 3,
+      vocabulary: this.findVocabularyInSentence(sentence, vocabulary),
+      hasInteraction: this.findVocabularyInSentence(sentence, vocabulary).length > 0
+    }));
+
+    return {
+      segments: segments,
+      totalDuration: segments.length * 3,
+      interactivePoints: segments.filter(s => s.hasInteraction)
+    };
+  }
+
+  findVocabularyInSentence(sentence, vocabulary) {
+    return vocabulary.filter(vocab => 
+      sentence.toLowerCase().includes(vocab.word.toLowerCase()) ||
+      sentence.toLowerCase().includes(vocab.baseForm.toLowerCase())
+    );
+  }
+
+  createInteractiveVideoElements(transcript, vocabulary) {
+    return {
+      clickableSubtitles: true,
+      vocabularyOverlays: true,
+      pauseOnNewWords: true,
+      replaySegments: true,
+      speedControl: true,
+      comprehensionCheckpoints: this.createCheckpoints(transcript, vocabulary)
+    };
+  }
+
+  createCheckpoints(transcript, vocabulary) {
+    const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 10);
+    const checkpoints = [];
+    
+    // Create checkpoints every 3-4 sentences
+    for (let i = 0; i < sentences.length; i += 3) {
+      const segmentVocab = sentences.slice(i, i + 3).join('. ')
+        .split(' ')
+        .filter(word => vocabulary.some(v => v.baseForm.toLowerCase() === word.toLowerCase()));
+      
+      if (segmentVocab.length > 0) {
+        checkpoints.push({
+          time: i * 3,
+          type: 'comprehension',
+          question: `What does "${segmentVocab[0]}" mean in this context?`,
+          vocabulary: segmentVocab.slice(0, 2)
+        });
+      }
+    }
+    
+    return checkpoints;
   }
 
   createLearningPath(analysis, vocabulary) {
@@ -617,12 +679,85 @@ class CapiscoEngine {
       <div class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 20px; margin-bottom: 2rem;">
         <h2><i class="fas fa-graduation-cap"></i> ${lesson.title}</h2>
         <p>Difficulty: ${lesson.difficulty} | Language: ${lesson.sourceLanguage.toUpperCase()}</p>
-        <div class="original-transcript" style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-          <h4><i class="fas fa-quote-left"></i> Original Content</h4>
-          <p style="font-style: italic;">${lesson.transcript}</p>
-          <button class="play-transcript-btn" onclick="capisco.playTranscript('${lesson.transcript}')" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
-            <i class="fas fa-play"></i> Listen to Original
-          </button>
+        
+        <!-- Interactive Video Player -->
+        <div class="interactive-video-container" style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 12px; margin-top: 1rem;">
+          <div class="video-controls-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4><i class="fas fa-play-circle"></i> Interactive Video Learning</h4>
+            <div class="learning-mode-toggle">
+              <button id="study-mode-btn" class="mode-btn active" onclick="capisco.setLearningMode('study')" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; margin-right: 0.5rem; cursor: pointer;">
+                <i class="fas fa-book"></i> Study Mode
+              </button>
+              <button id="watch-mode-btn" class="mode-btn" onclick="capisco.setLearningMode('watch')" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+                <i class="fas fa-eye"></i> Watch Mode
+              </button>
+            </div>
+          </div>
+          
+          <!-- Video Player Simulation -->
+          <div id="video-player" style="background: #000; border-radius: 8px; padding: 2rem; text-align: center; position: relative; min-height: 300px;">
+            <div id="video-content" style="color: white;">
+              <div class="video-placeholder" style="background: linear-gradient(45deg, #333, #555); padding: 4rem 2rem; border-radius: 8px;">
+                <i class="fas fa-video" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.7;"></i>
+                <h3>Interactive Video Player</h3>
+                <p style="opacity: 0.8;">Original YouTube video would play here with interactive subtitles</p>
+                <button onclick="capisco.startInteractiveVideo()" style="background: #667eea; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; cursor: pointer; margin-top: 1rem;">
+                  <i class="fas fa-play"></i> Start Interactive Learning
+                </button>
+              </div>
+            </div>
+            
+            <!-- Interactive Subtitle Overlay -->
+            <div id="subtitle-overlay" style="position: absolute; bottom: 20px; left: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 1rem; border-radius: 8px; display: none;">
+              <div id="current-subtitle" style="font-size: 1.2rem; margin-bottom: 0.5rem;"></div>
+              <div id="subtitle-controls" style="display: flex; gap: 0.5rem; justify-content: center;">
+                <button class="subtitle-btn" onclick="capisco.translateCurrentSegment()" style="background: #667eea; border: none; color: white; padding: 0.3rem 0.8rem; border-radius: 4px; cursor: pointer;">
+                  <i class="fas fa-language"></i> Translate
+                </button>
+                <button class="subtitle-btn" onclick="capisco.showVocabularyHelp()" style="background: #10b981; border: none; color: white; padding: 0.3rem 0.8rem; border-radius: 4px; cursor: pointer;">
+                  <i class="fas fa-book"></i> Vocabulary
+                </button>
+                <button class="subtitle-btn" onclick="capisco.replaySegment()" style="background: #f59e0b; border: none; color: white; padding: 0.3rem 0.8rem; border-radius: 4px; cursor: pointer;">
+                  <i class="fas fa-redo"></i> Replay
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Video Learning Controls -->
+          <div class="video-learning-controls" style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button onclick="capisco.toggleSubtitles()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+              <i class="fas fa-closed-captioning"></i> Interactive Subtitles
+            </button>
+            <button onclick="capisco.enableVocabularyMode()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+              <i class="fas fa-highlight"></i> Highlight Vocabulary
+            </button>
+            <button onclick="capisco.setVideoSpeed(0.75)" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+              <i class="fas fa-tachometer-alt"></i> Slow (0.75x)
+            </button>
+            <button onclick="capisco.pauseOnNewWords()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+              <i class="fas fa-pause"></i> Pause on New Words
+            </button>
+          </div>
+        </div>
+        
+        <!-- Learning Progress -->
+        <div class="learning-progress" style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+          <h4><i class="fas fa-chart-line"></i> Your Progress</h4>
+          <div class="progress-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
+            <div class="stat-item">
+              <div style="font-size: 1.5rem; font-weight: bold;">0%</div>
+              <div style="font-size: 0.9rem; opacity: 0.8;">Video Watched</div>
+            </div>
+            <div class="stat-item">
+              <div style="font-size: 1.5rem; font-weight: bold;">0/${lesson.vocabulary.length}</div>
+              <div style="font-size: 0.9rem; opacity: 0.8;">Words Learned</div>
+            </div>
+            <div class="stat-item">
+              <div style="font-size: 1.5rem; font-weight: bold;">0</div>
+              <div style="font-size: 0.9rem; opacity: 0.8;">Segments Mastered</div>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -730,6 +865,144 @@ class CapiscoEngine {
         </div>
       `;
     }
+  }
+
+  // Interactive Video Methods
+  setLearningMode(mode) {
+    const studyBtn = document.getElementById('study-mode-btn');
+    const watchBtn = document.getElementById('watch-mode-btn');
+    
+    if (mode === 'study') {
+      studyBtn.classList.add('active');
+      watchBtn.classList.remove('active');
+      studyBtn.style.background = 'rgba(255,255,255,0.3)';
+      watchBtn.style.background = 'rgba(255,255,255,0.1)';
+      this.enableStudyMode();
+    } else {
+      watchBtn.classList.add('active');
+      studyBtn.classList.remove('active');
+      watchBtn.style.background = 'rgba(255,255,255,0.3)';
+      studyBtn.style.background = 'rgba(255,255,255,0.1)';
+      this.enableWatchMode();
+    }
+  }
+
+  enableStudyMode() {
+    // Enable all interactive features for deep learning
+    console.log('Study Mode: Interactive subtitles, vocabulary overlays, and pause-on-new-words enabled');
+    document.getElementById('subtitle-overlay').style.display = 'block';
+  }
+
+  enableWatchMode() {
+    // Minimal interruptions, focus on comprehension
+    console.log('Watch Mode: Minimal interruptions, focus on natural viewing experience');
+    document.getElementById('subtitle-overlay').style.display = 'none';
+  }
+
+  startInteractiveVideo() {
+    const videoContent = document.getElementById('video-content');
+    videoContent.innerHTML = `
+      <div style="color: white; text-align: left;">
+        <div style="background: rgba(102, 126, 234, 0.2); padding: 2rem; border-radius: 8px;">
+          <h3><i class="fas fa-magic"></i> Interactive Learning Mode Active!</h3>
+          <p><strong>Features enabled:</strong></p>
+          <ul style="text-align: left; margin: 1rem 0;">
+            <li><i class="fas fa-mouse-pointer"></i> Click on any word in subtitles for instant translation</li>
+            <li><i class="fas fa-pause"></i> Video pauses automatically when new vocabulary appears</li>
+            <li><i class="fas fa-redo"></i> Replay any segment as many times as needed</li>
+            <li><i class="fas fa-chart-line"></i> Track your progress as you learn</li>
+            <li><i class="fas fa-gamepad"></i> Mini-quizzes at natural break points</li>
+          </ul>
+          <p style="opacity: 0.9;"><em>In a real implementation, the original YouTube video would play here with all these interactive overlays!</em></p>
+          <div class="demo-controls" style="margin-top: 2rem;">
+            <button onclick="capisco.simulateVideoSegment(0)" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">
+              <i class="fas fa-play"></i> Demo Segment 1
+            </button>
+            <button onclick="capisco.simulateVideoSegment(1)" style="background: #f59e0b; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">
+              <i class="fas fa-play"></i> Demo Segment 2
+            </button>
+            <button onclick="capisco.showComprehensionCheck()" style="background: #8b5cf6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+              <i class="fas fa-question"></i> Comprehension Check
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.getElementById('subtitle-overlay').style.display = 'block';
+  }
+
+  simulateVideoSegment(segmentIndex) {
+    const segments = [
+      "Ciao a tutti! Mi chiamo Marco e oggi parleremo del tempo.",
+      "In Italia, abbiamo quattro stagioni: primavera, estate, autunno e inverno."
+    ];
+    
+    document.getElementById('current-subtitle').innerHTML = segments[segmentIndex];
+    this.highlightVocabulary(segments[segmentIndex]);
+  }
+
+  highlightVocabulary(text) {
+    const vocabulary = ['tempo', 'stagioni', 'primavera', 'estate', 'autunno', 'inverno'];
+    let highlightedText = text;
+    
+    vocabulary.forEach(word => {
+      const regex = new RegExp(`\\b${word}\\b`, 'gi');
+      highlightedText = highlightedText.replace(regex, `<span style="background: #667eea; color: white; padding: 2px 4px; border-radius: 3px; cursor: pointer;" onclick="capisco.showWordInfo('${word}')">${word}</span>`);
+    });
+    
+    document.getElementById('current-subtitle').innerHTML = highlightedText;
+  }
+
+  translateCurrentSegment() {
+    const currentText = document.getElementById('current-subtitle').textContent;
+    const translations = {
+      "Ciao a tutti! Mi chiamo Marco e oggi parleremo del tempo.": "Hello everyone! My name is Marco and today we'll talk about the weather.",
+      "In Italia, abbiamo quattro stagioni: primavera, estate, autunno e inverno.": "In Italy, we have four seasons: spring, summer, autumn and winter."
+    };
+    
+    const translation = translations[currentText] || "Translation would appear here";
+    
+    alert(`Translation:\n\n"${translation}"`);
+  }
+
+  showVocabularyHelp() {
+    alert(`Vocabulary Help:\n\n• tempo = weather/time\n• stagioni = seasons\n• primavera = spring\n• estate = summer\n• autunno = autumn\n• inverno = winter\n\nClick on highlighted words in subtitles for more details!`);
+  }
+
+  replaySegment() {
+    alert("🔄 Segment replayed! In the real app, this would replay the last 5-10 seconds of video.");
+  }
+
+  showComprehensionCheck() {
+    const checkQuestions = [
+      "What are the four seasons mentioned in Italian?",
+      "What does 'tempo' mean in this context?",
+      "How would you introduce yourself like Marco did?"
+    ];
+    
+    const randomQuestion = checkQuestions[Math.floor(Math.random() * checkQuestions.length)];
+    const answer = prompt(`Comprehension Check:\n\n${randomQuestion}`);
+    
+    if (answer) {
+      alert("Great effort! In the full app, your answer would be evaluated and you'd get personalized feedback.");
+    }
+  }
+
+  toggleSubtitles() {
+    const overlay = document.getElementById('subtitle-overlay');
+    overlay.style.display = overlay.style.display === 'none' ? 'block' : 'none';
+  }
+
+  enableVocabularyMode() {
+    alert("🎯 Vocabulary Mode: All vocabulary words will be highlighted and clickable in the video subtitles!");
+  }
+
+  setVideoSpeed(speed) {
+    alert(`⚡ Video speed set to ${speed}x for better comprehension!`);
+  }
+
+  pauseOnNewWords() {
+    alert("⏸️ Auto-pause enabled! Video will pause when new vocabulary appears so you can study it.");
   }
 }
 
