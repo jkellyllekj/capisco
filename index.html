@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Italian Conversation Lessons</title>
+  <title>Capisco - Learn Any Language from YouTube</title>
   
   <!-- Favicon and Web App Icons -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -16,128 +16,331 @@
   <link rel="manifest" href="manifest.json">
   
   <!-- Theme Color for Mobile Browsers -->
-  <meta name="theme-color" content="#6366f1">
+  <meta name="theme-color" content="#667eea">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Italian Lessons">
+  <meta name="apple-mobile-web-app-title" content="Capisco">
   
   <link href="style.css" rel="stylesheet" type="text/css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <style>
+    .hero-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-align: center;
+      padding: 4rem 2rem;
+      min-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .hero-title {
+      font-size: clamp(3rem, 8vw, 5rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .hero-subtitle {
+      font-size: clamp(1.2rem, 4vw, 1.8rem);
+      margin-bottom: 2rem;
+      opacity: 0.95;
+      max-width: 800px;
+      line-height: 1.4;
+    }
+    
+    .cta-button {
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 1rem 2.5rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      margin: 0.5rem;
+      display: inline-block;
+    }
+    
+    .cta-button:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    
+    .cta-button.primary {
+      background: white;
+      color: #667eea;
+    }
+    
+    .cta-button.primary:hover {
+      background: #f8fafc;
+      color: #4f46e5;
+    }
+    
+    .features-section {
+      padding: 4rem 2rem;
+      background: white;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .feature-card {
+      background: #f8fafc;
+      padding: 2rem;
+      border-radius: 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+      border-color: #667eea;
+    }
+    
+    .feature-icon {
+      font-size: 3rem;
+      color: #667eea;
+      margin-bottom: 1rem;
+    }
+    
+    .feature-card h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #1e293b;
+    }
+    
+    .demo-section {
+      background: linear-gradient(45deg, #f8fafc 0%, #e2e8f0 100%);
+      padding: 4rem 2rem;
+    }
+    
+    .demo-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    .demo-video {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      margin-top: 2rem;
+    }
+    
+    .language-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .language-badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.8rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 3rem;
+      color: #1e293b;
+    }
+    
+    .legacy-note {
+      background: rgba(102, 126, 234, 0.1);
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem auto;
+      max-width: 800px;
+      text-align: center;
+    }
+    
+    .legacy-links {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    
+    .legacy-link {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+    
+    .legacy-link:hover {
+      background: rgba(102, 126, 234, 0.1);
+    }
+  </style>
 </head>
 
-<body class="home-page">
-  <header class="main-header">
-    <h1><i class="fas fa-graduation-cap"></i> Italian Conversation Lessons</h1>
-    <p class="subtitle">Learn Italian through practical conversations and real-world scenarios</p>
-  </header>
+<body>
+  <section class="hero-section">
+    <h1 class="hero-title">
+      <i class="fas fa-brain"></i> Capisco
+    </h1>
+    <p class="hero-subtitle">
+      Turn any YouTube video into an interactive language lesson. Learn naturally from content that actually interests you.
+    </p>
+    <div>
+      <a href="capisco-app.html" class="cta-button primary">
+        <i class="fas fa-magic"></i> Start Learning Now
+      </a>
+      <a href="#how-it-works" class="cta-button">
+        <i class="fas fa-play-circle"></i> See How It Works
+      </a>
+    </div>
+  </section>
 
   <main class="container">
-    <section class="course-intro">
-      <h2>Welcome to Your Italian Journey</h2>
-      <p>This course focuses on practical Italian conversation skills through immersive lessons. Each chapter introduces new vocabulary, grammar concepts, and dialogue examples that you'll encounter in everyday situations.</p>
-      <p class="inspiration-note"><em>Following the lesson plan inspired by <a href="https://loveliveitalian.com/" target="_blank" rel="noopener noreferrer">Love Live Italian</a> in Camden</em></p>
-    </section>
-
-    <section class="chapters-list">
-      <h2><i class="fas fa-book-open"></i> Course Chapters</h2>
-      
-      <div class="chapter-grid">
-        <div class="chapter-card available">
-          <div class="chapter-number">1</div>
-          <div class="chapter-content">
-            <h3><i class="fas fa-shopping-basket"></i> Al Mercato</h3>
-            <p>Learn essential vocabulary for shopping at the market, including food items, quantities, and polite expressions for purchasing.</p>
-            <div class="chapter-topics">
-              <span class="topic-tag">Food Vocabulary</span>
-              <span class="topic-tag">Seasons</span>
-              <span class="topic-tag">Pronouns</span>
-            </div>
-            <a href="lessons/al-mercato.html" class="chapter-link">
-              <i class="fas fa-play"></i> Start Lesson
-            </a>
-          </div>
-        </div>
-
-        <div class="chapter-card available">
-          <div class="chapter-number">2</div>
-          <div class="chapter-content">
-            <h3><i class="fas fa-handshake"></i> Presentazioni Personali</h3>
-            <p>Learn to introduce yourself, talk about your background, and share your interests and hobbies.</p>
-            <div class="chapter-topics">
-              <span class="topic-tag">Introductions</span>
-              <span class="topic-tag">Places & Origins</span>
-              <span class="topic-tag">Activities & Feelings</span>
-              <span class="topic-tag">Reflexive Verbs</span>
-            </div>
-            <a href="lessons/presentazioni-personali.html" class="chapter-link">
-              <i class="fas fa-play"></i> Start Lesson
-            </a>
-          </div>
-        </div></div>
-
-        <div class="chapter-card coming-soon">
-          <div class="chapter-number">3</div>
-          <div class="chapter-content">
-            <h3><i class="fas fa-map-marked-alt"></i> In Città</h3>
-            <p>Navigate the city, ask for directions, and explore urban Italian vocabulary.</p>
-            <div class="chapter-topics">
-              <span class="topic-tag">Directions</span>
-              <span class="topic-tag">Transportation</span>
-              <span class="topic-tag">City Locations</span>
-            </div>
-            <span class="coming-soon-label">
-              <i class="fas fa-clock"></i> Coming Soon
-            </span>
-          </div>
-        </div>
-
-        <div class="chapter-card coming-soon">
-          <div class="chapter-number">4</div>
-          <div class="chapter-content">
-            <h3><i class="fas fa-home"></i> In Famiglia</h3>
-            <p>Discuss family, relationships, and home life in Italian.</p>
-            <div class="chapter-topics">
-              <span class="topic-tag">Family Members</span>
-              <span class="topic-tag">Home Vocabulary</span>
-              <span class="topic-tag">Daily Routines</span>
-            </div>
-            <span class="coming-soon-label">
-              <i class="fas fa-clock"></i> Coming Soon
-            </span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="course-features">
-      <h2><i class="fas fa-star"></i> What You'll Learn</h2>
+    <section class="features-section">
+      <h2 class="section-title">Why Capisco?</h2>
       <div class="features-grid">
-        <div class="feature-item">
-          <i class="fas fa-comments"></i>
-          <h3>Real Conversations</h3>
-          <p>Practice with authentic dialogue examples from everyday situations</p>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-heart"></i>
+          </div>
+          <h3>Learn What You Love</h3>
+          <p>Stop forcing yourself through boring textbook examples. Use videos about topics you're genuinely interested in - cooking, travel, interviews, documentaries, anything!</p>
         </div>
-        <div class="feature-item">
-          <i class="fas fa-language"></i>
-          <h3>Essential Vocabulary</h3>
-          <p>Build your vocabulary with practical words and phrases you'll actually use</p>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-globe"></i>
+          </div>
+          <h3>Any Language</h3>
+          <p>Whether it's Italian street interviews, Spanish cooking shows, or French documentaries - Capisco adapts to create personalized lessons for any language.</p>
         </div>
-        <div class="feature-item">
-          <i class="fas fa-puzzle-piece"></i>
-          <h3>Grammar in Context</h3>
-          <p>Learn grammar naturally through real-world examples and usage</p>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h3>Instant Lessons</h3>
+          <p>Paste a YouTube URL and get a complete interactive lesson with vocabulary, pronunciation, quizzes, and cultural context in minutes.</p>
         </div>
-        <div class="feature-item">
-          <i class="fas fa-headphones"></i>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <h3>Smart Learning Path</h3>
+          <p>Automatically organized from easier concepts to advanced, with grammar patterns, cultural notes, and practice activities tailored to your level.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-gamepad"></i>
+          </div>
           <h3>Interactive Practice</h3>
-          <p>Test your knowledge with built-in quizzes and exercises</p>
+          <p>Built-in quizzes, pronunciation practice, vocabulary games, and comprehension exercises to make learning stick.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-undo"></i>
+          </div>
+          <h3>Full Circle Learning</h3>
+          <p>Study the lesson, then return to the original video with complete understanding. Finally watch content you actually want to watch!</p>
         </div>
       </div>
     </section>
+
+    <section class="demo-section" id="how-it-works">
+      <div class="demo-container">
+        <h2 class="section-title">How It Works</h2>
+        <div class="demo-video">
+          <h3>3 Simple Steps</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin: 2rem 0;">
+            <div style="text-align: center;">
+              <div style="background: #667eea; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">1</div>
+              <h4>Find a Video</h4>
+              <p>Pick any YouTube video in any language that interests you - street interviews, cooking shows, travel vlogs, documentaries.</p>
+            </div>
+            <div style="text-align: center;">
+              <div style="background: #667eea; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">2</div>
+              <h4>Generate Lesson</h4>
+              <p>Paste the URL into Capisco. We'll extract the transcript and create a complete interactive lesson automatically.</p>
+            </div>
+            <div style="text-align: center;">
+              <div style="background: #667eea; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">3</div>
+              <h4>Learn & Watch</h4>
+              <p>Study the vocabulary, practice with quizzes, then return to the original video with full comprehension!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features-section">
+      <h2 class="section-title">Supported Languages</h2>
+      <div class="language-grid">
+        <div class="language-badge">🇮🇹 Italian</div>
+        <div class="language-badge">🇪🇸 Spanish</div>
+        <div class="language-badge">🇫🇷 French</div>
+        <div class="language-badge">🇩🇪 German</div>
+        <div class="language-badge">🇵🇹 Portuguese</div>
+        <div class="language-badge">🇷🇺 Russian</div>
+        <div class="language-badge">🇯🇵 Japanese</div>
+        <div class="language-badge">🇰🇷 Korean</div>
+        <div class="language-badge">🇨🇳 Chinese</div>
+        <div class="language-badge">🇸🇦 Arabic</div>
+      </div>
+      <div style="text-align: center; margin-top: 2rem;">
+        <a href="capisco-app.html" class="cta-button primary">
+          <i class="fas fa-rocket"></i> Try Capisco Free
+        </a>
+      </div>
+    </section>
+
+    <div class="legacy-note">
+      <h3><i class="fas fa-flask"></i> Development Reference</h3>
+      <p>The original Italian lesson structure is preserved for reference and testing. These demonstrate the learning methodology that Capisco automatically generates for any content.</p>
+      <div class="legacy-links">
+        <a href="lessons/al-mercato.html" class="legacy-link">
+          <i class="fas fa-shopping-basket"></i> Al Mercato
+        </a>
+        <a href="lessons/presentazioni-personali.html" class="legacy-link">
+          <i class="fas fa-handshake"></i> Presentazioni Personali
+        </a>
+      </div>
+    </div>
   </main>
 
-  <footer>
-    <p>&copy; 2024 Italian Conversation Lessons - Buona fortuna con i tuoi studi!</p>
+  <footer style="background: #1e293b; color: white; padding: 2rem; text-align: center; margin-top: 4rem;">
+    <p>&copy; 2024 Capisco - Learn languages from content you actually want to watch!</p>
+    <p style="opacity: 0.8; font-size: 0.9rem; margin-top: 1rem;">
+      <i class="fas fa-lightbulb"></i> The future of comprehensible input is here
+    </p>
   </footer>
 
   <script src="script.js"></script>
