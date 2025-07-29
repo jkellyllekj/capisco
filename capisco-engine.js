@@ -290,6 +290,14 @@ class CapiscoEngine {
     if (!sourceLanguage || sourceLanguage === '') {
       detectedLanguage = this.detectLanguageFromTranscript(transcript);
       console.log('Auto-detected language:', detectedLanguage);
+      
+      // Update the form to show detected language
+      const sourceSelect = document.getElementById('source-language');
+      if (sourceSelect) {
+        sourceSelect.value = detectedLanguage;
+        sourceSelect.style.background = '#d1fae5';
+        sourceSelect.style.border = '2px solid #10b981';
+      }
     }
     
     // Determine difficulty based on sentence complexity and vocabulary
@@ -297,11 +305,15 @@ class CapiscoEngine {
     if (avgWordsPerSentence > 15 || wordCount > 500) difficultyLevel = 'intermediate';
     if (avgWordsPerSentence > 20 || wordCount > 1000) difficultyLevel = 'advanced';
     
+    // Extract and translate key themes
+    const keyThemesRaw = this.extractKeyThemes(transcript, detectedLanguage);
+    const keyThemesTranslated = await this.translateKeyThemes(keyThemesRaw, detectedLanguage);
+    
     return {
       detectedLanguage: detectedLanguage,
-      topics: this.extractTopicsFromTranscript(transcript),
+      topics: this.extractTopicsFromTranscript(transcript, detectedLanguage),
       difficultyLevel: difficultyLevel,
-      keyThemes: this.extractKeyThemes(transcript),
+      keyThemes: keyThemesTranslated,
       wordCount: wordCount,
       estimatedStudyTime: Math.ceil(wordCount / 100) * 5 // 5 min per 100 words
     };
@@ -375,26 +387,78 @@ class CapiscoEngine {
     return topics.length > 0 ? topics : ['general conversation'];
   }
 
-  extractKeyThemes(transcript) {
-    // Extract 3-5 key themes from the content
+  extractKeyThemes(transcript, language = 'it') {
+    // Extract key themes based on language
     const themes = [];
     const text = transcript.toLowerCase();
     
-    // This would be much more sophisticated in a real implementation
-    if (text.includes('mangiare') || text.includes('cibo')) themes.push('Food & Dining');
-    if (text.includes('famiglia') || text.includes('casa')) themes.push('Family & Home');
-    if (text.includes('lavoro') || text.includes('ufficio')) themes.push('Work & Career');
-    if (text.includes('viaggiare') || text.includes('vacanza')) themes.push('Travel & Adventure');
-    if (text.includes('tempo') && text.includes('pioggia')) themes.push('Weather & Climate');
-    if (text.includes('sport') || text.includes('giocare')) themes.push('Sports & Recreation');
+    // Get the first few meaningful sentences as themes
+    const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 20);
+    
+    // Return first 3-4 sentences as key themes (these will be translated later)
+    for (let i = 0; i < Math.min(4, sentences.length); i++) {
+      const sentence = sentences[i].trim();
+      if (sentence.length > 10) {
+        themes.push(sentence);
+      }
+    }
     
     return themes.length > 0 ? themes : ['Daily Conversation'];
+  }
+
+  async translateKeyThemes(themes, sourceLanguage) {
+    // Translate key themes to English for display
+    const translations = [];
+    
+    for (const theme of themes) {
+      // Simple translation mapping (in real app would use translation API)
+      const translation = await this.translateText(theme, sourceLanguage, 'en');
+      translations.push({
+        original: theme,
+        english: translation,
+        display: `${theme} (${translation})`
+      });
+    }
+    
+    return translations;
+  }
+
+  async translateText(text, fromLang, toLang) {
+    // Mock translation function - in real app would use Google Translate API
+    const simpleTranslations = {
+      'Ciao a tutti! Benvenuti nel mio canale': 'Hello everyone! Welcome to my channel',
+      'Oggi impareremo alcune frasi italiane molto utili per la vita quotidiana': 'Today we will learn some very useful Italian phrases for daily life',
+      'Prima di tutto, quando incontriamo qualcuno': 'First of all, when we meet someone',
+      'È molto importante essere educati': 'It is very important to be polite'
+    };
+    
+    // Check for direct translation
+    if (simpleTranslations[text]) {
+      return simpleTranslations[text];
+    }
+    
+    // Fallback: analyze and provide contextual translation
+    const lowerText = text.toLowerCase();
+    if (lowerText.includes('ciao') && lowerText.includes('benvenuti')) {
+      return 'Greetings and welcomes';
+    } else if (lowerText.includes('impareremo') && lowerText.includes('frasi')) {
+      return 'Learning useful phrases';
+    } else if (lowerText.includes('importante') && lowerText.includes('educati')) {
+      return 'Being polite and respectful';
+    } else if (lowerText.includes('quando') && lowerText.includes('qualcuno')) {
+      return 'Meeting people and social interactions';
+    }
+    
+    return 'Context and conversation';
   }
 
   async extractVocabulary(transcript, analysis) {
     console.log('Extracting vocabulary from transcript length:', transcript.length);
     
-    // Enhanced vocabulary extraction with better Italian word detection
+    const language = analysis.detectedLanguage;
+    const commonWords = this.getCommonWords(language);
+    
+    // Enhanced vocabulary extraction with better multilingual word detection
     const words = transcript.toLowerCase().match(/\b[a-zA-Zàáâäãåąčćđèéêëēėęğìíîïıķľłńññòóôöõøœř][a-zA-Zàáâäãåąčćđèéêëēėęğìíîïıķľłńññòóôöõøœř']*\b/g) || [];
     const wordFrequency = {};
     
@@ -407,51 +471,176 @@ class CapiscoEngine {
     
     console.log('Word frequency analysis found', Object.keys(wordFrequency).length, 'unique words');
     
-    // Get most frequent meaningful words, excluding very common Italian words
-    const commonItalianWords = [
-      'che', 'con', 'per', 'una', 'del', 'della', 'sono', 'hanno', 'molto', 'anche', 
-      'quando', 'dove', 'come', 'cosa', 'tutto', 'tutti', 'alla', 'della', 'nella',
-      'questa', 'questo', 'questi', 'queste', 'sempre', 'oggi', 'ieri', 'domani',
-      'essere', 'avere', 'fare', 'dire', 'andare', 'venire', 'stare', 'dovere',
-      'potere', 'volere', 'sapere', 'bene', 'male', 'più', 'meno', 'ancora'
-    ];
-    
+    // Get most frequent meaningful words, excluding common words for the detected language
     const sortedWords = Object.entries(wordFrequency)
       .filter(([word, freq]) => {
         return freq >= 1 && 
-               !commonItalianWords.includes(word) && 
+               !commonWords.includes(word) && 
                word.length > 2 &&
                !word.match(/^\d+$/) && // Exclude numbers
                !word.match(/^[^\w]+$/); // Exclude punctuation-only
       })
       .sort(([,a], [,b]) => b - a)
-      .slice(0, 20); // Take top 20 words for better coverage
+      .slice(0, 25); // Take top 25 words for comprehensive coverage
     
     console.log('Selected vocabulary words:', sortedWords.map(([word]) => word));
     
-    const vocabulary = sortedWords.map(([word, frequency]) => {
+    const vocabulary = await Promise.all(sortedWords.map(async ([word, frequency]) => {
       const context = this.findWordContext(word, transcript);
-      const baseForm = this.getBaseForm(word);
-      const translation = this.getItalianTranslation(baseForm);
+      const baseForm = await this.getBaseForm(word, language);
+      const linguisticInfo = await this.getCompleteLinguisticInfo(baseForm, language);
       
       return {
         word: word,
         baseForm: baseForm,
-        english: translation.english,
-        partOfSpeech: this.guessPartOfSpeech(word),
-        gender: this.guessGender(word),
-        pronunciation: translation.pronunciation,
+        english: linguisticInfo.english,
+        partOfSpeech: linguisticInfo.partOfSpeech,
+        gender: linguisticInfo.gender,
+        plural: linguisticInfo.plural,
+        pronunciation: linguisticInfo.pronunciation,
         context: context,
         frequency: frequency,
         difficulty: this.assessWordDifficulty(word),
         category: this.categorizeWord(word, analysis.topics),
-        etymology: translation.etymology,
-        usage: translation.usage
+        etymology: linguisticInfo.etymology,
+        usage: linguisticInfo.usage,
+        culturalNotes: linguisticInfo.culturalNotes,
+        examples: linguisticInfo.examples
       };
-    });
+    }));
     
-    console.log('Generated vocabulary with translations:', vocabulary.length, 'items');
+    console.log('Generated comprehensive vocabulary with translations:', vocabulary.length, 'items');
     return vocabulary;
+  }
+
+  getCommonWords(language) {
+    const commonWordsByLanguage = {
+      'it': ['che', 'con', 'per', 'una', 'del', 'della', 'sono', 'hanno', 'molto', 'anche', 'quando', 'dove', 'come', 'cosa', 'tutto', 'tutti', 'alla', 'della', 'nella', 'questa', 'questo', 'questi', 'queste', 'sempre', 'oggi', 'ieri', 'domani', 'essere', 'avere', 'fare', 'dire', 'andare', 'venire', 'stare', 'dovere', 'potere', 'volere', 'sapere', 'bene', 'male', 'più', 'meno', 'ancora'],
+      'es': ['que', 'con', 'por', 'una', 'del', 'son', 'tienen', 'mucho', 'también', 'cuando', 'donde', 'como', 'qué', 'todo', 'todos', 'esta', 'este', 'estos', 'estas', 'siempre', 'hoy', 'ayer', 'mañana', 'ser', 'estar', 'tener', 'hacer', 'decir', 'ir', 'venir', 'estar', 'deber', 'poder', 'querer', 'saber', 'bien', 'mal', 'más', 'menos', 'todavía'],
+      'fr': ['que', 'avec', 'pour', 'une', 'du', 'sont', 'ont', 'beaucoup', 'aussi', 'quand', 'où', 'comment', 'quoi', 'tout', 'tous', 'cette', 'ce', 'ces', 'toujours', 'aujourd\'hui', 'hier', 'demain', 'être', 'avoir', 'faire', 'dire', 'aller', 'venir', 'rester', 'devoir', 'pouvoir', 'vouloir', 'savoir', 'bien', 'mal', 'plus', 'moins', 'encore'],
+      'de': ['dass', 'mit', 'für', 'eine', 'des', 'sind', 'haben', 'viel', 'auch', 'wenn', 'wo', 'wie', 'was', 'alle', 'diese', 'dieser', 'immer', 'heute', 'gestern', 'morgen', 'sein', 'haben', 'machen', 'sagen', 'gehen', 'kommen', 'bleiben', 'müssen', 'können', 'wollen', 'wissen', 'gut', 'schlecht', 'mehr', 'weniger', 'noch'],
+      'en': ['the', 'and', 'for', 'are', 'have', 'that', 'this', 'with', 'they', 'what', 'when', 'where', 'how', 'all', 'my', 'name', 'hello', 'good', 'thank', 'please', 'sorry', 'very', 'also', 'today', 'yesterday', 'tomorrow', 'be', 'have', 'do', 'say', 'go', 'come', 'stay', 'must', 'can', 'want', 'know', 'well', 'bad', 'more', 'less', 'still']
+    };
+    
+    return commonWordsByLanguage[language] || commonWordsByLanguage['en'];
+  }
+
+  async getCompleteLinguisticInfo(word, language) {
+    // This would connect to translation APIs in production
+    // For now, we'll use comprehensive mock data based on the language
+    
+    const linguisticData = this.getLinguisticDatabase(language);
+    
+    if (linguisticData[word]) {
+      return linguisticData[word];
+    }
+    
+    // Generate linguistic info for unknown words
+    return this.generateLinguisticInfo(word, language);
+  }
+
+  getLinguisticDatabase(language) {
+    const databases = {
+      'it': {
+        'ciao': {
+          english: 'hello/goodbye',
+          partOfSpeech: 'interjection',
+          gender: null,
+          plural: null,
+          pronunciation: 'CHOW',
+          etymology: 'From Venetian "s-ciao" meaning "slave" - originally "I am your slave"',
+          usage: 'Informal greeting used with friends, family, and peers',
+          culturalNotes: 'Most common Italian greeting. Use "buongiorno" in formal situations.',
+          examples: ['Ciao Marco!', 'Ciao, ci vediamo domani!']
+        },
+        'benvenuti': {
+          english: 'welcome (plural)',
+          partOfSpeech: 'adjective',
+          gender: 'm',
+          plural: 'benvenuti',
+          pronunciation: 'ben-ve-NU-ti',
+          etymology: 'From Latin "bene" (well) + "venire" (to come)',
+          usage: 'Formal welcome for multiple people or mixed groups',
+          culturalNotes: 'Changes to "benvenuta/e" for feminine. Shows Italian attention to gender agreement.',
+          examples: ['Benvenuti in Italia!', 'Siete tutti benvenuti qui.']
+        },
+        'impareremo': {
+          english: 'we will learn',
+          partOfSpeech: 'verb',
+          gender: null,
+          plural: null,
+          pronunciation: 'im-pa-re-RE-mo',
+          etymology: 'From Latin "imparare", future tense first person plural',
+          usage: 'Future tense of "imparare" (to learn)',
+          culturalNotes: 'Shows commitment to future learning. Common in educational contexts.',
+          examples: ['Impareremo l\'italiano insieme.', 'Domani impareremo nuove parole.']
+        },
+        'frasi': {
+          english: 'phrases/sentences',
+          partOfSpeech: 'noun',
+          gender: 'f',
+          plural: 'frasi',
+          pronunciation: 'FRA-zee',
+          etymology: 'From Latin "phrasis", from Greek "phrasis"',
+          usage: 'Feminine plural noun for phrases or sentences',
+          culturalNotes: 'Essential word for language learning. Note feminine gender.',
+          examples: ['Frasi utili per viaggiare.', 'Impara queste frasi importanti.']
+        },
+        'educati': {
+          english: 'polite/well-mannered',
+          partOfSpeech: 'adjective',
+          gender: 'm',
+          plural: 'educati',
+          pronunciation: 'e-du-CA-ti',
+          etymology: 'From Latin "educatus" (brought up, trained)',
+          usage: 'Masculine plural adjective describing polite behavior',
+          culturalNotes: 'Very important concept in Italian culture. Good manners are highly valued.',
+          examples: ['I bambini sono molto educati.', 'È importante essere educati.']
+        }
+      },
+      'es': {
+        'hola': {
+          english: 'hello',
+          partOfSpeech: 'interjection',
+          gender: null,
+          plural: null,
+          pronunciation: 'O-la',
+          etymology: 'Possibly from Arabic "wa Allah" (by Allah)',
+          usage: 'Standard greeting at any time of day',
+          culturalNotes: 'Universal Spanish greeting, more formal than Italian "ciao"',
+          examples: ['¡Hola! ¿Cómo estás?', 'Hola, me llamo María.']
+        }
+      },
+      'fr': {
+        'bonjour': {
+          english: 'hello/good day',
+          partOfSpeech: 'interjection',
+          gender: null,
+          plural: null,
+          pronunciation: 'bon-ZHOOR',
+          etymology: 'From "bon" (good) + "jour" (day)',
+          usage: 'Standard greeting until evening',
+          culturalNotes: 'Essential French politeness. Always greet before making requests.',
+          examples: ['Bonjour madame!', 'Bonjour, comment allez-vous?']
+        }
+      }
+    };
+    
+    return databases[language] || {};
+  }
+
+  generateLinguisticInfo(word, language) {
+    return {
+      english: 'translation needed',
+      partOfSpeech: this.guessPartOfSpeech(word, language),
+      gender: this.guessGender(word, language),
+      plural: this.generatePlural(word, language),
+      pronunciation: this.generatePronunciation(word, language),
+      etymology: 'Etymology to be researched',
+      usage: 'Usage context needed',
+      culturalNotes: 'Cultural significance to be explored',
+      examples: [`Example with "${word}" needed.`]
+    };
   }
 
   getItalianTranslation(word) {
@@ -799,12 +988,17 @@ class CapiscoEngine {
   }
 
   generateStudyGuide(analysis, vocabulary, transcript) {
+    const themeDisplay = Array.isArray(analysis.keyThemes) && analysis.keyThemes.length > 0 
+      ? analysis.keyThemes.map(theme => typeof theme === 'object' ? theme.english : theme).join(', ')
+      : 'Daily Conversation';
+      
     return {
-      overview: `This ${analysis.difficulty} level content covers ${analysis.keyThemes.join(', ')}. Estimated study time: ${analysis.estimatedStudyTime} minutes.`,
+      overview: `This ${analysis.difficultyLevel} level content covers ${themeDisplay}. Estimated study time: ${analysis.estimatedStudyTime} minutes.`,
       keyPoints: this.extractKeyPoints(transcript),
+      keyThemes: analysis.keyThemes, // Keep the structured themes
       grammarNotes: this.identifyGrammarPatterns(vocabulary),
       culturalNotes: this.generateCulturalNotes(analysis.topics),
-      practiceActivities: this.suggestPracticeActivities(analysis.topics, analysis.difficulty)
+      practiceActivities: this.suggestPracticeActivities(analysis.topics, analysis.difficultyLevel)
     };
   }
 
@@ -865,7 +1059,7 @@ class CapiscoEngine {
     const sections = [];
 
     // 1. Core Vocabulary Section (most frequent words)
-    const coreVocab = vocabulary.filter(v => v.frequency >= 2).slice(0, 8);
+    const coreVocab = vocabulary.filter(v => v.frequency >= 2).slice(0, 10);
     if (coreVocab.length > 0) {
       sections.push({
         title: 'Core Vocabulary',
@@ -875,32 +1069,60 @@ class CapiscoEngine {
       });
     }
 
-    // 2. Group by categories/topics
-    const categories = this.groupVocabularyByCategory(vocabulary);
-    Object.entries(categories).forEach(([category, words]) => {
-      if (words.length >= 2) {
-        sections.push({
-          title: this.formatCategoryTitle(category),
-          vocabulary: words,
-          icon: this.getThemeIcon(category),
-          description: `Key terms related to ${category}`
-        });
-      }
-    });
-
-    // 3. Grammar Patterns Section (verbs and complex structures)
-    const grammarWords = vocabulary.filter(v => v.partOfSpeech === 'verb' || v.difficulty === 'advanced');
-    if (grammarWords.length > 0) {
+    // 2. Group by part of speech for better learning structure
+    const verbs = vocabulary.filter(v => v.partOfSpeech === 'verb').slice(0, 8);
+    if (verbs.length > 0) {
       sections.push({
-        title: 'Grammar & Advanced Terms',
-        vocabulary: grammarWords,
-        icon: 'fa-cogs',
-        description: 'Verbs and more complex language structures'
+        title: 'Verbs & Actions',
+        vocabulary: verbs,
+        icon: 'fa-running',
+        description: 'Action words and verb forms'
       });
     }
 
-    // 4. Cultural Context Section (if content seems culturally specific)
-    const culturalWords = vocabulary.filter(v => this.isCulturallySpecific(v.word));
+    const nouns = vocabulary.filter(v => v.partOfSpeech === 'noun').slice(0, 8);
+    if (nouns.length > 0) {
+      sections.push({
+        title: 'Nouns & Objects',
+        vocabulary: nouns,
+        icon: 'fa-cube',
+        description: 'People, places, and things'
+      });
+    }
+
+    const adjectives = vocabulary.filter(v => v.partOfSpeech === 'adjective').slice(0, 6);
+    if (adjectives.length > 0) {
+      sections.push({
+        title: 'Descriptive Words',
+        vocabulary: adjectives,
+        icon: 'fa-palette',
+        description: 'Adjectives and descriptive terms'
+      });
+    }
+
+    // 3. Expressions and phrases
+    const expressions = vocabulary.filter(v => 
+      v.word.includes(' ') || 
+      v.partOfSpeech === 'interjection' ||
+      v.usage.includes('expression') ||
+      v.usage.includes('phrase')
+    ).slice(0, 6);
+    
+    if (expressions.length > 0) {
+      sections.push({
+        title: 'Expressions & Phrases',
+        vocabulary: expressions,
+        icon: 'fa-comments',
+        description: 'Common expressions and useful phrases'
+      });
+    }
+
+    // 4. Cultural Context Section
+    const culturalWords = vocabulary.filter(v => 
+      v.culturalNotes && 
+      v.culturalNotes !== 'Cultural significance to be explored'
+    ).slice(0, 5);
+    
     if (culturalWords.length > 0) {
       sections.push({
         title: 'Cultural Context',
@@ -910,14 +1132,29 @@ class CapiscoEngine {
       });
     }
 
-    return sections.length > 0 ? sections : [
-      {
-        title: 'All Vocabulary',
-        vocabulary: vocabulary,
-        icon: 'fa-book',
-        description: 'Complete vocabulary from this content'
+    // 5. If no specific sections, create general ones
+    if (sections.length === 0) {
+      const firstHalf = vocabulary.slice(0, Math.ceil(vocabulary.length / 2));
+      const secondHalf = vocabulary.slice(Math.ceil(vocabulary.length / 2));
+      
+      sections.push({
+        title: 'Essential Vocabulary',
+        vocabulary: firstHalf,
+        icon: 'fa-star',
+        description: 'Key words from this content'
+      });
+      
+      if (secondHalf.length > 0) {
+        sections.push({
+          title: 'Additional Vocabulary',
+          vocabulary: secondHalf,
+          icon: 'fa-plus',
+          description: 'More important terms'
+        });
       }
-    ];
+    }
+
+    return sections;
   }
 
   groupVocabularyByCategory(vocabulary) {
@@ -1018,9 +1255,15 @@ class CapiscoEngine {
             <div class="key-themes" style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
               <h4><i class="fas fa-tags"></i> Key Themes:</h4>
               <div class="theme-tags" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
-                ${lesson.studyGuide.keyPoints.map(theme => 
-                  `<span style="background: #667eea; color: white; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.9rem;">${theme}</span>`
-                ).join('')}
+                ${(Array.isArray(lesson.studyGuide.keyPoints) ? lesson.studyGuide.keyPoints : lesson.studyGuide.keyThemes || []).map(theme => {
+                  if (typeof theme === 'object' && theme.display) {
+                    return `<span style="background: #667eea; color: white; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.9rem;" title="${theme.original}">${theme.english}</span>`;
+                  } else if (typeof theme === 'object' && theme.english) {
+                    return `<span style="background: #667eea; color: white; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.9rem;" title="${theme.original}">${theme.english}</span>`;
+                  } else {
+                    return `<span style="background: #667eea; color: white; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.9rem;">${theme}</span>`;
+                  }
+                }).join('')}
               </div>
             </div>
           </div>
@@ -1049,33 +1292,34 @@ class CapiscoEngine {
       `;
 
       section.vocabulary.forEach((vocab, vocabIndex) => {
-        const translation = lesson.translations[vocab.baseForm] || lesson.translations[vocab.word];
-        if (translation) {
           html += `
-                <li class="vocab-item" style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #667eea;">
+                <li class="vocab-item" style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #667eea; margin-bottom: 1rem;">
                   <div class="vocab-content" style="display: flex; justify-content: space-between; align-items: start;">
-                    <div class="vocab-text">
-                      <div class="italian-word" style="font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">
+                    <div class="vocab-text" style="flex: 1;">
+                      <div class="italian-word" style="font-size: 1.4rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">
                         ${vocab.baseForm || vocab.word}
-                        ${vocab.gender ? `<span class="gender-tag" style="background: ${vocab.gender === 'f' ? '#f472b6' : '#60a5fa'}; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; margin-left: 0.5rem;">${vocab.gender}</span>` : ''}
+                        ${vocab.gender ? `<span class="gender-tag" style="background: ${vocab.gender === 'f' ? '#f472b6' : vocab.gender === 'm' ? '#60a5fa' : '#10b981'}; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; margin-left: 0.5rem;">${vocab.gender === 'f' ? 'fem' : vocab.gender === 'm' ? 'masc' : vocab.gender}</span>` : ''}
+                        ${vocab.partOfSpeech ? `<span class="pos-tag" style="background: #e2e8f0; color: #475569; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; margin-left: 0.5rem;">${vocab.partOfSpeech}</span>` : ''}
                       </div>
-                      <div class="english-translation" style="font-size: 1.1rem; color: #64748b; margin-bottom: 0.5rem;">${translation.english}</div>
-                      <div class="pronunciation" style="font-style: italic; color: #94a3b8; font-size: 0.9rem;">/${translation.pronunciation}/</div>
-                      ${vocab.context ? `<div class="context" style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(102, 126, 234, 0.1); border-radius: 6px; font-size: 0.9rem; font-style: italic;">"${vocab.context}"</div>` : ''}
+                      <div class="english-translation" style="font-size: 1.2rem; color: #059669; font-weight: 600; margin-bottom: 0.5rem;">${vocab.english}</div>
+                      <div class="pronunciation" style="font-style: italic; color: #0891b2; font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem;">/${vocab.pronunciation}/</div>
+                      ${vocab.plural ? `<div class="plural-form" style="font-size: 0.9rem; color: #7c3aed; margin-bottom: 0.5rem;"><strong>Plural:</strong> ${vocab.plural}</div>` : ''}
+                      ${vocab.context ? `<div class="context" style="margin-top: 0.5rem; padding: 0.75rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px; font-size: 0.9rem; font-style: italic; border-left: 3px solid #667eea;"><strong>Context:</strong> "${vocab.context}"</div>` : ''}
+                      ${vocab.usage ? `<div class="usage-notes" style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 6px; font-size: 0.85rem; color: #065f46;"><strong>Usage:</strong> ${vocab.usage}</div>` : ''}
+                      ${vocab.examples && vocab.examples.length > 0 ? `<div class="examples" style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(251, 191, 36, 0.1); border-radius: 6px; font-size: 0.85rem; color: #92400e;"><strong>Examples:</strong> ${vocab.examples.slice(0, 2).join(', ')}</div>` : ''}
                     </div>
-                    <div class="vocab-controls">
-                      <button class="info-btn" data-info="${translation.etymology || translation.usage || 'Click for more information about this word'}" data-gender="${vocab.gender || ''}" data-plural="${vocab.plural || ''}" style="background: none; border: none; color: #667eea; cursor: pointer; margin-right: 0.5rem; font-size: 1.1rem;">
+                    <div class="vocab-controls" style="display: flex; flex-direction: column; gap: 0.5rem; margin-left: 1rem;">
+                      <button class="info-btn" data-info="${this.formatWordInfo(vocab)}" data-gender="${vocab.gender || ''}" data-plural="${vocab.plural || ''}" style="background: #667eea; color: white; border: none; padding: 0.5rem; border-radius: 6px; cursor: pointer; font-size: 1rem;">
                         <i class="fas fa-info-circle"></i>
                       </button>
-                      <button class="speaker-btn" data-italian="${vocab.baseForm || vocab.word}" style="background: none; border: none; color: #10b981; cursor: pointer; font-size: 1.1rem;">
+                      <button class="speaker-btn" data-italian="${vocab.baseForm || vocab.word}" style="background: #10b981; color: white; border: none; padding: 0.5rem; border-radius: 6px; cursor: pointer; font-size: 1rem;">
                         <i class="fas fa-volume-up"></i>
                       </button>
                     </div>
                   </div>
                 </li>
           `;
-        }
-      });
+        });
 
       html += `
               </ul>
@@ -1185,18 +1429,46 @@ class CapiscoEngine {
     }, 100);
   }
 
+  formatWordInfo(vocab) {
+    let info = [];
+    
+    if (vocab.etymology && vocab.etymology !== 'Etymology to be researched') {
+      info.push(`Etymology: ${vocab.etymology}`);
+    }
+    
+    if (vocab.usage && vocab.usage !== 'Usage context needed') {
+      info.push(`Usage: ${vocab.usage}`);
+    }
+    
+    if (vocab.culturalNotes && vocab.culturalNotes !== 'Cultural significance to be explored') {
+      info.push(`Cultural Notes: ${vocab.culturalNotes}`);
+    }
+    
+    if (vocab.examples && vocab.examples.length > 0) {
+      info.push(`Examples: ${vocab.examples.join(', ')}`);
+    }
+    
+    if (info.length === 0) {
+      info.push(`Word: ${vocab.baseForm || vocab.word} (${vocab.partOfSpeech || 'unknown type'})`);
+      if (vocab.frequency) {
+        info.push(`Frequency in text: ${vocab.frequency} times`);
+      }
+    }
+    
+    return info.join(' | ');
+  }
+
   updateQuizSystemWithLessonData() {
     // Create dynamic quiz data from lesson content
     const dynamicQuizData = {
       generated_content: {
         vocabulary: this.currentLesson.vocabulary.map(vocab => {
-          const translation = this.currentLesson.translations[vocab.baseForm] || this.currentLesson.translations[vocab.word];
           return {
             italian: vocab.baseForm || vocab.word,
-            english: translation ? translation.english : vocab.english || 'translation',
+            english: vocab.english || 'translation needed',
             gender: vocab.gender || '',
             plural: vocab.plural || '',
-            info: translation ? (translation.etymology + ' ' + translation.usage) : vocab.context || 'Additional information about this word.',
+            info: this.formatWordInfo(vocab),
             audio: vocab.baseForm || vocab.word
           };
         })
