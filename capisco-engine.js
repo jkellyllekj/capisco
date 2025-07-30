@@ -1989,7 +1989,7 @@ This will create a complete interactive lesson with your chosen video content!`)
 
           html += `
                 <li class="vocab-item" style="background: #f8fafc; padding: 1rem; border-radius: 12px; border-left: 4px solid #667eea; margin-bottom: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                  <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
                     <div class="vocab-content" style="flex: 1; margin-right: 1rem;">
                       <div class="vocab-header" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
                         <span class="italian-word" style="font-size: 1.3rem; font-weight: 700; color: #1e293b;">
@@ -1999,26 +1999,29 @@ This will create a complete interactive lesson with your chosen video content!`)
                         ${vocab.partOfSpeech ? `<span class="pos-tag" style="background: #e2e8f0; color: #475569; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">${vocab.partOfSpeech}</span>` : ''}
                       </div>
                       
-                      <div class="english-translation" style="font-size: 1.1rem; color: #059669; font-weight: 600; margin-bottom: 0.5rem;">
+                      <div class="english-translation" style="font-size: 1.1rem; color: #059669; font-weight: 600; margin-bottom: 0.3rem;">
                         ${vocab.english}
                       </div>
                       
-                      <div class="vocab-details" style="display: grid; gap: 0.25rem; font-size: 0.9rem; color: #64748b;">
-                        ${vocab.phonetic ? `<div><strong>Phonetic:</strong> [${vocab.phonetic}]</div>` : ''}
-                        ${vocab.plural ? `<div><strong>Plural:</strong> ${vocab.plural}</div>` : ''}
-                        ${vocab.conjugations?.present ? `<div><strong>Present:</strong> io ${vocab.conjugations.present.io}, tu ${vocab.conjugations.present.tu}, lui/lei ${vocab.conjugations.present.lui}</div>` : ''}
-                        ${vocab.context ? `<div><strong>Context:</strong> <em>"${vocab.context.substring(0, 80)}${vocab.context.length > 80 ? '...' : ''}"</em></div>` : ''}
-                      </div>
+                      ${vocab.phonetic ? `<div style="font-size: 0.9rem; color: #64748b; font-style: italic;">[${vocab.phonetic}]</div>` : ''}
                     </div>
                     
-                    <div class="vocab-controls" style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
+                    <div class="vocab-controls" style="display: flex; gap: 0.5rem; align-items: center;">
                       <button class="info-btn" 
-                              data-info="${this.formatAdvancedWordInfo(vocab)}" 
+                              data-word="${vocab.baseForm || vocab.word}"
+                              data-english="${vocab.english}"
                               data-gender="${vocab.gender || ''}" 
                               data-plural="${vocab.plural || ''}"
+                              data-context="${vocab.context || ''}"
                               data-etymology="${vocab.etymology || ''}"
                               data-cultural="${vocab.culturalNotes || ''}"
-                              style="background: #667eea; color: white; border: none; padding: 0.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; min-width: 40px;">
+                              data-usage="${vocab.usage || ''}"
+                              data-examples="${(vocab.examples || []).join(' | ')}"
+                              data-related="${(vocab.relatedWords || []).join(', ')}"
+                              data-mistakes="${(vocab.commonMistakes || []).join(' | ')}"
+                              data-tips="${(vocab.memoryTips || []).join(' | ')}"
+                              ${vocab.conjugations?.present ? `data-conjugations="io ${vocab.conjugations.present.io}, tu ${vocab.conjugations.present.tu}, lui/lei ${vocab.conjugations.present.lui}"` : ''}
+                              style="background: #667eea; color: white; border: none; padding: 0.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; min-width: 40px; position: relative;">
                         <i class="fas fa-info-circle"></i>
                       </button>
                       <div style="display: flex; gap: 0.25rem;">
@@ -2167,71 +2170,105 @@ This will create a complete interactive lesson with your chosen video content!`)
       });
     });
 
-    // Also bind info buttons
+    // Also bind info buttons for hover behavior
     document.querySelectorAll('.info-btn').forEach(btn => {
+      let hoverTimeout;
+      
+      btn.addEventListener('mouseenter', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Clear any existing tooltips
+        document.querySelectorAll('.word-info-tooltip').forEach(tooltip => tooltip.remove());
+        // Show tooltip after short delay
+        hoverTimeout = setTimeout(() => {
+          this.showAdvancedWordInfo(btn);
+        }, 300);
+      });
+
+      btn.addEventListener('mouseleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        clearTimeout(hoverTimeout);
+        // Remove tooltip after delay
+        setTimeout(() => {
+          const tooltip = btn.querySelector('.word-info-tooltip');
+          if (tooltip) tooltip.remove();
+        }, 500);
+      });
+
+      // Also show on click for mobile
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        // Clear any existing tooltips
+        document.querySelectorAll('.word-info-tooltip').forEach(tooltip => tooltip.remove());
         this.showAdvancedWordInfo(btn);
       });
     });
   }
 
   showAdvancedWordInfo(button) {
-    const info = button.getAttribute('data-info');
+    const word = button.getAttribute('data-word');
+    const english = button.getAttribute('data-english');
+    const gender = button.getAttribute('data-gender');
+    const plural = button.getAttribute('data-plural');
+    const context = button.getAttribute('data-context');
     const etymology = button.getAttribute('data-etymology');
     const cultural = button.getAttribute('data-cultural');
-    
-    if (!info) return;
+    const usage = button.getAttribute('data-usage');
+    const examples = button.getAttribute('data-examples');
+    const related = button.getAttribute('data-related');
+    const mistakes = button.getAttribute('data-mistakes');
+    const tips = button.getAttribute('data-tips');
+    const conjugations = button.getAttribute('data-conjugations');
 
-    // Create enhanced tooltip/modal
-    const modal = document.createElement('div');
-    modal.className = 'word-info-modal';
-    modal.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
+    // Create hover tooltip instead of modal
+    const tooltip = document.createElement('div');
+    tooltip.className = 'word-info-tooltip';
+    tooltip.style.cssText = `
+      position: absolute;
+      background: rgba(0, 0, 0, 0.95);
+      color: white;
+      padding: 1.5rem;
       border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      max-width: 600px;
-      max-height: 80vh;
-      overflow-y: auto;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      max-width: 400px;
       z-index: 10000;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      pointer-events: none;
+      white-space: normal;
       border: 2px solid #667eea;
-    `;
-
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed;
+      right: 50px;
       top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 9999;
     `;
 
-    modal.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 style="margin: 0; color: #667eea;"><i class="fas fa-info-circle"></i> Word Details</h3>
-        <button onclick="this.parentElement.parentElement.parentElement.remove(); this.parentElement.parentElement.parentElement.previousSibling.remove();" style="background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
-      </div>
-      <div class="word-info-content" style="line-height: 1.6;">
-        ${info}
-      </div>
-    `;
+    let content = `<div style="margin-bottom: 1rem;"><strong style="color: #667eea; font-size: 1.1rem;">${word}</strong><br><span style="color: #10b981;">${english}</span></div>`;
+    
+    if (gender) content += `<div style="margin-bottom: 0.75rem;"><strong>Gender:</strong> ${gender === 'f' ? 'Feminine' : gender === 'm' ? 'Masculine' : gender}</div>`;
+    if (plural) content += `<div style="margin-bottom: 0.75rem;"><strong>Plural:</strong> ${plural}</div>`;
+    if (conjugations) content += `<div style="margin-bottom: 0.75rem;"><strong>Conjugation:</strong> ${conjugations}</div>`;
+    if (context && context !== '') content += `<div style="margin-bottom: 0.75rem;"><strong>Context:</strong> <em>"${context.substring(0, 120)}${context.length > 120 ? '...' : ''}"</em></div>`;
+    if (etymology && etymology !== 'Etymology to be researched' && etymology !== '') content += `<div style="margin-bottom: 0.75rem;"><strong>Etymology:</strong> ${etymology}</div>`;
+    if (usage && usage !== 'Usage context needed' && usage !== '') content += `<div style="margin-bottom: 0.75rem;"><strong>Usage:</strong> ${usage}</div>`;
+    if (cultural && cultural !== 'Cultural significance to be explored' && cultural !== '') content += `<div style="margin-bottom: 0.75rem;"><strong>Cultural Note:</strong> ${cultural}</div>`;
+    if (examples && examples !== '') content += `<div style="margin-bottom: 0.75rem;"><strong>Examples:</strong> ${examples}</div>`;
+    if (related && related !== '') content += `<div style="margin-bottom: 0.75rem;"><strong>Related Words:</strong> ${related}</div>`;
+    if (mistakes && mistakes !== '') content += `<div style="margin-bottom: 0.75rem;"><strong>Common Mistakes:</strong> ${mistakes}</div>`;
+    if (tips && tips !== '') content += `<div style="margin-bottom: 0.75rem;"><strong>Memory Tips:</strong> ${tips}</div>`;
 
-    // Close on overlay click
-    overlay.addEventListener('click', () => {
-      modal.remove();
-      overlay.remove();
-    });
+    tooltip.innerHTML = content;
 
-    document.body.appendChild(overlay);
-    document.body.appendChild(modal);
+    // Position relative to button
+    button.style.position = 'relative';
+    button.appendChild(tooltip);
+
+    // Auto-remove after delay or on mouse leave
+    setTimeout(() => {
+      if (tooltip.parentNode) {
+        tooltip.remove();
+      }
+    }, 5000);
   }
 
   formatAdvancedWordInfo(vocab) {
