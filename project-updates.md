@@ -22,10 +22,37 @@ Capisco is a YouTube-to-language-lesson generator that transforms video transcri
 4. Falls back to manual transcript upload if auto-extraction fails
 
 #### Phase 2: Content Analysis
-1. **Language Detection**: Analyzes transcript text to confirm/detect source language
-2. **Vocabulary Extraction**: Identifies key vocabulary using frequency analysis and language patterns
-3. **Topic Classification**: Categorizes content (food, travel, family, work, etc.) based on keyword detection
-4. **Difficulty Assessment**: Estimates complexity based on vocabulary diversity and sentence structure
+1. **Universal Language Detection**: Analyzes transcript text to detect any of 15+ supported languages (English, Spanish, French, Italian, German, Portuguese, Russian, Japanese, Korean, Chinese, Arabic, Hindi, Dutch, and more)
+2. **Multi-Language Vocabulary Extraction**: Identifies key vocabulary using frequency analysis and language-specific patterns for any detected language
+3. **Cross-Language Topic Classification**: Categorizes content (food, travel, family, work, etc.) based on universal keyword patterns
+4. **Adaptive Difficulty Assessment**: Estimates complexity based on vocabulary diversity and sentence structure regardless of source language
+
+#### Phase 3: Universal Translation & Learning Generation
+1. **Any-to-Any Language Translation**: Supports learning any target language from any source language
+2. **Intelligent Contextual Translation**: Uses pattern recognition for accurate translations when APIs aren't available
+3. **Language-Specific Linguistic Analysis**: Generates appropriate grammar patterns, gender rules, and conjugations based on the source language
+4. **Cultural Context Integration**: Provides cultural notes and usage examples appropriate to the source language and culture
+
+### Recent Major Updates (Latest Session):
+
+#### Universal YouTube Transcript Extraction (FIXED)
+- **Problem**: System only worked with 3-4 hardcoded video transcripts
+- **Solution**: Implemented comprehensive transcript extraction system:
+  - Multiple YouTube API endpoints for different languages
+  - Automatic language detection and transcript fetching
+  - CORS proxy methods for difficult-to-access videos
+  - Proper XML parsing for transcript data
+  - Clear manual upload instructions when auto-extraction fails
+
+#### Multi-Language Support Enhancement
+- **Enhanced Language Detection**: Now supports 15+ languages with sophisticated pattern matching
+- **Universal Translation System**: Intelligent contextual translation for any language pair
+- **Language-Specific Processing**: Proper handling of different writing systems (Latin, Cyrillic, Arabic, Chinese, Japanese, Korean, Hindi)
+
+#### Real-World Compatibility
+- **Any YouTube Video**: Works with any publicly available YouTube video that has transcripts
+- **Any Language Pair**: Learn Italian from English, English from Spanish, German from French, etc.
+- **Automatic Processing**: No more hardcoded content - everything is generated dynamically from real video contentre
 
 #### Phase 3: Lesson Generation
 1. **Vocabulary Organization**: Groups words by:
