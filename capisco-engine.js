@@ -19,10 +19,19 @@ class CapiscoEngine {
       return;
     }
     
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      e.stopPropagation();
       console.log('Form submitted, generating lesson...');
-      this.generateLesson();
+      
+      try {
+        await this.generateLesson();
+      } catch (error) {
+        console.error('Form submission error:', error);
+        this.showErrorMessage('An error occurred while generating the lesson. Please try again.');
+      }
+      
+      return false;
     });
   }
 
@@ -105,10 +114,19 @@ class CapiscoEngine {
 
     } catch (error) {
       console.error('Error generating lesson:', error);
-      this.hideProcessingStatus();
+      
+      // Safely hide processing status
+      try {
+        this.hideProcessingStatus();
+      } catch (hideError) {
+        console.error('Error hiding processing status:', hideError);
+      }
       
       // Show user-friendly error message
       this.showErrorMessage(error.message || 'An unexpected error occurred. Please try again.');
+      
+      // Prevent any form submission or page reload
+      return false;
     }
   }
 
@@ -182,12 +200,22 @@ class CapiscoEngine {
   }
 
   hideProcessingStatus() {
-    document.getElementById('processing-status').classList.remove('active');
-    document.getElementById('generate-btn').disabled = false;
+    const statusElement = document.getElementById('processing-status');
+    const btnElement = document.getElementById('generate-btn');
     
-    // Reset all steps
+    if (statusElement) {
+      statusElement.classList.remove('active');
+    }
+    if (btnElement) {
+      btnElement.disabled = false;
+    }
+    
+    // Reset all steps safely
     this.processingSteps.forEach(step => {
-      document.getElementById(step).classList.remove('active', 'complete');
+      const stepElement = document.getElementById(step);
+      if (stepElement) {
+        stepElement.classList.remove('active', 'complete');
+      }
     });
   }
 
