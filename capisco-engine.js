@@ -109,8 +109,21 @@ class CapiscoEngine {
       await this.updateProcessingStep(5);
       const lesson = await this.buildLesson(transcript, vocabulary, translations, quizData, analysis);
 
-      this.hideProcessingStatus();
-      this.displayLesson(lesson);
+      // Safely hide processing status before displaying lesson
+      try {
+        this.hideProcessingStatus();
+      } catch (hideError) {
+        console.warn('Error hiding processing status:', hideError);
+      }
+      
+      // Display the lesson
+      try {
+        this.displayLesson(lesson);
+        console.log('✅ Lesson displayed successfully');
+      } catch (displayError) {
+        console.error('Error displaying lesson:', displayError);
+        throw new Error('Failed to display the generated lesson. Please try refreshing the page.');
+      }
 
     } catch (error) {
       console.error('Error generating lesson:', error);
@@ -221,12 +234,12 @@ class CapiscoEngine {
         btnElement.disabled = false;
       }
       
-      // Reset all steps safely
+      // Reset all steps safely with enhanced error handling
       if (this.processingSteps && Array.isArray(this.processingSteps)) {
         this.processingSteps.forEach(step => {
           try {
             const stepElement = document.getElementById(step);
-            if (stepElement) {
+            if (stepElement && stepElement.classList) {
               stepElement.classList.remove('active', 'complete');
             }
           } catch (stepError) {
@@ -1741,23 +1754,44 @@ class CapiscoEngine {
 
   displayLesson(lesson) {
     const lessonContainer = document.getElementById('generated-lesson');
-    const html = this.generateStructuredLessonHTML(lesson);
-    lessonContainer.innerHTML = html;
-    lessonContainer.classList.add('active');
+    if (!lessonContainer) {
+      throw new Error('Lesson container not found. Please refresh the page.');
+    }
     
-    // Smooth scroll to lesson with a small delay for better UX
-    setTimeout(() => {
-      lessonContainer.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
-    }, 500);
+    if (!lesson) {
+      throw new Error('No lesson data to display.');
+    }
     
-    // Store current lesson for future reference/saving
-    this.currentLesson = lesson;
-    
-    // Initialize interactive elements like Al Mercato
-    this.initializeStructuredLessonInteractivity();
+    try {
+      const html = this.generateStructuredLessonHTML(lesson);
+      lessonContainer.innerHTML = html;
+      lessonContainer.classList.add('active');
+      
+      // Smooth scroll to lesson with a small delay for better UX
+      setTimeout(() => {
+        if (lessonContainer.scrollIntoView) {
+          lessonContainer.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 500);
+      
+      // Store current lesson for future reference/saving
+      this.currentLesson = lesson;
+      
+      // Initialize interactive elements like Al Mercato
+      try {
+        this.initializeStructuredLessonInteractivity();
+      } catch (interactivityError) {
+        console.warn('Error initializing interactivity:', interactivityError);
+      }
+      
+      console.log('✅ Lesson successfully displayed with', lesson.vocabulary.length, 'vocabulary items');
+    } catch (error) {
+      console.error('Error in displayLesson:', error);
+      throw error;
+    }
   }
 
   generateStructuredLessonHTML(lesson) {
