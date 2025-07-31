@@ -1680,14 +1680,14 @@ class CapiscoEngine {
     let html = `
       <div class="lesson-container" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
         <!-- Compact Lesson Header -->
-        <header class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem 2rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
-          <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem;"><i class="fas fa-book-open"></i> ${lesson.title}</h1>
-          <div class="lesson-meta" style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap; font-size: 0.9rem;">
+        <header class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 1rem; text-align: center;">
+          <h1 style="font-size: 1.4rem; margin-bottom: 0.3rem;"><i class="fas fa-book-open"></i> ${lesson.title}</h1>
+          <div class="lesson-meta" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 0.5rem; flex-wrap: wrap; font-size: 0.8rem;">
             <span><i class="fas fa-signal"></i> ${lesson.difficulty.charAt(0).toUpperCase() + lesson.difficulty.slice(1)}</span>
             <span><i class="fas fa-language"></i> ${lesson.sourceLanguage.toUpperCase()}</span>
             <span><i class="fas fa-clock"></i> ${lesson.studyGuide.overview.match(/\d+ minutes/)?.[0] || '5-10 minutes'}</span>
             <span><i class="fas fa-list"></i> ${lesson.vocabulary.length} vocabulary items</span>
-          </div>
+          </div></old_str>
           
           <!-- Mode Toggle -->
           <div class="mode-toggle" style="display: flex; gap: 0.5rem; justify-content: center;">
@@ -1706,19 +1706,11 @@ class CapiscoEngine {
             <p style="font-size: 1rem; margin-bottom: 0.75rem;">${lesson.studyGuide.overview}</p>
             <div class="key-themes" style="background: #f8fafc; padding: 0.75rem; border-radius: 6px;">
               <div class="theme-tags" style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-                ${(Array.isArray(lesson.studyGuide.keyPoints) ? lesson.studyGuide.keyPoints : lesson.studyGuide.keyThemes || []).map(theme => {
-                  if (typeof theme === 'object' && theme.display) {
-                    return `<span style="background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 10px; font-size: 0.8rem;" title="${theme.original}">${theme.english}</span>`;
-                  } else if (typeof theme === 'object' && theme.english) {
-                    return `<span style="background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 10px; font-size: 0.8rem;" title="${theme.original}">${theme.english}</span>`;
-                  } else {
-                    return `<span style="background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 10px; font-size: 0.8rem;">${theme}</span>`;
-                  }
-                }).join('')}
+                ${this.generateThemeTags(lesson.studyGuide)}
               </div>
             </div>
           </div>
-        </section>
+        </section></old_str>
     `;
 
     // Generate vocabulary sections like Al Mercato
@@ -1797,20 +1789,17 @@ class CapiscoEngine {
                         ${vocab.phonetic ? `<div><strong>Phonetic:</strong> [${vocab.phonetic}]</div>` : ''}
                         ${vocab.plural ? `<div><strong>Plural:</strong> ${vocab.plural}</div>` : ''}
                         ${vocab.conjugations?.present ? `<div><strong>Present:</strong> io ${vocab.conjugations.present.io}, tu ${vocab.conjugations.present.tu}, lui/lei ${vocab.conjugations.present.lui}</div>` : ''}
-                        ${vocab.context ? `<div><strong>Context:</strong> <em>"${vocab.context.substring(0, 80)}${vocab.context.length > 80 ? '...' : ''}"</em></div>` : ''}
-                      </div>
+                      </div></old_str>
                     </div>
                     
                     <div class="vocab-controls" style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
                       <button class="info-btn" 
-                              data-info="${this.formatAdvancedWordInfo(vocab)}" 
+                              data-info="${this.formatAdvancedWordInfo(vocab).replace(/"/g, '&quot;')}" 
                               data-gender="${vocab.gender || ''}" 
                               data-plural="${vocab.plural || ''}"
-                              data-etymology="${vocab.etymology || ''}"
-                              data-cultural="${vocab.culturalNotes || ''}"
                               style="background: #667eea; color: white; border: none; padding: 0.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; min-width: 40px;">
                         <i class="fas fa-info-circle"></i>
-                      </button>
+                      </button></old_str>
                       <div style="display: flex; gap: 0.25rem;">
                         ${audioButtons}
                       </div>
@@ -1935,37 +1924,50 @@ class CapiscoEngine {
     // Ensure all speaker buttons work
     document.querySelectorAll('.speaker-btn').forEach(btn => {
       // Remove existing listeners to prevent duplicates
-      btn.removeEventListener('click', this.handleSpeakerClick);
+      const existingHandler = btn._speakerHandler;
+      if (existingHandler) {
+        btn.removeEventListener('click', existingHandler);
+      }
       
-      // Add click event
-      btn.addEventListener('click', (e) => {
+      // Create new handler and store reference
+      const handler = (e) => {
         e.preventDefault();
         e.stopPropagation();
         const italian = btn.getAttribute('data-italian');
         if (italian) {
+          console.log('Playing audio for:', italian);
           this.pronounceWord(italian);
+          
+          // Visual feedback
+          const originalStyle = btn.style.background;
+          btn.style.background = '#059669';
+          setTimeout(() => {
+            btn.style.background = originalStyle;
+          }, 500);
         }
-      });
-
-      // Add hover event for immediate feedback
-      btn.addEventListener('mouseenter', (e) => {
-        const italian = btn.getAttribute('data-italian');
-        if (italian) {
-          // Optional: play on hover for immediate feedback
-          // this.pronounceWord(italian);
-        }
-      });
+      };
+      
+      btn._speakerHandler = handler;
+      btn.addEventListener('click', handler);
     });
 
     // Also bind info buttons
     document.querySelectorAll('.info-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      const existingHandler = btn._infoHandler;
+      if (existingHandler) {
+        btn.removeEventListener('click', existingHandler);
+      }
+      
+      const handler = (e) => {
         e.preventDefault();
         e.stopPropagation();
         this.showAdvancedWordInfo(btn);
-      });
+      };
+      
+      btn._infoHandler = handler;
+      btn.addEventListener('click', handler);
     });
-  }
+  }</old_str>
 
   showAdvancedWordInfo(button) {
     const info = button.getAttribute('data-info');
@@ -2024,13 +2026,36 @@ class CapiscoEngine {
     document.body.appendChild(modal);
   }
 
+  generateThemeTags(studyGuide) {
+    let themes = [];
+    
+    // Try to get themes from different sources
+    if (studyGuide.keyPoints && Array.isArray(studyGuide.keyPoints)) {
+      themes = studyGuide.keyPoints;
+    } else if (studyGuide.keyThemes && Array.isArray(studyGuide.keyThemes)) {
+      themes = studyGuide.keyThemes;
+    } else {
+      themes = ['Daily Conversation'];
+    }
+    
+    return themes.map(theme => {
+      if (typeof theme === 'object' && theme.english) {
+        return `<span style="background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 10px; font-size: 0.8rem;" title="${theme.original || theme.english}">${theme.english}</span>`;
+      } else if (typeof theme === 'string') {
+        return `<span style="background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 10px; font-size: 0.8rem;">${theme}</span>`;
+      } else {
+        return `<span style="background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 10px; font-size: 0.8rem;">Context</span>`;
+      }
+    }).join('');
+  }
+
   formatAdvancedWordInfo(vocab) {
     let info = [];
     
     // Add comprehensive linguistic information
     if (vocab.etymology && vocab.etymology !== 'Etymology to be researched') {
       info.push(`<strong>Etymology:</strong> ${vocab.etymology}`);
-    }
+    }</old_str>
     
     if (vocab.usage && vocab.usage !== 'Usage context needed') {
       info.push(`<strong>Usage:</strong> ${vocab.usage}`);
@@ -2115,6 +2140,8 @@ class CapiscoEngine {
 
   pronounceWord(word) {
     if ('speechSynthesis' in window) {
+      console.log('Attempting to pronounce:', word);
+      
       // Cancel any ongoing speech first
       speechSynthesis.cancel();
       
@@ -2127,7 +2154,7 @@ class CapiscoEngine {
       // Wait for voices to load if needed
       const setVoice = () => {
         const voices = speechSynthesis.getVoices();
-        console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+        console.log('Available voices:', voices.length);
 
         // Find Italian voice
         let italianVoice = voices.find(voice => 
@@ -2140,24 +2167,44 @@ class CapiscoEngine {
 
         if (italianVoice) {
           utterance.voice = italianVoice;
-          console.log('Selected Italian voice:', italianVoice.name, italianVoice.lang);
+          console.log('Selected Italian voice:', italianVoice.name);
         } else {
-          console.log('No Italian voice found, using default with it-IT lang');
+          console.log('No Italian voice found, using default');
         }
 
-        speechSynthesis.speak(utterance);
+        // Add event handlers
+        utterance.onstart = () => console.log('Speech started');
+        utterance.onend = () => console.log('Speech ended');
+        utterance.onerror = (event) => {
+          console.error('Speech error:', event.error);
+          console.log('Fallback: Word was "' + word + '"');
+        };
+
+        try {
+          speechSynthesis.speak(utterance);
+          console.log('Speech synthesis called successfully');
+        } catch (error) {
+          console.error('Error calling speechSynthesis.speak:', error);
+        }
       };
 
       if (speechSynthesis.getVoices().length > 0) {
         setVoice();
       } else {
         speechSynthesis.addEventListener('voiceschanged', setVoice, { once: true });
+        // Fallback timeout in case voiceschanged never fires
+        setTimeout(() => {
+          if (speechSynthesis.getVoices().length === 0) {
+            console.log('No voices loaded after timeout, trying anyway');
+            setVoice();
+          }
+        }, 1000);
       }
     } else {
       console.log('Speech synthesis not supported');
-      alert('Audio not supported in this browser');
+      alert('Audio not supported in this browser. Word was: "' + word + '"');
     }
-  }
+  }</old_str>
 
   playTranscript(transcript) {
     if ('speechSynthesis' in window) {
