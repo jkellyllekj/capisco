@@ -109,20 +109,34 @@ class CapiscoEngine {
       await this.updateProcessingStep(5);
       const lesson = await this.buildLesson(transcript, vocabulary, translations, quizData, analysis);
 
-      // Safely hide processing status before displaying lesson
-      try {
-        this.hideProcessingStatus();
-      } catch (hideError) {
-        console.warn('Error hiding processing status:', hideError);
-      }
+      // Always attempt to display lesson, even if hiding status fails
+      console.log('🎯 About to hide processing status and display lesson...');
       
-      // Display the lesson
+      // Hide processing status with maximum safety
+      setTimeout(() => {
+        try {
+          this.hideProcessingStatus();
+          console.log('✅ Processing status hidden successfully');
+        } catch (hideError) {
+          console.warn('Error hiding processing status (non-fatal):', hideError);
+        }
+      }, 100);
+      
+      // Display the lesson - this is the critical step
       try {
+        console.log('🚀 Attempting to display lesson with', lesson.vocabulary.length, 'vocabulary items');
         this.displayLesson(lesson);
-        console.log('✅ Lesson displayed successfully');
+        console.log('✅ Lesson displayed successfully!');
       } catch (displayError) {
-        console.error('Error displaying lesson:', displayError);
-        throw new Error('Failed to display the generated lesson. Please try refreshing the page.');
+        console.error('Critical error displaying lesson:', displayError);
+        // Fallback: try to show a basic lesson
+        try {
+          this.displayBasicLesson(lesson);
+          console.log('✅ Fallback lesson displayed');
+        } catch (fallbackError) {
+          console.error('Even fallback failed:', fallbackError);
+          throw new Error('Failed to display the generated lesson. Please try refreshing the page.');
+        }
       }
 
     } catch (error) {
@@ -224,32 +238,36 @@ class CapiscoEngine {
 
   hideProcessingStatus() {
     try {
-      const statusElement = document.getElementById('processing-status');
-      const btnElement = document.getElementById('generate-btn');
+      // Use more defensive element selection
+      const statusElement = document.querySelector('#processing-status');
+      const btnElement = document.querySelector('#generate-btn');
       
-      if (statusElement) {
+      if (statusElement && statusElement.classList) {
         statusElement.classList.remove('active');
       }
+      
       if (btnElement) {
         btnElement.disabled = false;
       }
       
-      // Reset all steps safely with enhanced error handling
+      // Reset all steps with maximum safety
       if (this.processingSteps && Array.isArray(this.processingSteps)) {
-        this.processingSteps.forEach(step => {
+        this.processingSteps.forEach((step, index) => {
           try {
-            const stepElement = document.getElementById(step);
-            if (stepElement && stepElement.classList) {
-              stepElement.classList.remove('active', 'complete');
+            if (typeof step === 'string' && step.length > 0) {
+              const stepElement = document.querySelector(`#${step}`);
+              if (stepElement && stepElement.classList && typeof stepElement.classList.remove === 'function') {
+                stepElement.classList.remove('active', 'complete');
+              }
             }
           } catch (stepError) {
-            console.warn('Error resetting step:', step, stepError);
+            console.warn(`Error resetting step ${index} (${step}):`, stepError);
           }
         });
       }
     } catch (error) {
-      console.warn('Error in hideProcessingStatus:', error);
-      // Don't throw - just log and continue
+      console.warn('Error in hideProcessingStatus (caught and handled):', error);
+      // Never throw - always continue to lesson display
     }
   }
 
@@ -1588,6 +1606,46 @@ class CapiscoEngine {
     }
     
     return activities;
+  }
+
+  displayBasicLesson(lesson) {
+    // Emergency fallback lesson display
+    const lessonContainer = document.getElementById('generated-lesson');
+    if (!lessonContainer) {
+      throw new Error('Lesson container not found');
+    }
+    
+    const basicHtml = `
+      <div class="lesson-container" style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
+        <header class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;">
+          <h1>✅ Lesson Generated Successfully!</h1>
+          <p>Your lesson with ${lesson.vocabulary ? lesson.vocabulary.length : 'many'} vocabulary items is ready.</p>
+        </header>
+        
+        <section class="vocabulary-section" style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+          <h2><i class="fas fa-book"></i> Vocabulary</h2>
+          <div class="vocab-list" style="display: grid; gap: 1rem;">
+            ${(lesson.vocabulary || []).slice(0, 20).map(vocab => `
+              <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border-left: 4px solid #667eea;">
+                <div style="font-size: 1.2rem; font-weight: bold; color: #1e293b;">${vocab.baseForm || vocab.word}</div>
+                <div style="color: #059669; font-weight: 600;">${vocab.english}</div>
+                <button onclick="capisco.pronounceWord('${vocab.baseForm || vocab.word}')" style="background: #10b981; color: white; border: none; padding: 0.5rem; border-radius: 4px; margin-top: 0.5rem; cursor: pointer;">
+                  <i class="fas fa-volume-up"></i> Play
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        </section>
+      </div>
+    `;
+    
+    lessonContainer.innerHTML = basicHtml;
+    lessonContainer.classList.add('active');
+    
+    // Scroll to lesson
+    setTimeout(() => {
+      lessonContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
   }
 
   generateLessonSections(vocabulary, translations, analysis) {
