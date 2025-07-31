@@ -327,43 +327,56 @@ class CapiscoEngine {
   }
 
   async analyzeContent(transcript, sourceLanguage) {
-    // Enhanced content analysis with actual language detection
-    const wordCount = transcript.split(/\s+/).length;
-    const avgWordsPerSentence = transcript.split(/[.!?]+/).length > 0 ? 
-      wordCount / transcript.split(/[.!?]+/).length : 10;
-    
-    // Auto-detect language if not provided
-    let detectedLanguage = sourceLanguage;
-    if (!sourceLanguage || sourceLanguage === '') {
-      detectedLanguage = this.detectLanguageFromTranscript(transcript);
-      console.log('Auto-detected language:', detectedLanguage);
+    try {
+      // Enhanced content analysis with actual language detection
+      const wordCount = transcript.split(/\s+/).length;
+      const avgWordsPerSentence = transcript.split(/[.!?]+/).length > 0 ? 
+        wordCount / transcript.split(/[.!?]+/).length : 10;
       
-      // Update the form to show detected language
-      const sourceSelect = document.getElementById('source-language');
-      if (sourceSelect) {
-        sourceSelect.value = detectedLanguage;
-        sourceSelect.style.background = '#d1fae5';
-        sourceSelect.style.border = '2px solid #10b981';
+      // Auto-detect language if not provided
+      let detectedLanguage = sourceLanguage;
+      if (!sourceLanguage || sourceLanguage === '') {
+        detectedLanguage = this.detectLanguageFromTranscript(transcript);
+        console.log('Auto-detected language:', detectedLanguage);
+        
+        // Update the form to show detected language
+        const sourceSelect = document.getElementById('source-language');
+        if (sourceSelect) {
+          sourceSelect.value = detectedLanguage;
+          sourceSelect.style.background = '#d1fae5';
+          sourceSelect.style.border = '2px solid #10b981';
+        }
       }
+      
+      // Determine difficulty based on sentence complexity and vocabulary
+      let difficultyLevel = 'beginner';
+      if (avgWordsPerSentence > 15 || wordCount > 500) difficultyLevel = 'intermediate';
+      if (avgWordsPerSentence > 20 || wordCount > 1000) difficultyLevel = 'advanced';
+      
+      // Extract and translate key themes
+      const keyThemesRaw = this.extractKeyThemes(transcript, detectedLanguage);
+      const keyThemesTranslated = await this.translateKeyThemes(keyThemesRaw, detectedLanguage);
+      
+      return {
+        detectedLanguage: detectedLanguage,
+        topics: this.extractTopicsFromTranscript(transcript, detectedLanguage),
+        difficultyLevel: difficultyLevel,
+        keyThemes: keyThemesTranslated,
+        wordCount: wordCount,
+        estimatedStudyTime: Math.ceil(wordCount / 100) * 5 // 5 min per 100 words
+      };
+    } catch (error) {
+      console.error('Error in analyzeContent:', error);
+      // Return safe defaults if analysis fails
+      return {
+        detectedLanguage: sourceLanguage || 'it',
+        topics: ['general conversation'],
+        difficultyLevel: 'intermediate',
+        keyThemes: [{ english: 'Daily Conversation', original: 'Conversazione quotidiana' }],
+        wordCount: transcript.split(/\s+/).length,
+        estimatedStudyTime: 5
+      };
     }
-    
-    // Determine difficulty based on sentence complexity and vocabulary
-    let difficultyLevel = 'beginner';
-    if (avgWordsPerSentence > 15 || wordCount > 500) difficultyLevel = 'intermediate';
-    if (avgWordsPerSentence > 20 || wordCount > 1000) difficultyLevel = 'advanced';
-    
-    // Extract and translate key themes
-    const keyThemesRaw = this.extractKeyThemes(transcript, detectedLanguage);
-    const keyThemesTranslated = await this.translateKeyThemes(keyThemesRaw, detectedLanguage);
-    
-    return {
-      detectedLanguage: detectedLanguage,
-      topics: this.extractTopicsFromTranscript(transcript, detectedLanguage),
-      difficultyLevel: difficultyLevel,
-      keyThemes: keyThemesTranslated,
-      wordCount: wordCount,
-      estimatedStudyTime: Math.ceil(wordCount / 100) * 5 // 5 min per 100 words
-    };
   }
 
   detectLanguageFromTranscript(transcript) {
@@ -454,20 +467,43 @@ class CapiscoEngine {
   }
 
   async translateKeyThemes(themes, sourceLanguage) {
-    // Translate key themes to English for display
-    const translations = [];
-    
-    for (const theme of themes) {
-      // Simple translation mapping (in real app would use translation API)
-      const translation = await this.translateText(theme, sourceLanguage, 'en');
-      translations.push({
-        original: theme,
-        english: translation,
-        display: `${theme} (${translation})`
-      });
+    try {
+      // Translate key themes to English for display
+      const translations = [];
+      
+      for (const theme of themes) {
+        try {
+          // Simple translation mapping (in real app would use translation API)
+          const translation = await this.translateText(theme, sourceLanguage, 'en');
+          translations.push({
+            original: theme,
+            english: translation,
+            display: `${theme} (${translation})`
+          });
+        } catch (error) {
+          console.error('Error translating theme:', theme, error);
+          // Add safe fallback for individual theme translation
+          translations.push({
+            original: theme,
+            english: 'Context and conversation',
+            display: `${theme} (Context and conversation)`
+          });
+        }
+      }
+      
+      return translations.length > 0 ? translations : [{ 
+        original: 'Daily Conversation', 
+        english: 'Daily Conversation',
+        display: 'Daily Conversation'
+      }];
+    } catch (error) {
+      console.error('Error in translateKeyThemes:', error);
+      return [{ 
+        original: 'Daily Conversation', 
+        english: 'Daily Conversation',
+        display: 'Daily Conversation'
+      }];
     }
-    
-    return translations;
   }
 
   async translateText(text, fromLang, toLang) {
@@ -1227,20 +1263,59 @@ class CapiscoEngine {
   }
 
   async buildLesson(transcript, vocabulary, translations, quizData, analysis) {
-    return {
-      title: `Learn from: "${analysis.keyThemes.join(', ')}"`,
-      sourceLanguage: analysis.detectedLanguage,
-      difficulty: analysis.difficultyLevel,
-      transcript: transcript,
-      vocabulary: vocabulary,
-      translations: translations,
-      quizData: quizData,
-      sections: this.generateLessonSections(vocabulary, translations, analysis),
-      learningPath: this.createLearningPath(analysis, vocabulary),
-      studyGuide: this.generateStudyGuide(analysis, vocabulary, transcript),
-      videoData: this.prepareVideoData(transcript, vocabulary),
-      interactiveElements: this.createInteractiveVideoElements(transcript, vocabulary)
-    };
+    try {
+      // Format key themes safely
+      let titleThemes = 'Daily Conversation';
+      if (analysis.keyThemes && Array.isArray(analysis.keyThemes)) {
+        titleThemes = analysis.keyThemes
+          .map(theme => typeof theme === 'object' ? theme.english : theme)
+          .filter(theme => theme && theme.length > 0)
+          .join(', ') || 'Daily Conversation';
+      }
+
+      return {
+        title: `Learn from: "${titleThemes}"`,
+        sourceLanguage: analysis.detectedLanguage || 'it',
+        difficulty: analysis.difficultyLevel || 'intermediate',
+        transcript: transcript,
+        vocabulary: vocabulary || [],
+        translations: translations || {},
+        quizData: quizData || {},
+        sections: this.generateLessonSections(vocabulary || [], translations || {}, analysis),
+        learningPath: this.createLearningPath(analysis, vocabulary || []),
+        studyGuide: this.generateStudyGuide(analysis, vocabulary || [], transcript),
+        videoData: this.prepareVideoData(transcript, vocabulary || []),
+        interactiveElements: this.createInteractiveVideoElements(transcript, vocabulary || [])
+      };
+    } catch (error) {
+      console.error('Error in buildLesson:', error);
+      // Return minimal lesson structure if building fails
+      return {
+        title: 'Learn from: Daily Conversation',
+        sourceLanguage: analysis?.detectedLanguage || 'it',
+        difficulty: 'intermediate',
+        transcript: transcript,
+        vocabulary: vocabulary || [],
+        translations: translations || {},
+        quizData: quizData || {},
+        sections: [{
+          title: 'Vocabulary',
+          vocabulary: vocabulary || [],
+          icon: 'fa-book',
+          description: 'Words from this content'
+        }],
+        learningPath: [],
+        studyGuide: {
+          overview: 'Learn from this content',
+          keyThemes: ['Daily Conversation'],
+          grammarNotes: [],
+          culturalNotes: [],
+          practiceActivities: ['Practice with the vocabulary below']
+        },
+        videoData: { segments: [], totalDuration: 0, interactivePoints: [] },
+        interactiveElements: {}
+      };
+    }
   }
 
   prepareVideoData(transcript, vocabulary) {
