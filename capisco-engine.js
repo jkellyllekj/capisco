@@ -123,7 +123,17 @@ class CapiscoEngine {
       }
       
       // Show user-friendly error message
-      this.showErrorMessage(error.message || 'An unexpected error occurred. Please try again.');
+      const errorMsg = error.message || 'An unexpected error occurred. Please try again.';
+      console.log('Showing error message:', errorMsg);
+      
+      // Try to show error, but don't let it break everything
+      try {
+        this.showErrorMessage(errorMsg);
+      } catch (errorShowError) {
+        console.error('Error showing error message:', errorShowError);
+        // Final fallback - just alert
+        alert('Error: ' + errorMsg);
+      }
       
       // Prevent any form submission or page reload
       return false;
@@ -200,23 +210,34 @@ class CapiscoEngine {
   }
 
   hideProcessingStatus() {
-    const statusElement = document.getElementById('processing-status');
-    const btnElement = document.getElementById('generate-btn');
-    
-    if (statusElement) {
-      statusElement.classList.remove('active');
-    }
-    if (btnElement) {
-      btnElement.disabled = false;
-    }
-    
-    // Reset all steps safely
-    this.processingSteps.forEach(step => {
-      const stepElement = document.getElementById(step);
-      if (stepElement) {
-        stepElement.classList.remove('active', 'complete');
+    try {
+      const statusElement = document.getElementById('processing-status');
+      const btnElement = document.getElementById('generate-btn');
+      
+      if (statusElement) {
+        statusElement.classList.remove('active');
       }
-    });
+      if (btnElement) {
+        btnElement.disabled = false;
+      }
+      
+      // Reset all steps safely
+      if (this.processingSteps && Array.isArray(this.processingSteps)) {
+        this.processingSteps.forEach(step => {
+          try {
+            const stepElement = document.getElementById(step);
+            if (stepElement) {
+              stepElement.classList.remove('active', 'complete');
+            }
+          } catch (stepError) {
+            console.warn('Error resetting step:', step, stepError);
+          }
+        });
+      }
+    } catch (error) {
+      console.warn('Error in hideProcessingStatus:', error);
+      // Don't throw - just log and continue
+    }
   }
 
   async extractTranscript(videoUrl, transcriptFile) {
