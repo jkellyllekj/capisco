@@ -27,47 +27,45 @@ class CapiscoEngine {
   }
 
   async generateLesson() {
-    const videoUrlElement = document.getElementById('video-url');
-    const transcriptFileElement = document.getElementById('transcript-file');
-    const sourceLanguageElement = document.getElementById('source-language');
-    const targetLanguageElement = document.getElementById('target-language');
-
-    if (!videoUrlElement || !transcriptFileElement || !sourceLanguageElement || !targetLanguageElement) {
-      console.error('Form elements not found');
-      alert('Error: Form elements not found. Please refresh the page and try again.');
-      return;
-    }
-
-    const videoUrl = videoUrlElement.value.trim();
-    const transcriptFile = transcriptFileElement.files[0];
-    const sourceLanguage = sourceLanguageElement.value;
-    const targetLanguage = targetLanguageElement.value;
-
-    if (!videoUrl && !transcriptFile) {
-      alert('Please provide either a YouTube URL or upload a transcript file.');
-      return;
-    }
-
-    if (!targetLanguage) {
-      alert('Please select your native language for explanations.');
-      return;
-    }
-
-    console.log('Starting lesson generation...', { videoUrl, hasFile: !!transcriptFile, sourceLanguage, targetLanguage });
-
-    this.showProcessingStatus();
-    
     try {
+      const videoUrlElement = document.getElementById('video-url');
+      const transcriptFileElement = document.getElementById('transcript-file');
+      const sourceLanguageElement = document.getElementById('source-language');
+      const targetLanguageElement = document.getElementById('target-language');
+
+      if (!videoUrlElement || !transcriptFileElement || !sourceLanguageElement || !targetLanguageElement) {
+        throw new Error('Form elements not found. Please refresh the page and try again.');
+      }
+
+      const videoUrl = videoUrlElement.value.trim();
+      const transcriptFile = transcriptFileElement.files[0];
+      const sourceLanguage = sourceLanguageElement.value;
+      const targetLanguage = targetLanguageElement.value;
+
+      if (!videoUrl && !transcriptFile) {
+        throw new Error('Please provide either a YouTube URL or upload a transcript file.');
+      }
+
+      if (!targetLanguage) {
+        throw new Error('Please select your native language for explanations.');
+      }
+
+      console.log('Starting lesson generation...', { videoUrl, hasFile: !!transcriptFile, sourceLanguage, targetLanguage });
+
+      this.showProcessingStatus();
+      
       // Step 1: Extract transcript
       await this.updateProcessingStep(0);
       const transcript = await this.extractTranscript(videoUrl, transcriptFile);
       
-      // Check 5-minute limit
+      if (!transcript || transcript.length < 10) {
+        throw new Error('Could not extract transcript. Please try a different video or upload your own transcript file.');
+      }
+      
+      // Check duration limit
       const estimatedDuration = this.estimateTranscriptDuration(transcript);
       if (estimatedDuration > 300) { // 5 minutes = 300 seconds
-        alert(`This video appears to be ~${Math.ceil(estimatedDuration/60)} minutes long. Please use a video that's 5 minutes or shorter for optimal learning. You can always process multiple shorter segments!`);
-        this.hideProcessingStatus();
-        return;
+        throw new Error(`This video appears to be ~${Math.ceil(estimatedDuration/60)} minutes long. Please use a video that's 5 minutes or shorter for optimal learning.`);
       }
       console.log(`Processing transcript: ~${Math.ceil(estimatedDuration/60)} minutes of content`);
 
@@ -78,11 +76,9 @@ class CapiscoEngine {
       // Show language detection result
       if (!sourceLanguage || sourceLanguage === '') {
         console.log(`Language auto-detected as: ${analysis.detectedLanguage}`);
-        // Update the form to show detected language
         const sourceSelect = document.getElementById('source-language');
         if (sourceSelect) {
           sourceSelect.value = analysis.detectedLanguage;
-          // Highlight that language was detected
           sourceSelect.style.background = '#d1fae5';
           sourceSelect.style.border = '2px solid #10b981';
         }
@@ -94,7 +90,7 @@ class CapiscoEngine {
 
       // Step 4: Generate translations
       await this.updateProcessingStep(3);
-      const translations = await this.generateTranslations(vocabulary, sourceLanguage, targetLanguage);
+      const translations = await this.generateTranslations(vocabulary, sourceLanguage || analysis.detectedLanguage, targetLanguage);
 
       // Step 5: Create interactive elements
       await this.updateProcessingStep(4);
@@ -109,9 +105,49 @@ class CapiscoEngine {
 
     } catch (error) {
       console.error('Error generating lesson:', error);
-      alert('Error: ' + error.message);
       this.hideProcessingStatus();
+      
+      // Show user-friendly error message
+      this.showErrorMessage(error.message || 'An unexpected error occurred. Please try again.');
     }
+  }
+
+  showErrorMessage(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fee2e2;
+      border: 2px solid #ef4444;
+      color: #dc2626;
+      padding: 1.5rem;
+      border-radius: 12px;
+      max-width: 500px;
+      z-index: 10000;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    `;
+    
+    errorDiv.innerHTML = `
+      <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+        <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; margin-right: 0.5rem;"></i>
+        <strong>Error</strong>
+      </div>
+      <p style="margin-bottom: 1rem; line-height: 1.5;">${message}</p>
+      <button onclick="this.parentElement.remove()" style="background: #ef4444; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
+        Close
+      </button>
+    `;
+    
+    document.body.appendChild(errorDiv);
+    
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+      if (errorDiv.parentElement) {
+        errorDiv.remove();
+      }
+    }, 10000);
   }
 
   async updateProcessingStep(stepIndex) {
@@ -1680,9 +1716,9 @@ class CapiscoEngine {
     let html = `
       <div class="lesson-container" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
         <!-- Compact Lesson Header -->
-        <header class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 1rem; text-align: center;">
-          <h1 style="font-size: 1.4rem; margin-bottom: 0.3rem;"><i class="fas fa-book-open"></i> ${lesson.title}</h1>
-          <div class="lesson-meta" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 0.5rem; flex-wrap: wrap; font-size: 0.8rem;">
+        <header class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;">
+          <h1 style="font-size: 1.1rem; margin-bottom: 0.25rem;"><i class="fas fa-book-open"></i> ${lesson.title}</h1>
+          <div class="lesson-meta" style="display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 0.25rem; flex-wrap: wrap; font-size: 0.7rem;">
             <span><i class="fas fa-signal"></i> ${lesson.difficulty.charAt(0).toUpperCase() + lesson.difficulty.slice(1)}</span>
             <span><i class="fas fa-language"></i> ${lesson.sourceLanguage.toUpperCase()}</span>
             <span><i class="fas fa-clock"></i> ${lesson.studyGuide.overview.match(/\d+ minutes/)?.[0] || '5-10 minutes'}</span>
@@ -1970,60 +2006,72 @@ class CapiscoEngine {
   }</old_str>
 
   showAdvancedWordInfo(button) {
-    const info = button.getAttribute('data-info');
-    const etymology = button.getAttribute('data-etymology');
-    const cultural = button.getAttribute('data-cultural');
-    
-    if (!info) return;
+    try {
+      const info = button.getAttribute('data-info');
+      
+      if (!info) {
+        console.log('No info available for this word');
+        return;
+      }
 
-    // Create enhanced tooltip/modal
-    const modal = document.createElement('div');
-    modal.className = 'word-info-modal';
-    modal.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      max-width: 600px;
-      max-height: 80vh;
-      overflow-y: auto;
-      z-index: 10000;
-      border: 2px solid #667eea;
-    `;
+      // Remove any existing modals first
+      document.querySelectorAll('.word-info-modal, .word-info-overlay').forEach(el => el.remove());
 
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 9999;
-    `;
+      // Create enhanced tooltip/modal with better positioning
+      const overlay = document.createElement('div');
+      overlay.className = 'word-info-overlay';
+      overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      `;
 
-    modal.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 style="margin: 0; color: #667eea;"><i class="fas fa-info-circle"></i> Word Details</h3>
-        <button onclick="this.parentElement.parentElement.parentElement.remove(); this.parentElement.parentElement.parentElement.previousSibling.remove();" style="background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
-      </div>
-      <div class="word-info-content" style="line-height: 1.6;">
-        ${info}
-      </div>
-    `;
+      const modal = document.createElement('div');
+      modal.className = 'word-info-modal';
+      modal.style.cssText = `
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        max-width: 500px;
+        width: 100%;
+        max-height: 80vh;
+        overflow-y: auto;
+        border: 2px solid #667eea;
+        position: relative;
+      `;
 
-    // Close on overlay click
-    overlay.addEventListener('click', () => {
-      modal.remove();
-      overlay.remove();
-    });
+      modal.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 style="margin: 0; color: #667eea; font-size: 1.1rem;"><i class="fas fa-info-circle"></i> Word Details</h3>
+          <button class="close-modal-btn" style="background: #ef4444; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 1rem;">×</button>
+        </div>
+        <div class="word-info-content" style="line-height: 1.6; font-size: 0.95rem;">
+          ${info}
+        </div>
+      `;
 
-    document.body.appendChild(overlay);
-    document.body.appendChild(modal);
+      // Add event listeners
+      const closeBtn = modal.querySelector('.close-modal-btn');
+      closeBtn.addEventListener('click', () => overlay.remove());
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.remove();
+      });
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+    } catch (error) {
+      console.error('Error showing word info:', error);
+    }
   }
 
   generateThemeTags(studyGuide) {
@@ -2139,71 +2187,116 @@ class CapiscoEngine {
   }
 
   pronounceWord(word) {
-    if ('speechSynthesis' in window) {
+    try {
+      if (!('speechSynthesis' in window)) {
+        console.log('Speech synthesis not supported');
+        this.showAudioFallback(word);
+        return;
+      }
+
       console.log('Attempting to pronounce:', word);
       
       // Cancel any ongoing speech first
       speechSynthesis.cancel();
       
-      const utterance = new SpeechSynthesisUtterance(word);
+      // Clean the word for pronunciation
+      const cleanWord = word.trim().toLowerCase();
+      
+      const utterance = new SpeechSynthesisUtterance(cleanWord);
       utterance.lang = 'it-IT';
-      utterance.rate = 0.8;
+      utterance.rate = 0.7;
       utterance.pitch = 1.0;
       utterance.volume = 1.0;
 
-      // Wait for voices to load if needed
-      const setVoice = () => {
-        const voices = speechSynthesis.getVoices();
-        console.log('Available voices:', voices.length);
-
-        // Find Italian voice
-        let italianVoice = voices.find(voice => 
-          voice.lang === 'it-IT' && voice.localService === true
-        ) || voices.find(voice => 
-          voice.lang === 'it-IT'
-        ) || voices.find(voice => 
-          voice.lang.startsWith('it')
-        );
-
-        if (italianVoice) {
-          utterance.voice = italianVoice;
-          console.log('Selected Italian voice:', italianVoice.name);
-        } else {
-          console.log('No Italian voice found, using default');
-        }
-
-        // Add event handlers
-        utterance.onstart = () => console.log('Speech started');
-        utterance.onend = () => console.log('Speech ended');
-        utterance.onerror = (event) => {
-          console.error('Speech error:', event.error);
-          console.log('Fallback: Word was "' + word + '"');
-        };
-
+      // Enhanced voice selection with timeout
+      const setVoiceAndSpeak = () => {
         try {
+          const voices = speechSynthesis.getVoices();
+          console.log('Available voices:', voices.length);
+
+          // Find Italian voice with preference order
+          let italianVoice = voices.find(voice => 
+            voice.lang === 'it-IT' && voice.localService === true
+          ) || voices.find(voice => 
+            voice.lang === 'it-IT'
+          ) || voices.find(voice => 
+            voice.lang.startsWith('it')
+          ) || voices.find(voice =>
+            voice.name.toLowerCase().includes('italian')
+          );
+
+          if (italianVoice) {
+            utterance.voice = italianVoice;
+            console.log('Selected Italian voice:', italianVoice.name);
+          } else {
+            console.log('No Italian voice found, using default');
+          }
+
+          // Add comprehensive event handlers
+          utterance.onstart = () => {
+            console.log('Speech started for:', cleanWord);
+          };
+          
+          utterance.onend = () => {
+            console.log('Speech completed for:', cleanWord);
+          };
+          
+          utterance.onerror = (event) => {
+            console.error('Speech error:', event.error);
+            this.showAudioFallback(cleanWord);
+          };
+
+          // Attempt to speak
           speechSynthesis.speak(utterance);
-          console.log('Speech synthesis called successfully');
+          console.log('Speech synthesis initiated for:', cleanWord);
+
         } catch (error) {
-          console.error('Error calling speechSynthesis.speak:', error);
+          console.error('Error in setVoiceAndSpeak:', error);
+          this.showAudioFallback(cleanWord);
         }
       };
 
+      // Handle voice loading with multiple fallbacks
       if (speechSynthesis.getVoices().length > 0) {
-        setVoice();
+        setVoiceAndSpeak();
       } else {
-        speechSynthesis.addEventListener('voiceschanged', setVoice, { once: true });
-        // Fallback timeout in case voiceschanged never fires
+        console.log('Waiting for voices to load...');
+        speechSynthesis.addEventListener('voiceschanged', setVoiceAndSpeak, { once: true });
+        
+        // Fallback timeout
         setTimeout(() => {
           if (speechSynthesis.getVoices().length === 0) {
-            console.log('No voices loaded after timeout, trying anyway');
-            setVoice();
+            console.log('Voices not loaded after timeout, trying anyway');
+            setVoiceAndSpeak();
           }
-        }, 1000);
+        }, 2000);
       }
-    } else {
-      console.log('Speech synthesis not supported');
-      alert('Audio not supported in this browser. Word was: "' + word + '"');
+
+    } catch (error) {
+      console.error('Error in pronounceWord:', error);
+      this.showAudioFallback(word);
     }
+  }
+
+  showAudioFallback(word) {
+    // Create a temporary visual feedback instead of alert
+    const feedback = document.createElement('div');
+    feedback.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #667eea;
+      color: white;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      z-index: 10000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    `;
+    feedback.innerHTML = `<i class="fas fa-volume-mute"></i> Audio: "${word}"`;
+    
+    document.body.appendChild(feedback);
+    setTimeout(() => feedback.remove(), 3000);
   }</old_str>
 
   playTranscript(transcript) {
