@@ -22,7 +22,13 @@ class CapiscoEngine {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       e.stopPropagation();
+      e.stopImmediatePropagation();
       console.log('Form submitted, generating lesson...');
+      
+      // Prevent any default form behavior that might cause page reload
+      if (e.target && typeof e.target.reset === 'function') {
+        // Don't reset form, but ensure we stop all default actions
+      }
       
       try {
         await this.generateLesson();
@@ -244,17 +250,20 @@ class CapiscoEngine {
       
       if (statusElement && statusElement.classList) {
         statusElement.classList.remove('active');
+        statusElement.style.display = 'none';
       }
       
       if (btnElement) {
         btnElement.disabled = false;
+        btnElement.style.opacity = '1';
+        btnElement.style.cursor = 'pointer';
       }
       
-      // Reset all steps with maximum safety
-      if (this.processingSteps && Array.isArray(this.processingSteps)) {
+      // Reset all steps with maximum safety - but don't loop indefinitely
+      if (this.processingSteps && Array.isArray(this.processingSteps) && this.processingSteps.length < 20) {
         this.processingSteps.forEach((step, index) => {
           try {
-            if (typeof step === 'string' && step.length > 0) {
+            if (typeof step === 'string' && step.length > 0 && step.length < 50) {
               const stepElement = document.querySelector(`#${step}`);
               if (stepElement && stepElement.classList && typeof stepElement.classList.remove === 'function') {
                 stepElement.classList.remove('active', 'complete');
