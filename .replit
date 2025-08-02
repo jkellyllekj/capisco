@@ -18,8 +18,16 @@ mode = "parallel"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "static-web-server --port 80 --host 0.0.0.0 --root . --directory-listing false --log-level info"
+args = "pkill -f static-web-server || true"
 waitForPort = 80
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "sleep 1"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "static-web-server --port 80 --host 0.0.0.0 --root . --directory-listing false --log-level info"
 
 [[ports]]
 localPort = 80
