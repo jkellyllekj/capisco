@@ -56,18 +56,19 @@ Capisco is a YouTube-to-language-lesson generator that transforms video transcri
 - **Cultural Context**: Etymology, usage notes, and cultural explanations
 - **Demo Mode**: Working demonstration with Italian content for testing
 
-### ⚠️ Current Issues (December 2024):
+### ⚠️ Current Issues (January 2025):
+- **JavaScript Loading Errors**: "Unexpected token '<'" errors preventing page functionality
+- **Static Server Configuration**: JavaScript files may be served as HTML instead of JS
 - **API Limitations**: YouTube transcript APIs often blocked by CORS
 - **Audio Playback**: Video simulation audio not functional
-- **Error Handling**: Null reference errors preventing lesson display (FIXED in latest update)
 - **Real-time Processing**: Currently uses demo transcripts when APIs fail
 
 ### 🔄 Latest Updates (This Session):
-- **Critical Bug Fix**: Fixed null reference error in hideProcessingStatus() function
-- **Enhanced Error Handling**: Better try-catch blocks to prevent system crashes
-- **Console Debugging**: Comprehensive logging for troubleshooting
-- **Voice Selection**: Automatic language-appropriate voice selection working
-- **Processing Flow**: All steps working except final lesson display (now fixed)
+- **JavaScript Loading Issues**: Multiple "Unexpected token '<'" errors in console
+- **Static Server Problems**: capisco-engine.js and other JS files not loading properly
+- **MIME Type Configuration**: Static web server may need proper JS MIME type handling
+- **Performance Issues**: Assistant response time degraded, system refresh needed
+- **Ready for System Reset**: Prepared for nuclear-reset.sh and new assistant session
 
 ## Technical Implementation Details
 
