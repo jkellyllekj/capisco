@@ -1,29 +1,28 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Capisco - Learn Any Language from YouTube</title>
-  
+
   <!-- Favicon and Web App Icons -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  
+
   <!-- Web App Manifest -->
   <link rel="manifest" href="manifest.json">
-  
+
   <!-- Theme Color for Mobile Browsers -->
   <meta name="theme-color" content="#667eea">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Capisco">
-  
+
   <link href="style.css" rel="stylesheet" type="text/css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  
+
   <style>
     .hero-section {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -36,14 +35,14 @@
       justify-content: center;
       align-items: center;
     }
-    
+
     .hero-title {
       font-size: clamp(3rem, 8vw, 5rem);
       font-weight: 800;
       margin-bottom: 1rem;
       text-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
-    
+
     .hero-subtitle {
       font-size: clamp(1.2rem, 4vw, 1.8rem);
       margin-bottom: 2rem;
@@ -51,7 +50,7 @@
       max-width: 800px;
       line-height: 1.4;
     }
-    
+
     .upload-section {
       max-width: 800px;
       margin: 2rem auto 0;
@@ -61,19 +60,19 @@
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255,255,255,0.2);
     }
-    
+
     .input-group {
       margin-bottom: 1.5rem;
       text-align: left;
     }
-    
+
     .input-group label {
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 600;
       color: white;
     }
-    
+
     .input-group input, .input-group select, .input-group textarea {
       width: 100%;
       padding: 0.75rem;
@@ -83,13 +82,13 @@
       background: rgba(255,255,255,0.9);
       box-sizing: border-box;
     }
-    
+
     .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
       outline: none;
       border-color: white;
       box-shadow: 0 0 0 3px rgba(255,255,255,0.2);
     }
-    
+
     .generate-btn {
       background: white;
       color: #667eea;
@@ -102,18 +101,18 @@
       transition: all 0.3s ease;
       width: 100%;
     }
-    
+
     .generate-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(0,0,0,0.3);
     }
-    
+
     .generate-btn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
       transform: none;
     }
-    
+
     .limitation-notice {
       background: rgba(16, 185, 129, 0.2);
       border: 1px solid rgba(16, 185, 129, 0.4);
@@ -122,7 +121,7 @@
       margin-bottom: 1rem;
       color: white;
     }
-    
+
     .processing-status {
       display: none;
       text-align: center;
@@ -132,30 +131,30 @@
       margin-top: 1rem;
       backdrop-filter: blur(10px);
     }
-    
+
     .processing-status.active {
       display: block;
     }
-    
+
     .status-step {
       padding: 0.5rem 0;
       color: rgba(255,255,255,0.8);
     }
-    
+
     .status-step.active {
       color: white;
       font-weight: 600;
     }
-    
+
     .status-step.complete {
       color: #10b981;
     }
-    
+
     .features-section {
       padding: 4rem 2rem;
       background: white;
     }
-    
+
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -163,7 +162,7 @@
       max-width: 1200px;
       margin: 0 auto;
     }
-    
+
     .feature-card {
       background: #f8fafc;
       padding: 2rem;
@@ -172,26 +171,26 @@
       transition: all 0.3s ease;
       border: 1px solid #e2e8f0;
     }
-    
+
     .feature-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 12px 32px rgba(0,0,0,0.1);
       border-color: #667eea;
     }
-    
+
     .feature-icon {
       font-size: 3rem;
       color: #667eea;
       margin-bottom: 1rem;
     }
-    
+
     .feature-card h3 {
       font-size: 1.5rem;
       font-weight: 600;
       margin-bottom: 1rem;
       color: #1e293b;
     }
-    
+
     .section-title {
       font-size: 2.5rem;
       font-weight: 700;
@@ -199,7 +198,7 @@
       margin-bottom: 3rem;
       color: #1e293b;
     }
-    
+
     .generated-lesson {
       display: none;
       margin-top: 2rem;
@@ -207,24 +206,25 @@
       border-radius: 20px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     }
-    
+
     .generated-lesson.active {
       display: block;
     }
-    
+
     .scroll-indicator {
       margin-top: 2rem;
       animation: bounce 2s infinite;
     }
-    
+
     @keyframes bounce {
       0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
       40% { transform: translateY(-10px); }
       60% { transform: translateY(-5px); }
     }
   </style>
+  <script src="./capisco-engine.js"></script>
+  <script src="./script.js"></script>
 </head>
-
 <body>
   <section class="hero-section" id="hero">
     <h1 class="hero-title">
@@ -233,10 +233,10 @@
     <p class="hero-subtitle">
       Turn any YouTube video into an interactive language lesson. Learn any language from any language - Italian from English, English from French, Spanish from German - you choose!
     </p>
-    
+
     <div class="upload-section">
       <h2><i class="fas fa-upload"></i> Create Your Lesson</h2>
-      
+
       <div class="limitation-notice">
         <i class="fas fa-clock"></i> <strong>Perfect for Learning:</strong> Process YouTube videos up to 5 minutes. 
         Perfect for focused learning sessions with immediate results!
@@ -305,7 +305,7 @@
         <div class="status-step" id="step-6">6. Building your personalized lesson...</div>
       </div>
     </div>
-    
+
     <div class="scroll-indicator">
       <a href="#features" style="color: white; text-decoration: none;">
         <i class="fas fa-chevron-down"></i>
@@ -329,7 +329,7 @@
           <h3>Learn What You Love</h3>
           <p>Stop forcing yourself through boring textbook examples. Use videos about topics you're genuinely interested in - cooking, travel, interviews, documentaries, anything!</p>
         </div>
-        
+
         <div class="feature-card">
           <div class="feature-icon">
             <i class="fas fa-globe"></i>
@@ -337,7 +337,7 @@
           <h3>Any Language → Any Language</h3>
           <p>Learn Italian from English, English from Spanish, German from French - any direction you want! Perfect for native speakers of any language who want to learn any other language.</p>
         </div>
-        
+
         <div class="feature-card">
           <div class="feature-icon">
             <i class="fas fa-bolt"></i>
@@ -345,7 +345,7 @@
           <h3>Instant Lessons</h3>
           <p>Paste a YouTube URL and get a complete interactive lesson with vocabulary, pronunciation, quizzes, and cultural context in minutes.</p>
         </div>
-        
+
         <div class="feature-card">
           <div class="feature-icon">
             <i class="fas fa-graduation-cap"></i>
@@ -353,7 +353,7 @@
           <h3>Smart Learning Path</h3>
           <p>Automatically organized from easier concepts to advanced, with grammar patterns, cultural notes, and practice activities tailored to your level.</p>
         </div>
-        
+
         <div class="feature-card">
           <div class="feature-icon">
             <i class="fas fa-gamepad"></i>
@@ -361,7 +361,7 @@
           <h3>Interactive Practice</h3>
           <p>Built-in quizzes, pronunciation practice, vocabulary games, and comprehension exercises to make learning stick.</p>
         </div>
-        
+
         <div class="feature-card">
           <div class="feature-icon">
             <i class="fas fa-undo"></i>
@@ -380,6 +380,5 @@
     </p>
   </footer>
 
-  <script src="capisco-engine.js"></script>
 </body>
 </html>

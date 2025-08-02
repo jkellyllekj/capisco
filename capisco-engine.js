@@ -1,4 +1,3 @@
-
 // Capisco - Dynamic Language Learning Generator
 class CapiscoEngine {
   constructor() {
