@@ -18,7 +18,13 @@ class CapiscoEngine {
       return;
     }
     
-    form.addEventListener('submit', async (e) => {
+    // Remove any existing listeners to prevent duplicates
+    const existingHandler = form._submitHandler;
+    if (existingHandler) {
+      form.removeEventListener('submit', existingHandler);
+    }
+    
+    const handler = async (e) => {
       e.preventDefault();
       e.stopPropagation();
       console.log('Form submitted, generating lesson...');
@@ -31,7 +37,10 @@ class CapiscoEngine {
       }
       
       return false;
-    });
+    };
+    
+    form._submitHandler = handler;
+    form.addEventListener('submit', handler);
   }
 
   async generateLesson() {
@@ -2856,10 +2865,21 @@ window.checkQuizAnswer = function(button, isCorrect) {
 
 // Initialize Capisco when page loads
 let capisco;
+window.capisco = null; // Global reference
+
 document.addEventListener('DOMContentLoaded', function() {
   try {
     capisco = new CapiscoEngine();
-    console.log('Capisco initialized successfully');
+    window.capisco = capisco; // Make globally accessible
+    console.log('Capisco initialized successfully and assigned to window.capisco');
+    
+    // Test form availability
+    const form = document.getElementById('lesson-generator');
+    console.log('Form found:', !!form);
+    if (form) {
+      console.log('Form action:', form.action);
+      console.log('Form method:', form.method);
+    }
   } catch (error) {
     console.error('Failed to initialize Capisco:', error);
   }
