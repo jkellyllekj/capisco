@@ -380,27 +380,6 @@
     </p>
   </footer>
 
-  <script type="text/javascript" src="capisco-engine.js"></script>
-  <script type="text/javascript">
-    // Ensure DOM is loaded before initializing
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM loaded, Capisco should be initialized');
-      });
-    } else {
-      console.log('DOM already loaded, Capisco should be initialized');
-    }
-    
-    // Debug function to test if Capisco is working
-    window.testCapiscoNow = function() {
-      if (window.capisco) {
-        console.log('✅ Capisco is loaded and working');
-        return true;
-      } else {
-        console.log('❌ Capisco is not loaded');
-        return false;
-      }
-    };
-  </script>
+  <script src="capisco-engine.js"></script>
 </body>
 </html>
