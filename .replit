@@ -10,7 +10,7 @@ publicDir = "/"
 deploymentTarget = "static"
 
 [workflows]
-runButton = "Serve static"
+runButton = "Serve with Python"
 
 [[workflows.workflow]]
 name = "Serve static"
@@ -28,6 +28,19 @@ args = "sleep 1"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "static-web-server --port 5000 --host 0.0.0.0 --root . --directory-listing false --log-level info"
+
+[[workflows.workflow]]
+name = "Serve with Python"
+author = 42815248
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pkill -f \"python.*server.py\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 server.py"
 
 [[ports]]
 localPort = 5000
