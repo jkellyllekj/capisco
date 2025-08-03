@@ -10,7 +10,7 @@ publicDir = "/"
 deploymentTarget = "static"
 
 [workflows]
-runButton = "Serve with Python"
+runButton = "Start Server"
 
 [[workflows.workflow]]
 name = "Serve static"
@@ -37,6 +37,15 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "pkill -f \"python.*server.py\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 server.py"
+
+[[workflows.workflow]]
+name = "Start Server"
+author = 42815248
+mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
