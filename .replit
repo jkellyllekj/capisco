@@ -1,56 +1,31 @@
-entrypoint = "index.html"
-modules = ["nodejs-20", "web"]
+[deployment]
+run = ["python3", "server.py"]
+deploymentTarget = "cloudrun"
 
 [nix]
-channel = "stable-24_11"
-packages = ["static-web-server"]
+channel = "stable-23_05"
 
-[deployment]
-publicDir = "/"
-deploymentTarget = "static"
+[env]
+PYTHONPATH = "/nix/store/2vm88xw7513h9pyjyafw32cps51b0ia1-python3-3.8.12/bin/python3"
+PATH = "/nix/store/2vm88xw7513h9pyjyafw32cps51b0ia1-python3-3.8.12/bin:$PATH"
+
+modules = ["python-3.10", "web"]
+
+entrypoint = "server.py"
+
+[unitTest]
+language = "python3"
+
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix"]
+
+[packager]
+language = "python3"
+
+[packager.features]
+enabledForHosting = false
+packageSearch = true
+guessImports = true
 
 [workflows]
 runButton = "Start Server"
-
-[[workflows.workflow]]
-name = "Serve static"
-mode = "parallel"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "pkill -f static-web-server || true"
-waitForPort = 80
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "sleep 1"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "static-web-server --port 5000 --host 0.0.0.0 --root . --directory-listing false --log-level info"
-
-[[workflows.workflow]]
-name = "Serve with Python"
-author = 42815248
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "pkill -f \"python.*server.py\" || true"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python3 server.py"
-
-[[workflows.workflow]]
-name = "Start Server"
-author = 42815248
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "static-web-server --config-file .config/static-web-server.toml"
-
-[[ports]]
-localPort = 5000
-externalPort = 80
