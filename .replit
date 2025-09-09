@@ -1,15 +1,11 @@
 [deployment]
-run = ["python3", "server.py"]
+run = ["python", "server.py"]
 deploymentTarget = "cloudrun"
 
 [nix]
-channel = "stable-23_05"
+channel = "stable-24_05"
 
-[env]
-PYTHONPATH = "/nix/store/2vm88xw7513h9pyjyafw32cps51b0ia1-python3-3.8.12/bin/python3"
-PATH = "/nix/store/2vm88xw7513h9pyjyafw32cps51b0ia1-python3-3.8.12/bin:$PATH"
-
-modules = ["python-3.10", "web"]
+modules = ["python-3.11", "web"]
 
 entrypoint = "server.py"
 
@@ -29,3 +25,12 @@ guessImports = true
 
 [workflows]
 runButton = "Start Server"
+
+[[workflows.workflow]]
+name = "Start Server"
+author = 42815248
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python server.py"
