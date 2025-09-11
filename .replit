@@ -33,7 +33,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python server.py"
+args = "python3 server.py"
 
 [agent]
 expertMode = true
