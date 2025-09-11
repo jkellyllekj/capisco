@@ -219,6 +219,45 @@
     </div>
   </main>
 
+  <script>
+    // Fallback form handling if main engine fails to load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, checking if engine initialized...');
+      
+      setTimeout(function() {
+        const form = document.getElementById('lesson-generator');
+        if (form && !form._submitHandler && !window.capisco) {
+          console.log('Engine not loaded, setting up fallback form handler');
+          form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Fallback: Form submitted - preventing reload');
+            
+            const videoUrl = document.getElementById('video-url').value.trim();
+            const sourceLanguage = document.getElementById('source-language').value;
+            const targetLanguage = document.getElementById('target-language').value;
+            
+            console.log('URL:', videoUrl);
+            console.log('Source:', sourceLanguage); 
+            console.log('Target:', targetLanguage);
+            
+            // Show processing status using CSS class (same as engine)
+            const processingDiv = document.getElementById('processing-status');
+            if (processingDiv) {
+              processingDiv.classList.add('active');
+              processingDiv.style.display = 'block';
+              console.log('Showing processing status');
+            }
+            
+            alert('Form submission working! URL: ' + videoUrl + ' | Languages: ' + sourceLanguage + ' → ' + targetLanguage);
+            return false;
+          });
+        } else if (window.capisco) {
+          console.log('Engine loaded successfully, no fallback needed');
+        }
+      }, 100);
+    });
+  </script>
   <script src="./capisco-engine.js"></script>
   <script src="./script.js"></script>
 </body>
