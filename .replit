@@ -25,7 +25,7 @@ packageSearch = true
 guessImports = true
 
 [workflows]
-runButton = "Project"
+runButton = "Start Server"
 
 [[workflows.workflow]]
 name = "Start Server"
@@ -34,7 +34,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python server.py"
+args = "python3.11 server.py"
 
 [[workflows.workflow]]
 name = "Project"
@@ -63,7 +63,3 @@ expertMode = true
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 34243
-externalPort = 3000
