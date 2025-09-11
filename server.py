@@ -25,12 +25,11 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def guess_type(self, path):
         # Force correct MIME types
-        path_str = str(path)
-        if path_str.endswith('.js'):
+        if path.endswith('.js'):
             return 'application/javascript'
-        elif path_str.endswith('.css'):
+        elif path.endswith('.css'):
             return 'text/css'
-        elif path_str.endswith('.html'):
+        elif path.endswith('.html'):
             return 'text/html'
         return super().guess_type(path)
 
