@@ -6,6 +6,22 @@ import os
 import re
 import requests
 from openai import OpenAI
+import string
+from collections import Counter
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+
+# Download required NLTK data quietly
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt', quiet=True)
+    
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords', quiet=True)
 
 # Using GPT-4o-mini which is cost-effective for language processing
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
@@ -14,6 +30,149 @@ openai = OpenAI(api_key=OPENAI_API_KEY)
 class CapiscoLessonProcessor:
     def __init__(self):
         self.openai = openai
+        
+    def extract_all_unique_words(self, text, max_tokens=1000):
+        """Extract ALL unique words from transcript for comprehensive learning"""
+        print(f"📝 Extracting all unique words from transcript (max {max_tokens} tokens)")
+        
+        # Limit text to first max_tokens for processing
+        words = text.split()
+        if len(words) > max_tokens:
+            text = ' '.join(words[:max_tokens])
+            print(f"📏 Limited to first {max_tokens} tokens for comprehensive analysis")
+        
+        # Tokenize and clean words
+        try:
+            tokens = word_tokenize(text.lower())
+        except:
+            # Fallback if NLTK fails
+            tokens = re.findall(r'\b\w+\b', text.lower())
+        
+        # Filter out punctuation and very short words
+        words = [word for word in tokens 
+                if word.isalpha() and len(word) >= 2]
+        
+        # Count word frequencies
+        word_freq = Counter(words)
+        
+        # Get unique words sorted by frequency (most common first)
+        unique_words = list(word_freq.keys())
+        
+        # Create comprehensive word list with metadata
+        word_list = []
+        for word in unique_words:
+            word_list.append({
+                'word': word,
+                'frequency': word_freq[word],
+                'lemma': word,  # Will be enriched by GPT later
+                'examples': self._find_word_examples(word, text, max_examples=2)
+            })
+        
+        print(f"✅ Extracted {len(word_list)} unique words for comprehensive learning")
+        return word_list
+        
+    def _find_word_examples(self, word, text, max_examples=2):
+        """Find example sentences containing the word"""
+        # Split into sentences
+        sentences = re.split(r'[.!?]+', text)
+        examples = []
+        
+        for sentence in sentences:
+            if word.lower() in sentence.lower() and len(examples) < max_examples:
+                examples.append(sentence.strip())
+                
+        return examples if examples else [f"Example with {word}"]
+    
+    def _enrich_word_batch(self, word_batch, source_lang, target_lang):
+        """Enrich a batch of words with GPT for pronunciation, etymology, etc."""
+        try:
+            words_list = [word['word'] for word in word_batch]
+            prompt = f"""Enrich these {source_lang} words with metadata for language learning.
+            Words: {', '.join(words_list)}
+            
+            For each word, provide: translation to {target_lang}, part of speech, gender (if applicable), 
+            pronunciation, etymology, and cultural notes.
+            
+            Respond with JSON array of enriched word objects."""
+            
+            response = self.openai.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are a language expert. Provide detailed word analysis."},
+                    {"role": "user", "content": prompt}
+                ],
+                response_format={"type": "json_object"},
+                max_tokens=1500,
+                temperature=0.3
+            )
+            
+            result = json.loads(response.choices[0].message.content)
+            enriched_words = result.get('words', [])
+            
+            # Merge with original word data
+            final_words = []
+            for i, original_word in enumerate(word_batch):
+                if i < len(enriched_words):
+                    enriched = enriched_words[i]
+                    final_words.append({
+                        "word": original_word['word'],
+                        "translation": enriched.get('translation', 'translation needed'),
+                        "partOfSpeech": enriched.get('partOfSpeech', 'unknown'),
+                        "gender": enriched.get('gender', ''),
+                        "singular": enriched.get('singular', original_word['word']),
+                        "plural": enriched.get('plural', original_word['word'] + 's'),
+                        "pronunciation": enriched.get('pronunciation', f"/{original_word['word']}/"),
+                        "etymology": enriched.get('etymology', 'Etymology unknown'),
+                        "usage": enriched.get('usage', 'Common word'),
+                        "culturalNotes": enriched.get('culturalNotes', 'Cultural context varies'),
+                        "examples": original_word['examples'],
+                        "frequency": original_word['frequency']
+                    })
+                else:
+                    # Fallback if enrichment fails
+                    final_words.append({
+                        "word": original_word['word'],
+                        "translation": "translation needed",
+                        "partOfSpeech": "unknown",
+                        "examples": original_word['examples'],
+                        "frequency": original_word['frequency']
+                    })
+            
+            return final_words
+            
+        except Exception as e:
+            print(f"⚠️ Batch enrichment failed: {e}")
+            # Return basic words if enrichment fails
+            return [{
+                "word": word['word'],
+                "translation": "translation needed",
+                "partOfSpeech": "unknown",
+                "examples": word['examples'],
+                "frequency": word['frequency']
+            } for word in word_batch]
+    
+    def _extract_expressions(self, text, source_lang, target_lang):
+        """Extract common phrases and expressions from text"""
+        try:
+            # Look for common patterns that might be expressions
+            sentences = re.split(r'[.!?]+', text)
+            expressions = []
+            
+            # Simple heuristic: phrases with 2-4 words that appear in text
+            for sentence in sentences[:5]:  # Limit to first 5 sentences
+                words = sentence.strip().split()
+                if 2 <= len(words) <= 4:
+                    expressions.append({
+                        "phrase": sentence.strip(),
+                        "translation": "translation needed",
+                        "usage": "Common expression"
+                    })
+            
+            return expressions[:5]  # Limit to 5 expressions
+            
+        except Exception as e:
+            print(f"⚠️ Expression extraction failed: {e}")
+            return []
         
     def extract_video_id(self, url):
         """Extract YouTube video ID from various URL formats"""
@@ -137,122 +296,50 @@ class CapiscoLessonProcessor:
             return 'unknown', 0.0
     
     def analyze_content_with_gpt5_mini(self, text, source_lang, target_lang):
-        """Use GPT-4o Mini to analyze video content and generate lesson data with structured output"""
+        """Use comprehensive word extraction + GPT enrichment for total video comprehension"""
         try:
-            # Define a function schema for structured lesson generation
-            lesson_function = {
-                "name": "create_language_lesson",
-                "description": "Create a comprehensive language lesson from video content",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "topic": {
-                            "type": "string",
-                            "description": "Main topic/theme discussed in the video"
-                        },
-                        "lessonTitle": {
-                            "type": "string", 
-                            "description": "Engaging title for the lesson"
-                        },
-                        "difficulty": {
-                            "type": "string",
-                            "enum": ["beginner", "intermediate", "advanced"],
-                            "description": "Difficulty level of the lesson"
-                        },
-                        "vocabulary": {
-                            "type": "array",
-                            "description": "Key vocabulary words from the content",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "word": {"type": "string", "description": "Original word"},
-                                    "translation": {"type": "string", "description": f"Translation to {target_lang}"},
-                                    "partOfSpeech": {"type": "string", "description": "Part of speech"},
-                                    "gender": {"type": "string", "description": "Gender for gendered languages"},
-                                    "singular": {"type": "string", "description": "Singular form"}, 
-                                    "plural": {"type": "string", "description": "Plural form"},
-                                    "pronunciation": {"type": "string", "description": "Phonetic pronunciation"},
-                                    "etymology": {"type": "string", "description": "Brief word origin"},
-                                    "usage": {"type": "string", "description": "Usage note"},
-                                    "culturalNotes": {"type": "string", "description": "Cultural context"},
-                                    "examples": {"type": "array", "items": {"type": "string"}, "description": "Example sentences"}
-                                },
-                                "required": ["word", "translation", "partOfSpeech"]
-                            }
-                        },
-                        "expressions": {
-                            "type": "array",
-                            "description": "Common phrases and expressions",
-                            "items": {
-                                "type": "object", 
-                                "properties": {
-                                    "phrase": {"type": "string", "description": "Original phrase"},
-                                    "translation": {"type": "string", "description": f"Translation to {target_lang}"},
-                                    "usage": {"type": "string", "description": "Usage context"}
-                                },
-                                "required": ["phrase", "translation"]
-                            }
-                        },
-                        "culturalContext": {
-                            "type": "string",
-                            "description": "Cultural information about the topic"
-                        }
-                    },
-                    "required": ["topic", "lessonTitle", "difficulty", "vocabulary", "expressions", "culturalContext"]
-                }
+            print(f"🧠 Starting comprehensive analysis for total video comprehension...")
+            
+            # Step 1: Extract ALL unique words from the transcript for total comprehension
+            all_words = self.extract_all_unique_words(text, max_tokens=1000)
+            print(f"📚 Found {len(all_words)} unique words for comprehensive learning")
+            
+            # Step 2: Create base lesson structure
+            lesson_data = {
+                "topic": f"{source_lang.upper()} Language Learning",
+                "lessonTitle": "Comprehensive Video Vocabulary",
+                "difficulty": "intermediate",
+                "vocabulary": [],
+                "expressions": [],
+                "culturalContext": f"This lesson contains every word from the video content for total comprehension."
             }
             
-            prompt = f"Analyze this {source_lang} text and create a comprehensive language lesson for {target_lang} speakers. Focus on practical vocabulary and expressions that help understand the content. Text: {text}"
+            # Step 3: Enrich words in batches with GPT (for metadata like pronunciation, etymology)
+            batch_size = 10  # Process words in small batches to avoid token limits
+            enriched_vocabulary = []
             
-            response = self.openai.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "You are an expert language teacher. Create engaging, practical lessons with 10-15 key vocabulary items."},
-                    {"role": "user", "content": prompt}
-                ],
-                tools=[{"type": "function", "function": lesson_function}],
-                tool_choice={"type": "function", "function": {"name": "create_language_lesson"}},
-                max_tokens=2000,
-                temperature=0.3
-            )
+            # Process all words, not just first 100
+            total_batches = (len(all_words) + batch_size - 1) // batch_size
+            max_words = min(len(all_words), 200)  # Process up to 200 words for comprehensive learning
             
-            # Parse function call response (structured output)
-            message = response.choices[0].message
+            for i in range(0, max_words, batch_size):
+                batch = all_words[i:i + batch_size]
+                enriched_batch = self._enrich_word_batch(batch, source_lang, target_lang)
+                enriched_vocabulary.extend(enriched_batch)
+                current_batch = i // batch_size + 1
+                print(f"✅ Enriched batch {current_batch}/{total_batches}: {len(enriched_batch)} words")
             
-            if message.tool_calls and len(message.tool_calls) > 0:
-                tool_call = message.tool_calls[0]
-                if tool_call.function.name == "create_language_lesson":
-                    try:
-                        # Parse the function arguments as JSON
-                        lesson_data = json.loads(tool_call.function.arguments)
-                        print(f"✅ Successfully parsed lesson with {len(lesson_data.get('vocabulary', []))} vocabulary items")
-                        return lesson_data
-                    except json.JSONDecodeError as e:
-                        print(f"Function call JSON parsing error: {e}")
-                        print(f"Function arguments: {tool_call.function.arguments[:500]}")
+            lesson_data["vocabulary"] = enriched_vocabulary
             
-            # Fallback: check for content in case function calling didn't work
-            if message.content:
-                print("⚠️ No function call found, trying content parsing...")
-                try:
-                    # Clean up the JSON response to handle common GPT formatting issues
-                    cleaned_content = message.content.strip()
-                    if cleaned_content.startswith('```json'):
-                        cleaned_content = cleaned_content[7:]
-                    if cleaned_content.endswith('```'):
-                        cleaned_content = cleaned_content[:-3]
-                    cleaned_content = cleaned_content.strip()
-                    
-                    return json.loads(cleaned_content)
-                except json.JSONDecodeError as e:
-                    print(f"Content JSON parsing error: {e}")
+            # Step 4: Extract common expressions from the text
+            expressions = self._extract_expressions(text, source_lang, target_lang)
+            lesson_data["expressions"] = expressions
             
-            print("❌ No valid lesson data found in response")
-            print(f"⚠️ Using fallback lesson generation from transcript content")
-            return self._fallback_lesson_data(text)
+            print(f"🎯 Generated comprehensive lesson with {len(enriched_vocabulary)} vocabulary items for total video comprehension")
+            return lesson_data
             
         except Exception as e:
-            print(f"Content analysis failed: {e}")
+            print(f"Comprehensive analysis failed: {e}")
             print(f"⚠️ Using fallback lesson generation from transcript content")
             return self._fallback_lesson_data(text)
     
