@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capisco - Learn Any Language from YouTube</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .capisco-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .upload-section {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .input-group input, .input-group select, .input-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .generate-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    }
+
+    .generate-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .processing-status {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      background: #f8fafc;
+      border-radius: 12px;
+      margin-top: 1rem;
+    }
+
+    .processing-status.active {
+      display: block;
+    }
+
+    .status-step {
+      padding: 0.5rem 0;
+      color: #64748b;
+    }
+
+    .status-step.active {
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .status-step.complete {
+      color: #10b981;
+    }
+
+    .generated-lesson {
+      display: none;
+      margin-top: 2rem;
+    }
+
+    .generated-lesson.active {
+      display: block;
+    }
+
+    .limitation-notice {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      color: #92400e;
+    }
+  </style>
+</head>
+<body>
+  <header class="capisco-header">
+    <h1><i class="fas fa-brain"></i> Capisco</h1>
+    <p class="subtitle">Turn any YouTube video into an interactive language lesson</p>
+  </header>
+
+  <main class="container">
+    <div class="upload-section">
+      <h2><i class="fas fa-upload"></i> Create Your Lesson</h2>
+
+      <div class="limitation-notice" style="background: #dcfce7; border-color: #16a34a; color: #15803d;">
+        <i class="fas fa-infinity"></i> <strong>Beta Version:</strong> Process videos of any length! 
+        Find authentic content that interests you and learn naturally.
+      </div>
+
+      <form id="lesson-generator">
+        <div class="input-group">
+          <label for="video-url">YouTube Video URL</label>
+          <input type="url" id="video-url" placeholder="https://youtube.com/watch?v=..." required>
+          <small>Or upload a transcript file below</small>
+        </div>
+
+        <div class="input-group">
+          <label for="transcript-file">Upload Transcript (Optional)</label>
+          <input type="file" id="transcript-file" accept=".txt,.srt,.vtt">
+        </div>
+
+        <div class="input-group">
+          <label for="source-language">Video/Content Language (what they're speaking)</label>
+          <select id="source-language" required>
+            <option value="">Auto-detect</option>
+            <option value="en">🇺🇸 English</option>
+            <option value="es">🇪🇸 Spanish</option>
+            <option value="fr">🇫🇷 French</option>
+            <option value="de">🇩🇪 German</option>
+            <option value="it">🇮🇹 Italian</option>
+            <option value="pt">🇵🇹 Portuguese</option>
+            <option value="ru">🇷🇺 Russian</option>
+            <option value="ja">🇯🇵 Japanese</option>
+            <option value="ko">🇰🇷 Korean</option>
+            <option value="zh">🇨🇳 Chinese (Mandarin)</option>
+            <option value="ar">🇸🇦 Arabic</option>
+            <option value="hi">🇮🇳 Hindi</option>
+            <option value="nl">🇳🇱 Dutch</option>
+            <option value="sv">🇸🇪 Swedish</option>
+            <option value="no">🇳🇴 Norwegian</option>
+            <option value="da">🇩🇰 Danish</option>
+            <option value="pl">🇵🇱 Polish</option>
+            <option value="tr">🇹🇷 Turkish</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="target-language">Your Native Language (for explanations & translations)</label>
+          <select id="target-language" required>
+            <option value="en">🇺🇸 English</option>
+            <option value="es">🇪🇸 Spanish</option>
+            <option value="fr">🇫🇷 French</option>
+            <option value="de">🇩🇪 German</option>
+            <option value="it">🇮🇹 Italian</option>
+            <option value="pt">🇵🇹 Portuguese</option>
+            <option value="ru">🇷🇺 Russian</option>
+            <option value="ja">🇯🇵 Japanese</option>
+            <option value="ko">🇰🇷 Korean</option>
+            <option value="zh">🇨🇳 Chinese (Mandarin)</option>
+            <option value="ar">🇸🇦 Arabic</option>
+            <option value="hi">🇮🇳 Hindi</option>
+            <option value="nl">🇳🇱 Dutch</option>
+            <option value="sv">🇸🇪 Swedish</option>
+            <option value="no">🇳🇴 Norwegian</option>
+            <option value="da">🇩🇰 Danish</option>
+            <option value="pl">🇵🇱 Polish</option>
+            <option value="tr">🇹🇷 Turkish</option>
+          </select>
+        </div>
+
+        <button type="submit" class="generate-btn" id="generate-btn">
+            <i class="fas fa-magic"></i> Generate Interactive Lesson
+          </button>
+
+          <button type="button" onclick="alert('JavaScript is working!'); console.log('JS test passed');" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; margin-top: 0.5rem; width: 100%;">
+            <i class="fas fa-check"></i> Test JavaScript
+          </button>
+      </form>
+
+      <div class="processing-status" id="processing-status">
+        <h3><i class="fas fa-cog fa-spin"></i> Creating Your Lesson</h3>
+        <div class="status-step" id="step-1">1. Extracting transcript...</div>
+        <div class="status-step" id="step-2">2. Analyzing language and content...</div>
+        <div class="status-step" id="step-3">3. Identifying key vocabulary...</div>
+        <div class="status-step" id="step-4">4. Generating translations and pronunciations...</div>
+        <div class="status-step" id="step-5">5. Creating interactive elements...</div>
+        <div class="status-step" id="step-6">6. Building your personalized lesson...</div>
+      </div>
+    </div>
+
+    <div class="generated-lesson" id="generated-lesson">
+      <!-- Dynamic lesson content will be inserted here -->
+    </div>
+  </main>
+
+  <script>
+    // Fallback form handling if main engine fails to load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, checking if engine initialized...');
+      
+      setTimeout(function() {
+        const form = document.getElementById('lesson-generator');
+        if (form && !form._submitHandler && !window.capisco) {
+          console.log('Engine not loaded, setting up fallback form handler');
+          form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Fallback: Form submitted - preventing reload');
+            
+            const videoUrl = document.getElementById('video-url').value.trim();
+            const sourceLanguage = document.getElementById('source-language').value;
+            const targetLanguage = document.getElementById('target-language').value;
+            
+            console.log('URL:', videoUrl);
+            console.log('Source:', sourceLanguage); 
+            console.log('Target:', targetLanguage);
+            
+            // Show processing status using CSS class (same as engine)
+            const processingDiv = document.getElementById('processing-status');
+            if (processingDiv) {
+              processingDiv.classList.add('active');
+              processingDiv.style.display = 'block';
+              console.log('Showing processing status');
+            }
+            
+            // Try to call the main engine if it's available
+            if (window.capisco && typeof window.capisco.generateLesson === 'function') {
+              console.log('Calling main engine...');
+              window.capisco.generateLesson();
+            } else {
+              console.log('Main engine not available, using fallback processing...');
+              // Call simplified lesson generation
+              startLessonGeneration(videoUrl, sourceLanguage, targetLanguage);
+            }
+            return false;
+          });
+        } else if (window.capisco) {
+          console.log('Engine loaded successfully, no fallback needed');
+        }
+      }, 100);
+    });
+
+    // Real lesson generation function that calls the backend API
+    async function startLessonGeneration(videoUrl, sourceLanguage, targetLanguage) {
+      console.log('🎬 Starting REAL lesson generation for:', videoUrl);
+      
+      const statusDiv = document.getElementById('processing-status');
+      const generateBtn = document.getElementById('generate-btn');
+      const lessonDiv = document.getElementById('generated-lesson');
+      
+      // Hide any existing lesson and show processing status
+      if (lessonDiv) {
+        lessonDiv.classList.remove('active');
+        lessonDiv.style.display = 'none';
+      }
+      
+      if (statusDiv) {
+        statusDiv.classList.add('active');
+        statusDiv.style.display = 'block';
+      }
+      
+      // Disable the generate button
+      if (generateBtn) {
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      }
+      
+      let progressInterval = null; // Declare outside try block for proper scope
+      
+      try {
+        // Step 1: Show extracting transcript
+        await showProcessingStep(1, 'Extracting video transcript...');
+        
+        // Start the API call without awaiting (so we can show progress during the call)
+        const fetchPromise = fetch('/generate-lesson', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            videoUrl: videoUrl,
+            sourceLang: sourceLanguage,
+            targetLang: targetLanguage
+          })
+        });
+        
+        // Show progress steps while the API call is in progress
+        const progressSteps = [
+          { step: 2, message: 'Analyzing language and content...', delay: 2000 },
+          { step: 3, message: 'Identifying key vocabulary...', delay: 8000 },
+          { step: 4, message: 'Generating translations and pronunciations...', delay: 12000 },
+          { step: 5, message: 'Creating interactive elements...', delay: 18000 },
+          { step: 6, message: 'Building your personalized lesson...', delay: 25000 }
+        ];
+        
+        // Start progress animation
+        let currentStep = 1;
+        progressInterval = setInterval(async () => {
+          const nextStep = progressSteps.find(s => s.step === currentStep + 1);
+          if (nextStep) {
+            currentStep = nextStep.step;
+            await showProcessingStep(nextStep.step, nextStep.message);
+          }
+        }, 4000); // Show new step every 4 seconds
+        
+        // Wait for the API call to complete
+        const response = await fetchPromise;
+        
+        // Clear the progress interval since API call is done
+        clearInterval(progressInterval);
+        
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+        
+        // Get the lesson data
+        const lessonData = await response.json();
+        
+        if (lessonData.error) {
+          throw new Error(lessonData.error);
+        }
+        
+        console.log('✅ Lesson data received:', lessonData);
+        
+        // Try to use the beautiful renderer if available, otherwise use fallback display
+        if (window.capisco && typeof window.capisco.displayLesson === 'function') {
+          console.log('🎨 Using beautiful Al Mercato-style renderer...');
+          window.capisco.displayLesson(lessonData);
+        } else {
+          console.log('⚠️ Beautiful renderer not available, using basic display...');
+          createDynamicLessonPage(lessonData);
+        }
+        
+        // Ensure we show final step and mark complete
+        await showProcessingStep(6, 'Building your personalized lesson...');
+        await sleep(300);
+        markAllStepsComplete();
+        
+        // Small delay before showing lesson
+        await sleep(500);
+        
+      } catch (error) {
+        console.error('❌ Lesson generation failed:', error);
+        
+        // Clear any running progress interval
+        if (progressInterval) {
+          clearInterval(progressInterval);
+        }
+        
+        // Show error without destroying the step structure
+        if (statusDiv) {
+          // Keep the header and steps, just add error message
+          const existingContent = statusDiv.innerHTML;
+          statusDiv.innerHTML = existingContent + `<div style="margin-top: 2rem; padding: 1.5rem; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; text-align: center;"><h4 style="color: #dc2626; margin: 0 0 0.5rem 0;"><i class="fas fa-exclamation-triangle"></i> Generation Failed</h4><p style="color: #7f1d1d; margin: 0;">${error.message}</p><p style="color: #991b1b; font-size: 0.9em; margin: 0.5rem 0 0 0;">Please check the YouTube URL and try again.</p></div>`;
+        }
+      } finally {
+        // Re-enable the generate button
+        if (generateBtn) {
+          generateBtn.disabled = false;
+          generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Interactive Lesson';
+        }
+      }
+    }
+    
+    // Helper function to show processing steps
+    async function showProcessingStep(stepNumber, message) {
+      const step = document.getElementById(`step-${stepNumber}`);
+      if (step) {
+        // Reset all steps to inactive first
+        for (let i = 1; i <= 6; i++) {
+          const s = document.getElementById(`step-${i}`);
+          if (s) {
+            s.classList.remove('active', 'complete');
+            s.style.color = '#64748b';
+          }
+        }
+        
+        // Mark previous steps as complete
+        for (let i = 1; i < stepNumber; i++) {
+          const prevStep = document.getElementById(`step-${i}`);
+          if (prevStep) {
+            prevStep.classList.add('complete');
+            prevStep.style.color = '#10b981';
+          }
+        }
+        
+        // Mark current step as active
+        step.classList.add('active');
+        step.style.color = '#667eea';
+        step.style.fontWeight = '600';
+        
+        // Update the message if provided
+        if (message) {
+          step.textContent = `${stepNumber}. ${message}`;
+        }
+      }
+      
+      // Small delay for visual feedback
+      await sleep(300);
+    }
+    
+    // Helper function to mark all steps complete
+    function markAllStepsComplete() {
+      for (let i = 1; i <= 6; i++) {
+        const step = document.getElementById(`step-${i}`);
+        if (step) {
+          step.classList.remove('active');
+          step.classList.add('complete');
+          step.style.color = '#10b981';
+          step.style.fontWeight = '500';
+        }
+      }
+    }
+    
+    // Helper function for delays
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    
+    // Function to create a dynamic lesson page from the processed data
+    function createDynamicLessonPage(lessonData) {
+      console.log('🎨 Creating dynamic lesson page...');
+      
+      // For now, display the lesson data in a structured format
+      // Later this will generate a full HTML lesson page like al-mercato.html
+      const resultDiv = document.getElementById('lesson-result') || createResultDiv();
+      
+      resultDiv.innerHTML = `
+        <div class="lesson-header">
+          <h1><i class="fas fa-graduation-cap"></i> ${lessonData.lessonTitle || 'Custom Lesson'}</h1>
+          <p><strong>Topic:</strong> ${lessonData.topic}</p>
+          <p><strong>Difficulty:</strong> ${lessonData.difficulty}</p>
+          <p><strong>Languages:</strong> ${lessonData.sourceLang} → ${lessonData.targetLang}</p>
+        </div>
+        
+        <div class="lesson-content">
+          <h2><i class="fas fa-book"></i> Vocabulary (${lessonData.vocabulary?.length || 0} words)</h2>
+          <div class="vocab-grid">
+            ${lessonData.vocabulary?.map(word => `
+              <div class="vocab-card">
+                <h3>${word.word} - ${word.translation}</h3>
+                <p><strong>${word.partOfSpeech}</strong> ${word.gender ? `(${word.gender})` : ''}</p>
+                <p><strong>Singular:</strong> ${word.singular} | <strong>Plural:</strong> ${word.plural}</p>
+                <p><strong>Pronunciation:</strong> ${word.pronunciation}</p>
+                <p><strong>Etymology:</strong> ${word.etymology}</p>
+                <p><em>${word.usage}</em></p>
+                <p><small>${word.culturalNotes}</small></p>
+              </div>
+            `).join('') || '<p>No vocabulary data available</p>'}
+          </div>
+          
+          <h2><i class="fas fa-comments"></i> Expressions</h2>
+          <div class="expressions-list">
+            ${lessonData.expressions?.map(expr => `
+              <div class="expression-card">
+                <h4>${expr.phrase}</h4>
+                <p>${expr.translation}</p>
+                <p><small>${expr.usage}</small></p>
+              </div>
+            `).join('') || '<p>No expressions data available</p>'}
+          </div>
+          
+          <div class="cultural-context">
+            <h2><i class="fas fa-globe"></i> Cultural Context</h2>
+            <p>${lessonData.culturalContext}</p>
+          </div>
+        </div>
+      `;
+      
+      // Hide processing status and show results
+      const statusDiv = document.getElementById('processing-status');
+      if (statusDiv) {
+        statusDiv.style.display = 'none';
+      }
+      resultDiv.style.display = 'block';
+      
+      console.log('✅ Dynamic lesson page created!');
+    }
+    
+    // Helper function to create result div if it doesn't exist
+    function createResultDiv() {
+      const resultDiv = document.createElement('div');
+      resultDiv.id = 'lesson-result';
+      resultDiv.className = 'lesson-result-container';
+      resultDiv.style.cssText = 'display: none; margin-top: 2rem; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);';
+      
+      const mainElement = document.querySelector('main');
+      if (mainElement) {
+        mainElement.appendChild(resultDiv);
+      }
+      
+      return resultDiv;
+    }
+  </script>
+  <script src="./capisco-engine.js" defer></script>
+  <script src="./script.js" defer></script>
+</body>
+</html>

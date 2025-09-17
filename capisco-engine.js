@@ -2956,12 +2956,11 @@ window.checkQuizAnswer = function(button, isCorrect) {
   }
 };
 
-// Initialize Capisco when page loads
-let capisco;
-document.addEventListener('DOMContentLoaded', function() {
+// Initialize Capisco when page loads and expose globally
+window.addEventListener('DOMContentLoaded', function() {
   try {
-    capisco = new CapiscoEngine();
-    console.log('Capisco initialized successfully');
+    window.capisco = new CapiscoEngine();
+    console.log('Capisco initialized successfully and exposed globally');
   } catch (error) {
     console.error('Failed to initialize Capisco:', error);
   }
