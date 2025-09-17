@@ -249,15 +249,9 @@
               console.log('Showing processing status');
             }
             
-            // Try to call the main engine if it's available
-            if (window.capisco && typeof window.capisco.generateLesson === 'function') {
-              console.log('Calling main engine...');
-              window.capisco.generateLesson();
-            } else {
-              console.log('Main engine not available, using fallback processing...');
-              // Call simplified lesson generation
-              startLessonGeneration(videoUrl, sourceLanguage, targetLanguage);
-            }
+            // Always use the reliable API call
+            console.log('🚀 Starting lesson generation via API...');
+            startLessonGeneration(videoUrl, sourceLanguage, targetLanguage);
             return false;
           });
         } else if (window.capisco) {
