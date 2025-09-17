@@ -226,7 +226,7 @@
       
       setTimeout(function() {
         const form = document.getElementById('lesson-generator');
-        if (form && !form._submitHandler && !window.capisco) {
+        if (form && !form._submitHandler) {
           console.log('Engine not loaded, setting up fallback form handler');
           form.addEventListener('submit', function(e) {
             e.preventDefault();
