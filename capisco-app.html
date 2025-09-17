@@ -271,15 +271,34 @@
       console.log('🎬 Starting REAL lesson generation for:', videoUrl);
       
       const statusDiv = document.getElementById('processing-status');
+      const generateBtn = document.getElementById('generate-btn');
+      const lessonDiv = document.getElementById('generated-lesson');
+      
+      // Hide any existing lesson and show processing status
+      if (lessonDiv) {
+        lessonDiv.classList.remove('active');
+        lessonDiv.style.display = 'none';
+      }
+      
+      if (statusDiv) {
+        statusDiv.classList.add('active');
+        statusDiv.style.display = 'block';
+      }
+      
+      // Disable the generate button
+      if (generateBtn) {
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      }
+      
+      let progressInterval = null; // Declare outside try block for proper scope
       
       try {
-        // Show initial processing message
-        if (statusDiv) {
-          statusDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Connecting to lesson processor...</p>';
-        }
+        // Step 1: Show extracting transcript
+        await showProcessingStep(1, 'Extracting video transcript...');
         
-        // Make API call to backend
-        const response = await fetch('/generate-lesson', {
+        // Start the API call without awaiting (so we can show progress during the call)
+        const fetchPromise = fetch('/generate-lesson', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -291,13 +310,33 @@
           })
         });
         
+        // Show progress steps while the API call is in progress
+        const progressSteps = [
+          { step: 2, message: 'Analyzing language and content...', delay: 2000 },
+          { step: 3, message: 'Identifying key vocabulary...', delay: 8000 },
+          { step: 4, message: 'Generating translations and pronunciations...', delay: 12000 },
+          { step: 5, message: 'Creating interactive elements...', delay: 18000 },
+          { step: 6, message: 'Building your personalized lesson...', delay: 25000 }
+        ];
+        
+        // Start progress animation
+        let currentStep = 1;
+        progressInterval = setInterval(async () => {
+          const nextStep = progressSteps.find(s => s.step === currentStep + 1);
+          if (nextStep) {
+            currentStep = nextStep.step;
+            await showProcessingStep(nextStep.step, nextStep.message);
+          }
+        }, 4000); // Show new step every 4 seconds
+        
+        // Wait for the API call to complete
+        const response = await fetchPromise;
+        
+        // Clear the progress interval since API call is done
+        clearInterval(progressInterval);
+        
         if (!response.ok) {
           throw new Error(`Server error: ${response.status}`);
-        }
-        
-        // Show processing message while waiting
-        if (statusDiv) {
-          statusDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Generating your custom lesson with GPT-5 Mini...</p>';
         }
         
         // Get the lesson data
@@ -309,15 +348,93 @@
         
         console.log('✅ Lesson data received:', lessonData);
         
+        // Ensure we show final step and mark complete
+        await showProcessingStep(6, 'Building your personalized lesson...');
+        await sleep(300);
+        markAllStepsComplete();
+        
+        // Small delay before showing lesson
+        await sleep(500);
+        
         // Create and display the dynamic lesson page
         createDynamicLessonPage(lessonData);
         
       } catch (error) {
         console.error('❌ Lesson generation failed:', error);
+        
+        // Clear any running progress interval
+        if (progressInterval) {
+          clearInterval(progressInterval);
+        }
+        
+        // Show error without destroying the step structure
         if (statusDiv) {
-          statusDiv.innerHTML = `<p style="color: red;"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</p>`;
+          // Keep the header and steps, just add error message
+          const existingContent = statusDiv.innerHTML;
+          statusDiv.innerHTML = existingContent + `<div style="margin-top: 2rem; padding: 1.5rem; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; text-align: center;"><h4 style="color: #dc2626; margin: 0 0 0.5rem 0;"><i class="fas fa-exclamation-triangle"></i> Generation Failed</h4><p style="color: #7f1d1d; margin: 0;">${error.message}</p><p style="color: #991b1b; font-size: 0.9em; margin: 0.5rem 0 0 0;">Please check the YouTube URL and try again.</p></div>`;
+        }
+      } finally {
+        // Re-enable the generate button
+        if (generateBtn) {
+          generateBtn.disabled = false;
+          generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Interactive Lesson';
         }
       }
+    }
+    
+    // Helper function to show processing steps
+    async function showProcessingStep(stepNumber, message) {
+      const step = document.getElementById(`step-${stepNumber}`);
+      if (step) {
+        // Reset all steps to inactive first
+        for (let i = 1; i <= 6; i++) {
+          const s = document.getElementById(`step-${i}`);
+          if (s) {
+            s.classList.remove('active', 'complete');
+            s.style.color = '#64748b';
+          }
+        }
+        
+        // Mark previous steps as complete
+        for (let i = 1; i < stepNumber; i++) {
+          const prevStep = document.getElementById(`step-${i}`);
+          if (prevStep) {
+            prevStep.classList.add('complete');
+            prevStep.style.color = '#10b981';
+          }
+        }
+        
+        // Mark current step as active
+        step.classList.add('active');
+        step.style.color = '#667eea';
+        step.style.fontWeight = '600';
+        
+        // Update the message if provided
+        if (message) {
+          step.textContent = `${stepNumber}. ${message}`;
+        }
+      }
+      
+      // Small delay for visual feedback
+      await sleep(300);
+    }
+    
+    // Helper function to mark all steps complete
+    function markAllStepsComplete() {
+      for (let i = 1; i <= 6; i++) {
+        const step = document.getElementById(`step-${i}`);
+        if (step) {
+          step.classList.remove('active');
+          step.classList.add('complete');
+          step.style.color = '#10b981';
+          step.style.fontWeight = '500';
+        }
+      }
+    }
+    
+    // Helper function for delays
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
     }
     
     // Function to create a dynamic lesson page from the processed data
