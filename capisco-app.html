@@ -266,41 +266,133 @@
       }, 100);
     });
 
-    // Simplified lesson generation function
-    function startLessonGeneration(videoUrl, sourceLanguage, targetLanguage) {
-      console.log('Starting lesson generation for:', videoUrl);
+    // Real lesson generation function that calls the backend API
+    async function startLessonGeneration(videoUrl, sourceLanguage, targetLanguage) {
+      console.log('🎬 Starting REAL lesson generation for:', videoUrl);
       
-      // Use demo content for now - this will be your comprehensive Italian weather/seasons lesson
-      const demoUrl = 'https://youtu.be/EtATCGgoo9U?si=sKoO_Go_2UKd2Xrx';
+      const statusDiv = document.getElementById('processing-status');
       
-      // Simulate the processing steps your engine does
-      const steps = [
-        'Extracting video transcript...',
-        'Detecting language: ' + sourceLanguage,
-        'Analyzing vocabulary and expressions...',
-        'Generating pronunciations (singular/plural)...',
-        'Adding cultural context and definitions...',
-        'Creating interactive quizzes and flashcards...',
-        'Building comprehensive lesson page...'
-      ];
-      
-      let currentStep = 0;
-      const stepInterval = setInterval(() => {
-        if (currentStep < steps.length) {
-          console.log(steps[currentStep]);
-          // Update the processing status display
-          const statusDiv = document.getElementById('processing-status');
-          if (statusDiv) {
-            statusDiv.innerHTML = '<p>' + steps[currentStep] + '</p>';
-          }
-          currentStep++;
-        } else {
-          clearInterval(stepInterval);
-          // Redirect to the comprehensive lesson with your 73 vocabulary items
-          console.log('Lesson generation complete! Redirecting...');
-          window.location.href = './lessons/al-mercato.html';
+      try {
+        // Show initial processing message
+        if (statusDiv) {
+          statusDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Connecting to lesson processor...</p>';
         }
-      }, 800);
+        
+        // Make API call to backend
+        const response = await fetch('/generate-lesson', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            videoUrl: videoUrl,
+            sourceLang: sourceLanguage,
+            targetLang: targetLanguage
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+        
+        // Show processing message while waiting
+        if (statusDiv) {
+          statusDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Generating your custom lesson with GPT-5 Mini...</p>';
+        }
+        
+        // Get the lesson data
+        const lessonData = await response.json();
+        
+        if (lessonData.error) {
+          throw new Error(lessonData.error);
+        }
+        
+        console.log('✅ Lesson data received:', lessonData);
+        
+        // Create and display the dynamic lesson page
+        createDynamicLessonPage(lessonData);
+        
+      } catch (error) {
+        console.error('❌ Lesson generation failed:', error);
+        if (statusDiv) {
+          statusDiv.innerHTML = `<p style="color: red;"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</p>`;
+        }
+      }
+    }
+    
+    // Function to create a dynamic lesson page from the processed data
+    function createDynamicLessonPage(lessonData) {
+      console.log('🎨 Creating dynamic lesson page...');
+      
+      // For now, display the lesson data in a structured format
+      // Later this will generate a full HTML lesson page like al-mercato.html
+      const resultDiv = document.getElementById('lesson-result') || createResultDiv();
+      
+      resultDiv.innerHTML = `
+        <div class="lesson-header">
+          <h1><i class="fas fa-graduation-cap"></i> ${lessonData.lessonTitle || 'Custom Lesson'}</h1>
+          <p><strong>Topic:</strong> ${lessonData.topic}</p>
+          <p><strong>Difficulty:</strong> ${lessonData.difficulty}</p>
+          <p><strong>Languages:</strong> ${lessonData.sourceLang} → ${lessonData.targetLang}</p>
+        </div>
+        
+        <div class="lesson-content">
+          <h2><i class="fas fa-book"></i> Vocabulary (${lessonData.vocabulary?.length || 0} words)</h2>
+          <div class="vocab-grid">
+            ${lessonData.vocabulary?.map(word => `
+              <div class="vocab-card">
+                <h3>${word.word} - ${word.translation}</h3>
+                <p><strong>${word.partOfSpeech}</strong> ${word.gender ? `(${word.gender})` : ''}</p>
+                <p><strong>Singular:</strong> ${word.singular} | <strong>Plural:</strong> ${word.plural}</p>
+                <p><strong>Pronunciation:</strong> ${word.pronunciation}</p>
+                <p><strong>Etymology:</strong> ${word.etymology}</p>
+                <p><em>${word.usage}</em></p>
+                <p><small>${word.culturalNotes}</small></p>
+              </div>
+            `).join('') || '<p>No vocabulary data available</p>'}
+          </div>
+          
+          <h2><i class="fas fa-comments"></i> Expressions</h2>
+          <div class="expressions-list">
+            ${lessonData.expressions?.map(expr => `
+              <div class="expression-card">
+                <h4>${expr.phrase}</h4>
+                <p>${expr.translation}</p>
+                <p><small>${expr.usage}</small></p>
+              </div>
+            `).join('') || '<p>No expressions data available</p>'}
+          </div>
+          
+          <div class="cultural-context">
+            <h2><i class="fas fa-globe"></i> Cultural Context</h2>
+            <p>${lessonData.culturalContext}</p>
+          </div>
+        </div>
+      `;
+      
+      // Hide processing status and show results
+      const statusDiv = document.getElementById('processing-status');
+      if (statusDiv) {
+        statusDiv.style.display = 'none';
+      }
+      resultDiv.style.display = 'block';
+      
+      console.log('✅ Dynamic lesson page created!');
+    }
+    
+    // Helper function to create result div if it doesn't exist
+    function createResultDiv() {
+      const resultDiv = document.createElement('div');
+      resultDiv.id = 'lesson-result';
+      resultDiv.className = 'lesson-result-container';
+      resultDiv.style.cssText = 'display: none; margin-top: 2rem; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);';
+      
+      const mainElement = document.querySelector('main');
+      if (mainElement) {
+        mainElement.appendChild(resultDiv);
+      }
+      
+      return resultDiv;
     }
   </script>
   <script src="./capisco-engine.js"></script>
