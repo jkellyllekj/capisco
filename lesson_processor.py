@@ -11,6 +11,8 @@ from collections import Counter
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+import time
 
 # Download required NLTK data quietly
 try:
@@ -25,7 +27,8 @@ except LookupError:
 
 # Using GPT-4o-mini which is cost-effective for language processing
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-openai = OpenAI(api_key=OPENAI_API_KEY)
+# Configure OpenAI client with strict timeouts to prevent hanging
+openai = OpenAI(api_key=OPENAI_API_KEY, timeout=20, max_retries=0)
 
 class CapiscoLessonProcessor:
     def __init__(self):
@@ -85,15 +88,71 @@ class CapiscoLessonProcessor:
     
     def _enrich_word_batch(self, word_batch, source_lang, target_lang):
         """Enrich a batch of words with GPT for pronunciation, etymology, etc."""
-        try:
-            words_list = [word['word'] for word in word_batch]
-            prompt = f"""Enrich these {source_lang} words with metadata for language learning.
-            Words: {', '.join(words_list)}
-            
-            For each word, provide: translation to {target_lang}, part of speech, gender (if applicable), 
-            pronunciation, etymology, and cultural notes.
-            
-            Respond with JSON array of enriched word objects."""
+        words_list = [word['word'] for word in word_batch]
+        print(f"⏳ Enriching batch with {len(words_list)} words: {', '.join(words_list)}")
+        
+        # Italian function words that don't need GPT enrichment
+        italian_function_words = {
+            'il': 'the', 'la': 'the', 'lo': 'the', 'le': 'the', 'gli': 'the',
+            'di': 'of', 'da': 'from', 'in': 'in', 'con': 'with', 'su': 'on', 'per': 'for',
+            'si': 'yes/oneself', 'ha': 'has', 'è': 'is', 'che': 'that', 'del': 'of the',
+            'alla': 'to the', 'più': 'more', 'sono': 'are'
+        }
+        
+        # Separate function words from content words
+        function_words = []
+        content_words = []
+        
+        for word_data in word_batch:
+            word = word_data['word'].lower()
+            if len(word) <= 2 or word in italian_function_words:
+                # Process function words locally without GPT
+                function_words.append({
+                    "word": word_data['word'],
+                    "translation": italian_function_words.get(word, "function word"),
+                    "partOfSpeech": "function word",
+                    "gender": "",
+                    "singular": word_data['word'],
+                    "plural": word_data['word'],
+                    "pronunciation": f"/{word}/",
+                    "etymology": "Italian function word",
+                    "usage": "Common function word",
+                    "culturalNotes": "Essential grammar word",
+                    "examples": word_data['examples'],
+                    "frequency": word_data['frequency']
+                })
+            else:
+                content_words.append(word_data)
+        
+        print(f"📝 Processing {len(function_words)} function words locally, {len(content_words)} with GPT")
+        
+        # If no content words need GPT, return function words only
+        if not content_words:
+            return function_words
+        
+        # Process content words with GPT using external timeout wrapper
+        enriched_content_words = self._enrich_content_words_with_timeout(content_words, source_lang, target_lang)
+        
+        # Combine function words and enriched content words
+        return function_words + enriched_content_words
+    
+    def _enrich_content_words_with_timeout(self, content_words, source_lang, target_lang):
+        """Enrich content words with GPT using external timeout wrapper"""
+        words_list = [word['word'] for word in content_words]
+        
+        # Enhanced prompt for consistent JSON structure
+        prompt = f"""Enrich these {source_lang} words with metadata for language learning.
+        Words: {', '.join(words_list)}
+        
+        For each word, provide: translation to {target_lang}, part of speech, gender (if applicable), 
+        pronunciation, etymology, and cultural notes.
+        
+        Respond with a JSON object: {{ "words": [ ... ] }}"""
+        
+        def call_openai():
+            """Function to call OpenAI API"""
+            print(f"▶️ Calling OpenAI for {len(words_list)} content words")
+            start_time = time.time()
             
             response = self.openai.chat.completions.create(
                 model="gpt-4o-mini",
@@ -102,54 +161,89 @@ class CapiscoLessonProcessor:
                     {"role": "user", "content": prompt}
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1500,
+                max_tokens=800,  # Reduced to improve latency
                 temperature=0.3
             )
             
-            result = json.loads(response.choices[0].message.content)
-            enriched_words = result.get('words', [])
-            
-            # Merge with original word data
-            final_words = []
-            for i, original_word in enumerate(word_batch):
-                if i < len(enriched_words):
-                    enriched = enriched_words[i]
-                    final_words.append({
-                        "word": original_word['word'],
-                        "translation": enriched.get('translation', 'translation needed'),
-                        "partOfSpeech": enriched.get('partOfSpeech', 'unknown'),
-                        "gender": enriched.get('gender', ''),
-                        "singular": enriched.get('singular', original_word['word']),
-                        "plural": enriched.get('plural', original_word['word'] + 's'),
-                        "pronunciation": enriched.get('pronunciation', f"/{original_word['word']}/"),
-                        "etymology": enriched.get('etymology', 'Etymology unknown'),
-                        "usage": enriched.get('usage', 'Common word'),
-                        "culturalNotes": enriched.get('culturalNotes', 'Cultural context varies'),
-                        "examples": original_word['examples'],
-                        "frequency": original_word['frequency']
-                    })
+            elapsed = time.time() - start_time
+            print(f"✅ OpenAI response received in {elapsed:.1f}s")
+            return response
+        
+        # External timeout wrapper with ThreadPoolExecutor
+        enriched_words = []
+        max_retries = 2  # Reduced retries for faster recovery
+        
+        for attempt in range(max_retries):
+            try:
+                with ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(call_openai)
+                    response = future.result(timeout=25)  # Hard 25s timeout
+                
+                result = json.loads(response.choices[0].message.content)
+                
+                # Robust JSON parsing
+                if isinstance(result, list):
+                    enriched_words = result
                 else:
-                    # Fallback if enrichment fails
-                    final_words.append({
-                        "word": original_word['word'],
-                        "translation": "translation needed",
-                        "partOfSpeech": "unknown",
-                        "examples": original_word['examples'],
-                        "frequency": original_word['frequency']
-                    })
-            
-            return final_words
-            
-        except Exception as e:
-            print(f"⚠️ Batch enrichment failed: {e}")
-            # Return basic words if enrichment fails
-            return [{
-                "word": word['word'],
-                "translation": "translation needed",
-                "partOfSpeech": "unknown",
-                "examples": word['examples'],
-                "frequency": word['frequency']
-            } for word in word_batch]
+                    enriched_words = result.get('words', [])
+                
+                print(f"✅ Successfully enriched {len(enriched_words)} words")
+                break  # Success, exit retry loop
+                
+            except FutureTimeoutError:
+                print(f"⏰ OpenAI call timed out after 25s (attempt {attempt + 1}/{max_retries})")
+                if attempt < max_retries - 1:
+                    print(f"🔄 Retrying with smaller batch...")
+                    # Split batch in half for retry
+                    if len(content_words) > 5:
+                        mid = len(content_words) // 2
+                        batch1 = content_words[:mid]
+                        batch2 = content_words[mid:]
+                        print(f"🔀 Splitting batch: {len(batch1)} + {len(batch2)} words")
+                        result1 = self._enrich_content_words_with_timeout(batch1, source_lang, target_lang)
+                        result2 = self._enrich_content_words_with_timeout(batch2, source_lang, target_lang)
+                        return result1 + result2
+                else:
+                    print(f"❌ All attempts timed out, using fallback enrichment")
+                    enriched_words = []
+                    
+            except Exception as e:
+                print(f"⚠️ OpenAI enrichment failed (attempt {attempt + 1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(1)  # Brief pause before retry
+                else:
+                    enriched_words = []
+        
+        # Merge with original word data (outside retry loop)
+        final_words = []
+        for i, original_word in enumerate(content_words):
+            if i < len(enriched_words):
+                enriched = enriched_words[i]
+                final_words.append({
+                    "word": original_word['word'],
+                    "translation": enriched.get('translation', 'translation needed'),
+                    "partOfSpeech": enriched.get('partOfSpeech', 'unknown'),
+                    "gender": enriched.get('gender', ''),
+                    "singular": enriched.get('singular', original_word['word']),
+                    "plural": enriched.get('plural', original_word['word'] + 's'),
+                    "pronunciation": enriched.get('pronunciation', f"/{original_word['word']}/"),
+                    "etymology": enriched.get('etymology', 'Etymology unknown'),
+                    "usage": enriched.get('usage', 'Common word'),
+                    "culturalNotes": enriched.get('culturalNotes', 'Cultural context varies'),
+                    "examples": original_word['examples'],
+                    "frequency": original_word['frequency']
+                })
+            else:
+                # Fallback if enrichment fails
+                final_words.append({
+                    "word": original_word['word'],
+                    "translation": "translation needed",
+                    "partOfSpeech": "unknown",
+                    "examples": original_word['examples'],
+                    "frequency": original_word['frequency']
+                })
+        
+        return final_words
     
     def _extract_expressions(self, text, source_lang, target_lang):
         """Extract common phrases and expressions from text"""
@@ -173,6 +267,99 @@ class CapiscoLessonProcessor:
         except Exception as e:
             print(f"⚠️ Expression extraction failed: {e}")
             return []
+    
+    def _create_vocabulary_sections(self, vocabulary, text):
+        """Create organized vocabulary sections for beautiful Al Mercato-style display"""
+        try:
+            # Group vocabulary by part of speech for organized display
+            sections = []
+            
+            # Group by part of speech
+            pos_groups = {}
+            for word in vocabulary:
+                pos = word.get('partOfSpeech', 'unknown')
+                if pos not in pos_groups:
+                    pos_groups[pos] = []
+                pos_groups[pos].append(word)
+            
+            # Create sections for each part of speech
+            pos_icons = {
+                'noun': 'fa-cube',
+                'verb': 'fa-play',
+                'adjective': 'fa-palette',
+                'adverb': 'fa-tachometer-alt',
+                'unknown': 'fa-question-circle'
+            }
+            
+            pos_names = {
+                'noun': 'Nouns',
+                'verb': 'Verbs', 
+                'adjective': 'Adjectives',
+                'adverb': 'Adverbs',
+                'unknown': 'Other Words'
+            }
+            
+            for pos, words in pos_groups.items():
+                if words:  # Only create section if there are words
+                    # Format each word for the renderer
+                    formatted_words = []
+                    for word in words:
+                        formatted_word = {
+                            "word": word.get('word', ''),
+                            "baseForm": word.get('word', ''),
+                            "english": word.get('translation', 'translation needed'),
+                            "partOfSpeech": word.get('partOfSpeech', 'unknown'),
+                            "gender": word.get('gender', ''),
+                            "singular": word.get('singular', word.get('word', '')),
+                            "plural": word.get('plural', ''),
+                            "pronunciation": word.get('pronunciation', ''),
+                            "etymology": word.get('etymology', ''),
+                            "usage": word.get('usage', ''),
+                            "culturalNotes": word.get('culturalNotes', ''),
+                            "examples": word.get('examples', []),
+                            "frequency": word.get('frequency', 1)
+                        }
+                        formatted_words.append(formatted_word)
+                    
+                    section = {
+                        "title": pos_names.get(pos, pos.capitalize()),
+                        "description": f"Essential {pos_names.get(pos, pos)} from the video",
+                        "icon": pos_icons.get(pos, 'fa-question-circle'),
+                        "vocabulary": formatted_words
+                    }
+                    sections.append(section)
+            
+            # If no sections were created, create a general one
+            if not sections:
+                formatted_words = []
+                for word in vocabulary[:20]:  # Limit to 20 words for display
+                    formatted_word = {
+                        "word": word.get('word', ''),
+                        "baseForm": word.get('word', ''),
+                        "english": word.get('translation', 'translation needed'),
+                        "partOfSpeech": word.get('partOfSpeech', 'unknown'),
+                        "examples": word.get('examples', [])
+                    }
+                    formatted_words.append(formatted_word)
+                
+                sections.append({
+                    "title": "Video Vocabulary", 
+                    "description": "Essential words from the video content",
+                    "icon": "fa-book-open",
+                    "vocabulary": formatted_words
+                })
+            
+            return sections
+            
+        except Exception as e:
+            print(f"⚠️ Section creation failed: {e}")
+            # Return a basic section with available vocabulary
+            return [{
+                "title": "Video Vocabulary",
+                "description": "Essential words from the video content", 
+                "icon": "fa-book-open",
+                "vocabulary": vocabulary[:20]  # Show first 20 words
+            }]
         
     def extract_video_id(self, url):
         """Extract YouTube video ID from various URL formats"""
@@ -304,12 +491,19 @@ class CapiscoLessonProcessor:
             all_words = self.extract_all_unique_words(text, max_tokens=1000)
             print(f"📚 Found {len(all_words)} unique words for comprehensive learning")
             
-            # Step 2: Create base lesson structure
+            # Step 2: Create base lesson structure in format expected by beautiful renderer
             lesson_data = {
                 "topic": f"{source_lang.upper()} Language Learning",
-                "lessonTitle": "Comprehensive Video Vocabulary",
+                "title": "Comprehensive Video Vocabulary", # Use 'title' not 'lessonTitle'
+                "lessonTitle": "Comprehensive Video Vocabulary", # Keep both for compatibility
                 "difficulty": "intermediate",
-                "vocabulary": [],
+                "sourceLanguage": source_lang, # Add sourceLanguage for renderer
+                "studyGuide": {
+                    "overview": f"Master every word from this video for total comprehension. This comprehensive lesson contains all unique vocabulary from the content, enriched with pronunciations, etymology, and cultural context.",
+                    "keyThemes": ["Total Comprehension", "Video Vocabulary", "Cultural Context"]
+                },
+                "sections": [], # Will contain vocabulary sections
+                "vocabulary": [], # Will contain all vocabulary
                 "expressions": [],
                 "culturalContext": f"This lesson contains every word from the video content for total comprehension."
             }
@@ -329,9 +523,14 @@ class CapiscoLessonProcessor:
                 current_batch = i // batch_size + 1
                 print(f"✅ Enriched batch {current_batch}/{total_batches}: {len(enriched_batch)} words")
             
+            # Step 4: Format vocabulary for beautiful Al Mercato-style rendering
             lesson_data["vocabulary"] = enriched_vocabulary
             
-            # Step 4: Extract common expressions from the text
+            # Create vocabulary sections for organized display
+            vocabulary_sections = self._create_vocabulary_sections(enriched_vocabulary, text)
+            lesson_data["sections"] = vocabulary_sections
+            
+            # Step 5: Extract common expressions from the text
             expressions = self._extract_expressions(text, source_lang, target_lang)
             lesson_data["expressions"] = expressions
             

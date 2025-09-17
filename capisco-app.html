@@ -348,6 +348,15 @@
         
         console.log('✅ Lesson data received:', lessonData);
         
+        // Try to use the beautiful renderer if available, otherwise use fallback display
+        if (window.capisco && typeof window.capisco.displayLesson === 'function') {
+          console.log('🎨 Using beautiful Al Mercato-style renderer...');
+          window.capisco.displayLesson(lessonData);
+        } else {
+          console.log('⚠️ Beautiful renderer not available, using basic display...');
+          createDynamicLessonPage(lessonData);
+        }
+        
         // Ensure we show final step and mark complete
         await showProcessingStep(6, 'Building your personalized lesson...');
         await sleep(300);
@@ -355,9 +364,6 @@
         
         // Small delay before showing lesson
         await sleep(500);
-        
-        // Create and display the dynamic lesson page
-        createDynamicLessonPage(lessonData);
         
       } catch (error) {
         console.error('❌ Lesson generation failed:', error);
