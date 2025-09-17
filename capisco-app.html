@@ -227,7 +227,7 @@
       setTimeout(function() {
         const form = document.getElementById('lesson-generator');
         if (form && !form._submitHandler) {
-          console.log('Engine not loaded, setting up fallback form handler');
+          console.log('Setting up form handler (engine or fallback)');
           form.addEventListener('submit', function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -297,7 +297,10 @@
         // Step 1: Show extracting transcript
         await showProcessingStep(1, 'Extracting video transcript...');
         
-        // Start the API call without awaiting (so we can show progress during the call)
+        // Start the API call with longer timeout (3 minutes)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minutes
+        
         const fetchPromise = fetch('/generate-lesson', {
           method: 'POST',
           headers: {
@@ -307,7 +310,8 @@
             videoUrl: videoUrl,
             sourceLang: sourceLanguage,
             targetLang: targetLanguage
-          })
+          }),
+          signal: controller.signal
         });
         
         // Show progress steps while the API call is in progress
