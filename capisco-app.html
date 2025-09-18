@@ -769,6 +769,144 @@ window.testCapisco = function() {
   </script>
   
   <script>
+    // Beautiful Al Mercato-style lesson renderer
+    function createBeautifulLessonPage(lessonData) {
+      console.log('🎨 Creating beautiful Al Mercato-style lesson...');
+      
+      const lessonContainer = document.getElementById('generated-lesson') || createLessonContainer();
+      
+      if (!lessonData || !lessonData.sections) {
+        console.error('Invalid lesson data received');
+        return;
+      }
+
+      // Generate beautiful HTML matching al-mercato.html format
+      const html = `
+        <div class="lesson-container" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+          <!-- Beautiful Lesson Header -->
+          <header class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; text-align: center;">
+            <h1 style="font-size: 2rem; margin-bottom: 0.5rem; font-weight: 700;">
+              <i class="fas fa-video"></i> ${lessonData.title || 'Your Video Lesson'}
+            </h1>
+            <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 0.5rem;">${lessonData.studyGuide?.overview || 'Comprehensive vocabulary from your video'}</p>
+            <div class="lesson-meta" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; font-size: 0.9rem;">
+              <span><i class="fas fa-signal"></i> ${lessonData.difficulty || 'Intermediate'}</span>
+              <span><i class="fas fa-language"></i> ${lessonData.sourceLanguage?.toUpperCase() || 'IT'}</span>
+              <span><i class="fas fa-list"></i> ${(lessonData.vocabulary?.length || 0)} words</span>
+            </div>
+          </header>
+
+          <!-- Vocabulary Sections -->
+          ${lessonData.sections.map(section => `
+            <section class="vocabulary-section" style="background: white; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+              <h2 style="color: #1e293b; margin-bottom: 1.5rem; font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas ${getIconForSection(section.title)}"></i> ${section.title}
+              </h2>
+              <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 1rem;">${section.description || ''}</p>
+              
+              <div class="vocab-grid" style="display: grid; gap: 1rem;">
+                ${section.vocabulary.map(word => `
+                  <div class="vocab-card" style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #667eea; transition: all 0.2s ease;">
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+                      <div class="vocab-content" style="flex: 1; margin-right: 1rem;">
+                        <div class="vocab-header" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+                          <span class="italian-word" style="font-size: 1.4rem; font-weight: 700; color: #1e293b;">
+                            ${word.word || word.baseForm}
+                          </span>
+                          ${word.gender ? `<span class="gender-tag" style="background: ${word.gender === 'f' ? '#f472b6' : word.gender === 'm' ? '#3b82f6' : '#10b981'}; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">${word.gender}</span>` : ''}
+                          ${word.partOfSpeech ? `<span class="pos-tag" style="background: #e2e8f0; color: #475569; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">${word.partOfSpeech}</span>` : ''}
+                        </div>
+                        
+                        <div class="english-translation" style="font-size: 1.2rem; color: #059669; font-weight: 600; margin-bottom: 0.75rem;">
+                          ${word.english || word.definition}
+                        </div>
+                        
+                        ${word.pronunciation ? `<div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.5rem;"><strong>Pronunciation:</strong> /${word.pronunciation}/</div>` : ''}
+                        ${word.plural ? `<div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.5rem;"><strong>Plural:</strong> ${word.plural}</div>` : ''}
+                        ${word.etymology ? `<div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.5rem;"><strong>Origin:</strong> ${word.etymology}</div>` : ''}
+                        ${word.culturalNotes ? `<div style="background: #fef3c7; padding: 0.75rem; border-radius: 8px; font-size: 0.9rem; color: #92400e; margin-top: 0.5rem;"><strong>Cultural Context:</strong> ${word.culturalNotes}</div>` : ''}
+                        ${word.examples?.length ? `<div style="margin-top: 0.5rem; font-style: italic; color: #64748b; font-size: 0.9rem;">"${word.examples[0]}"</div>` : ''}
+                      </div>
+                      
+                      <div class="audio-controls" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <button class="speaker-btn" data-word="${word.word || word.baseForm}" onclick="pronounceItalianWord('${word.word || word.baseForm}')" style="background: #10b981; color: white; border: none; padding: 0.75rem; border-radius: 8px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;" title="Pronounce">
+                          <i class="fas fa-volume-up"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </section>
+          `).join('')}
+          
+          <!-- Quiz Section -->
+          <section class="quiz-section" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; text-align: center;">
+            <h2 style="margin-bottom: 1rem;"><i class="fas fa-gamepad"></i> Practice Your Vocabulary</h2>
+            <p style="margin-bottom: 1.5rem; opacity: 0.9;">Test your knowledge with interactive exercises</p>
+            <button onclick="alert('Quiz feature coming soon! For now, practice by clicking the speaker buttons above.')" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: 600;">
+              <i class="fas fa-play"></i> Start Practice Quiz
+            </button>
+          </section>
+        </div>
+      `;
+      
+      lessonContainer.innerHTML = html;
+      lessonContainer.classList.add('active');
+      lessonContainer.style.display = 'block';
+      
+      // Hide processing status
+      const statusDiv = document.getElementById('processing-status');
+      if (statusDiv) {
+        statusDiv.classList.remove('active');
+        statusDiv.style.display = 'none';
+      }
+      
+      // Scroll to lesson
+      setTimeout(() => {
+        lessonContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+      
+      console.log('✅ Beautiful Al Mercato-style lesson displayed!');
+    }
+
+    function getIconForSection(sectionTitle) {
+      const icons = {
+        'Core Vocabulary': 'fa-star',
+        'Verbs & Actions': 'fa-running', 
+        'Nouns & Objects': 'fa-cube',
+        'Descriptive Words': 'fa-palette',
+        'Expressions & Phrases': 'fa-comments',
+        'Cultural Context': 'fa-globe-europe',
+        'Function word': 'fa-cog'
+      };
+      return icons[sectionTitle] || 'fa-book';
+    }
+
+    function createLessonContainer() {
+      let container = document.getElementById('generated-lesson');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'generated-lesson';
+        container.className = 'generated-lesson';
+        document.body.appendChild(container);
+      }
+      return container;
+    }
+
+    function pronounceItalianWord(word) {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = 'it-IT';
+        utterance.rate = 0.8;
+        speechSynthesis.speak(utterance);
+      } else {
+        console.log('Text-to-speech not supported, but would pronounce:', word);
+      }
+    }
+  </script>
+  
+  <script>
     try {
       new Function(document.getElementById('engine-src').textContent)(); 
       if (window.capisco) {
