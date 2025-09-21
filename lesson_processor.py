@@ -385,9 +385,9 @@ class CapiscoLessonProcessor:
                     "singular": enriched.get('singular', original_word['word']),
                     "plural": enriched.get('plural', self._generate_plural(original_word['word'], source_lang)),
                     "pronunciation": enriched.get('pronunciation', self._generate_pronunciation(original_word['word'], source_lang)),
-                    "etymology": enriched.get('etymology', f"{source_lang.capitalize()} origin"),
-                    "usage": enriched.get('usage', 'Common word in context'),
-                    "culturalNotes": enriched.get('culturalNotes', f"Used in {source_lang.capitalize()} language"),
+                    "etymology": enriched.get('etymology', self._generate_etymology(original_word['word'], source_lang)),
+                    "usage": enriched.get('usage', self._generate_usage_context(original_word['word'], source_lang)),
+                    "culturalNotes": enriched.get('culturalNotes', self._generate_cultural_context(original_word['word'], source_lang)),
                     "examples": original_word['examples'],
                     "frequency": original_word['frequency']
                 })
@@ -401,9 +401,9 @@ class CapiscoLessonProcessor:
                     "singular": original_word['word'],
                     "plural": self._generate_plural(original_word['word'], source_lang),
                     "pronunciation": self._generate_pronunciation(original_word['word'], source_lang),
-                    "etymology": f"{source_lang.capitalize()} origin",
-                    "usage": "Common word",
-                    "culturalNotes": f"Word from {source_lang.capitalize()} language",
+                    "etymology": self._generate_etymology(original_word['word'], source_lang),
+                    "usage": self._generate_usage_context(original_word['word'], source_lang),
+                    "culturalNotes": self._generate_cultural_context(original_word['word'], source_lang),
                     "examples": original_word['examples'],
                     "frequency": original_word['frequency']
                 })
@@ -505,13 +505,118 @@ class CapiscoLessonProcessor:
             return word + 's'  # Simple English default
             
     def _generate_pronunciation(self, word, source_lang):
-        """Generate pronunciation guide"""
+        """Generate enhanced pronunciation guide with Italian phonetic rules"""
         if source_lang == 'it':
-            # Simple Italian pronunciation rules
-            return f"/{word.lower()}/"
+            # Enhanced Italian pronunciation rules
+            word_lower = word.lower()
+            pronunciation = word_lower
+            
+            # Italian pronunciation transformations
+            pronunciation = pronunciation.replace('c', 'k')  # c before a, o, u
+            pronunciation = pronunciation.replace('ch', 'k')  # ch = k sound
+            pronunciation = pronunciation.replace('g', 'g')   # g before a, o, u
+            pronunciation = pronunciation.replace('gh', 'g')  # gh = hard g
+            pronunciation = pronunciation.replace('sc', 'ʃ')  # sc before i, e
+            pronunciation = pronunciation.replace('gli', 'ʎi') # gli sound
+            pronunciation = pronunciation.replace('gn', 'ɲ')   # gn sound
+            pronunciation = pronunciation.replace('r', 'r')    # rolled r
+            
+            # Stress patterns for common endings
+            if word_lower.endswith(('ione', 'zione')):
+                pronunciation = pronunciation[:-4] + 'tsi̯o̯ne'
+            elif word_lower.endswith('ere'):
+                pronunciation = pronunciation[:-3] + 'e̯re'
+            elif word_lower.endswith('are'):
+                pronunciation = pronunciation[:-3] + 'a̯re'
+            
+            return f"/[{pronunciation}]/"
         else:
-            return f"/{word.lower()}/"
+            return f"/[{word.lower()}]/"
     
+    def _generate_etymology(self, word, source_lang):
+        """Generate enhanced etymology information"""
+        if source_lang == 'it':
+            word_lower = word.lower()
+            
+            # Common Italian etymological patterns
+            etymology_patterns = {
+                'zione': 'From Latin "-tio" suffix indicating action or result',
+                'mente': 'From Latin "mente" (mind/manner), forms adverbs',
+                'ismo': 'From Greek "-ismos", indicates doctrine or practice',
+                'ista': 'From Greek "-istes", indicates practitioner or believer',
+                'anza': 'From Latin "-antia", indicates quality or state',
+                'ezza': 'From Latin "-itia", indicates quality or condition',
+                'are': 'First conjugation verb from Latin "-are"',
+                'ere': 'Second conjugation verb from Latin "-ere"',
+                'ire': 'Third conjugation verb from Latin "-ire"'
+            }
+            
+            for suffix, etymology in etymology_patterns.items():
+                if word_lower.endswith(suffix):
+                    return f"{etymology}. Connected to ancient Latin linguistic heritage."
+                    
+            # Common word etymologies
+            common_etymologies = {
+                'casa': 'From Latin "casa" (cottage). Related to English "casino" and "case"',
+                'tempo': 'From Latin "tempus". Related to English "temporal" and "temporary"',
+                'amore': 'From Latin "amor". Related to English "amorous" and "amateur"',
+                'vita': 'From Latin "vita". Related to English "vital" and "vitamin"',
+                'acqua': 'From Latin "aqua". Related to English "aquatic" and "aqueduct"',
+                'fuoco': 'From Latin "focus" (hearth). Related to English "focus" and "fuel"',
+                'terra': 'From Latin "terra". Related to English "terrain" and "territory"'
+            }
+            
+            if word_lower in common_etymologies:
+                return common_etymologies[word_lower]
+                
+            return f"Italian word with Latin roots, part of Romance language family"
+        else:
+            return f"Word from {source_lang.capitalize()} linguistic tradition"
+    
+    def _generate_usage_context(self, word, source_lang):
+        """Generate contextual usage information"""
+        if source_lang == 'it':
+            word_lower = word.lower()
+            
+            # Usage patterns based on word characteristics
+            if word_lower.endswith(('are', 'ere', 'ire')):
+                return "Infinitive verb - use with modal verbs (volere, potere, dovere) or as a verbal noun"
+            elif word_lower.endswith(('mente')):
+                return "Adverb - modifies verbs, adjectives, or other adverbs. Usually placed after the verb"
+            elif word_lower.endswith(('zione', 'sione')):
+                return "Abstract noun - often used in formal contexts, journalism, and academic writing"
+            elif len(word_lower) <= 3:
+                return "Common function word - essential for basic communication and sentence structure"
+            else:
+                return "Content word - use in context with appropriate articles (il/la/lo) and prepositions"
+        else:
+            return f"Common {source_lang.capitalize()} word used in everyday communication"
+    
+    def _generate_cultural_context(self, word, source_lang):
+        """Generate cultural context and significance"""
+        if source_lang == 'it':
+            word_lower = word.lower()
+            
+            # Cultural context based on semantic fields
+            food_words = ['pasta', 'pizza', 'gelato', 'caffè', 'pane', 'formaggio', 'vino']
+            family_words = ['famiglia', 'madre', 'padre', 'nonna', 'nonno', 'bambino']
+            art_words = ['arte', 'musica', 'opera', 'teatro', 'cinema', 'cultura']
+            
+            if any(food in word_lower for food in food_words):
+                return "Food culture is central to Italian identity. Meals are social events that bring families together, and regional specialties reflect local traditions and pride."
+            elif any(family in word_lower for family in family_words):
+                return "Family (famiglia) is the cornerstone of Italian society. Multi-generational households are common, and family gatherings are important cultural events."
+            elif any(art in word_lower for art in art_words):
+                return "Italy has an incredibly rich artistic heritage. From Renaissance masters to modern cinema, art and culture are deeply woven into daily Italian life."
+            elif word_lower in ['piazza', 'mercato', 'bar']:
+                return "Public spaces are vital to Italian social life. The piazza serves as the heart of communities where people gather, socialize, and participate in local events."
+            elif word_lower in ['tempo', 'ora', 'giorno']:
+                return "Italians have a relaxed approach to time, valuing relationships and enjoyment over strict punctuality. 'La dolce vita' reflects this lifestyle philosophy."
+            else:
+                return "This word reflects aspects of Italian culture, where tradition, community, and quality of life are highly valued."
+        else:
+            return f"Word reflects cultural values and traditions of {source_lang.capitalize()}-speaking communities"
+
     def _extract_expressions(self, text, source_lang, target_lang):
         """Extract common phrases and expressions from text"""
         try:
