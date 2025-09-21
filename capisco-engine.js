@@ -1903,25 +1903,34 @@ class CapiscoEngine {
         </section>
     `;
 
-    // Generate vocabulary sections like Al Mercato
+    // Generate thematic vocabulary sections like Al Mercato
     lesson.sections.forEach((section, sectionIndex) => {
       const sectionId = `section-${sectionIndex}`;
       html += `
-        <section class="lesson-section" style="background: white; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
-          <div class="section-header">
-            <h2><i class="fas ${section.icon}"></i> ${section.title}</h2>
-            <div class="section-translation">
-              <span class="translation-text">${section.description}</span>
+        <section class="lesson-section" style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; transition: all 0.3s ease;">
+          <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid #f1f5f9;">
+            <h2 style="margin: 0; color: #1e293b; font-size: 1.4rem; font-weight: 700;"><i class="fas ${section.icon}"></i> ${section.title}</h2>
+            <div class="section-translation" style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="translation-text" style="color: #059669; font-weight: 600; font-size: 1rem;">${section.titleTranslation || section.description}</span>
+              <button class="speaker-btn" data-italian="${section.title}" style="background: #10b981; color: white; border: none; padding: 0.3rem; border-radius: 4px; cursor: pointer;">
+                <i class="fas fa-volume-up"></i>
+              </button>
             </div>
           </div>
           <div class="content-card">
-            <div class="lesson-visual" style="text-align: center; margin-bottom: 2rem; padding: 2rem; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 12px;">
-              <i class="fas ${section.icon}" style="font-size: 3rem; color: #667eea; margin-bottom: 1rem;"></i>
-              <p style="font-style: italic; color: #64748b;">${section.description}</p>
+            <div class="lesson-visual" style="text-align: center; margin-bottom: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 12px;">
+              <i class="fas ${section.icon}" style="font-size: 3rem; color: #667eea; margin-bottom: 1rem; display: block;"></i>
+              <p style="font-style: italic; color: #64748b; margin: 0;">${section.description}</p>
+              ${section.educationalContent && section.educationalContent.practicePrompt ? 
+                `<p class="question-prompt" style="font-weight: bold; color: #1e293b; margin-top: 1rem; font-style: normal;"><strong>${section.educationalContent.practicePrompt}</strong></p>` 
+                : ''}
             </div>
             
+            <!-- Educational Content Section like Al Mercato -->
+            ${this.generateEducationalContent(section.educationalContent)}
+            
             <div class="vocabulary-section">
-              <ul class="vocab-list" style="list-style: none; padding: 0; display: grid; gap: 0.5rem;">
+              <ul class="vocab-list" style="list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem;">
       `;
 
       section.vocabulary.forEach((vocab, vocabIndex) => {
@@ -1960,40 +1969,44 @@ class CapiscoEngine {
           }
 
           html += `
-                <li class="vocab-item" style="background: #f8fafc; padding: 1rem; border-radius: 12px; border-left: 4px solid #667eea; margin-bottom: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                  <div style="display: flex; align-items: flex-start; justify-content: space-between;">
-                    <div class="vocab-content" style="flex: 1; margin-right: 1rem;">
-                      <div class="vocab-header" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
-                        <span class="italian-word" style="font-size: 1.3rem; font-weight: 700; color: #1e293b;">
-                          ${vocab.baseForm || vocab.word}
+                <li class="vocab-item" style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; display: flex; align-items: center; gap: 1rem; transition: all 0.3s ease; cursor: pointer; position: relative; overflow: hidden;">
+                  <span class="vocab-category-icon"><i class="fas ${this.getVocabIcon(vocab.partOfSpeech)}"></i></span>
+                  <div class="vocab-word-details" style="flex: 1;">
+                    <div class="vocab-main">
+                      <span class="vocab-text" style="font-size: 1.1rem; font-weight: 600; color: #1e293b;">
+                        ${vocab.baseForm || vocab.word} – ${vocab.english}
+                      </span>
+                    </div>
+                    <div class="vocab-grammar" style="margin-top: 0.5rem;">
+                      <div class="gender-plural-info" style="display: flex; gap: 1rem; font-size: 0.9rem;">
+                        <span class="singular-form" style="color: #64748b;">
+                          <strong>Singular:</strong> 
+                          <span class="gender-${vocab.gender}" style="color: ${vocab.gender === 'f' ? '#ec4899' : vocab.gender === 'm' ? '#3b82f6' : '#10b981'};">
+                            ${vocab.singular || vocab.baseForm || vocab.word}
+                          </span> 
+                          ${vocab.gender ? `(${vocab.gender})` : ''}
                         </span>
-                        ${vocab.gender ? `<span class="gender-tag" style="background: ${vocab.gender === 'f' ? '#ec4899' : vocab.gender === 'm' ? '#3b82f6' : '#10b981'}; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">${vocab.gender === 'f' ? 'feminine' : vocab.gender === 'm' ? 'masculine' : vocab.gender}</span>` : ''}
-                        ${vocab.partOfSpeech ? `<span class="pos-tag" style="background: #e2e8f0; color: #475569; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">${vocab.partOfSpeech}</span>` : ''}
-                      </div>
-                      
-                      <div class="english-translation" style="font-size: 1.1rem; color: #059669; font-weight: 600; margin-bottom: 0.5rem;">
-                        ${vocab.english}
-                      </div>
-                      
-                      <div class="vocab-details" style="display: grid; gap: 0.25rem; font-size: 0.9rem; color: #64748b;">
-                        ${vocab.phonetic ? `<div><strong>Phonetic:</strong> [${vocab.phonetic}]</div>` : ''}
-                        ${vocab.plural ? `<div><strong>Plural:</strong> ${vocab.plural}</div>` : ''}
-                        ${vocab.conjugations?.present ? `<div><strong>Present:</strong> io ${vocab.conjugations.present.io}, tu ${vocab.conjugations.present.tu}, lui/lei ${vocab.conjugations.present.lui}</div>` : ''}
+                        ${vocab.plural ? `
+                          <span class="plural-form" style="color: #64748b;">
+                            <strong>Plural:</strong> 
+                            <span class="gender-${vocab.gender}" style="color: ${vocab.gender === 'f' ? '#ec4899' : vocab.gender === 'm' ? '#3b82f6' : '#10b981'};">
+                              ${vocab.plural}
+                            </span> 
+                            ${vocab.gender ? `(${vocab.gender})` : ''}
+                          </span>
+                        ` : ''}
                       </div>
                     </div>
-                    
-                    <div class="vocab-controls" style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
-                      <button class="info-btn" 
-                              data-info="${this.formatAdvancedWordInfo(vocab).replace(/"/g, '&quot;')}" 
-                              data-gender="${vocab.gender || ''}" 
-                              data-plural="${vocab.plural || ''}"
-                              style="background: #667eea; color: white; border: none; padding: 0.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; min-width: 40px;">
-                        <i class="fas fa-info-circle"></i>
-                      </button>
-                      <div style="display: flex; gap: 0.25rem;">
-                        ${audioButtons}
-                      </div>
-                    </div>
+                  </div>
+                  <div class="vocab-controls" style="display: flex; gap: 0.5rem;">
+                    <button class="info-btn" 
+                            data-info="${this.formatAdvancedWordInfo(vocab).replace(/"/g, '&quot;')}" 
+                            data-gender="${vocab.gender || ''}" 
+                            data-plural="${vocab.plural || ''}"
+                            style="background: #667eea; color: white; border: none; padding: 0.5rem; border-radius: 8px; cursor: pointer;">
+                      <i class="fas fa-info-circle"></i>
+                    </button>
+                    ${audioButtons}
                   </div>
                 </li>
           `;
@@ -2066,6 +2079,60 @@ class CapiscoEngine {
     `;
 
     return html;
+  }
+
+  generateEducationalContent(educationalContent) {
+    if (!educationalContent) return '';
+    
+    let html = `<div class="educational-content" style="margin-bottom: 1.5rem;">`;
+    
+    // Cultural Note Section
+    if (educationalContent.culturalNote) {
+      html += `
+        <div class="cultural-note" style="background: #fef9c3; border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+          <h4 style="margin: 0 0 0.5rem 0; color: #92400e;"><i class="fas fa-globe"></i> Cultural Context</h4>
+          <p style="margin: 0; color: #92400e; line-height: 1.6;">${educationalContent.culturalNote}</p>
+        </div>
+      `;
+    }
+    
+    // Etymology Section
+    if (educationalContent.etymology && educationalContent.etymology.length > 0) {
+      html += `
+        <div class="etymology-section" style="background: #dbeafe; border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+          <h4 style="margin: 0 0 0.75rem 0; color: #1d4ed8;"><i class="fas fa-book"></i> Word Origins & English Connections</h4>
+          <div class="etymology-grid" style="display: grid; gap: 0.75rem;">
+      `;
+      
+      educationalContent.etymology.forEach(item => {
+        html += `
+          <div class="etymology-item" style="background: white; padding: 0.75rem; border-radius: 6px;">
+            <strong style="color: #1d4ed8;">${item.word}</strong> - ${item.etymology}
+            <br><em style="color: #64748b;">English connection: ${item.englishConnection}</em>
+          </div>
+        `;
+      });
+      
+      html += `
+          </div>
+        </div>
+      `;
+    }
+    
+    html += `</div>`;
+    return html;
+  }
+  
+  getVocabIcon(partOfSpeech) {
+    const icons = {
+      'noun': 'fa-cube',
+      'verb': 'fa-running', 
+      'adjective': 'fa-palette',
+      'adverb': 'fa-tachometer-alt',
+      'expression': 'fa-comments',
+      'phrase': 'fa-quote-left'
+    };
+    return icons[partOfSpeech] || 'fa-circle';
   }
 
   generateAudioSegments(lesson) {

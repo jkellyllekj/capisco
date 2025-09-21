@@ -535,85 +535,178 @@ class CapiscoLessonProcessor:
             print(f"⚠️ Expression extraction failed: {e}")
             return []
     
+    def _organize_vocabulary_by_theme(self, vocabulary, text):
+        """Organize vocabulary into thematic sections like Al Mercato"""
+        # Analyze the vocabulary to create thematic groupings
+        themes = []
+        
+        # Group words by semantic themes
+        nouns = [w for w in vocabulary if w.get('partOfSpeech', '').lower() == 'noun']
+        verbs = [w for w in vocabulary if w.get('partOfSpeech', '').lower() == 'verb']
+        adjectives = [w for w in vocabulary if w.get('partOfSpeech', '').lower() == 'adjective']
+        expressions = [w for w in vocabulary if len(w.get('word', '').split()) > 1]
+        
+        # Core Vocabulary Section - Most frequent/important words
+        if nouns or verbs or adjectives:
+            core_vocab = []
+            # Take top words by frequency
+            for word_list in [nouns[:8], verbs[:6], adjectives[:4]]:
+                core_vocab.extend([self._format_vocabulary_word(w) for w in word_list])
+                
+            if core_vocab:
+                themes.append({
+                    'title': 'Vocabulario Essenziale',
+                    'titleTranslation': 'Essential Vocabulary', 
+                    'description': 'Core words and concepts from the video content',
+                    'icon': 'fa-star',
+                    'vocabulary': core_vocab,
+                    'culturalNote': 'These are the most important words from the content. Mastering these will give you a strong foundation for understanding similar topics.',
+                    'etymology': self._generate_etymology_notes(core_vocab[:4]),
+                    'practicePrompt': 'Can you use three of these words in your own sentence?'
+                })
+        
+        # Action & Movement Section - Verbs
+        if verbs:
+            verb_section = [self._format_vocabulary_word(w) for w in verbs[:10]]
+            themes.append({
+                'title': 'Azioni e Movimenti',
+                'titleTranslation': 'Actions & Movement',
+                'description': 'Verbs and action words from the video',
+                'icon': 'fa-running',
+                'vocabulary': verb_section,
+                'culturalNote': 'Italian verbs change their endings based on who is doing the action. Pay attention to these patterns as you learn!',
+                'etymology': self._generate_etymology_notes(verb_section[:3]),
+                'practicePrompt': 'Try conjugating one of these verbs: Io _____, tu _____, lui/lei _____'
+            })
+        
+        # Expressions & Phrases Section
+        if expressions:
+            expression_section = [self._format_vocabulary_word(w) for w in expressions[:8]]
+            themes.append({
+                'title': 'Espressioni Utili',
+                'titleTranslation': 'Useful Expressions',
+                'description': 'Common phrases and expressions',
+                'icon': 'fa-comments',
+                'vocabulary': expression_section,
+                'culturalNote': 'These expressions will help you sound more natural when speaking. They are commonly used in everyday conversation.',
+                'etymology': [],
+                'practicePrompt': 'Practice using these expressions in different contexts!'
+            })
+        
+        # Cultural Context Section - Unique/interesting words
+        cultural_vocab = [w for w in vocabulary if 
+                         w.get('culturalNotes', '') or 
+                         len(w.get('etymology', '')) > 20][:8]
+        if cultural_vocab:
+            cultural_section = [self._format_vocabulary_word(w) for w in cultural_vocab]
+            themes.append({
+                'title': 'Contesto Culturale',
+                'titleTranslation': 'Cultural Context',
+                'description': 'Words with special cultural significance',
+                'icon': 'fa-globe',
+                'vocabulary': cultural_section,
+                'culturalNote': 'Understanding the cultural context of these words will deepen your appreciation of the language and help you communicate more effectively.',
+                'etymology': self._generate_etymology_notes(cultural_section[:4]),
+                'practicePrompt': 'Which of these words connects to your own culture? How are they similar or different?'
+            })
+        
+        return themes if themes else []
+    
+    def _format_vocabulary_word(self, word):
+        """Format a vocabulary word for display with all required fields"""
+        return {
+            "word": word.get('word', ''),
+            "baseForm": word.get('word', ''),
+            "english": word.get('translation', 'translation needed'),
+            "partOfSpeech": word.get('partOfSpeech', 'unknown'),
+            "gender": word.get('gender', ''),
+            "singular": word.get('singular', word.get('word', '')),
+            "plural": word.get('plural', ''),
+            "pronunciation": word.get('pronunciation', ''),
+            "etymology": word.get('etymology', ''),
+            "usage": word.get('usage', ''),
+            "culturalNotes": word.get('culturalNotes', ''),
+            "examples": word.get('examples', []),
+            "frequency": word.get('frequency', 1)
+        }
+    
+    def _generate_etymology_notes(self, vocab_list):
+        """Generate etymology notes for educational content"""
+        etymology_notes = []
+        for vocab in vocab_list[:4]:  # Limit to 4 etymology notes
+            if vocab.get('etymology'):
+                etymology_notes.append({
+                    'word': vocab.get('word', ''),
+                    'etymology': vocab.get('etymology', ''),
+                    'englishConnection': self._find_english_connection(vocab.get('word', ''), vocab.get('etymology', ''))
+                })
+        return etymology_notes
+    
+    def _find_english_connection(self, word, etymology):
+        """Find English language connections for etymology"""
+        # Simple heuristic to find English connections
+        word_lower = word.lower()
+        common_connections = {
+            'mercato': 'Related to English "market" and "merchant"',
+            'famiglia': 'Related to English "family" and "familiar"',
+            'cultura': 'Related to English "culture" and "cultivate"',
+            'natura': 'Related to English "nature" and "natural"',
+            'storia': 'Related to English "story" and "history"',
+            'musica': 'Related to English "music" and "musical"',
+            'arte': 'Related to English "art" and "artist"'
+        }
+        
+        for italian_root, connection in common_connections.items():
+            if italian_root in word_lower:
+                return connection
+                
+        # Fallback
+        return f"Explore the linguistic connections between '{word}' and English words"
+    
     def _create_vocabulary_sections(self, vocabulary, text):
-        """Create organized vocabulary sections for beautiful Al Mercato-style display"""
+        """Create organized vocabulary sections in Al Mercato style with themed sections and educational content"""
         try:
-            # Group vocabulary by part of speech for organized display
             sections = []
             
-            # Group by part of speech
-            pos_groups = {}
-            for word in vocabulary:
-                pos = word.get('partOfSpeech', 'unknown')
-                if pos not in pos_groups:
-                    pos_groups[pos] = []
-                pos_groups[pos].append(word)
+            # Create thematic sections inspired by Al Mercato structure
+            thematic_sections = self._organize_vocabulary_by_theme(vocabulary, text)
             
-            # Create sections for each part of speech
-            pos_icons = {
-                'noun': 'fa-cube',
-                'verb': 'fa-play',
-                'adjective': 'fa-palette',
-                'adverb': 'fa-tachometer-alt',
-                'unknown': 'fa-question-circle'
-            }
-            
-            pos_names = {
-                'noun': 'Nouns',
-                'verb': 'Verbs', 
-                'adjective': 'Adjectives',
-                'adverb': 'Adverbs',
-                'unknown': 'Other Words'
-            }
-            
-            for pos, words in pos_groups.items():
-                if words:  # Only create section if there are words
-                    # Format each word for the renderer
-                    formatted_words = []
-                    for word in words:
-                        formatted_word = {
-                            "word": word.get('word', ''),
-                            "baseForm": word.get('word', ''),
-                            "english": word.get('translation', 'translation needed'),
-                            "partOfSpeech": word.get('partOfSpeech', 'unknown'),
-                            "gender": word.get('gender', ''),
-                            "singular": word.get('singular', word.get('word', '')),
-                            "plural": word.get('plural', ''),
-                            "pronunciation": word.get('pronunciation', ''),
-                            "etymology": word.get('etymology', ''),
-                            "usage": word.get('usage', ''),
-                            "culturalNotes": word.get('culturalNotes', ''),
-                            "examples": word.get('examples', []),
-                            "frequency": word.get('frequency', 1)
-                        }
-                        formatted_words.append(formatted_word)
-                    
+            for theme_data in thematic_sections:
+                if theme_data['vocabulary']:  # Only create section if there are words
+                    # Create the section with educational content
                     section = {
-                        "title": pos_names.get(pos, pos.capitalize()),
-                        "description": f"Essential {pos_names.get(pos, pos)} from the video",
-                        "icon": pos_icons.get(pos, 'fa-question-circle'),
-                        "vocabulary": formatted_words
+                        "title": theme_data['title'],
+                        "titleTranslation": theme_data['titleTranslation'],
+                        "description": theme_data['description'],
+                        "icon": theme_data['icon'],
+                        "vocabulary": theme_data['vocabulary'],
+                        "educationalContent": {
+                            "culturalNote": theme_data.get('culturalNote', ''),
+                            "etymology": theme_data.get('etymology', []),
+                            "visualElements": theme_data.get('visualElements', {}),
+                            "practicePrompt": theme_data.get('practicePrompt', '')
+                        }
                     }
                     sections.append(section)
             
-            # If no sections were created, create a general one
+            # If no thematic sections were created, fall back to a comprehensive section
             if not sections:
                 formatted_words = []
-                for word in vocabulary[:20]:  # Limit to 20 words for display
-                    formatted_word = {
-                        "word": word.get('word', ''),
-                        "baseForm": word.get('word', ''),
-                        "english": word.get('translation', 'translation needed'),
-                        "partOfSpeech": word.get('partOfSpeech', 'unknown'),
-                        "examples": word.get('examples', [])
-                    }
-                    formatted_words.append(formatted_word)
+                for word in vocabulary[:25]:  # Show more words in fallback
+                    formatted_words.append(self._format_vocabulary_word(word))
                 
                 sections.append({
-                    "title": "Video Vocabulary", 
-                    "description": "Essential words from the video content",
+                    "title": "Video Vocabulary",
+                    "titleTranslation": "Essential Words",
+                    "description": "Key vocabulary from the video content for comprehensive learning",
                     "icon": "fa-book-open",
-                    "vocabulary": formatted_words
+                    "vocabulary": formatted_words,
+                    "educationalContent": {
+                        "culturalNote": "This comprehensive vocabulary section contains all the essential words from the video content, organized for effective language learning.",
+                        "etymology": [],
+                        "visualElements": {},
+                        "practicePrompt": "Try using these words in your own sentences!"
+                    }
                 })
             
             return sections
@@ -623,9 +716,16 @@ class CapiscoLessonProcessor:
             # Return a basic section with available vocabulary
             return [{
                 "title": "Video Vocabulary",
-                "description": "Essential words from the video content", 
+                "titleTranslation": "Essential Words",
+                "description": "Essential words from the video content",
                 "icon": "fa-book-open",
-                "vocabulary": vocabulary[:20]  # Show first 20 words
+                "vocabulary": vocabulary[:20],
+                "educationalContent": {
+                    "culturalNote": "Learn these essential words from the video content.",
+                    "etymology": [],
+                    "visualElements": {},
+                    "practicePrompt": ""
+                }
             }]
         
     def extract_video_id(self, url):
