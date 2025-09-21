@@ -1967,7 +1967,7 @@ class CapiscoEngine {
                         <span class="italian-word" style="font-size: 1.3rem; font-weight: 700; color: #1e293b;">
                           ${vocab.baseForm || vocab.word}
                         </span>
-                        ${vocab.gender ? `<span class="gender-tag" style="background: ${vocab.gender === 'f' ? '#f472b6' : vocab.gender === 'm' ? '#3b82f6' : '#10b981'}; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">${vocab.gender === 'f' ? 'feminine' : vocab.gender === 'm' ? 'masculine' : vocab.gender}</span>` : ''}
+                        ${vocab.gender ? `<span class="gender-tag" style="background: ${vocab.gender === 'f' ? '#ec4899' : vocab.gender === 'm' ? '#3b82f6' : '#10b981'}; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">${vocab.gender === 'f' ? 'feminine' : vocab.gender === 'm' ? 'masculine' : vocab.gender}</span>` : ''}
                         ${vocab.partOfSpeech ? `<span class="pos-tag" style="background: #e2e8f0; color: #475569; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">${vocab.partOfSpeech}</span>` : ''}
                       </div>
                       
@@ -2094,14 +2094,30 @@ class CapiscoEngine {
   }
 
   initializeStructuredLessonInteractivity() {
-    // Initialize vocab interactions like in Al Mercato
+    // Initialize vocab interactions like in Al Mercato - Enhanced
     setTimeout(() => {
+      console.log('🎯 Initializing interactive features...');
+      
       if (typeof initializeVocabInteractions === 'function') {
         initializeVocabInteractions();
+        console.log('✅ Vocab interactions initialized');
+      } else {
+        console.warn('⚠️ initializeVocabInteractions function not found');
       }
       
       // Manually bind speaker buttons if the external function doesn't catch them
       this.bindSpeakerButtons();
+      
+      // Ensure info buttons are working with enhanced data
+      this.bindInfoButtons();
+      
+      // Initialize hover effects on vocabulary cards
+      this.initializeHoverEffects();
+      
+      // Update quiz system with current lesson data
+      this.updateQuizSystemWithLessonData();
+      
+      console.log('✅ All interactive features initialized');
       
       // Update quiz system with generated lesson data
       if (typeof quizSystem !== 'undefined' && this.currentLesson) {
@@ -2305,7 +2321,56 @@ class CapiscoEngine {
     return this.formatAdvancedWordInfo(vocab);
   }
 
+  initializeHoverEffects() {
+    console.log('🎨 Initializing hover effects and animations...');
+    
+    // Add hover effects to vocabulary cards
+    document.querySelectorAll('.vocab-item').forEach(card => {
+      if (!card.classList.contains('hover-initialized')) {
+        card.classList.add('hover-initialized');
+        
+        // Add CSS transitions if not already present
+        card.style.transition = 'all 0.3s ease, transform 0.2s ease';
+        card.style.cursor = 'pointer';
+        
+        card.addEventListener('mouseenter', () => {
+          card.style.transform = 'translateY(-2px)';
+          card.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.15)';
+          card.style.borderColor = '#667eea';
+        });
+        
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = 'translateY(0)';
+          card.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)';
+          card.style.borderColor = '#e2e8f0';
+        });
+      }
+    });
+    
+    // Add hover effects to buttons
+    document.querySelectorAll('.speaker-btn, .info-btn').forEach(btn => {
+      if (!btn.classList.contains('hover-initialized')) {
+        btn.classList.add('hover-initialized');
+        btn.style.transition = 'all 0.2s ease';
+        
+        btn.addEventListener('mouseenter', () => {
+          btn.style.transform = 'scale(1.1)';
+          btn.style.opacity = '0.9';
+        });
+        
+        btn.addEventListener('mouseleave', () => {
+          btn.style.transform = 'scale(1)';
+          btn.style.opacity = '1';
+        });
+      }
+    });
+    
+    console.log('✅ Hover effects initialized');
+  }
+
   updateQuizSystemWithLessonData() {
+    console.log('🎯 Updating quiz system with lesson data...');
+    
     // Create dynamic quiz data from lesson content
     const dynamicQuizData = {
       generated_content: {
@@ -2322,15 +2387,406 @@ class CapiscoEngine {
       }
     };
 
-    // Add to quiz system
-    if (quizSystem && quizSystem.quizData) {
-      Object.assign(quizSystem.quizData, dynamicQuizData);
+    // Add to quiz system if available
+    if (window.QuizSystem && typeof window.QuizSystem.updateData === 'function') {
+      window.QuizSystem.updateData(dynamicQuizData);
+      console.log('✅ Quiz system updated with lesson data');
+    } else if (window.quizSystem && window.quizSystem.quizData) {
+      Object.assign(window.quizSystem.quizData, dynamicQuizData);
+      console.log('✅ Quiz data merged with existing system');
+    } else {
+      console.log('ℹ️ Quiz system not available, data prepared for future use');
+    }
+  }
+
+  bindSpeakerButtons() {
+    console.log('🔊 Binding speaker buttons...');
+    
+    document.querySelectorAll('.speaker-btn').forEach(btn => {
+      if (!btn.classList.contains('speaker-bound')) {
+        btn.classList.add('speaker-bound');
+        
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const italian = btn.getAttribute('data-italian');
+          if (italian && typeof playItalianAudio === 'function') {
+            playItalianAudio(italian);
+          } else if (italian) {
+            this.fallbackAudio(italian);
+          }
+        });
+        
+        // Optional: Play on hover for better UX
+        btn.addEventListener('mouseenter', (e) => {
+          const italian = btn.getAttribute('data-italian');
+          if (italian && typeof playItalianAudio === 'function') {
+            setTimeout(() => playItalianAudio(italian), 200); // Small delay
+          }
+        });
+      }
+    });
+    
+    console.log('✅ Speaker buttons bound');
+  }
+
+  bindInfoButtons() {
+    console.log('ℹ️ Binding info buttons...');
+    
+    document.querySelectorAll('.info-btn').forEach(btn => {
+      if (!btn.classList.contains('info-bound')) {
+        btn.classList.add('info-bound');
+        
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const info = btn.getAttribute('data-info');
+          if (info) {
+            if (typeof showInfoTooltip === 'function') {
+              showInfoTooltip(btn);
+            } else {
+              this.showWordInfoModal(info, btn);
+            }
+          }
+        });
+        
+        btn.addEventListener('mouseenter', (e) => {
+          e.stopPropagation();
+          const info = btn.getAttribute('data-info');
+          if (info && typeof showInfoTooltip === 'function') {
+            showInfoTooltip(btn);
+          }
+        });
+        
+        btn.addEventListener('mouseleave', (e) => {
+          if (typeof hideInfoTooltip === 'function') {
+            hideInfoTooltip();
+          }
+        });
+      }
+    });
+    
+    console.log('✅ Info buttons bound');
+  }
+
+  fallbackAudio(text) {
+    // Fallback audio implementation if playItalianAudio isn't available
+    console.log('🔊 Playing audio for:', text);
+    
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'it-IT';
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      
+      // Try to find Italian voice
+      const voices = speechSynthesis.getVoices();
+      const italianVoice = voices.find(voice => 
+        voice.lang === 'it-IT' || voice.lang.startsWith('it')
+      );
+      
+      if (italianVoice) {
+        utterance.voice = italianVoice;
+      }
+      
+      utterance.onstart = () => console.log('🎵 Audio started:', text);
+      utterance.onerror = (error) => {
+        console.error('Audio error:', error);
+        alert(`Audio not available. Text: "${text}"`);
+      };
+      
+      speechSynthesis.speak(utterance);
+    } else {
+      alert(`Audio not supported. Text: "${text}"`);
     }
   }
 
   integrateWithExistingQuizSystem() {
-    // This will integrate the dynamically generated content with your existing quiz system
-    // We'll expand this based on how you want to handle the integration
+    console.log('🎯 Integrating with quiz system...');
+    
+    // Check if quiz system exists and add quiz buttons to sections
+    const sections = document.querySelectorAll('.lesson-section');
+    sections.forEach((section, index) => {
+      if (!section.querySelector('.quiz-integration')) {
+        const quizDiv = document.createElement('div');
+        quizDiv.className = 'quiz-integration';
+        quizDiv.style.cssText = `
+          margin-top: 1rem;
+          padding: 1rem;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 8px;
+          text-align: center;
+        `;
+        
+        quizDiv.innerHTML = `
+          <h4 style="color: white; margin: 0 0 0.5rem 0; font-size: 1rem;">
+            <i class="fas fa-gamepad"></i> Practice This Section
+          </h4>
+          <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+            <button class="quiz-btn" onclick="window.capisco.startSectionQuiz(${index})" 
+                    style="background: white; color: #667eea; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+              <i class="fas fa-brain"></i> Vocabulary Quiz
+            </button>
+            <button class="quiz-btn" onclick="window.capisco.startMatchingGame(${index})" 
+                    style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+              <i class="fas fa-puzzle-piece"></i> Matching Game
+            </button>
+            <button class="quiz-btn" onclick="window.capisco.startPronunciationChallenge(${index})" 
+                    style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+              <i class="fas fa-microphone"></i> Pronunciation
+            </button>
+          </div>
+        `;
+        
+        section.appendChild(quizDiv);
+      }
+    });
+    
+    console.log('✅ Quiz integration complete');
+  }
+
+  startSectionQuiz(sectionIndex) {
+    console.log(`Starting quiz for section ${sectionIndex}`);
+    
+    // Get vocabulary from this section
+    const section = document.querySelectorAll('.lesson-section')[sectionIndex];
+    const vocabItems = section.querySelectorAll('.vocab-item .italian-word');
+    
+    if (vocabItems.length === 0) {
+      alert('No vocabulary found in this section to quiz on.');
+      return;
+    }
+    
+    // Create a simple quiz interface
+    this.showQuizModal(sectionIndex, 'vocabulary');
+  }
+
+  startMatchingGame(sectionIndex) {
+    console.log(`Starting matching game for section ${sectionIndex}`);
+    this.showQuizModal(sectionIndex, 'matching');
+  }
+
+  startPronunciationChallenge(sectionIndex) {
+    console.log(`Starting pronunciation challenge for section ${sectionIndex}`);
+    this.showQuizModal(sectionIndex, 'pronunciation');
+  }
+
+  showQuizModal(sectionIndex, quizType) {
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'quiz-modal-overlay';
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    `;
+
+    const modal = document.createElement('div');
+    modal.className = 'quiz-modal';
+    modal.style.cssText = `
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    `;
+
+    const quizTitle = {
+      vocabulary: 'Vocabulary Quiz',
+      matching: 'Matching Game', 
+      pronunciation: 'Pronunciation Challenge'
+    };
+
+    modal.innerHTML = `
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <h2 style="color: #667eea; margin: 0 0 0.5rem 0;">
+          <i class="fas fa-${quizType === 'vocabulary' ? 'brain' : quizType === 'matching' ? 'puzzle-piece' : 'microphone'}"></i>
+          ${quizTitle[quizType]}
+        </h2>
+        <p style="color: #64748b; margin: 0;">Practice the vocabulary from section ${sectionIndex + 1}</p>
+      </div>
+      
+      <div id="quiz-content" style="margin-bottom: 2rem;">
+        ${this.generateQuizContent(sectionIndex, quizType)}
+      </div>
+      
+      <div style="text-align: center;">
+        <button onclick="this.closest('.quiz-modal-overlay').remove()" 
+                style="background: #ef4444; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+          Close Quiz
+        </button>
+      </div>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.remove();
+    });
+  }
+
+  generateQuizContent(sectionIndex, quizType) {
+    const section = document.querySelectorAll('.lesson-section')[sectionIndex];
+    const vocabItems = Array.from(section.querySelectorAll('.vocab-item'));
+    
+    if (vocabItems.length === 0) {
+      return '<p style="text-align: center; color: #64748b;">No vocabulary found for this section.</p>';
+    }
+
+    if (quizType === 'vocabulary') {
+      return this.generateVocabularyQuiz(vocabItems);
+    } else if (quizType === 'matching') {
+      return this.generateMatchingGame(vocabItems);
+    } else if (quizType === 'pronunciation') {
+      return this.generatePronunciationChallenge(vocabItems);
+    }
+  }
+
+  generateVocabularyQuiz(vocabItems) {
+    const randomItem = vocabItems[Math.floor(Math.random() * vocabItems.length)];
+    const italian = randomItem.querySelector('.italian-word')?.textContent || 'word';
+    const english = randomItem.querySelector('.english-translation')?.textContent || 'translation';
+    
+    // Create simple multiple choice
+    const wrongAnswers = ['incorrect option 1', 'incorrect option 2', 'incorrect option 3'];
+    const allOptions = [english, ...wrongAnswers].sort(() => Math.random() - 0.5);
+    
+    return `
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <h3 style="color: #1e293b; margin-bottom: 1rem;">What does this word mean?</h3>
+        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <span style="font-size: 2rem; font-weight: 700; color: #667eea;">${italian}</span>
+          <button onclick="window.capisco.fallbackAudio('${italian}')" 
+                  style="background: #10b981; color: white; border: none; padding: 0.5rem; border-radius: 6px; margin-left: 1rem; cursor: pointer;">
+            <i class="fas fa-volume-up"></i>
+          </button>
+        </div>
+        <div style="display: grid; gap: 0.75rem; max-width: 400px; margin: 0 auto;">
+          ${allOptions.map(option => `
+            <button onclick="window.capisco.checkQuizAnswer('${option}', '${english}', this)" 
+                    style="background: white; border: 2px solid #e2e8f0; padding: 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+              ${option}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  generateMatchingGame(vocabItems) {
+    const selectedItems = vocabItems.slice(0, Math.min(5, vocabItems.length));
+    const italianWords = selectedItems.map(item => 
+      item.querySelector('.italian-word')?.textContent || 'word'
+    );
+    const englishWords = selectedItems.map(item => 
+      item.querySelector('.english-translation')?.textContent || 'translation'
+    );
+    
+    return `
+      <div style="text-align: center;">
+        <h3 style="color: #1e293b; margin-bottom: 1rem;">Match the Italian words with their English translations</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+          <div>
+            <h4 style="color: #667eea;">Italian</h4>
+            ${italianWords.map((word, index) => `
+              <button onclick="window.capisco.selectMatchingWord('italian', '${word}', ${index}, this)" 
+                      style="display: block; width: 100%; background: white; border: 2px solid #e2e8f0; padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; cursor: pointer; font-weight: 600;">
+                ${word}
+              </button>
+            `).join('')}
+          </div>
+          <div>
+            <h4 style="color: #10b981;">English</h4>
+            ${englishWords.sort(() => Math.random() - 0.5).map((word, index) => `
+              <button onclick="window.capisco.selectMatchingWord('english', '${word}', ${index}, this)" 
+                      style="display: block; width: 100%; background: white; border: 2px solid #e2e8f0; padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; cursor: pointer; font-weight: 600;">
+                ${word}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  generatePronunciationChallenge(vocabItems) {
+    const randomItem = vocabItems[Math.floor(Math.random() * vocabItems.length)];
+    const italian = randomItem.querySelector('.italian-word')?.textContent || 'word';
+    
+    return `
+      <div style="text-align: center;">
+        <h3 style="color: #1e293b; margin-bottom: 1rem;">Pronunciation Challenge</h3>
+        <div style="background: #f8fafc; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+          <p style="color: #64748b; margin-bottom: 1rem;">Click to hear the word, then try to pronounce it yourself!</p>
+          <div style="font-size: 2.5rem; font-weight: 700; color: #667eea; margin-bottom: 1rem;">${italian}</div>
+          <button onclick="window.capisco.fallbackAudio('${italian}')" 
+                  style="background: #10b981; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: 600;">
+            <i class="fas fa-volume-up"></i> Listen
+          </button>
+        </div>
+        <p style="color: #64748b; font-style: italic;">Practice speaking the word out loud. Listen to the pronunciation and try to match it!</p>
+      </div>
+    `;
+  }
+
+  checkQuizAnswer(selected, correct, button) {
+    // Disable all buttons
+    const buttons = button.parentElement.querySelectorAll('button');
+    buttons.forEach(btn => btn.disabled = true);
+    
+    if (selected === correct) {
+      button.style.background = '#10b981';
+      button.style.color = 'white';
+      button.style.borderColor = '#10b981';
+      setTimeout(() => {
+        alert('Correct! 🎉');
+      }, 500);
+    } else {
+      button.style.background = '#ef4444';
+      button.style.color = 'white';
+      button.style.borderColor = '#ef4444';
+      // Highlight correct answer
+      buttons.forEach(btn => {
+        if (btn.textContent.trim() === correct) {
+          btn.style.background = '#10b981';
+          btn.style.color = 'white';
+          btn.style.borderColor = '#10b981';
+        }
+      });
+      setTimeout(() => {
+        alert(`Incorrect. The correct answer is: ${correct}`);
+      }, 500);
+    }
+  }
+
+  selectMatchingWord(type, word, index, button) {
+    // Simple matching game logic - this could be expanded
+    const selected = button.parentElement.querySelector('.selected');
+    if (selected) selected.classList.remove('selected');
+    
+    button.classList.add('selected');
+    button.style.background = '#667eea';
+    button.style.color = 'white';
+    
+    // This is a simplified version - you could add more sophisticated matching logic
+    console.log(`Selected ${type}: ${word}`);
   }
 
   showWordInfo(word) {

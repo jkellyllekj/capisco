@@ -1,2 +1,588 @@
-Adding styles for lesson display and vocabulary cards to the CSS file.
-```
+/* Capisco - Al Mercato Style Interactive Lesson CSS */
+
+/* Core Reset and Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Lesson Container Styles */
+.lesson-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.lesson-page {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  padding: 0;
+}
+
+/* Lesson Header */
+.lesson-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.lesson-title h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.lesson-subtitle {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+/* Lesson Sections */
+.lesson-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.lesson-section:hover {
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+  border-color: #667eea;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.section-translation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.translation-text {
+  color: #059669;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* Vocabulary List Styles */
+.vocab-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.vocab-item {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.vocab-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+  border-color: #667eea;
+}
+
+.vocab-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.vocab-item:hover::before {
+  opacity: 1;
+}
+
+/* Vocabulary Item Content */
+.vocab-category-icon {
+  min-width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.4rem;
+}
+
+.vocab-word-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.vocab-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.vocab-text {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.italian-word {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.english-translation {
+  font-size: 1.1rem;
+  color: #059669;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Gender Tags */
+.gender-tag {
+  background: #ec4899;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.gender-tag.masculine,
+.gender-masculine {
+  background: #3b82f6;
+}
+
+.gender-tag.feminine,
+.gender-feminine {
+  background: #ec4899;
+}
+
+.gender-tag.neuter {
+  background: #10b981;
+}
+
+/* Part of Speech Tags */
+.pos-tag {
+  background: #e2e8f0;
+  color: #475569;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Vocabulary Details */
+.vocab-details {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.vocab-grammar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+/* Control Buttons */
+.vocab-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.speaker-btn,
+.info-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  min-width: 40px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.speaker-btn:hover,
+.info-btn:hover {
+  background: #5a67d8;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.speaker-btn:active,
+.info-btn:active {
+  transform: scale(0.95);
+}
+
+.speaker-btn {
+  background: #10b981;
+}
+
+.speaker-btn:hover {
+  background: #059669;
+}
+
+/* Info Tooltip Styles */
+.info-tooltip {
+  position: absolute;
+  background: white;
+  border: 2px solid #667eea;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  max-width: 400px;
+  z-index: 10000;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.info-tooltip.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.info-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #667eea;
+}
+
+.info-content {
+  margin-bottom: 0.75rem;
+  color: #374151;
+}
+
+.gender-info {
+  background: #f8fafc;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+}
+
+.gender-info div {
+  margin-bottom: 0.25rem;
+}
+
+.gender-info div:last-child {
+  margin-bottom: 0;
+}
+
+/* Word Info Modal */
+.word-info-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.word-info-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 2px solid #667eea;
+  position: relative;
+  transform: translateY(20px);
+  animation: slideUp 0.3s ease forwards;
+}
+
+/* Quiz Integration Styles */
+.quiz-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.quiz-btn {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 0.5rem;
+}
+
+.quiz-btn:hover {
+  background: #f1f5f9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Visual Elements */
+.lesson-visual {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.visual-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.season-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.season-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.season-icon {
+  font-size: 2rem;
+}
+
+.season-icon.spring { color: #10b981; }
+.season-icon.summer { color: #f59e0b; }
+.season-icon.autumn { color: #ef4444; }
+.season-icon.winter { color: #3b82f6; }
+
+/* Educational Content */
+.educational-content {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.etymology-section,
+.cultural-note {
+  margin-bottom: 1.5rem;
+}
+
+.etymology-section:last-child,
+.cultural-note:last-child {
+  margin-bottom: 0;
+}
+
+.etymology-section h4,
+.cultural-note h4 {
+  color: #667eea;
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.etymology-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.etymology-item {
+  background: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+  40%, 43% { transform: translate3d(0,-8px,0); }
+  70% { transform: translate3d(0,-4px,0); }
+  90% { transform: translate3d(0,-2px,0); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .vocab-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .vocab-controls {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .lesson-header {
+    padding: 1rem;
+  }
+  
+  .lesson-title h1 {
+    font-size: 1.5rem;
+  }
+  
+  .visual-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .info-tooltip {
+    max-width: calc(100vw - 2rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .container,
+  .lesson-container {
+    padding: 0 0.5rem;
+  }
+  
+  .lesson-section {
+    padding: 1rem;
+  }
+  
+  .vocab-item {
+    padding: 0.75rem;
+  }
+  
+  .visual-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus states for accessibility */
+.speaker-btn:focus,
+.info-btn:focus,
+.quiz-btn:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.vocab-item:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .vocab-item {
+    border-width: 2px;
+  }
+  
+  .gender-tag,
+  .pos-tag {
+    border: 1px solid;
+  }
+}
