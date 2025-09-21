@@ -81,11 +81,10 @@ class CapiscoEngine {
         throw new Error('Could not extract transcript. Please try a different video or upload your own transcript file.');
       }
       
-      // Check duration limit
+      // Process videos of any length with smart optimization
       const estimatedDuration = this.estimateTranscriptDuration(transcript);
-      if (estimatedDuration > 300) { // 5 minutes = 300 seconds
-        throw new Error(`This video appears to be ~${Math.ceil(estimatedDuration/60)} minutes long. Please use a video that's 5 minutes or shorter for optimal learning.`);
-      }
+      console.log(`📹 Video duration: ${Math.ceil(estimatedDuration/60)} minutes - processing with smart optimization`);
+      // No duration limit - system handles videos of any length efficiently
       console.log(`Processing transcript: ~${Math.ceil(estimatedDuration/60)} minutes of content`);
 
       // Step 2: Analyze language and content

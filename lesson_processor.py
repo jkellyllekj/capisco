@@ -33,8 +33,8 @@ except LookupError:
 
 # Using GPT-4o-mini which is cost-effective for language processing
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-# Configure OpenAI client with optimized timeouts for speed
-openai = OpenAI(api_key=OPENAI_API_KEY, timeout=8, max_retries=1)  # Reduced timeout for faster processing
+# Configure OpenAI client with balanced timeouts for speed and reliability
+openai = OpenAI(api_key=OPENAI_API_KEY, timeout=15, max_retries=2)  # Balanced timeout for reliable processing
 
 # Optimization constants
 OPTIMIZED_BATCH_SIZE = 15  # Larger batches for better efficiency
@@ -641,7 +641,7 @@ Respond with JSON: {{"words": [{{"word": "...", "translation": "...", "partOfSpe
             try:
                 with ThreadPoolExecutor(max_workers=1) as executor:
                     future = executor.submit(call_openai)
-                    response = future.result(timeout=25)  # Hard 25s timeout
+                    response = future.result(timeout=25)  # Aligned 25s timeout for reliability
                 
                 # Use robust JSON parsing instead of simple json.loads
                 response_content = response.choices[0].message.content or "{}"

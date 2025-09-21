@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Generated Lesson Display</title>
+</head>
+<body>
+    <script>
+        // Test the frontend lesson display
+        fetch('http://localhost:5000/generate-lesson', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                videoUrl: 'https://www.youtube.com/watch?v=kJQP7kiw5Fk',
+                sourceLang: 'it',
+                targetLang: 'en'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Generated lesson structure:', data);
+            console.log('Vocabulary items:', data.vocabulary.length);
+            console.log('Sample vocabulary:', data.vocabulary.slice(0, 3));
+            console.log('Educational content:', data.educationalContent);
+        })
+        .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html>
