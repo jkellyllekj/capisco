@@ -182,7 +182,7 @@ function playItalianAudio(text) {
   }
 }
 
-// Enhanced Quiz System with Multiple Question Types
+// Enhanced Endless Quiz System with Comprehensive Features
 class QuizSystem {
   constructor() {
     this.currentQuiz = null;
@@ -198,8 +198,52 @@ class QuizSystem {
     this.matchingSelection = { italian: null, english: null }; // For matching games
     this.checkingTimeout = null; // Safety timeout for checking
     
+    // NEW: Spaced Repetition System
+    this.spacedRepetition = {
+      wordStats: new Map(), // Track performance per word
+      reviewQueue: [], // Words that need review
+      difficultyLevels: ['easy', 'medium', 'hard', 'expert'],
+      currentDifficulty: 'easy'
+    };
+    
+    // NEW: Progress Tracking
+    this.progressData = {
+      sessionStats: {
+        correct: 0,
+        incorrect: 0,
+        streak: 0,
+        maxStreak: 0,
+        timeSpent: 0,
+        startTime: Date.now()
+      },
+      overallStats: this.loadUserProgress(),
+      recentAnswers: [] // For dual-display feature
+    };
+    
+    // NEW: Dual-Display System
+    this.dualDisplay = {
+      enabled: true,
+      previousAnswer: null,
+      reviewContainer: null
+    };
+    
+    // NEW: Enhanced Question Types
+    this.questionTypes = {
+      multipleChoice: { weight: 1, difficulty: 'easy' },
+      matching: { weight: 1, difficulty: 'medium' },
+      listening: { weight: 1, difficulty: 'medium' },
+      typing: { weight: 1, difficulty: 'medium' },
+      dragDrop: { weight: 1, difficulty: 'hard' },
+      spelling: { weight: 1, difficulty: 'medium' }, // NEW
+      pronunciation: { weight: 1, difficulty: 'hard' }, // NEW
+      genderGuessing: { weight: 1, difficulty: 'easy' }, // NEW
+      fillInBlank: { weight: 1, difficulty: 'medium' }, // NEW
+      sentenceBuilder: { weight: 1, difficulty: 'hard' } // NEW
+    };
+    
     // Add safety reset mechanism
     this.setupSafetyReset();
+    this.initializeProgressTracking();
     this.quizData = {
       introductions: {
         vocabulary: [
@@ -529,8 +573,1569 @@ class QuizSystem {
         ]
       }
     };
-    this.questionTypes = ['multipleChoice', 'matching', 'listening', 'typing', 'dragDrop'];
+    this.initializeKeyboardNavigation();
   }
+
+  // NEW: Initialize Progress Tracking System
+  initializeProgressTracking() {
+    // Load saved progress from localStorage
+    this.progressData.overallStats = this.loadUserProgress();
+    
+    // Setup dual-display system
+    this.setupDualDisplay();
+    
+    // Initialize spaced repetition system
+    this.initializeSpacedRepetition();
+    
+    console.log('📊 Progress tracking initialized', this.progressData);
+  }
+
+  // NEW: Load User Progress from Storage
+  loadUserProgress() {
+    try {
+      const saved = localStorage.getItem('capisco-progress');
+      return saved ? JSON.parse(saved) : {
+        totalCorrect: 0,
+        totalIncorrect: 0,
+        bestStreak: 0,
+        timeSpent: 0,
+        lessonsCompleted: 0,
+        wordsLearned: new Set(),
+        difficultyLevel: 'easy'
+      };
+    } catch (error) {
+      console.warn('Failed to load progress:', error);
+      return {
+        totalCorrect: 0,
+        totalIncorrect: 0,
+        bestStreak: 0,
+        timeSpent: 0,
+        lessonsCompleted: 0,
+        wordsLearned: new Set(),
+        difficultyLevel: 'easy'
+      };
+    }
+  }
+
+  // NEW: Save Progress to Storage
+  saveUserProgress() {
+    try {
+      // Convert Set to Array for JSON storage
+      const toSave = {
+        ...this.progressData.overallStats,
+        wordsLearned: Array.from(this.progressData.overallStats.wordsLearned || [])
+      };
+      localStorage.setItem('capisco-progress', JSON.stringify(toSave));
+      
+      // Also save spaced repetition data
+      const spacedRepData = {
+        wordStats: Array.from(this.spacedRepetition.wordStats.entries()),
+        currentDifficulty: this.spacedRepetition.currentDifficulty
+      };
+      localStorage.setItem('capisco-spaced-repetition', JSON.stringify(spacedRepData));
+      
+      console.log('💾 Progress saved successfully');
+    } catch (error) {
+      console.error('Failed to save progress:', error);
+    }
+  }
+
+  // NEW: Initialize Spaced Repetition System
+  initializeSpacedRepetition() {
+    try {
+      const saved = localStorage.getItem('capisco-spaced-repetition');
+      if (saved) {
+        const data = JSON.parse(saved);
+        this.spacedRepetition.wordStats = new Map(data.wordStats || []);
+        this.spacedRepetition.currentDifficulty = data.currentDifficulty || 'easy';
+      }
+      
+      // Build review queue from underperforming words
+      this.buildReviewQueue();
+      console.log('🧠 Spaced repetition initialized with', this.spacedRepetition.wordStats.size, 'tracked words');
+    } catch (error) {
+      console.warn('Failed to load spaced repetition data:', error);
+    }
+  }
+
+  // NEW: Build Review Queue for Spaced Repetition
+  buildReviewQueue() {
+    this.spacedRepetition.reviewQueue = [];
+    
+    for (const [word, stats] of this.spacedRepetition.wordStats) {
+      const successRate = stats.correct / (stats.correct + stats.incorrect);
+      const timeSinceLastReview = Date.now() - stats.lastReviewed;
+      
+      // Add to review queue if:
+      // 1. Success rate is below 70%
+      // 2. Haven't seen it in a while (based on success rate)
+      // 3. It's been marked for review
+      if (successRate < 0.7 || 
+          timeSinceLastReview > this.getReviewInterval(successRate) ||
+          stats.needsReview) {
+        this.spacedRepetition.reviewQueue.push({
+          word,
+          priority: this.calculateReviewPriority(stats, timeSinceLastReview)
+        });
+      }
+    }
+    
+    // Sort by priority (higher numbers first)
+    this.spacedRepetition.reviewQueue.sort((a, b) => b.priority - a.priority);
+    
+    console.log('📝 Review queue built with', this.spacedRepetition.reviewQueue.length, 'items');
+  }
+
+  // NEW: Calculate Review Priority for Spaced Repetition
+  calculateReviewPriority(stats, timeSinceLastReview) {
+    const successRate = stats.correct / (stats.correct + stats.incorrect);
+    const basePriority = 1 - successRate; // Lower success = higher priority
+    const timeFactor = Math.min(timeSinceLastReview / (1000 * 60 * 60 * 24), 7); // Days since last review, capped at 7
+    const repetitionFactor = Math.min(stats.incorrect / 10, 1); // More mistakes = higher priority
+    
+    return basePriority * 100 + timeFactor * 10 + repetitionFactor * 20;
+  }
+
+  // NEW: Get Review Interval Based on Success Rate
+  getReviewInterval(successRate) {
+    // Return milliseconds until next review
+    if (successRate >= 0.9) return 7 * 24 * 60 * 60 * 1000; // 7 days
+    if (successRate >= 0.8) return 3 * 24 * 60 * 60 * 1000; // 3 days
+    if (successRate >= 0.7) return 1 * 24 * 60 * 60 * 1000; // 1 day
+    if (successRate >= 0.5) return 4 * 60 * 60 * 1000; // 4 hours
+    return 1 * 60 * 60 * 1000; // 1 hour for very difficult words
+  }
+
+  // NEW: Update Word Statistics for Spaced Repetition
+  updateWordStats(word, isCorrect) {
+    if (!this.spacedRepetition.wordStats.has(word)) {
+      this.spacedRepetition.wordStats.set(word, {
+        correct: 0,
+        incorrect: 0,
+        lastReviewed: Date.now(),
+        firstSeen: Date.now(),
+        needsReview: false,
+        difficulty: this.spacedRepetition.currentDifficulty
+      });
+    }
+    
+    const stats = this.spacedRepetition.wordStats.get(word);
+    if (isCorrect) {
+      stats.correct++;
+    } else {
+      stats.incorrect++;
+      stats.needsReview = true; // Mark for immediate review
+    }
+    
+    stats.lastReviewed = Date.now();
+    
+    // Update review queue
+    this.buildReviewQueue();
+    
+    console.log(`📈 Updated stats for "${word}":`, stats);
+  }
+
+  // NEW: Setup Dual-Display System
+  setupDualDisplay() {
+    this.dualDisplay.enabled = true;
+    console.log('🖥️ Dual-display system enabled');
+  }
+
+  // NEW: Progressive Difficulty Adjustment
+  adjustDifficulty(userPerformance) {
+    const currentLevel = this.spacedRepetition.currentDifficulty;
+    const difficultyOrder = this.spacedRepetition.difficultyLevels;
+    const currentIndex = difficultyOrder.indexOf(currentLevel);
+    
+    // Adjust based on recent performance
+    const recentAnswers = this.progressData.recentAnswers.slice(-10); // Last 10 answers
+    if (recentAnswers.length >= 5) {
+      const correctPercentage = recentAnswers.filter(a => a.correct).length / recentAnswers.length;
+      
+      if (correctPercentage >= 0.8 && currentIndex < difficultyOrder.length - 1) {
+        // Increase difficulty
+        this.spacedRepetition.currentDifficulty = difficultyOrder[currentIndex + 1];
+        this.showDifficultyChangeNotification('increased', this.spacedRepetition.currentDifficulty);
+      } else if (correctPercentage <= 0.4 && currentIndex > 0) {
+        // Decrease difficulty
+        this.spacedRepetition.currentDifficulty = difficultyOrder[currentIndex - 1];
+        this.showDifficultyChangeNotification('decreased', this.spacedRepetition.currentDifficulty);
+      }
+    }
+    
+    // Update question type weights based on difficulty
+    this.updateQuestionTypeWeights();
+  }
+
+  // NEW: Update Question Type Weights Based on Difficulty
+  updateQuestionTypeWeights() {
+    const difficulty = this.spacedRepetition.currentDifficulty;
+    
+    switch (difficulty) {
+      case 'easy':
+        this.questionTypes.multipleChoice.weight = 3;
+        this.questionTypes.genderGuessing.weight = 2;
+        this.questionTypes.matching.weight = 2;
+        this.questionTypes.listening.weight = 1;
+        this.questionTypes.spelling.weight = 1;
+        this.questionTypes.typing.weight = 1;
+        this.questionTypes.pronunciation.weight = 0.5;
+        this.questionTypes.dragDrop.weight = 0.5;
+        this.questionTypes.fillInBlank.weight = 1;
+        this.questionTypes.sentenceBuilder.weight = 0.5;
+        break;
+      case 'medium':
+        this.questionTypes.multipleChoice.weight = 2;
+        this.questionTypes.genderGuessing.weight = 2;
+        this.questionTypes.matching.weight = 2;
+        this.questionTypes.listening.weight = 2;
+        this.questionTypes.spelling.weight = 2;
+        this.questionTypes.typing.weight = 2;
+        this.questionTypes.pronunciation.weight = 1;
+        this.questionTypes.dragDrop.weight = 1;
+        this.questionTypes.fillInBlank.weight = 2;
+        this.questionTypes.sentenceBuilder.weight = 1;
+        break;
+      case 'hard':
+        this.questionTypes.multipleChoice.weight = 1;
+        this.questionTypes.genderGuessing.weight = 2;
+        this.questionTypes.matching.weight = 1.5;
+        this.questionTypes.listening.weight = 2;
+        this.questionTypes.spelling.weight = 2;
+        this.questionTypes.typing.weight = 2;
+        this.questionTypes.pronunciation.weight = 2;
+        this.questionTypes.dragDrop.weight = 2;
+        this.questionTypes.fillInBlank.weight = 2;
+        this.questionTypes.sentenceBuilder.weight = 2;
+        break;
+      case 'expert':
+        this.questionTypes.multipleChoice.weight = 0.5;
+        this.questionTypes.genderGuessing.weight = 1;
+        this.questionTypes.matching.weight = 1;
+        this.questionTypes.listening.weight = 3;
+        this.questionTypes.spelling.weight = 3;
+        this.questionTypes.typing.weight = 3;
+        this.questionTypes.pronunciation.weight = 3;
+        this.questionTypes.dragDrop.weight = 3;
+        this.questionTypes.fillInBlank.weight = 3;
+        this.questionTypes.sentenceBuilder.weight = 3;
+        break;
+    }
+  }
+
+  // NEW: Show Difficulty Change Notification
+  showDifficultyChangeNotification(change, newLevel) {
+    const notification = document.createElement('div');
+    notification.className = 'difficulty-notification';
+    notification.innerHTML = `
+      <div class="notification-content">
+        <i class="fas fa-${change === 'increased' ? 'arrow-up' : 'arrow-down'}"></i>
+        <span>Difficulty ${change} to ${newLevel}!</span>
+      </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => notification.remove(), 500);
+    }, 3000);
+    
+    console.log(`🎯 Difficulty ${change} to ${newLevel}`);
+  }
+
+  // NEW: Get Next Question Using Spaced Repetition and Difficulty
+  getNextQuestion() {
+    // First check review queue for spaced repetition
+    if (this.spacedRepetition.reviewQueue.length > 0) {
+      const reviewItem = this.spacedRepetition.reviewQueue.shift();
+      const questionType = this.selectQuestionType();
+      return this.generateQuestionFromWord(reviewItem.word, questionType);
+    }
+    
+    // Otherwise generate new question based on current difficulty
+    const questionType = this.selectQuestionType();
+    const vocabData = this.getAllVocabulary();
+    const randomWord = this.selectRandomWord(vocabData);
+    
+    return this.generateQuestionFromWord(randomWord, questionType);
+  }
+
+  // NEW: Select Question Type Based on Weights
+  selectQuestionType() {
+    const types = Object.keys(this.questionTypes);
+    const weights = types.map(type => this.questionTypes[type].weight);
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+    
+    let random = Math.random() * totalWeight;
+    
+    for (let i = 0; i < types.length; i++) {
+      random -= weights[i];
+      if (random <= 0) {
+        return types[i];
+      }
+    }
+    
+    return 'multipleChoice'; // Fallback
+  }
+
+  // NEW: Generate Question from Word and Type
+  generateQuestionFromWord(wordData, questionType) {
+    switch (questionType) {
+      case 'multipleChoice':
+        return this.generateMultipleChoiceQuestion(wordData);
+      case 'matching':
+        return this.generateMatchingQuestion(wordData);
+      case 'listening':
+        return this.generateListeningQuestion(wordData);
+      case 'typing':
+        return this.generateTypingQuestion(wordData);
+      case 'dragDrop':
+        return this.generateDragDropQuestion(wordData);
+      case 'spelling':
+        return this.generateSpellingQuestion(wordData);
+      case 'pronunciation':
+        return this.generatePronunciationQuestion(wordData);
+      case 'genderGuessing':
+        return this.generateGenderGuessingQuestion(wordData);
+      case 'fillInBlank':
+        return this.generateFillInBlankQuestion(wordData);
+      case 'sentenceBuilder':
+        return this.generateSentenceBuilderQuestion(wordData);
+      default:
+        return this.generateMultipleChoiceQuestion(wordData);
+    }
+  }
+
+  // NEW: Generate Spelling Question
+  generateSpellingQuestion(wordData) {
+    const targetWord = typeof wordData === 'string' ? 
+      this.findWordInVocab(wordData) : wordData;
+    
+    if (!targetWord) return this.generateMultipleChoiceQuestion(wordData);
+    
+    return {
+      type: 'spelling',
+      question: `How do you spell "${targetWord.english}" in Italian?`,
+      targetWord: targetWord.italian,
+      targetEnglish: targetWord.english,
+      correctAnswer: targetWord.italian.toLowerCase(),
+      hints: this.generateSpellingHints(targetWord.italian),
+      audio: targetWord.audio || targetWord.italian,
+      info: targetWord.info || '',
+      difficulty: this.spacedRepetition.currentDifficulty
+    };
+  }
+
+  // NEW: Generate Spelling Hints
+  generateSpellingHints(word) {
+    const hints = [];
+    hints.push(`The word has ${word.length} letters`);
+    hints.push(`It starts with "${word[0].toUpperCase()}"`);
+    if (word.length > 3) {
+      hints.push(`It ends with "${word.slice(-1)}"`);
+    }
+    if (word.length > 5) {
+      hints.push(`The middle letters include "${word.slice(1, -1)}"`);
+    }
+    return hints;
+  }
+
+  // NEW: Generate Pronunciation Question
+  generatePronunciationQuestion(wordData) {
+    const targetWord = typeof wordData === 'string' ? 
+      this.findWordInVocab(wordData) : wordData;
+    
+    if (!targetWord) return this.generateMultipleChoiceQuestion(wordData);
+    
+    return {
+      type: 'pronunciation',
+      question: `Listen and repeat the Italian word for "${targetWord.english}"`,
+      targetWord: targetWord.italian,
+      targetEnglish: targetWord.english,
+      correctAnswer: targetWord.italian,
+      audio: targetWord.audio || targetWord.italian,
+      info: targetWord.info || '',
+      difficulty: this.spacedRepetition.currentDifficulty,
+      evaluationCriteria: this.generatePronunciationCriteria(targetWord.italian)
+    };
+  }
+
+  // NEW: Generate Pronunciation Criteria
+  generatePronunciationCriteria(word) {
+    return {
+      keyPhonemes: this.extractKeyPhonemes(word),
+      stressPattern: this.getStressPattern(word),
+      commonMistakes: this.getCommonPronunciationMistakes(word)
+    };
+  }
+
+  // NEW: Extract Key Phonemes for Pronunciation
+  extractKeyPhonemes(word) {
+    // Simplified phoneme extraction for Italian
+    const keyPatterns = [
+      { pattern: /ch/g, phoneme: 'k' },
+      { pattern: /gh/g, phoneme: 'g' },
+      { pattern: /gn/g, phoneme: 'ɲ' },
+      { pattern: /gl/g, phoneme: 'ʎ' },
+      { pattern: /sc/g, phoneme: 'ʃ' }
+    ];
+    
+    return keyPatterns.filter(p => p.pattern.test(word)).map(p => p.phoneme);
+  }
+
+  // NEW: Get Stress Pattern
+  getStressPattern(word) {
+    // Simplified stress pattern for Italian words
+    if (word.length <= 3) return 'first';
+    if (word.endsWith('e') || word.endsWith('o') || word.endsWith('a')) return 'penultimate';
+    return 'ultimate';
+  }
+
+  // NEW: Get Common Pronunciation Mistakes
+  getCommonPronunciationMistakes(word) {
+    const mistakes = [];
+    if (word.includes('r')) mistakes.push('Remember to roll the R sound');
+    if (word.includes('gli')) mistakes.push('GLI is pronounced like "lyee"');
+    if (word.includes('gn')) mistakes.push('GN is pronounced like "nyeh"');
+    return mistakes;
+  }
+
+  // NEW: Generate Gender Guessing Question
+  generateGenderGuessingQuestion(wordData) {
+    const targetWord = typeof wordData === 'string' ? 
+      this.findWordInVocab(wordData) : wordData;
+    
+    if (!targetWord || !targetWord.gender) {
+      return this.generateMultipleChoiceQuestion(wordData);
+    }
+    
+    const genderOptions = [
+      { value: 'm', text: 'Masculine (il/lo)', article: 'il' },
+      { value: 'f', text: 'Feminine (la)', article: 'la' }
+    ];
+    
+    return {
+      type: 'genderGuessing',
+      question: `What is the gender of "${targetWord.italian}"?`,
+      targetWord: targetWord.italian,
+      targetEnglish: targetWord.english,
+      correctAnswer: targetWord.gender,
+      options: genderOptions,
+      hints: this.generateGenderHints(targetWord),
+      audio: targetWord.audio || targetWord.italian,
+      info: targetWord.info || '',
+      difficulty: this.spacedRepetition.currentDifficulty
+    };
+  }
+
+  // NEW: Generate Gender Hints
+  generateGenderHints(word) {
+    const hints = [];
+    const italian = word.italian.toLowerCase();
+    
+    if (italian.endsWith('a')) {
+      hints.push('Words ending in -a are usually feminine');
+    } else if (italian.endsWith('o')) {
+      hints.push('Words ending in -o are usually masculine');
+    } else if (italian.endsWith('e')) {
+      hints.push('Words ending in -e can be either gender - memorize them!');
+    }
+    
+    if (word.info && word.info.includes('masculine')) {
+      hints.push('This word is mentioned as masculine in the etymology');
+    } else if (word.info && word.info.includes('feminine')) {
+      hints.push('This word is mentioned as feminine in the etymology');
+    }
+    
+    return hints;
+  }
+
+  // NEW: Generate Fill in the Blank Question
+  generateFillInBlankQuestion(wordData) {
+    const targetWord = typeof wordData === 'string' ? 
+      this.findWordInVocab(wordData) : wordData;
+    
+    if (!targetWord) return this.generateMultipleChoiceQuestion(wordData);
+    
+    const sentences = this.generateContextSentences(targetWord);
+    const sentence = sentences[Math.floor(Math.random() * sentences.length)];
+    
+    return {
+      type: 'fillInBlank',
+      question: `Fill in the blank:`,
+      sentence: sentence.text,
+      targetWord: targetWord.italian,
+      targetEnglish: targetWord.english,
+      correctAnswer: targetWord.italian,
+      context: sentence.context,
+      audio: sentence.audio,
+      info: targetWord.info || '',
+      difficulty: this.spacedRepetition.currentDifficulty
+    };
+  }
+
+  // NEW: Generate Context Sentences
+  generateContextSentences(word) {
+    const sentences = [];
+    const italian = word.italian;
+    const english = word.english;
+    
+    // Generate context-appropriate sentences
+    if (word.gender === 'm') {
+      sentences.push({
+        text: `Il _____ è molto buono.`,
+        context: `The ${english} is very good.`,
+        audio: `Il ${italian} è molto buono`
+      });
+    } else if (word.gender === 'f') {
+      sentences.push({
+        text: `La _____ è molto buona.`,
+        context: `The ${english} is very good.`,
+        audio: `La ${italian} è molto buona`
+      });
+    }
+    
+    sentences.push({
+      text: `Mi piace _____.`,
+      context: `I like ${english}.`,
+      audio: `Mi piace ${italian}`
+    });
+    
+    sentences.push({
+      text: `Vorrei _____, per favore.`,
+      context: `I would like ${english}, please.`,
+      audio: `Vorrei ${italian}, per favore`
+    });
+    
+    return sentences.length > 0 ? sentences : [{
+      text: `Questa è _____.`,
+      context: `This is ${english}.`,
+      audio: `Questa è ${italian}`
+    }];
+  }
+
+  // NEW: Find Word in Vocabulary
+  findWordInVocab(searchTerm) {
+    const allVocab = this.getAllVocabulary();
+    return allVocab.find(word => 
+      word.italian === searchTerm || 
+      word.english === searchTerm ||
+      (word.audio && word.audio === searchTerm)
+    );
+  }
+
+  // NEW: Get All Vocabulary
+  getAllVocabulary() {
+    const allVocab = [];
+    for (const category of Object.values(this.quizData)) {
+      if (category.vocabulary) {
+        allVocab.push(...category.vocabulary);
+      }
+    }
+    return allVocab;
+  }
+
+  // NEW: Select Random Word
+  selectRandomWord(vocabArray) {
+    return vocabArray[Math.floor(Math.random() * vocabArray.length)];
+  }
+
+  // NEW: Enhanced Quiz Rendering with Dual-Display
+  renderQuizWithDualDisplay(quiz, container) {
+    // Clear existing content
+    container.innerHTML = '';
+    container.className = 'quiz-container-enhanced';
+    
+    // Create dual-display layout
+    const dualLayout = document.createElement('div');
+    dualLayout.className = 'dual-display-layout';
+    
+    // Previous answer review panel (left/top)
+    const reviewPanel = this.createReviewPanel();
+    
+    // Current question panel (right/bottom)  
+    const questionPanel = this.createQuestionPanel(quiz);
+    
+    dualLayout.appendChild(reviewPanel);
+    dualLayout.appendChild(questionPanel);
+    container.appendChild(dualLayout);
+    
+    // Add progress indicator
+    const progressIndicator = this.createProgressIndicator();
+    container.appendChild(progressIndicator);
+    
+    // Animate in
+    setTimeout(() => {
+      dualLayout.classList.add('animate-in');
+    }, 100);
+    
+    this.currentQuiz = quiz;
+    this.bindQuizEvents(questionPanel);
+  }
+
+  // NEW: Create Review Panel for Dual-Display
+  createReviewPanel() {
+    const panel = document.createElement('div');
+    panel.className = 'review-panel';
+    
+    if (this.progressData.recentAnswers.length === 0) {
+      panel.innerHTML = `
+        <div class="review-header">
+          <h4><i class="fas fa-history"></i> Previous Answer</h4>
+        </div>
+        <div class="review-content empty">
+          <p>No previous answers yet. Start answering questions!</p>
+        </div>
+      `;
+    } else {
+      const lastAnswer = this.progressData.recentAnswers[this.progressData.recentAnswers.length - 1];
+      const isCorrect = lastAnswer.correct;
+      
+      panel.innerHTML = `
+        <div class="review-header">
+          <h4><i class="fas fa-history"></i> Previous Answer</h4>
+          <div class="review-status ${isCorrect ? 'correct' : 'incorrect'}">
+            <i class="fas fa-${isCorrect ? 'check' : 'times'}"></i>
+            ${isCorrect ? 'Correct' : 'Incorrect'}
+          </div>
+        </div>
+        <div class="review-content">
+          <div class="review-question">
+            <strong>Question:</strong> ${lastAnswer.question}
+          </div>
+          <div class="review-answers">
+            <div class="user-answer ${isCorrect ? 'correct' : 'incorrect'}">
+              <strong>Your answer:</strong> ${lastAnswer.userAnswer}
+            </div>
+            ${!isCorrect ? `
+              <div class="correct-answer">
+                <strong>Correct answer:</strong> ${lastAnswer.correctAnswer}
+              </div>
+            ` : ''}
+          </div>
+          ${lastAnswer.explanation ? `
+            <div class="review-explanation">
+              <strong>Explanation:</strong> ${lastAnswer.explanation}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+    
+    return panel;
+  }
+
+  // NEW: Create Question Panel for Current Quiz
+  createQuestionPanel(quiz) {
+    const panel = document.createElement('div');
+    panel.className = 'question-panel';
+    
+    // Add question header with type indicator
+    const header = document.createElement('div');
+    header.className = 'question-header';
+    header.innerHTML = `
+      <div class="question-type-badge ${quiz.type}">
+        <i class="fas fa-${this.getQuestionTypeIcon(quiz.type)}"></i>
+        ${this.getQuestionTypeName(quiz.type)}
+      </div>
+      <div class="difficulty-indicator ${quiz.difficulty || 'medium'}">
+        ${quiz.difficulty || 'medium'}
+      </div>
+    `;
+    
+    // Add question content based on type
+    const content = document.createElement('div');
+    content.className = 'question-content';
+    
+    switch (quiz.type) {
+      case 'spelling':
+        content.innerHTML = this.renderSpellingQuestion(quiz);
+        break;
+      case 'pronunciation':
+        content.innerHTML = this.renderPronunciationQuestion(quiz);
+        break;
+      case 'genderGuessing':
+        content.innerHTML = this.renderGenderGuessingQuestion(quiz);
+        break;
+      case 'fillInBlank':
+        content.innerHTML = this.renderFillInBlankQuestion(quiz);
+        break;
+      case 'multipleChoice':
+        content.innerHTML = this.renderMultipleChoiceQuestion(quiz);
+        break;
+      case 'matching':
+        content.innerHTML = this.renderMatchingQuestion(quiz);
+        break;
+      case 'listening':
+        content.innerHTML = this.renderListeningQuestion(quiz);
+        break;
+      case 'typing':
+        content.innerHTML = this.renderTypingQuestion(quiz);
+        break;
+      default:
+        content.innerHTML = this.renderMultipleChoiceQuestion(quiz);
+    }
+    
+    panel.appendChild(header);
+    panel.appendChild(content);
+    
+    return panel;
+  }
+
+  // NEW: Get Question Type Icon
+  getQuestionTypeIcon(type) {
+    const icons = {
+      spelling: 'spell-check',
+      pronunciation: 'microphone',
+      genderGuessing: 'venus-mars', 
+      fillInBlank: 'edit',
+      multipleChoice: 'list',
+      matching: 'arrows-h',
+      listening: 'headphones',
+      typing: 'keyboard',
+      dragDrop: 'hand-rock',
+      sentenceBuilder: 'puzzle-piece'
+    };
+    return icons[type] || 'question';
+  }
+
+  // NEW: Get Question Type Name
+  getQuestionTypeName(type) {
+    const names = {
+      spelling: 'Spelling',
+      pronunciation: 'Pronunciation',
+      genderGuessing: 'Gender',
+      fillInBlank: 'Fill in Blank',
+      multipleChoice: 'Multiple Choice',
+      matching: 'Matching',
+      listening: 'Listening',
+      typing: 'Typing',
+      dragDrop: 'Drag & Drop',
+      sentenceBuilder: 'Sentence Builder'
+    };
+    return names[type] || 'Question';
+  }
+
+  // NEW: Render Spelling Question
+  renderSpellingQuestion(quiz) {
+    return `
+      <div class="spelling-question">
+        <h3>${quiz.question}</h3>
+        
+        <div class="word-context">
+          <div class="english-word">${quiz.targetEnglish}</div>
+          <button class="play-audio-btn" data-audio="${quiz.audio}">
+            <i class="fas fa-volume-up"></i> Listen
+          </button>
+        </div>
+        
+        <div class="spelling-input-container">
+          <input type="text" class="spelling-input" placeholder="Type the Italian word..." 
+                 autocomplete="off" autocorrect="off" spellcheck="false">
+          <div class="input-feedback"></div>
+        </div>
+        
+        <div class="spelling-hints">
+          <button class="hint-btn" data-hint-index="0">
+            <i class="fas fa-lightbulb"></i> Hint
+          </button>
+          <div class="hints-container"></div>
+        </div>
+        
+        <div class="spelling-controls">
+          <button class="check-answer-btn" disabled>
+            <i class="fas fa-check"></i> Check Answer
+          </button>
+          <button class="skip-question-btn">
+            <i class="fas fa-forward"></i> Skip
+          </button>
+        </div>
+        
+        <div class="keyboard-help">
+          <span>Press Enter to check • Press Escape to skip</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // NEW: Render Pronunciation Question
+  renderPronunciationQuestion(quiz) {
+    return `
+      <div class="pronunciation-question">
+        <h3>${quiz.question}</h3>
+        
+        <div class="pronunciation-target">
+          <div class="target-word">${quiz.targetWord}</div>
+          <div class="target-meaning">${quiz.targetEnglish}</div>
+        </div>
+        
+        <div class="pronunciation-controls">
+          <button class="play-audio-btn large" data-audio="${quiz.audio}">
+            <i class="fas fa-volume-up"></i> Listen Again
+          </button>
+          <button class="record-btn">
+            <i class="fas fa-microphone"></i> Record Yourself
+          </button>
+        </div>
+        
+        <div class="pronunciation-feedback">
+          <div class="feedback-content"></div>
+        </div>
+        
+        <div class="pronunciation-tips">
+          <h4>Pronunciation Tips:</h4>
+          <ul>
+            ${quiz.evaluationCriteria.commonMistakes.map(tip => `<li>${tip}</li>`).join('')}
+          </ul>
+        </div>
+        
+        <div class="pronunciation-actions">
+          <button class="check-answer-btn">
+            <i class="fas fa-check"></i> I Pronounced It
+          </button>
+          <button class="play-again-btn">
+            <i class="fas fa-redo"></i> Listen Again
+          </button>
+          <button class="skip-question-btn">
+            <i class="fas fa-forward"></i> Skip
+          </button>
+        </div>
+        
+        <div class="keyboard-help">
+          <span>Press Space to listen • Press Enter to continue • Press Escape to skip</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // NEW: Render Gender Guessing Question
+  renderGenderGuessingQuestion(quiz) {
+    return `
+      <div class="gender-question">
+        <h3>${quiz.question}</h3>
+        
+        <div class="target-word-display">
+          <div class="italian-word">${quiz.targetWord}</div>
+          <div class="english-meaning">${quiz.targetEnglish}</div>
+          <button class="play-audio-btn" data-audio="${quiz.audio}">
+            <i class="fas fa-volume-up"></i>
+          </button>
+        </div>
+        
+        <div class="gender-options">
+          ${quiz.options.map((option, index) => `
+            <button class="gender-option" data-value="${option.value}" data-index="${index}">
+              <div class="option-number">${index + 1}</div>
+              <div class="option-content">
+                <div class="gender-icon">
+                  <i class="fas fa-${option.value === 'm' ? 'mars' : 'venus'}"></i>
+                </div>
+                <div class="option-text">${option.text}</div>
+              </div>
+            </button>
+          `).join('')}
+        </div>
+        
+        <div class="gender-hints">
+          <button class="hint-btn">
+            <i class="fas fa-lightbulb"></i> Show Hints
+          </button>
+          <div class="hints-container">
+            ${quiz.hints.map(hint => `<div class="hint">${hint}</div>`).join('')}
+          </div>
+        </div>
+        
+        <div class="keyboard-help">
+          <span>Press 1-2 to select • Press H for hints • Press Enter to confirm</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // NEW: Render Fill in Blank Question
+  renderFillInBlankQuestion(quiz) {
+    const sentenceParts = quiz.sentence.split('_____');
+    
+    return `
+      <div class="fill-blank-question">
+        <h3>${quiz.question}</h3>
+        
+        <div class="sentence-context">
+          <div class="context-translation">${quiz.context}</div>
+          <button class="play-audio-btn" data-audio="${quiz.audio}">
+            <i class="fas fa-volume-up"></i> Listen
+          </button>
+        </div>
+        
+        <div class="sentence-display">
+          <span class="sentence-part">${sentenceParts[0]}</span>
+          <input type="text" class="blank-input" placeholder="?" autocomplete="off">
+          <span class="sentence-part">${sentenceParts[1] || ''}</span>
+        </div>
+        
+        <div class="word-bank">
+          <div class="word-bank-header">Word Bank:</div>
+          <div class="word-options">
+            <!-- Will be populated with possible answers -->
+          </div>
+        </div>
+        
+        <div class="fill-blank-controls">
+          <button class="check-answer-btn" disabled>
+            <i class="fas fa-check"></i> Check Answer
+          </button>
+          <button class="hint-btn">
+            <i class="fas fa-lightbulb"></i> Hint
+          </button>
+          <button class="skip-question-btn">
+            <i class="fas fa-forward"></i> Skip
+          </button>
+        </div>
+        
+        <div class="keyboard-help">
+          <span>Type your answer • Press Enter to check • Press Tab for word bank</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // NEW: Create Progress Indicator
+  createProgressIndicator() {
+    const indicator = document.createElement('div');
+    indicator.className = 'progress-indicator';
+    
+    const sessionStats = this.progressData.sessionStats;
+    const totalAnswered = sessionStats.correct + sessionStats.incorrect;
+    const accuracy = totalAnswered > 0 ? Math.round((sessionStats.correct / totalAnswered) * 100) : 0;
+    
+    indicator.innerHTML = `
+      <div class="progress-stats">
+        <div class="stat-item">
+          <div class="stat-value">${sessionStats.correct}</div>
+          <div class="stat-label">Correct</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">${sessionStats.incorrect}</div>
+          <div class="stat-label">Incorrect</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">${accuracy}%</div>
+          <div class="stat-label">Accuracy</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">${sessionStats.streak}</div>
+          <div class="stat-label">Streak</div>
+        </div>
+      </div>
+      <div class="difficulty-display">
+        <span class="difficulty-label">Difficulty:</span>
+        <span class="difficulty-value ${this.spacedRepetition.currentDifficulty}">
+          ${this.spacedRepetition.currentDifficulty}
+        </span>
+      </div>
+    `;
+    
+    return indicator;
+  }
+
+  // NEW: Bind Quiz Events for Enhanced System
+  bindQuizEvents(questionPanel) {
+    // Bind audio buttons
+    questionPanel.querySelectorAll('.play-audio-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const audio = btn.getAttribute('data-audio');
+        if (audio) playItalianAudio(audio);
+      });
+    });
+    
+    // Bind based on quiz type
+    switch (this.currentQuiz.type) {
+      case 'spelling':
+        this.bindSpellingEvents(questionPanel);
+        break;
+      case 'pronunciation':
+        this.bindPronunciationEvents(questionPanel);
+        break;
+      case 'genderGuessing':
+        this.bindGenderEvents(questionPanel);
+        break;
+      case 'fillInBlank':
+        this.bindFillInBlankEvents(questionPanel);
+        break;
+      // Add other quiz types as needed
+    }
+  }
+
+  // NEW: Bind Spelling Question Events
+  bindSpellingEvents(panel) {
+    const input = panel.querySelector('.spelling-input');
+    const checkBtn = panel.querySelector('.check-answer-btn');
+    const hintBtn = panel.querySelector('.hint-btn');
+    
+    if (input) {
+      input.addEventListener('input', () => {
+        checkBtn.disabled = input.value.trim().length === 0;
+      });
+      
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !checkBtn.disabled) {
+          this.checkSpellingAnswer(input.value.trim());
+        }
+      });
+      
+      // Focus input immediately
+      setTimeout(() => input.focus(), 100);
+    }
+    
+    if (checkBtn) {
+      checkBtn.addEventListener('click', () => {
+        this.checkSpellingAnswer(input.value.trim());
+      });
+    }
+    
+    if (hintBtn) {
+      hintBtn.addEventListener('click', () => {
+        this.showSpellingHint();
+      });
+    }
+  }
+
+  // NEW: Check Spelling Answer
+  checkSpellingAnswer(userAnswer) {
+    const correct = userAnswer.toLowerCase() === this.currentQuiz.correctAnswer;
+    
+    // Update statistics
+    this.updateAnswerStats(
+      this.currentQuiz.targetWord,
+      correct,
+      userAnswer,
+      this.currentQuiz.correctAnswer,
+      this.currentQuiz.question
+    );
+    
+    // Show feedback
+    this.showAnswerFeedback(correct, userAnswer, this.currentQuiz.correctAnswer);
+    
+    // Update word stats for spaced repetition
+    this.updateWordStats(this.currentQuiz.targetWord, correct);
+    
+    // Schedule next question
+    setTimeout(() => this.proceedToNextQuestion(), 2000);
+  }
+
+  // NEW: Update Answer Statistics  
+  updateAnswerStats(word, correct, userAnswer, correctAnswer, question) {
+    // Update session stats
+    if (correct) {
+      this.progressData.sessionStats.correct++;
+      this.progressData.sessionStats.streak++;
+      this.progressData.sessionStats.maxStreak = Math.max(
+        this.progressData.sessionStats.maxStreak,
+        this.progressData.sessionStats.streak
+      );
+    } else {
+      this.progressData.sessionStats.incorrect++;
+      this.progressData.sessionStats.streak = 0;
+    }
+    
+    // Add to recent answers for dual-display
+    this.progressData.recentAnswers.push({
+      word,
+      correct,
+      userAnswer,
+      correctAnswer,
+      question,
+      timestamp: Date.now(),
+      explanation: correct ? 'Correct!' : `The correct answer is "${correctAnswer}"`
+    });
+    
+    // Keep only last 10 answers
+    if (this.progressData.recentAnswers.length > 10) {
+      this.progressData.recentAnswers.shift();
+    }
+    
+    // Update overall stats
+    if (correct) {
+      this.progressData.overallStats.totalCorrect++;
+      this.progressData.overallStats.wordsLearned.add(word);
+    } else {
+      this.progressData.overallStats.totalIncorrect++;
+    }
+    
+    // Adjust difficulty based on performance
+    this.adjustDifficulty();
+    
+    // Save progress
+    this.saveUserProgress();
+  }
+
+  // NEW: Show Answer Feedback with Animation
+  showAnswerFeedback(correct, userAnswer, correctAnswer) {
+    const container = document.querySelector('.question-panel');
+    if (!container) return;
+    
+    // Create feedback overlay
+    const feedback = document.createElement('div');
+    feedback.className = `answer-feedback ${correct ? 'correct' : 'incorrect'}`;
+    feedback.innerHTML = `
+      <div class="feedback-content">
+        <div class="feedback-icon">
+          <i class="fas fa-${correct ? 'check-circle' : 'times-circle'}"></i>
+        </div>
+        <div class="feedback-message">
+          <h3>${correct ? 'Correct!' : 'Incorrect'}</h3>
+          ${!correct ? `
+            <div class="correct-answer-display">
+              <span>Correct answer: <strong>${correctAnswer}</strong></span>
+            </div>
+          ` : ''}
+          <div class="user-answer-display">
+            <span>Your answer: <strong>${userAnswer}</strong></span>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    container.appendChild(feedback);
+    
+    // Animate in
+    setTimeout(() => feedback.classList.add('show'), 100);
+    
+    // Play sound effect
+    this.playFeedbackSound(correct);
+  }
+
+  // NEW: Play Feedback Sound
+  playFeedbackSound(correct) {
+    // Create audio context for sound effects
+    if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+      try {
+        const audioContext = new (AudioContext || webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        if (correct) {
+          // Success sound - ascending notes
+          oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+          oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+          oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+        } else {
+          // Error sound - descending note
+          oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4
+          oscillator.frequency.setValueAtTime(349.23, audioContext.currentTime + 0.15); // F4
+        }
+        
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+      } catch (error) {
+        console.log('Audio feedback not available:', error);
+      }
+    }
+  }
+
+  // NEW: Proceed to Next Question
+  proceedToNextQuestion() {
+    // Generate next question
+    const nextQuiz = this.getNextQuestion();
+    
+    // Find quiz container
+    const container = document.querySelector('.quiz-container-enhanced') || 
+                     document.querySelector('.quiz-block:not(.hidden)');
+    
+    if (!container) {
+      console.error('No quiz container found for next question');
+      return;
+    }
+    
+    // Animate out current question
+    container.classList.add('transitioning-out');
+    
+    // After animation, render new question
+    setTimeout(() => {
+      this.renderQuizWithDualDisplay(nextQuiz, container);
+      container.classList.remove('transitioning-out');
+    }, 500);
+  }
+
+  // NEW: Show Spelling Hint
+  showSpellingHint() {
+    const hintsContainer = document.querySelector('.hints-container');
+    const hintBtn = document.querySelector('.hint-btn');
+    
+    if (!hintsContainer || !this.currentQuiz) return;
+    
+    const hintIndex = parseInt(hintBtn.getAttribute('data-hint-index') || '0');
+    const hints = this.currentQuiz.hints;
+    
+    if (hintIndex < hints.length) {
+      // Add new hint
+      const hintElement = document.createElement('div');
+      hintElement.className = 'hint-item';
+      hintElement.innerHTML = `<i class="fas fa-lightbulb"></i> ${hints[hintIndex]}`;
+      hintsContainer.appendChild(hintElement);
+      
+      // Animate in
+      setTimeout(() => hintElement.classList.add('show'), 100);
+      
+      // Update button for next hint
+      const nextIndex = hintIndex + 1;
+      if (nextIndex < hints.length) {
+        hintBtn.setAttribute('data-hint-index', nextIndex.toString());
+        hintBtn.innerHTML = `<i class="fas fa-lightbulb"></i> Next Hint (${nextIndex + 1}/${hints.length})`;
+      } else {
+        hintBtn.disabled = true;
+        hintBtn.innerHTML = '<i class="fas fa-lightbulb"></i> No More Hints';
+      }
+    }
+  }
+
+  // NEW: Bind Gender Events
+  bindGenderEvents(panel) {
+    const options = panel.querySelectorAll('.gender-option');
+    const hintBtn = panel.querySelector('.hint-btn');
+    
+    options.forEach((option, index) => {
+      option.addEventListener('click', () => {
+        this.selectGenderOption(option, index);
+      });
+    });
+    
+    if (hintBtn) {
+      hintBtn.addEventListener('click', () => {
+        this.toggleGenderHints();
+      });
+    }
+  }
+
+  // NEW: Select Gender Option
+  selectGenderOption(selectedOption, index) {
+    // Clear previous selections
+    document.querySelectorAll('.gender-option').forEach(opt => {
+      opt.classList.remove('selected');
+    });
+    
+    // Select current option
+    selectedOption.classList.add('selected');
+    
+    // Store selected answer
+    this.selectedAnswer = selectedOption.getAttribute('data-value');
+    
+    // Auto-submit after short delay
+    setTimeout(() => {
+      this.checkGenderAnswer();
+    }, 800);
+  }
+
+  // NEW: Check Gender Answer
+  checkGenderAnswer() {
+    if (!this.selectedAnswer) return;
+    
+    const correct = this.selectedAnswer === this.currentQuiz.correctAnswer;
+    
+    // Update statistics
+    this.updateAnswerStats(
+      this.currentQuiz.targetWord,
+      correct,
+      this.selectedAnswer,
+      this.currentQuiz.correctAnswer,
+      this.currentQuiz.question
+    );
+    
+    // Show feedback
+    this.showAnswerFeedback(correct, this.selectedAnswer, this.currentQuiz.correctAnswer);
+    
+    // Update word stats for spaced repetition
+    this.updateWordStats(this.currentQuiz.targetWord, correct);
+    
+    // Schedule next question
+    setTimeout(() => this.proceedToNextQuestion(), 2000);
+  }
+
+  // NEW: Toggle Gender Hints
+  toggleGenderHints() {
+    const hintsContainer = document.querySelector('.hints-container');
+    if (!hintsContainer) return;
+    
+    hintsContainer.classList.toggle('visible');
+    
+    const hintBtn = document.querySelector('.hint-btn');
+    if (hintBtn) {
+      const visible = hintsContainer.classList.contains('visible');
+      hintBtn.innerHTML = `<i class="fas fa-lightbulb"></i> ${visible ? 'Hide Hints' : 'Show Hints'}`;
+    }
+  }
+
+  // NEW: Enhanced Keyboard Navigation for New Quiz Types
+  handleEnhancedKeyboardNavigation(event) {
+    if (!this.currentQuiz) return;
+    
+    const key = event.key.toLowerCase();
+    
+    // Global keyboard shortcuts
+    switch (key) {
+      case 'escape':
+        event.preventDefault();
+        this.skipCurrentQuestion();
+        break;
+      case 'f1':
+        event.preventDefault();
+        this.showQuizHelp();
+        break;
+      case 'f2':
+        event.preventDefault();
+        this.toggleQuizStatistics();
+        break;
+    }
+    
+    // Quiz-type specific navigation
+    switch (this.currentQuiz.type) {
+      case 'spelling':
+        this.handleSpellingKeyboard(event);
+        break;
+      case 'pronunciation':
+        this.handlePronunciationKeyboard(event);
+        break;
+      case 'genderGuessing':
+        this.handleGenderKeyboard(event);
+        break;
+      case 'fillInBlank':
+        this.handleFillInBlankKeyboard(event);
+        break;
+      default:
+        // Use existing keyboard navigation for other types
+        this.handleKeyboardNavigation(event);
+    }
+  }
+
+  // NEW: Handle Spelling Keyboard Navigation
+  handleSpellingKeyboard(event) {
+    const key = event.key.toLowerCase();
+    
+    switch (key) {
+      case 'enter':
+        if (!event.target.matches('input')) {
+          event.preventDefault();
+          const checkBtn = document.querySelector('.check-answer-btn');
+          if (checkBtn && !checkBtn.disabled) {
+            checkBtn.click();
+          }
+        }
+        break;
+      case 'h':
+        if (!event.target.matches('input')) {
+          event.preventDefault();
+          const hintBtn = document.querySelector('.hint-btn');
+          if (hintBtn && !hintBtn.disabled) {
+            hintBtn.click();
+          }
+        }
+        break;
+      case ' ':
+        if (!event.target.matches('input')) {
+          event.preventDefault();
+          const audioBtn = document.querySelector('.play-audio-btn');
+          if (audioBtn) {
+            audioBtn.click();
+          }
+        }
+        break;
+    }
+  }
+
+  // NEW: Handle Gender Keyboard Navigation
+  handleGenderKeyboard(event) {
+    const key = event.key;
+    
+    if (key >= '1' && key <= '2') {
+      event.preventDefault();
+      const index = parseInt(key) - 1;
+      const options = document.querySelectorAll('.gender-option');
+      if (index < options.length) {
+        this.selectGenderOption(options[index], index);
+      }
+    } else if (key.toLowerCase() === 'h') {
+      event.preventDefault();
+      this.toggleGenderHints();
+    } else if (key === ' ') {
+      event.preventDefault();
+      const audioBtn = document.querySelector('.play-audio-btn');
+      if (audioBtn) {
+        audioBtn.click();
+      }
+    }
+  }
+
+  // NEW: Skip Current Question
+  skipCurrentQuestion() {
+    // Mark as skipped in statistics
+    this.updateAnswerStats(
+      this.currentQuiz.targetWord,
+      false, // Count as incorrect for difficulty adjustment
+      'skipped',
+      this.currentQuiz.correctAnswer,
+      this.currentQuiz.question
+    );
+    
+    // Show skip feedback
+    this.showSkipFeedback();
+    
+    // Proceed to next question
+    setTimeout(() => this.proceedToNextQuestion(), 1500);
+  }
+
+  // NEW: Show Skip Feedback
+  showSkipFeedback() {
+    const container = document.querySelector('.question-panel');
+    if (!container) return;
+    
+    const feedback = document.createElement('div');
+    feedback.className = 'answer-feedback skipped';
+    feedback.innerHTML = `
+      <div class="feedback-content">
+        <div class="feedback-icon">
+          <i class="fas fa-forward"></i>
+        </div>
+        <div class="feedback-message">
+          <h3>Question Skipped</h3>
+          <div class="correct-answer-display">
+            <span>Answer was: <strong>${this.currentQuiz.correctAnswer}</strong></span>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    container.appendChild(feedback);
+    setTimeout(() => feedback.classList.add('show'), 100);
+  }
+
+  // NEW: Start Enhanced Endless Quiz
+  startEndlessQuiz(category = null) {
+    console.log('🚀 Starting Enhanced Endless Quiz');
+    
+    // Initialize if not already done
+    if (!this.progressData) {
+      this.initializeProgressTracking();
+    }
+    
+    // Reset session stats
+    this.progressData.sessionStats = {
+      correct: 0,
+      incorrect: 0,
+      streak: 0,
+      maxStreak: 0,
+      timeSpent: 0,
+      startTime: Date.now()
+    };
+    
+    // Generate first question
+    const firstQuiz = this.getNextQuestion();
+    
+    // Find or create quiz container
+    let container = document.querySelector('.quiz-container-enhanced');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'quiz-container-enhanced';
+      
+      // Insert into page
+      const targetElement = document.querySelector('.lesson-section') || 
+                           document.querySelector('.content-card') ||
+                           document.body;
+      targetElement.appendChild(container);
+    }
+    
+    // Render first question with dual-display
+    this.renderQuizWithDualDisplay(firstQuiz, container);
+    
+    // Setup enhanced keyboard navigation
+    document.removeEventListener('keydown', this.handleEnhancedKeyboardNavigation.bind(this));
+    document.addEventListener('keydown', this.handleEnhancedKeyboardNavigation.bind(this));
+    
+    // Scroll to quiz
+    container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    console.log('✅ Enhanced Endless Quiz started with dual-display system');
+  }
+
+  // NEW: Integration with Existing Quiz Buttons
+  enhanceExistingQuizButtons() {
+    // Find all existing quiz buttons and enhance them
+    document.querySelectorAll('[onclick*="toggleQuiz"]').forEach(button => {
+      const originalOnclick = button.getAttribute('onclick');
+      
+      // Replace with enhanced quiz system
+      button.removeAttribute('onclick');
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Hide any existing quiz blocks
+        document.querySelectorAll('.quiz-block').forEach(block => {
+          block.style.display = 'none';
+          block.classList.add('hidden');
+        });
+        
+        // Start enhanced endless quiz
+        this.startEndlessQuiz();
+      });
+      
+      // Update button text to indicate enhanced features
+      if (button.textContent.includes('Quiz')) {
+        button.innerHTML = `<i class="fas fa-brain"></i> Start Enhanced Quiz`;
+        button.title = 'Interactive quiz with spaced repetition, multiple question types, and progress tracking';
+      }
+    });
+    
+    console.log('🔧 Enhanced existing quiz buttons with new system');
+  }
+}
+
+// Initialize Enhanced Quiz System on Page Load
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 Initializing Enhanced Quiz System...');
+  
+  // Create global quiz system instance
+  if (typeof window.quizSystem === 'undefined') {
+    window.quizSystem = new QuizSystem();
+    console.log('✅ Enhanced Quiz System initialized');
+    
+    // Enhance existing quiz buttons
+    setTimeout(() => {
+      window.quizSystem.enhanceExistingQuizButtons();
+    }, 1000);
+  }
+  
+  // Add global keyboard shortcuts information
+  const helpInfo = document.createElement('div');
+  helpInfo.className = 'quiz-help-info';
+  helpInfo.innerHTML = `
+    <div class="help-content">
+      <h4>🎮 Quiz Keyboard Shortcuts</h4>
+      <div class="shortcut-grid">
+        <div><kbd>1-4</kbd> Select option</div>
+        <div><kbd>Enter</kbd> Confirm</div>
+        <div><kbd>Space</kbd> Play audio</div>
+        <div><kbd>H</kbd> Show hints</div>
+        <div><kbd>Esc</kbd> Skip question</div>
+        <div><kbd>F1</kbd> Show help</div>
+      </div>
+    </div>
+  `;
+  
+  // Add to page but hidden initially
+  helpInfo.style.display = 'none';
+  document.body.appendChild(helpInfo);
+});
 
   setupSafetyReset() {
     // Safety mechanism to prevent permanent freezing
