@@ -878,6 +878,212 @@ window.testCapisco = function() {
       console.log('✅ Beautiful Al Mercato-style lesson displayed!');
     }
 
+    // Create beautiful lesson page directly (bypass CapiscoEngine loading issues)
+    function createBeautifulLessonPage(lessonData) {
+      console.log('🎨 Creating beautiful Al Mercato-style lesson page...');
+      
+      const lessonContainer = document.getElementById('generated-lesson');
+      if (!lessonContainer) {
+        console.error('Lesson container not found');
+        return;
+      }
+
+      // Generate Al Mercato-style HTML
+      const html = generateBeautifulLessonHTML(lessonData);
+      lessonContainer.innerHTML = html;
+      lessonContainer.classList.add('active');
+      lessonContainer.style.display = 'block';
+
+      // Initialize interactions
+      setTimeout(() => {
+        initializeBeautifulLessonInteractions();
+        
+        // Smooth scroll to lesson
+        lessonContainer.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 300);
+
+      console.log('✅ Beautiful Al Mercato-style lesson displayed!');
+    }
+
+    function generateBeautifulLessonHTML(lesson) {
+      const difficulty = lesson.difficulty || 'intermediate';
+      const sourceLanguage = lesson.sourceLanguage || 'unknown';
+      const vocabularyCount = lesson.vocabulary?.length || 0;
+
+      let html = `
+      <div class="lesson-container" style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
+        <!-- Beautiful Lesson Header (Al Mercato Style) -->
+        <header class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.12);">
+          <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem;"><i class="fas fa-brain"></i> ${lesson.title || 'Language Lesson'}</h1>
+          <div class="lesson-meta" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 0.5rem; flex-wrap: wrap; font-size: 0.9rem; opacity: 0.9;">
+            <span><i class="fas fa-signal"></i> ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</span>
+            <span><i class="fas fa-language"></i> ${sourceLanguage.toUpperCase()}</span>
+            <span><i class="fas fa-list"></i> ${vocabularyCount} vocabulary items</span>
+          </div>
+          <p style="margin: 0; opacity: 0.9; font-size: 1rem;">${lesson.studyGuide?.overview || 'Interactive language learning from authentic content'}</p>
+        </header>`;
+
+      // Add sections if available
+      if (lesson.sections && lesson.sections.length > 0) {
+        lesson.sections.forEach((section, index) => {
+          html += generateBeautifulSectionHTML(section, index);
+        });
+      } else if (lesson.vocabulary && lesson.vocabulary.length > 0) {
+        // Create a single vocabulary section if no sections are provided
+        const vocabSection = {
+          title: 'Vocabulary',
+          vocabulary: lesson.vocabulary,
+          icon: 'fa-book'
+        };
+        html += generateBeautifulSectionHTML(vocabSection, 0);
+      }
+
+      html += `</div>`;
+      return html;
+    }
+
+    function generateBeautifulSectionHTML(section, sectionIndex) {
+      const sectionIcon = section.icon || getIconForSection(section.title);
+      
+      let html = `
+      <section class="lesson-section" style="background: white; border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
+        <div class="section-header" style="margin-bottom: 1.5rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 1rem;">
+          <h2 style="display: flex; align-items: center; gap: 0.75rem; color: #1e293b; font-size: 1.5rem; margin-bottom: 0.5rem;">
+            <i class="fas ${sectionIcon}" style="color: #667eea;"></i> 
+            ${section.title}
+          </h2>
+          ${section.description ? `<p style="color: #64748b; margin: 0; font-size: 1rem;">${section.description}</p>` : ''}
+        </div>
+        
+        <div class="content-card">`;
+
+      // Add vocabulary items in Al Mercato style
+      if (section.vocabulary && section.vocabulary.length > 0) {
+        html += `<ul class="vocab-list" style="list-style: none; padding: 0; display: grid; gap: 1rem;">`;
+        
+        section.vocabulary.forEach((vocab, vocabIndex) => {
+          html += generateVocabularyItemHTML(vocab, vocabIndex, sectionIndex);
+        });
+        
+        html += `</ul>`;
+      }
+
+      html += `
+        </div>
+      </section>`;
+
+      return html;
+    }
+
+    function generateVocabularyItemHTML(vocab, vocabIndex, sectionIndex) {
+      const word = vocab.baseForm || vocab.word || vocab.italian || '';
+      const translation = vocab.english || vocab.translation || '';
+      const gender = vocab.gender || '';
+      const plural = vocab.plural || '';
+      const phonetic = vocab.phonetic || vocab.pronunciation || '';
+      const etymology = vocab.etymology || '';
+      const culturalNotes = vocab.culturalNotes || '';
+      const examples = vocab.examples || [];
+
+      // Create detailed info for tooltip
+      let infoContent = '';
+      if (etymology) infoContent += `Etymology: ${etymology}. `;
+      if (culturalNotes) infoContent += `Cultural Notes: ${culturalNotes}. `;
+      if (examples.length > 0) infoContent += `Example: ${examples[0]}`;
+
+      return `
+      <li class="vocab-item" style="background: #f8fafc; border-radius: 12px; padding: 1.5rem; border-left: 4px solid #667eea; transition: all 0.3s ease; cursor: pointer;" 
+          onmouseover="this.style.background='#f1f5f9'; this.style.transform='translateX(4px)'" 
+          onmouseout="this.style.background='#f8fafc'; this.style.transform='translateX(0)'">
+        
+        <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+          <div class="vocab-word-details" style="flex: 1;">
+            <div class="vocab-main" style="margin-bottom: 0.75rem;">
+              <span class="vocab-text" style="font-size: 1.3rem; font-weight: 700; color: #1e293b; display: block;">
+                ${word} – ${translation}
+              </span>
+              ${phonetic ? `<span style="color: #6b7280; font-size: 0.9rem; font-style: italic;">[${phonetic}]</span>` : ''}
+            </div>
+            
+            ${gender || plural ? `
+            <div class="vocab-grammar" style="margin-bottom: 0.5rem;">
+              <div class="gender-plural-info" style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.9rem;">
+                ${gender ? `<span><strong>Gender:</strong> <span class="gender-${gender === 'm' ? 'masculine' : 'feminine'}" style="color: ${gender === 'm' ? '#2563eb' : '#dc2626'};">${gender === 'm' ? 'Masculine' : 'Feminine'}</span></span>` : ''}
+                ${plural ? `<span><strong>Plural:</strong> ${plural}</span>` : ''}
+              </div>
+            </div>` : ''}
+          </div>
+          
+          <div class="vocab-controls" style="display: flex; gap: 0.5rem; align-items: flex-start;">
+            ${infoContent ? `
+            <button class="info-btn" onclick="showVocabTooltip(this, '${infoContent.replace(/'/g, '\\\'')}')" 
+                    style="background: #f59e0b; color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; transition: all 0.2s;">
+              <i class="fas fa-info-circle"></i>
+            </button>` : ''}
+            
+            <button class="speaker-btn" onclick="speakWord('${word}')" 
+                    style="background: #10b981; color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; transition: all 0.2s;">
+              <i class="fas fa-volume-up"></i>
+            </button>
+          </div>
+        </div>
+      </li>`;
+    }
+
+    function initializeBeautifulLessonInteractions() {
+      console.log('🔧 Initializing beautiful lesson interactions...');
+      
+      // Initialize vocab interactions if the external function exists
+      if (typeof initializeVocabInteractions === 'function') {
+        initializeVocabInteractions();
+      }
+      
+      console.log('✅ Beautiful lesson interactions ready');
+    }
+
+    // Tooltip and speech functions for beautiful lesson
+    function showVocabTooltip(button, content) {
+      // Remove existing tooltips
+      document.querySelectorAll('.vocab-tooltip').forEach(t => t.remove());
+      
+      const tooltip = document.createElement('div');
+      tooltip.className = 'vocab-tooltip';
+      tooltip.style.cssText = `
+        position: absolute;
+        background: #1f2937;
+        color: white;
+        padding: 0.75rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        max-width: 300px;
+        z-index: 1000;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        line-height: 1.4;
+      `;
+      tooltip.textContent = content;
+      
+      document.body.appendChild(tooltip);
+      
+      const rect = button.getBoundingClientRect();
+      tooltip.style.left = (rect.left - tooltip.offsetWidth + rect.width) + 'px';
+      tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+      
+      setTimeout(() => tooltip.remove(), 5000);
+    }
+
+    function speakWord(word) {
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = 'it-IT';
+        utterance.rate = 0.8;
+        speechSynthesis.speak(utterance);
+      }
+    }
+
     function getIconForSection(sectionTitle) {
       const icons = {
         'Core Vocabulary': 'fa-star',
@@ -927,11 +1133,14 @@ window.testCapisco = function() {
       if (scriptsLoaded >= totalScripts && document.readyState === 'complete' || document.readyState === 'interactive') {
         console.log('🚀 All scripts loaded, initializing engine...');
         
+        console.log('🔍 Checking for CapiscoEngine...', typeof window.CapiscoEngine);
         if (window.CapiscoEngine) {
           window.capisco = new CapiscoEngine();
           console.log('✅ Capisco initialized successfully and exposed globally');
+          console.log('✅ displayLesson method available:', typeof window.capisco.displayLesson);
         } else {
           console.warn('⚠️ CapiscoEngine class not found after script load, falling back to inline scripts');
+          console.log('Available globals:', Object.keys(window).filter(k => k.includes('Capisco')));
         }
         
         // Initialize vocab interactions if available

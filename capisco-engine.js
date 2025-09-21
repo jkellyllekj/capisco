@@ -1877,7 +1877,7 @@ class CapiscoEngine {
             <span><i class="fas fa-language"></i> ${lesson.sourceLanguage.toUpperCase()}</span>
             <span><i class="fas fa-clock"></i> ${lesson.studyGuide.overview.match(/\d+ minutes/)?.[0] || '5-10 minutes'}</span>
             <span><i class="fas fa-list"></i> ${lesson.vocabulary.length} vocabulary items</span>
-          </div></old_str>
+          </div>
           
           <!-- Mode Toggle -->
           <div class="mode-toggle" style="display: flex; gap: 0.5rem; justify-content: center;">
@@ -1900,7 +1900,7 @@ class CapiscoEngine {
               </div>
             </div>
           </div>
-        </section></old_str>
+        </section>
     `;
 
     // Generate vocabulary sections like Al Mercato
@@ -1979,7 +1979,7 @@ class CapiscoEngine {
                         ${vocab.phonetic ? `<div><strong>Phonetic:</strong> [${vocab.phonetic}]</div>` : ''}
                         ${vocab.plural ? `<div><strong>Plural:</strong> ${vocab.plural}</div>` : ''}
                         ${vocab.conjugations?.present ? `<div><strong>Present:</strong> io ${vocab.conjugations.present.io}, tu ${vocab.conjugations.present.tu}, lui/lei ${vocab.conjugations.present.lui}</div>` : ''}
-                      </div></old_str>
+                      </div>
                     </div>
                     
                     <div class="vocab-controls" style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
@@ -1989,7 +1989,7 @@ class CapiscoEngine {
                               data-plural="${vocab.plural || ''}"
                               style="background: #667eea; color: white; border: none; padding: 0.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; min-width: 40px;">
                         <i class="fas fa-info-circle"></i>
-                      </button></old_str>
+                      </button>
                       <div style="display: flex; gap: 0.25rem;">
                         ${audioButtons}
                       </div>
@@ -2157,7 +2157,7 @@ class CapiscoEngine {
       btn._infoHandler = handler;
       btn.addEventListener('click', handler);
     });
-  }</old_str>
+  }
 
   showAdvancedWordInfo(button) {
     try {
@@ -2257,7 +2257,7 @@ class CapiscoEngine {
     // Add comprehensive linguistic information
     if (vocab.etymology && vocab.etymology !== 'Etymology to be researched') {
       info.push(`<strong>Etymology:</strong> ${vocab.etymology}`);
-    }</old_str>
+    }
     
     if (vocab.usage && vocab.usage !== 'Usage context needed') {
       info.push(`<strong>Usage:</strong> ${vocab.usage}`);
@@ -2451,7 +2451,7 @@ class CapiscoEngine {
     
     document.body.appendChild(feedback);
     setTimeout(() => feedback.remove(), 3000);
-  }</old_str>
+  }
 
   playTranscript(transcript) {
     if ('speechSynthesis' in window) {
@@ -2961,11 +2961,5 @@ window.checkQuizAnswer = function(button, isCorrect) {
 };
 
 // Initialize Capisco when page loads and expose globally
-window.addEventListener('DOMContentLoaded', function() {
-  try {
-    window.capisco = new CapiscoEngine();
-    console.log('Capisco initialized successfully and exposed globally');
-  } catch (error) {
-    console.error('Failed to initialize Capisco:', error);
-  }
-});
+// CapiscoEngine initialization is handled by capisco-app.html
+// This ensures proper script loading order and avoids conflicts
