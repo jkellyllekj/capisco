@@ -179,7 +179,7 @@ class CapiscoLessonProcessor:
                     future = executor.submit(call_openai)
                     response = future.result(timeout=25)  # Hard 25s timeout
                 
-                result = json.loads(response.choices[0].message.content)
+                result = json.loads(response.choices[0].message.content or "{}")
                 
                 # Robust JSON parsing
                 if isinstance(result, list):
