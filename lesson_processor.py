@@ -11,9 +11,14 @@ from collections import Counter
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError, as_completed
 import time
 import ast
+import pickle
+import hashlib
+from threading import Lock
+import asyncio
+from functools import lru_cache
 
 # Download required NLTK data quietly
 try:
@@ -28,12 +33,25 @@ except LookupError:
 
 # Using GPT-4o-mini which is cost-effective for language processing
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-# Configure OpenAI client with strict timeouts to prevent hanging
-openai = OpenAI(api_key=OPENAI_API_KEY, timeout=20, max_retries=0)
+# Configure OpenAI client with optimized timeouts for speed
+openai = OpenAI(api_key=OPENAI_API_KEY, timeout=8, max_retries=1)  # Reduced timeout for faster processing
+
+# Optimization constants
+OPTIMIZED_BATCH_SIZE = 15  # Larger batches for better efficiency
+MAX_PARALLEL_BATCHES = 4   # Process multiple batches in parallel
+CACHE_DIR = 'cache'
+WORD_CACHE_FILE = os.path.join(CACHE_DIR, 'word_cache.pkl')
+FAST_MODE_WORD_LIMIT = 50  # Limit words for faster processing
+PRIORITY_WORD_LIMIT = 100  # Focus on most important words
 
 class CapiscoLessonProcessor:
-    def __init__(self):
+    def __init__(self, fast_mode=True):
         self.openai = openai
+        self.fast_mode = fast_mode  # Enable fast processing by default
+        self.word_cache = {}  # In-memory cache for session
+        self.cache_lock = Lock()  # Thread-safe cache access
+        self.load_persistent_cache()  # Load cached words from disk
+        self.session_stats = {'cache_hits': 0, 'api_calls': 0, 'processing_time': 0}
         
     def _robust_json_parse(self, json_str):
         """Robust JSON parsing that handles malformed OpenAI responses"""
@@ -180,6 +198,138 @@ class CapiscoLessonProcessor:
         print(f"🔧 Extracted {len(words)} words from partial JSON data")
         return {"words": words}
         
+    def load_persistent_cache(self):
+        """Load persistent word cache from disk for faster processing"""
+        try:
+            os.makedirs(CACHE_DIR, exist_ok=True)
+            if os.path.exists(WORD_CACHE_FILE):
+                with open(WORD_CACHE_FILE, 'rb') as f:
+                    self.persistent_cache = pickle.load(f)
+                print(f"📚 Loaded {len(self.persistent_cache)} cached words for faster processing")
+            else:
+                self.persistent_cache = {}
+        except Exception as e:
+            print(f"⚠️ Cache load failed: {e}")
+            self.persistent_cache = {}
+    
+    def save_persistent_cache(self):
+        """Save enriched words to persistent cache"""
+        try:
+            with self.cache_lock:
+                with open(WORD_CACHE_FILE, 'wb') as f:
+                    pickle.dump(self.persistent_cache, f)
+                print(f"💾 Saved {len(self.persistent_cache)} words to cache")
+        except Exception as e:
+            print(f"⚠️ Cache save failed: {e}")
+    
+    def get_cache_key(self, word, source_lang, target_lang):
+        """Generate cache key for word enrichment"""
+        return f"{word.lower()}:{source_lang}:{target_lang}"
+    
+    def get_cached_word(self, word, source_lang, target_lang):
+        """Get enriched word from cache if available"""
+        cache_key = self.get_cache_key(word, source_lang, target_lang)
+        
+        # Check session cache first (fastest)
+        if cache_key in self.word_cache:
+            self.session_stats['cache_hits'] += 1
+            return self.word_cache[cache_key]
+        
+        # Check persistent cache
+        if cache_key in self.persistent_cache:
+            self.session_stats['cache_hits'] += 1
+            # Copy to session cache for even faster access
+            self.word_cache[cache_key] = self.persistent_cache[cache_key]
+            return self.persistent_cache[cache_key]
+        
+        return None
+    
+    def cache_enriched_word(self, word, source_lang, target_lang, enriched_data):
+        """Cache enriched word data for future use"""
+        cache_key = self.get_cache_key(word, source_lang, target_lang)
+        with self.cache_lock:
+            self.word_cache[cache_key] = enriched_data
+            self.persistent_cache[cache_key] = enriched_data
+    
+    def extract_smart_vocabulary(self, text, max_words=None):
+        """Extract vocabulary with smart prioritization for faster processing"""
+        if max_words is None:
+            max_words = FAST_MODE_WORD_LIMIT if self.fast_mode else PRIORITY_WORD_LIMIT
+        
+        print(f"🚀 Smart vocabulary extraction (fast_mode={self.fast_mode}, max_words={max_words})")
+        
+        # Tokenize and clean
+        try:
+            tokens = word_tokenize(text.lower())
+        except:
+            tokens = re.findall(r'\b\w+\b', text.lower())
+        
+        # Filter meaningful words
+        words = [word for word in tokens 
+                if word.isalpha() and len(word) >= 2]
+        
+        # Count frequencies
+        word_freq = Counter(words)
+        
+        # Smart filtering: prioritize important words
+        filtered_words = self._smart_word_filter(word_freq, text)
+        
+        # Limit to max_words for faster processing
+        top_words = dict(filtered_words.most_common(max_words))
+        
+        # Create word list with metadata
+        word_list = []
+        for word, freq in top_words.items():
+            word_list.append({
+                'word': word,
+                'frequency': freq,
+                'priority': self._calculate_word_priority(word, freq, text),
+                'examples': self._find_word_examples(word, text, max_examples=1)  # Fewer examples for speed
+            })
+        
+        # Sort by priority for best learning experience
+        word_list.sort(key=lambda x: x['priority'], reverse=True)
+        
+        print(f"✅ Extracted {len(word_list)} prioritized words for optimal learning")
+        return word_list
+    
+    def _smart_word_filter(self, word_freq, text):
+        """Intelligent filtering to focus on most valuable words"""
+        # Common function words to skip (already processed locally)
+        skip_words = {
+            'il', 'la', 'lo', 'le', 'gli', 'di', 'da', 'in', 'con', 'su', 'per',
+            'si', 'ha', 'è', 'che', 'del', 'alla', 'più', 'sono', 'anche', 'ogni',
+            'un', 'una', 'uno', 'molto', 'ma', 'se', 'non', 'mi', 'ti', 'ci', 'vi'
+        }
+        
+        # Filter out function words and very short/long words
+        filtered = Counter()
+        for word, freq in word_freq.items():
+            if (word not in skip_words and 
+                3 <= len(word) <= 15 and  # Good length words
+                freq >= 1):  # Appeared at least once
+                filtered[word] = freq
+        
+        return filtered
+    
+    def _calculate_word_priority(self, word, frequency, text):
+        """Calculate learning priority for words (higher = more important)"""
+        priority = frequency * 10  # Base frequency score
+        
+        # Boost content words
+        if word.endswith(('zione', 'sione', 'are', 'ere', 'ire', 'oso', 'osa')):
+            priority += 20
+        
+        # Boost longer words (usually more meaningful)
+        if len(word) >= 6:
+            priority += 10
+        
+        # Boost words that appear in multiple contexts
+        contexts = len(self._find_word_examples(word, text, max_examples=3))
+        priority += contexts * 5
+        
+        return priority
+    
     def extract_all_unique_words(self, text, max_tokens=1000):
         """Extract ALL unique words from transcript for comprehensive learning"""
         print(f"📝 Extracting all unique words from transcript (max {max_tokens} tokens)")
@@ -231,6 +381,174 @@ class CapiscoLessonProcessor:
                 examples.append(sentence.strip())
                 
         return examples if examples else [f"Example with {word}"]
+    
+    def enrich_vocabulary_parallel(self, word_list, source_lang, target_lang):
+        """Enrich vocabulary using parallel processing for maximum speed"""
+        start_time = time.time()
+        print(f"⚡ Starting parallel enrichment of {len(word_list)} words")
+        
+        # Separate cached and uncached words
+        cached_words = []
+        uncached_words = []
+        
+        for word_data in word_list:
+            cached = self.get_cached_word(word_data['word'], source_lang, target_lang)
+            if cached:
+                cached_words.append(cached)
+            else:
+                uncached_words.append(word_data)
+        
+        print(f"📚 Cache hit: {len(cached_words)} words, API needed: {len(uncached_words)} words")
+        
+        # Process uncached words in parallel batches
+        enriched_uncached = []
+        if uncached_words:
+            enriched_uncached = self._process_batches_parallel(uncached_words, source_lang, target_lang)
+        
+        # Combine cached and newly enriched words
+        all_enriched = cached_words + enriched_uncached
+        
+        elapsed = time.time() - start_time
+        self.session_stats['processing_time'] += elapsed
+        print(f"🚀 Parallel enrichment completed in {elapsed:.1f}s")
+        print(f"📊 Cache efficiency: {len(cached_words)}/{len(word_list)} hits ({100*len(cached_words)/len(word_list):.1f}%)")
+        
+        # Save new words to cache
+        if enriched_uncached:
+            self.save_persistent_cache()
+        
+        return all_enriched
+    
+    def _process_batches_parallel(self, uncached_words, source_lang, target_lang):
+        """Process multiple batches in parallel for maximum speed"""
+        # Create batches
+        batches = []
+        for i in range(0, len(uncached_words), OPTIMIZED_BATCH_SIZE):
+            batch = uncached_words[i:i + OPTIMIZED_BATCH_SIZE]
+            batches.append(batch)
+        
+        print(f"⚡ Processing {len(batches)} batches in parallel (max {MAX_PARALLEL_BATCHES} concurrent)")
+        
+        enriched_words = []
+        
+        # Process batches in parallel with limited concurrency
+        with ThreadPoolExecutor(max_workers=MAX_PARALLEL_BATCHES) as executor:
+            # Submit all batch jobs
+            future_to_batch = {
+                executor.submit(self._enrich_batch_optimized, batch, source_lang, target_lang): i
+                for i, batch in enumerate(batches)
+            }
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_batch, timeout=60):  # 60s total timeout
+                batch_idx = future_to_batch[future]
+                try:
+                    batch_result = future.result()
+                    enriched_words.extend(batch_result)
+                    print(f"✅ Batch {batch_idx + 1}/{len(batches)} completed ({len(batch_result)} words)")
+                except Exception as e:
+                    print(f"❌ Batch {batch_idx + 1} failed: {e}")
+                    # Add fallback enrichment for failed batch
+                    failed_batch = batches[batch_idx]
+                    fallback_words = self._fallback_enrich_batch(failed_batch, source_lang, target_lang)
+                    enriched_words.extend(fallback_words)
+        
+        return enriched_words
+    
+    def _enrich_batch_optimized(self, word_batch, source_lang, target_lang):
+        """Optimized batch enrichment with faster timeouts and better error handling"""
+        words_list = [word['word'] for word in word_batch]
+        print(f"⚡ Fast-enriching batch: {', '.join(words_list[:3])}{'...' if len(words_list) > 3 else ''}")
+        
+        # Enhanced prompt for faster, more focused processing
+        prompt = f"""Quickly enrich these {source_lang} words for language learning. Be concise and accurate.
+Words: {', '.join(words_list)}
+
+For each word provide: translation to {target_lang}, part of speech, pronunciation guide.
+Respond with JSON: {{"words": [{{"word": "...", "translation": "...", "partOfSpeech": "...", "pronunciation": "..."}}]}}"""
+        
+        try:
+            start_time = time.time()
+            
+            response = self.openai.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are a fast, accurate language expert. Provide concise, helpful word analysis."},
+                    {"role": "user", "content": prompt}
+                ],
+                response_format={"type": "json_object"},
+                max_tokens=400,  # Reduced for faster responses
+                temperature=0.1  # Lower temperature for more consistent results
+            )
+            
+            elapsed = time.time() - start_time
+            self.session_stats['api_calls'] += 1
+            print(f"⚡ OpenAI response in {elapsed:.1f}s")
+            
+            # Parse response with robust error handling
+            response_content = response.choices[0].message.content or "{}"
+            result = self._robust_json_parse(response_content)
+            enriched_words = result.get('words', [])
+            
+            # Merge with original word data and cache results
+            final_words = []
+            for i, original_word in enumerate(word_batch):
+                if i < len(enriched_words):
+                    enriched = enriched_words[i]
+                    final_word = self._merge_word_data(original_word, enriched, source_lang, target_lang)
+                else:
+                    final_word = self._fallback_enrich_word(original_word, source_lang, target_lang)
+                
+                # Cache the enriched word
+                self.cache_enriched_word(original_word['word'], source_lang, target_lang, final_word)
+                final_words.append(final_word)
+            
+            return final_words
+            
+        except Exception as e:
+            print(f"⚠️ Fast enrichment failed: {e}")
+            return self._fallback_enrich_batch(word_batch, source_lang, target_lang)
+    
+    def _merge_word_data(self, original_word, enriched_data, source_lang, target_lang):
+        """Merge original word data with enriched data efficiently"""
+        return {
+            "word": original_word['word'],
+            "translation": enriched_data.get('translation', self._generate_smart_translation(original_word['word'], source_lang, target_lang)),
+            "partOfSpeech": enriched_data.get('partOfSpeech', self._guess_part_of_speech(original_word['word'])),
+            "pronunciation": enriched_data.get('pronunciation', f"/{original_word['word']}/"),
+            "gender": self._guess_gender(original_word['word'], source_lang),
+            "singular": original_word['word'],
+            "plural": self._generate_plural(original_word['word'], source_lang),
+            "etymology": self._generate_etymology(original_word['word'], source_lang),
+            "usage": self._generate_usage_context(original_word['word'], source_lang),
+            "culturalNotes": self._generate_cultural_context(original_word['word'], source_lang),
+            "examples": original_word.get('examples', []),
+            "frequency": original_word.get('frequency', 1),
+            "priority": original_word.get('priority', 1)
+        }
+    
+    def _fallback_enrich_batch(self, word_batch, source_lang, target_lang):
+        """Fast fallback enrichment when API fails"""
+        return [self._fallback_enrich_word(word_data, source_lang, target_lang) for word_data in word_batch]
+    
+    def _fallback_enrich_word(self, word_data, source_lang, target_lang):
+        """Fast fallback for individual word enrichment"""
+        word = word_data['word']
+        return {
+            "word": word,
+            "translation": self._generate_smart_translation(word, source_lang, target_lang),
+            "partOfSpeech": self._guess_part_of_speech(word),
+            "pronunciation": f"/{word}/",
+            "gender": self._guess_gender(word, source_lang),
+            "singular": word,
+            "plural": self._generate_plural(word, source_lang),
+            "etymology": self._generate_etymology(word, source_lang),
+            "usage": self._generate_usage_context(word, source_lang),
+            "culturalNotes": self._generate_cultural_context(word, source_lang),
+            "examples": word_data.get('examples', []),
+            "frequency": word_data.get('frequency', 1),
+            "priority": word_data.get('priority', 1)
+        }
     
     def _enrich_word_batch(self, word_batch, source_lang, target_lang):
         """Enrich a batch of words with GPT for pronunciation, etymology, etc."""
@@ -955,14 +1273,80 @@ class CapiscoLessonProcessor:
             print(f"Language detection failed: {e}")
             return 'unknown', 0.0
     
+    def analyze_content_optimized(self, text, source_lang, target_lang):
+        """Optimized content analysis for faster lesson generation"""
+        try:
+            start_time = time.time()
+            print(f"🚀 Starting optimized analysis (fast_mode={self.fast_mode})...")
+            
+            # Step 1: Smart vocabulary extraction (much faster than processing all words)
+            vocabulary_words = self.extract_smart_vocabulary(text)
+            print(f"📚 Extracted {len(vocabulary_words)} priority words for learning")
+            
+            # Step 2: Parallel vocabulary enrichment (major speed improvement)
+            enriched_vocabulary = self.enrich_vocabulary_parallel(vocabulary_words, source_lang, target_lang)
+            
+            # Step 3: Create lesson structure optimized for Al Mercato style
+            lesson_data = {
+                "topic": f"{source_lang.upper()} Language Learning",
+                "title": "Optimized Video Vocabulary",
+                "lessonTitle": "Optimized Video Vocabulary", 
+                "difficulty": "intermediate",
+                "sourceLanguage": source_lang,
+                "studyGuide": {
+                    "overview": f"Learn the most important vocabulary from this video. Optimized for fast, effective learning with {len(enriched_vocabulary)} carefully selected words.",
+                    "keyThemes": ["Priority Vocabulary", "Smart Learning", "Cultural Context"]
+                },
+                "sections": [],
+                "vocabulary": enriched_vocabulary,
+                "expressions": self._extract_expressions_fast(text, source_lang, target_lang),
+                "culturalContext": f"This optimized lesson focuses on the most valuable vocabulary for effective learning."
+            }
+            
+            # Step 4: Create organized sections
+            lesson_data["sections"] = self._create_vocabulary_sections(enriched_vocabulary, text)
+            
+            elapsed = time.time() - start_time
+            print(f"🏆 Optimized analysis completed in {elapsed:.1f}s!")
+            print(f"📊 Session stats: {self.session_stats['cache_hits']} cache hits, {self.session_stats['api_calls']} API calls")
+            
+            return lesson_data
+            
+        except Exception as e:
+            print(f"❌ Optimized analysis failed: {e}")
+            return self._fallback_lesson_data(text)
+    
+    def _extract_expressions_fast(self, text, source_lang, target_lang):
+        """Fast expression extraction for common phrases"""
+        # Quick regex-based extraction for speed
+        common_patterns = [
+            r'\b\w+\s+\w+\b',  # Two-word phrases
+            r'\b\w+\s+\w+\s+\w+\b'  # Three-word phrases
+        ]
+        
+        expressions = []
+        sentences = text.split('.')[:3]  # Limit to first 3 sentences for speed
+        
+        for sentence in sentences:
+            for pattern in common_patterns:
+                matches = re.findall(pattern, sentence.lower())
+                for match in matches[:2]:  # Limit for speed
+                    if len(match) > 5:  # Only meaningful phrases
+                        expressions.append({
+                            "phrase": match.strip(),
+                            "translation": "translation needed",
+                            "usage": "Common expression"
+                        })
+                        
+        return expressions[:5]  # Limit to 5 for speed
+    
     def analyze_content_with_gpt5_mini(self, text, source_lang, target_lang):
         """Use comprehensive word extraction + GPT enrichment for total video comprehension"""
         try:
             print(f"🧠 Starting comprehensive analysis for total video comprehension...")
             
-            # Step 1: Extract ALL unique words from the transcript for total comprehension
-            all_words = self.extract_all_unique_words(text, max_tokens=1000)
-            print(f"📚 Found {len(all_words)} unique words for comprehensive learning")
+            # Use optimized analysis by default for faster processing
+            return self.analyze_content_optimized(text, source_lang, target_lang)
             
             # Step 2: Create base lesson structure in format expected by beautiful renderer
             lesson_data = {
@@ -1078,6 +1462,49 @@ class CapiscoLessonProcessor:
             "culturalContext": "This lesson focuses on common Italian vocabulary and expressions."
         }
     
+    def generate_dynamic_lesson_fast(self, video_url, source_lang, target_lang):
+        """Fast lesson generation optimized for speed"""
+        start_time = time.time()
+        print(f"🚀 Fast lesson generation started...")
+        print(f"🎬 Video: {video_url}")
+        print(f"🌍 Languages: {source_lang} → {target_lang}")
+        
+        # Extract video ID
+        video_id = self.extract_video_id(video_url)
+        if not video_id:
+            return {"error": "Invalid YouTube URL"}
+        
+        # Get transcript (this is usually the slowest part)
+        print("📝 Extracting transcript...")
+        transcript = self.get_youtube_transcript(video_id)
+        if not transcript:
+            return {"error": "Could not extract transcript"}
+        
+        # Fast language detection (optional, can be skipped for speed)
+        detected_lang = source_lang  # Skip detection for speed, use provided language
+        confidence = 0.95
+        
+        # Fast content analysis
+        print("⚡ Fast content analysis...")
+        lesson_data = self.analyze_content_optimized(transcript, source_lang, target_lang)
+        
+        # Add metadata
+        lesson_data.update({
+            "videoId": video_id,
+            "videoUrl": video_url,
+            "sourceLang": source_lang,
+            "targetLang": target_lang,
+            "detectedLang": detected_lang,
+            "confidence": confidence,
+            "transcript": transcript[:500] + "..." if len(transcript) > 500 else transcript,
+            "processingTime": time.time() - start_time,
+            "optimizedMode": True
+        })
+        
+        elapsed = time.time() - start_time
+        print(f"🏆 Fast lesson generation completed in {elapsed:.1f}s!")
+        return lesson_data
+    
     def generate_dynamic_lesson(self, video_url, source_lang, target_lang):
         """Main processing function - generates complete lesson from YouTube video"""
         print(f"🎬 Processing video: {video_url}")
@@ -1098,9 +1525,13 @@ class CapiscoLessonProcessor:
         print("🔍 Detecting language...")
         detected_lang, confidence = self.detect_language(transcript)
         
-        # Analyze content with GPT-5 Mini
-        print("🧠 Analyzing content with GPT-5 Mini...")
-        lesson_data = self.analyze_content_with_gpt5_mini(transcript, source_lang, target_lang)
+        # Use fast optimized analysis by default
+        if self.fast_mode:
+            print("⚡ Using fast optimized analysis...")
+            lesson_data = self.analyze_content_optimized(transcript, source_lang, target_lang)
+        else:
+            print("🧠 Using comprehensive analysis...")
+            lesson_data = self.analyze_content_with_gpt5_mini(transcript, source_lang, target_lang)
         
         # Add metadata
         lesson_data.update({

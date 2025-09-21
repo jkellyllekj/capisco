@@ -17,7 +17,7 @@ mimetypes.add_type('text/html', '.html')
 
 class CapiscoRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        self.processor = CapiscoLessonProcessor()
+        self.processor = CapiscoLessonProcessor(fast_mode=True)  # Enable fast mode for speed
         super().__init__(*args, **kwargs)
 
     def end_headers(self):
@@ -71,8 +71,8 @@ class CapiscoRequestHandler(http.server.SimpleHTTPRequestHandler):
                 print(f"   Video: {video_url}")
                 print(f"   Languages: {source_lang} → {target_lang}")
                 
-                # Generate lesson using the processor
-                lesson_data = self.processor.generate_dynamic_lesson(
+                # Generate lesson using optimized fast processor
+                lesson_data = self.processor.generate_dynamic_lesson_fast(
                     video_url, source_lang, target_lang
                 )
                 
