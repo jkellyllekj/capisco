@@ -220,14 +220,16 @@
   </main>
 
   <script>
-    // Fallback form handling if main engine fails to load
+    // Fallback form handling only if main engine completely fails to load
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM loaded, checking if engine initialized...');
       
+      // Give more time for the engine to load and initialize
       setTimeout(function() {
         const form = document.getElementById('lesson-generator');
-        if (form && !form._submitHandler) {
-          console.log('Setting up form handler (engine or fallback)');
+        // Only set up fallback if neither the engine nor its handler is available
+        if (form && !window.capisco && !form._capiscoHandlerSet) {
+          console.log('⚠️ No engine detected, setting up fallback form handler');
           form.addEventListener('submit', function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -254,10 +256,13 @@
             startLessonGeneration(videoUrl, sourceLanguage, targetLanguage);
             return false;
           });
+          form._fallbackHandlerSet = true;
         } else if (window.capisco) {
-          console.log('Engine loaded successfully, no fallback needed');
+          console.log('✅ Engine loaded successfully, no fallback needed');
+        } else {
+          console.log('Form handler already set by engine');
         }
-      }, 100);
+      }, 500); // Give more time for scripts to load
     });
 
     // Real lesson generation function that calls the backend API
@@ -346,10 +351,13 @@
         
         console.log('✅ Lesson data received:', lessonData);
         
-        // Try to use the beautiful renderer if available, otherwise use fallback display
+        // Always use the beautiful renderer - it's available as a global function
         if (window.capisco && typeof window.capisco.displayLesson === 'function') {
-          console.log('🎨 Using beautiful Al Mercato-style renderer...');
+          console.log('🎨 Using Capisco engine beautiful renderer...');
           window.capisco.displayLesson(lessonData);
+        } else if (typeof createBeautifulLessonPage === 'function') {
+          console.log('🎨 Using standalone beautiful renderer...');
+          createBeautifulLessonPage(lessonData);
         } else {
           console.log('⚠️ Beautiful renderer not available, using basic display...');
           createDynamicLessonPage(lessonData);
@@ -906,19 +914,50 @@ window.testCapisco = function() {
     }
   </script>
   
+  <!-- External script includes for interactive functionality -->
+  <script src="capisco-engine.js" onload="console.log('✅ capisco-engine.js loaded')"></script>
+  <script src="script.js" onload="console.log('✅ script.js loaded')"></script>
+  
   <script>
-    try {
-      new Function(document.getElementById('engine-src').textContent)(); 
-      if (window.capisco) {
-        console.log('✅ Capisco Engine loaded successfully!');
-        console.log('Engine methods:', Object.keys(window.capisco));
-      } else {
-        console.warn('⚠️ Engine executed but window.capisco not found');
+    // Initialize capisco engine when both scripts and DOM are ready
+    let scriptsLoaded = 0;
+    const totalScripts = 2;
+    
+    function tryInitializeEngine() {
+      if (scriptsLoaded >= totalScripts && document.readyState === 'complete' || document.readyState === 'interactive') {
+        console.log('🚀 All scripts loaded, initializing engine...');
+        
+        if (window.CapiscoEngine) {
+          window.capisco = new CapiscoEngine();
+          console.log('✅ Capisco initialized successfully and exposed globally');
+        } else {
+          console.warn('⚠️ CapiscoEngine class not found after script load, falling back to inline scripts');
+        }
+        
+        // Initialize vocab interactions if available
+        if (typeof initializeVocabInteractions === 'function') {
+          initializeVocabInteractions();
+          console.log('✅ Vocabulary interactions initialized');
+        }
       }
-    } catch(e) {
-      console.error('Engine bootstrap error:', e.name, e.message);
-      console.error('Stack:', e.stack);
     }
+    
+    // Track script loading
+    document.querySelector('script[src="capisco-engine.js"]').addEventListener('load', function() {
+      scriptsLoaded++;
+      tryInitializeEngine();
+    });
+    
+    document.querySelector('script[src="script.js"]').addEventListener('load', function() {
+      scriptsLoaded++;
+      tryInitializeEngine();
+    });
+    
+    // Also try when DOM is ready (in case scripts loaded first)
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, checking if engine should be initialized...');
+      tryInitializeEngine();
+    });
   </script>
 </body>
 </html>

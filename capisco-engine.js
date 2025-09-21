@@ -19,6 +19,10 @@ class CapiscoEngine {
       return;
     }
     
+    // Mark that the engine has set up the form handler
+    form._capiscoHandlerSet = true;
+    console.log('✅ Capisco engine form handler initialized');
+    
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       e.stopPropagation();
