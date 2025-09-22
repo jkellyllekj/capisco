@@ -49,33 +49,35 @@ class CapiscoEngine {
     try {
       const videoUrlElement = document.getElementById('video-url');
       const transcriptFileElement = document.getElementById('transcript-file');
+      const transcriptTextElement = document.getElementById('transcript-text');
       const sourceLanguageElement = document.getElementById('source-language');
       const targetLanguageElement = document.getElementById('target-language');
 
-      if (!videoUrlElement || !transcriptFileElement || !sourceLanguageElement || !targetLanguageElement) {
+      if (!videoUrlElement || !transcriptFileElement || !transcriptTextElement || !sourceLanguageElement || !targetLanguageElement) {
         throw new Error('Form elements not found. Please refresh the page and try again.');
       }
 
       const videoUrl = videoUrlElement.value.trim();
       const transcriptFile = transcriptFileElement.files[0];
+      const transcriptText = transcriptTextElement.value.trim();
       const sourceLanguage = sourceLanguageElement.value;
       const targetLanguage = targetLanguageElement.value;
 
-      if (!videoUrl && !transcriptFile) {
-        throw new Error('Please provide either a YouTube URL or upload a transcript file.');
+      if (!videoUrl && !transcriptFile && !transcriptText) {
+        throw new Error('Please provide a YouTube URL, paste transcript text, or upload a transcript file.');
       }
 
       if (!targetLanguage) {
         throw new Error('Please select your native language for explanations.');
       }
 
-      console.log('Starting lesson generation...', { videoUrl, hasFile: !!transcriptFile, sourceLanguage, targetLanguage });
+      console.log('Starting lesson generation...', { videoUrl, hasFile: !!transcriptFile, hasText: !!transcriptText, sourceLanguage, targetLanguage });
 
       this.showProcessingStatus();
       
       // Step 1: Extract transcript
       await this.updateProcessingStep(0);
-      const transcript = await this.extractTranscript(videoUrl, transcriptFile);
+      const transcript = await this.extractTranscript(videoUrl, transcriptFile, transcriptText);
       
       if (!transcript || transcript.length < 10) {
         throw new Error('Could not extract transcript from this YouTube video. This may be due to:\n\n• Rate limiting (too many requests to YouTube)\n• Missing captions/subtitles\n• Video restrictions or CORS issues\n\nPlease try:\n• A different YouTube video with captions\n• Uploading your own transcript file\n• Waiting a few minutes and trying again');
@@ -283,10 +285,16 @@ class CapiscoEngine {
     }
   }
 
-  async extractTranscript(videoUrl, transcriptFile) {
-    if (transcriptFile) {
+  async extractTranscript(videoUrl, transcriptFile, transcriptText) {
+    // Priority: direct text input > file upload > YouTube extraction
+    if (transcriptText && transcriptText.length > 10) {
+      console.log('Using pasted transcript text');
+      return transcriptText;
+    } else if (transcriptFile) {
+      console.log('Using uploaded transcript file');
       return await this.readTranscriptFile(transcriptFile);
     } else {
+      console.log('Attempting YouTube transcript extraction');
       return await this.extractYouTubeTranscript(videoUrl);
     }
   }

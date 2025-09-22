@@ -128,20 +128,26 @@
     <div class="upload-section">
       <h2><i class="fas fa-upload"></i> Create Your Lesson</h2>
 
-      <div class="limitation-notice" style="background: #dcfce7; border-color: #16a34a; color: #15803d;">
-        <i class="fas fa-infinity"></i> <strong>Beta Version:</strong> Process videos of any length! 
-        Find authentic content that interests you and learn naturally.
+      <div class="limitation-notice" style="background: #fef2f2; border-color: #f87171; color: #dc2626;">
+        <i class="fas fa-exclamation-triangle"></i> <strong>YouTube API Issues:</strong> Due to current YouTube rate limiting, automatic transcript extraction may fail. Use the text box below to paste transcripts directly from YouTube captions.
       </div>
 
       <form id="lesson-generator">
         <div class="input-group">
           <label for="video-url">YouTube Video URL</label>
           <input type="url" id="video-url" placeholder="https://youtube.com/watch?v=..." required>
-          <small>Or upload a transcript file below</small>
+          <small>If transcript extraction fails, use the text box below</small>
         </div>
 
         <div class="input-group">
-          <label for="transcript-file">Upload Transcript (Optional)</label>
+          <label for="transcript-text">Paste Transcript Text (Recommended)</label>
+          <textarea id="transcript-text" placeholder="Paste YouTube captions here... (copy from YouTube's CC button → three dots → show transcript)"
+                    rows="8" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-family: monospace; resize: vertical;"></textarea>
+          <small>💡 <strong>Tip:</strong> Go to your YouTube video → CC button → ⋮ (three dots) → "Show transcript" → copy & paste here</small>
+        </div>
+
+        <div class="input-group">
+          <label for="transcript-file">Or Upload Transcript File</label>
           <input type="file" id="transcript-file" accept=".txt,.srt,.vtt">
         </div>
 
@@ -198,9 +204,6 @@
             <i class="fas fa-magic"></i> Generate Interactive Lesson
           </button>
 
-          <button type="button" onclick="alert('JavaScript is working!'); console.log('JS test passed');" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; margin-top: 0.5rem; width: 100%;">
-            <i class="fas fa-check"></i> Test JavaScript
-          </button>
       </form>
 
       <div class="processing-status" id="processing-status">
