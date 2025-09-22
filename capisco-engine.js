@@ -78,7 +78,7 @@ class CapiscoEngine {
       const transcript = await this.extractTranscript(videoUrl, transcriptFile);
       
       if (!transcript || transcript.length < 10) {
-        throw new Error('Could not extract transcript. Please try a different video or upload your own transcript file.');
+        throw new Error('Could not extract transcript from this YouTube video. This may be due to:\n\n• Rate limiting (too many requests to YouTube)\n• Missing captions/subtitles\n• Video restrictions or CORS issues\n\nPlease try:\n• A different YouTube video with captions\n• Uploading your own transcript file\n• Waiting a few minutes and trying again');
       }
       
       // Process videos of any length with smart optimization
@@ -3482,6 +3482,6 @@ window.checkQuizAnswer = function(button, isCorrect) {
   }
 };
 
-// Initialize Capisco when page loads and expose globally
-// CapiscoEngine initialization is handled by capisco-app.html
-// This ensures proper script loading order and avoids conflicts
+// Export CapiscoEngine to window object for HTML to access
+window.CapiscoEngine = CapiscoEngine;
+console.log('✅ CapiscoEngine exported to window object');

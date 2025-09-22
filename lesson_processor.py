@@ -232,12 +232,12 @@ class CapiscoLessonProcessor:
         
         # Check session cache first (fastest)
         if cache_key in self.word_cache:
-            self.session_stats['cache_hits'] += 1
+            self.session_stats['cache_hits'] = int(self.session_stats['cache_hits']) + 1
             return self.word_cache[cache_key]
         
         # Check persistent cache
         if cache_key in self.persistent_cache:
-            self.session_stats['cache_hits'] += 1
+            self.session_stats['cache_hits'] = int(self.session_stats['cache_hits']) + 1
             # Copy to session cache for even faster access
             self.word_cache[cache_key] = self.persistent_cache[cache_key]
             return self.persistent_cache[cache_key]
@@ -1222,22 +1222,9 @@ Respond with JSON: {{"words": [{{"word": "...", "translation": "...", "partOfSpe
         except Exception as e:
             print(f"❌ Primary transcript method failed: {e}")
             
-        # If all transcript methods fail, use a realistic test transcript for development
-        # This will be replaced with real YouTube extraction once the API issue is resolved
-        print("⚠️ YouTube Transcript API issue detected - using development transcript")
-        
-        # Use a realistic Italian ice cream/gelato transcript for testing the lesson generation
-        # This demonstrates the full pipeline with authentic content
-        return """Il gelato artigianale italiano è una tradizione antica. 
-        Usiamo ingredienti freschi e naturali per creare i nostri gusti. 
-        La vaniglia, il cioccolato, la fragola sono i gusti più popolari. 
-        Il gelato alla nocciola è tipico del Piemonte. 
-        La granita siciliana è perfetta per l'estate. 
-        Ogni regione d'Italia ha le sue specialità di gelato. 
-        Il gelato si prepara con latte fresco, zucchero e uova. 
-        La mantecazione è il processo più importante per la cremosità. 
-        Il gelato va conservato a temperatura di servizio. 
-        In gelateria offriamo anche sorbetti alla frutta."""
+        # If all transcript methods fail, return None to trigger proper error handling
+        print("❌ All transcript extraction methods failed - transcript unavailable")
+        return None
     
     def _fallback_transcript_extraction(self, video_id):
         """Fallback method for transcript extraction"""
@@ -1478,7 +1465,7 @@ Respond with JSON: {{"words": [{{"word": "...", "translation": "...", "partOfSpe
         print("📝 Extracting transcript...")
         transcript = self.get_youtube_transcript(video_id)
         if not transcript:
-            return {"error": "Could not extract transcript"}
+            return {"error": "Could not extract transcript from this YouTube video. This may be due to:\n• Rate limiting (too many requests to YouTube)\n• Missing captions/subtitles\n• Video restrictions\n\nPlease try:\n• A different YouTube video with captions\n• Uploading your own transcript file\n• Waiting a few minutes and trying again"}
         
         # Fast language detection (optional, can be skipped for speed)
         detected_lang = source_lang  # Skip detection for speed, use provided language
@@ -1519,7 +1506,7 @@ Respond with JSON: {{"words": [{{"word": "...", "translation": "...", "partOfSpe
         print("📝 Extracting transcript...")
         transcript = self.get_youtube_transcript(video_id)
         if not transcript:
-            return {"error": "Could not extract transcript"}
+            return {"error": "Could not extract transcript from this YouTube video. This may be due to:\n• Rate limiting (too many requests to YouTube)\n• Missing captions/subtitles\n• Video restrictions\n\nPlease try:\n• A different YouTube video with captions\n• Uploading your own transcript file\n• Waiting a few minutes and trying again"}
         
         # Detect language
         print("🔍 Detecting language...")
