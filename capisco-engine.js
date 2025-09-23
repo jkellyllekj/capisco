@@ -1861,6 +1861,7 @@ class CapiscoEngine {
       // Initialize interactive elements like Al Mercato
       try {
         this.initializeStructuredLessonInteractivity();
+        this.enhanceVocabularyInteractions();
       } catch (interactivityError) {
         console.warn('Error initializing interactivity:', interactivityError);
       }
@@ -1980,26 +1981,29 @@ class CapiscoEngine {
                   <span class="vocab-category-icon"><i class="fas ${this.getVocabIcon(vocab.partOfSpeech)}"></i></span>
                   <div class="vocab-word-details" style="flex: 1;">
                     <div class="vocab-main">
-                      <span class="vocab-text" style="font-size: 1.1rem; font-weight: 600; color: #1e293b;">
-                        ${vocab.baseForm || vocab.word} – ${vocab.english}
-                      </span>
+                      <div class="italian-word" style="font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 0.25rem;">
+                        ${vocab.baseForm || vocab.word}
+                      </div>
+                      <div class="english-translation" style="font-size: 1.1rem; color: #059669; font-weight: 600;">
+                        ${vocab.english}
+                      </div>
                     </div>
                     <div class="vocab-grammar" style="margin-top: 0.5rem;">
                       <div class="gender-plural-info" style="display: flex; gap: 1rem; font-size: 0.9rem;">
-                        <span class="singular-form" style="color: #64748b;">
+                        <span class="singular-form" style="color: #64748b; display: flex; align-items: center; gap: 0.5rem;">
                           <strong>Singular:</strong> 
                           <span class="gender-${vocab.gender}" style="color: ${vocab.gender === 'f' ? '#ec4899' : vocab.gender === 'm' ? '#3b82f6' : '#10b981'};">
                             ${vocab.singular || vocab.baseForm || vocab.word}
                           </span> 
-                          ${vocab.gender ? `(${vocab.gender})` : ''}
+                          ${vocab.gender ? `<span class="gender-symbol" style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: ${vocab.gender === 'f' ? '#ec4899' : vocab.gender === 'm' ? '#3b82f6' : '#10b981'}; color: white; font-size: 0.7rem; font-weight: bold;">${vocab.gender === 'f' ? '♀' : vocab.gender === 'm' ? '♂' : 'N'}</span>` : ''}
                         </span>
                         ${vocab.plural ? `
-                          <span class="plural-form" style="color: #64748b;">
+                          <span class="plural-form" style="color: #64748b; display: flex; align-items: center; gap: 0.5rem;">
                             <strong>Plural:</strong> 
                             <span class="gender-${vocab.gender}" style="color: ${vocab.gender === 'f' ? '#ec4899' : vocab.gender === 'm' ? '#3b82f6' : '#10b981'};">
                               ${vocab.plural}
                             </span> 
-                            ${vocab.gender ? `(${vocab.gender})` : ''}
+                            ${vocab.gender ? `<span class="gender-symbol" style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: ${vocab.gender === 'f' ? '#ec4899' : vocab.gender === 'm' ? '#3b82f6' : '#10b981'}; color: white; font-size: 0.7rem; font-weight: bold;">${vocab.gender === 'f' ? '♀' : vocab.gender === 'm' ? '♂' : 'N'}</span>` : ''}
                           </span>
                         ` : ''}
                       </div>
@@ -2188,15 +2192,12 @@ class CapiscoEngine {
       // Initialize hover effects on vocabulary cards
       this.initializeHoverEffects();
       
-      // Update quiz system with current lesson data
-      this.updateQuizSystemWithLessonData();
-      
-      console.log('✅ All interactive features initialized');
-      
-      // Update quiz system with generated lesson data
-      if (typeof quizSystem !== 'undefined' && this.currentLesson) {
+      // Update quiz system with current lesson data (only once)
+      if (this.currentLesson) {
         this.updateQuizSystemWithLessonData();
       }
+      
+      console.log('✅ All interactive features initialized');
     }, 100);
   }
 
@@ -2216,7 +2217,11 @@ class CapiscoEngine {
         const italian = btn.getAttribute('data-italian');
         if (italian) {
           console.log('Playing audio for:', italian);
-          this.pronounceWord(italian);
+          if (typeof window.playItalianAudio === 'function') {
+            window.playItalianAudio(italian);
+          } else {
+            this.pronounceWord(italian);
+          }
           
           // Visual feedback
           const originalStyle = btn.style.background;
@@ -2264,34 +2269,9 @@ class CapiscoEngine {
       // Create enhanced tooltip/modal with better positioning
       const overlay = document.createElement('div');
       overlay.className = 'word-info-overlay';
-      overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-      `;
 
       const modal = document.createElement('div');
       modal.className = 'word-info-modal';
-      modal.style.cssText = `
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        max-width: 500px;
-        width: 100%;
-        max-height: 80vh;
-        overflow-y: auto;
-        border: 2px solid #667eea;
-        position: relative;
-      `;
 
       modal.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -2395,6 +2375,38 @@ class CapiscoEngine {
     return this.formatAdvancedWordInfo(vocab);
   }
 
+  enhanceVocabularyInteractions() {
+    console.log('🎨 Enhancing vocabulary interactions...');
+    
+    // Enhance vocab items with better visual feedback
+    document.querySelectorAll('.vocab-item').forEach(item => {
+      if (!item.classList.contains('enhanced')) {
+        item.classList.add('enhanced');
+        
+        // Add visual feedback for vocabulary cards
+        item.addEventListener('click', (e) => {
+          // Don't interfere with button clicks
+          if (e.target.closest('.speaker-btn, .info-btn')) return;
+          
+          // Add click animation
+          item.style.transform = 'scale(0.98)';
+          setTimeout(() => {
+            item.style.transform = '';
+          }, 150);
+          
+          // Optional: highlight the card temporarily
+          const originalBackground = item.style.background;
+          item.style.background = 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)';
+          setTimeout(() => {
+            item.style.background = originalBackground;
+          }, 1000);
+        });
+      }
+    });
+    
+    console.log('✅ Vocabulary interactions enhanced');
+  }
+
   initializeHoverEffects() {
     console.log('🎨 Initializing hover effects and animations...');
     
@@ -2484,20 +2496,31 @@ class CapiscoEngine {
           e.preventDefault();
           e.stopPropagation();
           const italian = btn.getAttribute('data-italian');
-          if (italian && typeof playItalianAudio === 'function') {
-            playItalianAudio(italian);
-          } else if (italian) {
-            this.fallbackAudio(italian);
+          if (italian) {
+            // Try script.js function first, then fallback to engine function
+            if (typeof window.playItalianAudio === 'function') {
+              window.playItalianAudio(italian);
+            } else if (typeof playItalianAudio === 'function') {
+              playItalianAudio(italian);
+            } else {
+              this.fallbackAudio(italian);
+            }
           }
         });
         
-        // Optional: Play on hover for better UX
-        btn.addEventListener('mouseenter', (e) => {
-          const italian = btn.getAttribute('data-italian');
-          if (italian && typeof playItalianAudio === 'function') {
-            setTimeout(() => playItalianAudio(italian), 200); // Small delay
-          }
-        });
+        // Optional: Play on hover for better UX (disabled by default, can be enabled)
+        // btn.addEventListener('mouseenter', (e) => {
+        //   const italian = btn.getAttribute('data-italian');
+        //   if (italian) {
+        //     setTimeout(() => {
+        //       if (typeof window.playItalianAudio === 'function') {
+        //         window.playItalianAudio(italian);
+        //       } else if (typeof playItalianAudio === 'function') {
+        //         playItalianAudio(italian);
+        //       }
+        //     }, 300);
+        //   }
+        // });
       }
     });
     
@@ -2520,7 +2543,7 @@ class CapiscoEngine {
             if (typeof showInfoTooltip === 'function') {
               showInfoTooltip(btn);
             } else {
-              this.showWordInfoModal(info, btn);
+              this.showAdvancedWordInfo(btn);
             }
           }
         });

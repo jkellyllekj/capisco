@@ -101,7 +101,8 @@ function hideInfoTooltip() {
   }
 }
 
-function playItalianAudio(text) {
+// Make function globally available
+window.playItalianAudio = function(text) {
   if ('speechSynthesis' in window) {
     speechSynthesis.cancel();
 
