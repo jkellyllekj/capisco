@@ -1,0 +1,105 @@
+{
+  "id": "stagione",
+  "type": "vocab",
+  "language": "it",
+
+  "headword": {
+    "it": "stagione",
+    "en": "season",
+    "partOfSpeech": "noun",
+    "gender": "f",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "stagione",
+    "singular": "stagione",
+    "plural": "stagioni",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "sta-JO-ne",
+    "ipa": "[staˈd͡ʒoːne]",
+    "audio": {
+      "it": null,
+      "en": null
+    }
+  },
+
+  "meaning": {
+    "primary": "season",
+    "extended": ["period", "phase"],
+    "usageNotes": "Can also refer to sports/TV seasons."
+  },
+
+  "examples": [
+    {
+      "it": "La mia stagione preferita è l'autunno.",
+      "en": "My favourite season is autumn.",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Feminine noun ending in -e; plural changes to -i.",
+    "patterns": ["-e → -i plural"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Latin: statio",
+    "evolution": "Sense shifted from ‘fixed position/period’ to ‘season/phase’.",
+    "mnemonic": "Think of a ‘station’ (statio) as a fixed period in the year."
+  },
+
+  "relations": {
+    "phonetic": ["stazione"],
+    "semantic": ["periodo", "fase"],
+    "synonyms": [],
+    "antonyms": [],
+    "contrasts": ["stazione"],
+    "collocations": ["stagione alta", "fuori stagione"],
+    "expressions": [],
+    "themes": ["time", "weather"]
+  },
+
+  "paths": {
+    "nextEasy": ["estate", "inverno"],
+    "nextHard": [],
+    "commonMistakes": ["stazione"],
+    "examRelevant": []
+  },
+
+  "images": {
+    "canonical": null,
+    "fallback": {
+      "src": null,
+      "type": "icon"
+    }
+  },
+
+  "media": {
+    "clips": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["stazione", "stagnone"]
+  },
+
+  "print": {
+    "front": ["headword.it", "images.canonical"],
+    "back": ["meaning.primary", "examples", "grammar.notes", "etymology", "quizSeeds"]
+  },
+
+  "metadata": {
+    "difficulty": "A2",
+    "tags": ["Seasons"],
+    "createdAt": null,
+    "updatedAt": null
+  }
+}
