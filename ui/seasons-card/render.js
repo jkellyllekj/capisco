@@ -1,57 +1,21 @@
 /**
- * Seasons Card – render helper (vanilla, not wired)
+ * Seasons Card – render helper (vanilla)
  *
- * Phase 2 (BATCH COMPLETE):
- * - All remaining static content is now data-driven
- * - No layout or behaviour changes
+ * Phase 3.2:
+ * - Add renderMany(container, cards[])
+ * - render(container, cardData) unchanged
  */
 
 window.CapiscoSeasonsCard = window.CapiscoSeasonsCard || {};
 
-window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
-  if (!container) {
-    throw new Error("renderSeasonsCard: container is required");
-  }
-
-  // ============================
-  // Phase 2: data
-  // ============================
-  const cardData = {
-    word: {
-      it: "stagione",
-      en: "season",
-      gender: "f",
-      icon: "🌀",
-      singular: "stagione",
-      plural: "stagioni",
-      pronunciation: {
-        readable: "sta-JO-ne",
-        ipa: "[staˈd͡ʒoːne]",
-      },
-      etymology: {
-        html: 'From Latin <em>statio</em> — “a fixed position or period.”',
-      },
-    },
-    tags: {
-      level: "A2",
-      id: "#1482",
-      category: "Seasons",
-    },
-    examples: {
-      it: "La mia stagione preferita è l'autunno.",
-      en: "My favourite season is autumn.",
-    },
-    related: [
-      { it: "primavera", emoji: "🌼" },
-      { it: "estate", emoji: "☀️" },
-      { it: "autunno", emoji: "🍂" },
-      { it: "inverno", emoji: "❄️" },
-    ],
-    placeholders: {
-      grammar: "Grammar breakdown for <strong>stagione</strong> coming soon.",
-      quiz: "Quiz for <strong>stagione</strong> coming soon.",
-    },
-  };
+/**
+ * Render ONE card
+ * @param {HTMLElement} container
+ * @param {Object} cardData
+ */
+window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, cardData) {
+  if (!container) throw new Error("renderSeasonsCard: container is required");
+  if (!cardData) throw new Error("renderSeasonsCard: cardData is required");
 
   const template = document.createElement("template");
   template.innerHTML = `
@@ -183,7 +147,7 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
     relatedList.appendChild(span);
   });
 
-  // Tabs (unchanged)
+  // Tabs
   const tabs = card.querySelectorAll(".tab");
   const sections = card.querySelectorAll(".tab-section");
 
@@ -198,7 +162,7 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
     });
   });
 
-  // Speech (unchanged)
+  // Speech
   const pickVoice = (lang) => {
     const voices = window.speechSynthesis.getVoices();
     const l = (lang || "").toLowerCase();
@@ -224,5 +188,19 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
     el.addEventListener("click", () =>
       say(el.getAttribute("data-say"), el.getAttribute("data-lang"))
     );
+  });
+};
+
+/**
+ * Render MANY cards
+ * @param {HTMLElement} container
+ * @param {Array<Object>} cards
+ */
+window.CapiscoSeasonsCard.renderMany = function renderMany(container, cards) {
+  if (!container) throw new Error("renderMany: container is required");
+  if (!Array.isArray(cards)) throw new Error("renderMany: cards[] is required");
+
+  cards.forEach((cardData) => {
+    window.CapiscoSeasonsCard.render(container, cardData);
   });
 };
