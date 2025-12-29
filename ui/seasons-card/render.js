@@ -1,9 +1,9 @@
 /**
  * Seasons Card – render helper (vanilla, not wired)
  *
- * Phase 2 (step 2):
- * - Singular / Plural rows are data-driven
- * - Header already data-driven from step 1
+ * Phase 2 (step 3):
+ * - Pronunciation line is data-driven
+ * - Header + singular/plural already data-driven
  * - No layout or behaviour changes
  */
 
@@ -25,6 +25,10 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
       icon: "🌀",
       singular: "stagione",
       plural: "stagioni",
+      pronunciation: {
+        readable: "sta-JO-ne",
+        ipa: "[staˈd͡ʒoːne]",
+      },
     },
     tags: {
       level: "A2",
@@ -89,7 +93,8 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
         <div class="row">
           <div class="row-label">Pronunciation:</div>
           <div>
-            sta-JO-ne <span class="ipa">[staˈd͡ʒoːne]</span>
+            <span class="pron-readable"></span>
+            <span class="ipa"></span>
           </div>
         </div>
 
@@ -191,6 +196,15 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
   const pEl = root.querySelector(".value-plural");
   pEl.textContent = cardData.word.plural;
   pEl.setAttribute("data-say", cardData.word.plural);
+
+  // ============================
+  // Apply data → pronunciation
+  // ============================
+  root.querySelector(".pron-readable").textContent =
+    cardData.word.pronunciation.readable;
+
+  root.querySelector(".ipa").textContent =
+    cardData.word.pronunciation.ipa;
 
   // ============================
   // Tabs (unchanged)
