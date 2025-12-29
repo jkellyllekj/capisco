@@ -1,13 +1,10 @@
 /**
  * Seasons Card – render helper (vanilla, not wired)
  *
- * Purpose:
- * - Clone the static markup for one Seasons card
- * - Append it into a provided container
- *
- * This file does NOT:
- * - load CSS (demo.html links CSS)
- * - get called by the main app yet
+ * Phase 2 (step 1):
+ * - Introduce cardData
+ * - Drive HEADER text only
+ * - No layout or behaviour changes
  */
 
 window.CapiscoSeasonsCard = window.CapiscoSeasonsCard || {};
@@ -17,35 +14,49 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
     throw new Error("renderSeasonsCard: container is required");
   }
 
+  // ============================
+  // Phase 2: data (header only)
+  // ============================
+  const cardData = {
+    word: {
+      it: "stagione",
+      en: "season",
+      gender: "f",
+      icon: "🌀",
+    },
+    tags: {
+      level: "A2",
+      id: "#1482",
+      category: "Seasons",
+    },
+  };
+
   const template = document.createElement("template");
   template.innerHTML = `
-<!-- Seasons Card — static markup reference (stagione) -->
-
 <section class="word-group">
   <h2 class="word-group-title">
-    stagione <span class="word-label-icon">🌀</span>
+    <span class="wg-word"></span>
+    <span class="word-label-icon"></span>
   </h2>
 
   <article class="card">
     <header class="card-header">
       <div>
         <div class="card-title-line">
-          <span data-say="stagione" data-lang="it-IT">stagione</span>
+          <span class="word-it" data-lang="it-IT"></span>
           <span class="dot">·</span>
-          <span class="translation" data-say="season" data-lang="en-GB">
-            season
-          </span>
-          <span class="gender">(f)</span>
+          <span class="translation word-en" data-lang="en-GB"></span>
+          <span class="gender"></span>
         </div>
 
         <div class="tag-row">
-          <span class="tag-pill tag-level">A2</span>
-          <span class="tag-pill tag-id">#1482</span>
-          <span class="tag-pill tag-cat">Seasons</span>
+          <span class="tag-pill tag-level"></span>
+          <span class="tag-pill tag-id"></span>
+          <span class="tag-pill tag-cat"></span>
         </div>
       </div>
 
-      <div class="icon-circle">🌀</div>
+      <div class="icon-circle"></div>
     </header>
 
     <div class="tabs">
@@ -57,7 +68,6 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
     </div>
 
     <div class="card-body">
-      <!-- Overview -->
       <div class="tab-section" data-section="overview">
         <div class="row">
           <div class="row-label">Singular:</div>
@@ -88,7 +98,6 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
         </div>
       </div>
 
-      <!-- Examples -->
       <div class="tab-section hidden" data-section="examples">
         <div class="example-bar">
           <span class="example-label">Example:</span>
@@ -111,14 +120,12 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
         </div>
       </div>
 
-      <!-- Grammar -->
       <div class="tab-section hidden" data-section="grammar">
         <div class="tab-placeholder">
           Grammar breakdown for <strong>stagione</strong> coming soon.
         </div>
       </div>
 
-      <!-- Related -->
       <div class="tab-section hidden" data-section="related">
         <div class="related-row">
           <span class="related-label">Other seasons:</span>
@@ -131,7 +138,6 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
         </div>
       </div>
 
-      <!-- Quiz -->
       <div class="tab-section hidden" data-section="quiz">
         <div class="tab-placeholder">
           Quiz for <strong>stagione</strong> coming soon.
@@ -145,55 +151,82 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
   const node = template.content.cloneNode(true);
   container.appendChild(node);
 
-  // Enable tabs (scoped to the card we just appended)
-  const root = container.lastElementChild; // safer: only bind within the newly appended section
-  const card = root && root.querySelector ? root.querySelector(".card") : null;
+  const root = container.lastElementChild;
+  const card = root.querySelector(".card");
 
-  if (card) {
-    const tabs = card.querySelectorAll(".tab");
-    const sections = card.querySelectorAll(".tab-section");
+  // ============================
+  // Apply data → header
+  // ============================
+  root.querySelector(".wg-word").textContent = cardData.word.it;
+  root.querySelector(".word-label-icon").textContent = cardData.word.icon;
 
-    tabs.forEach((tab) => {
-      tab.addEventListener("click", () => {
-        const key = tab.getAttribute("data-tab");
-        if (!key) return;
+  root.querySelector(".word-it").textContent = cardData.word.it;
+  root.querySelector(".word-it").setAttribute("data-say", cardData.word.it);
 
-        // Set active tab
-        tabs.forEach((t) => t.classList.remove("active"));
-        tab.classList.add("active");
+  root.querySelector(".word-en").textContent = cardData.word.en;
+  root.querySelector(".word-en").setAttribute("data-say", cardData.word.en);
 
-        // Show matching section, hide others
-        sections.forEach((sec) => {
-          const secKey = sec.getAttribute("data-section");
-          if (secKey === key) sec.classList.remove("hidden");
-          else sec.classList.add("hidden");
-        });
+  root.querySelector(".gender").textContent = `(${cardData.word.gender})`;
+
+  root.querySelector(".tag-level").textContent = cardData.tags.level;
+  root.querySelector(".tag-id").textContent = cardData.tags.id;
+  root.querySelector(".tag-cat").textContent = cardData.tags.category;
+
+  root.querySelector(".icon-circle").textContent = cardData.word.icon;
+
+  // ============================
+  // Tabs (unchanged)
+  // ============================
+  const tabs = card.querySelectorAll(".tab");
+  const sections = card.querySelectorAll(".tab-section");
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const key = tab.getAttribute("data-tab");
+      tabs.forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      sections.forEach((sec) => {
+        sec.classList.toggle(
+          "hidden",
+          sec.getAttribute("data-section") !== key
+        );
       });
     });
-  }
+  });
 
-  // Hover/tap audio (demo-only): speaks elements with data-say/data-lang
+  // ============================
+  // Speech (unchanged)
+  // ============================
+  const pickVoice = (lang) => {
+    const voices = window.speechSynthesis.getVoices();
+    const l = (lang || "").toLowerCase();
+
+    if (l.startsWith("it"))
+      return voices.find(v => v.lang.startsWith("it")) || null;
+
+    if (l.startsWith("en"))
+      return voices.find(v => v.lang.startsWith("en")) || null;
+
+    return null;
+  };
+
   const say = (text, lang) => {
     if (!text) return;
-    try {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      if (lang) u.lang = lang;
-      window.speechSynthesis.speak(u);
-    } catch (e) {
-      // ignore if unsupported
-    }
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    if (lang) u.lang = lang;
+    const v = pickVoice(lang);
+    if (v) u.voice = v;
+    window.speechSynthesis.speak(u);
   };
 
-  const bindSpeech = (el) => {
-    const text = el.getAttribute("data-say");
-    const lang = el.getAttribute("data-lang") || "";
-    el.addEventListener("mouseenter", () => say(text, lang));
-    el.addEventListener("click", () => say(text, lang));
-  };
-
-  const speechTargets = (root || container).querySelectorAll("[data-say]");
-  speechTargets.forEach(bindSpeech);
-
-  
+  root.querySelectorAll("[data-say]").forEach((el) => {
+    el.addEventListener("mouseenter", () =>
+      say(el.getAttribute("data-say"), el.getAttribute("data-lang"))
+    );
+    el.addEventListener("click", () =>
+      say(el.getAttribute("data-say"), el.getAttribute("data-lang"))
+    );
+  });
 };
