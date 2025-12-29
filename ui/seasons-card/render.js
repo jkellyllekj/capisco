@@ -171,4 +171,29 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
       });
     });
   }
+
+  // Hover/tap audio (demo-only): speaks elements with data-say/data-lang
+  const say = (text, lang) => {
+    if (!text) return;
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      if (lang) u.lang = lang;
+      window.speechSynthesis.speak(u);
+    } catch (e) {
+      // ignore if unsupported
+    }
+  };
+
+  const bindSpeech = (el) => {
+    const text = el.getAttribute("data-say");
+    const lang = el.getAttribute("data-lang") || "";
+    el.addEventListener("mouseenter", () => say(text, lang));
+    el.addEventListener("click", () => say(text, lang));
+  };
+
+  const speechTargets = (root || container).querySelectorAll("[data-say]");
+  speechTargets.forEach(bindSpeech);
+
+  
 };
