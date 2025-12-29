@@ -1,0 +1,289 @@
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", sans-serif;
+    background: #e5edf5;
+    color: #0f172a;
+  }
+
+  .page {
+    max-width: 960px;
+    margin: 32px auto 48px;
+    padding: 0 16px;
+  }
+
+  h1 {
+    font-size: 26px;
+    margin: 0 0 8px;
+  }
+
+  .page-intro {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 24px;
+  }
+
+  .word-group {
+    margin-top: 28px;
+  }
+
+  .word-group-title {
+    font-size: 20px;
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .word-label-icon {
+    font-size: 18px;
+  }
+
+  /* ------------ Main card style (Variant 3 base) ------------ */
+
+  .card {
+    position: relative;
+    background: radial-gradient(circle at top right, #e0f2fe 0, #ffffff 55%);
+    border-radius: 26px;
+    box-shadow: 0 22px 40px rgba(15, 23, 42, 0.18);
+    padding: 18px 24px 20px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-title-line {
+    font-size: 20px;
+    font-weight: 600;
+    color: #020617;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .card-title-line span.translation {
+    color: #334155;
+    font-weight: 500;
+  }
+
+  .card-title-line span.dot {
+    color: #cbd5f5;
+    margin: 0 4px;
+  }
+
+  .card-title-line .gender {
+    font-size: 13px;
+    color: #9ca3af;
+    margin-left: 4px;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+    font-size: 11px;
+  }
+
+  .tag-pill {
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+
+  .tag-level {
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+
+  .tag-id {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .tag-cat {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .icon-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    flex-shrink: 0;
+  }
+
+  /* ------------ Tabs: horizontal “folder” look ------------ */
+
+  .tabs {
+    margin-top: 12px;
+    border-bottom: 1px solid #e5e7eb; /* the horizontal line */
+    display: flex;
+    gap: 8px;
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    position: relative;
+    padding: 6px 10px;
+    border-radius: 10px 10px 0 0;
+    color: #9ca3af;
+    cursor: pointer;
+    transform: translateY(1px); /* sit slightly on top of the line */
+    user-select: none;
+  }
+
+  .tab.active {
+    background: #ffffff;
+    color: #020617;
+    font-weight: 500;
+    box-shadow: 0 -1px 0 #ffffff, 0 0 0 1px #e5e7eb;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .card-body {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #374151;
+  }
+
+  .row {
+    margin-top: 6px;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .row-label {
+    min-width: 88px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .ipa {
+    color: #9ca3af;
+    font-size: 12px;
+  }
+
+  /* ------------ Audio-enabled elements (words/sentences you can hear) ------------ */
+
+  [data-say] {
+    background: #e5e7eb;
+    border-radius: 10px;          /* rounded rectangle, not pill */
+    padding: 3px 8px;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      transform 0.1s ease,
+      color 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  [data-say]:hover {
+    background: #d1d5db;
+  }
+
+  [data-say].is-speaking {
+    background: #c7d2fe;
+    transform: translateY(-1px);
+    color: #111827;
+  }
+
+  /* ------------ Example bar: soft purple ------------ */
+
+  .example-bar {
+    margin-top: 12px;
+    padding: 8px 10px;
+    border-radius: 16px;
+    background: #f3e8ff;              /* soft lilac */
+    border: 1px solid #e0d4ff;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .example-label {
+    font-weight: 600;
+    color: #5b21b6;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .example-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .example-it {
+    font-size: 13px;
+    color: #111827;
+  }
+
+  .example-en {
+    font-size: 11px;
+    color: #4b5563;
+  }
+
+  .related-row {
+    margin-top: 10px;
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  .related-row-list {
+    margin-top: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .related-label {
+    font-weight: 500;
+    margin-right: 4px;
+  }
+
+  /* Tab sections */
+
+  .tab-section {
+    margin-top: 8px;
+  }
+
+  .tab-section.hidden {
+    display: none;
+  }
+
+  .tab-placeholder {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .card {
+      padding: 16px 18px;
+    }
+
+    .row-label {
+      min-width: 80px;
+    }
+  }
