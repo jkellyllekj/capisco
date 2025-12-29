@@ -1,9 +1,9 @@
 /**
  * Seasons Card – render helper (vanilla, not wired)
  *
- * Phase 2 (step 1):
- * - Introduce cardData
- * - Drive HEADER text only
+ * Phase 2 (step 2):
+ * - Singular / Plural rows are data-driven
+ * - Header already data-driven from step 1
  * - No layout or behaviour changes
  */
 
@@ -15,7 +15,7 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
   }
 
   // ============================
-  // Phase 2: data (header only)
+  // Phase 2: data
   // ============================
   const cardData = {
     word: {
@@ -23,6 +23,8 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
       en: "season",
       gender: "f",
       icon: "🌀",
+      singular: "stagione",
+      plural: "stagioni",
     },
     tags: {
       level: "A2",
@@ -68,18 +70,19 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
     </div>
 
     <div class="card-body">
+      <!-- Overview -->
       <div class="tab-section" data-section="overview">
         <div class="row">
           <div class="row-label">Singular:</div>
           <div>
-            <span data-lang="it-IT" data-say="stagione">stagione</span>
+            <span class="value-singular" data-lang="it-IT"></span>
           </div>
         </div>
 
         <div class="row">
           <div class="row-label">Plural:</div>
           <div>
-            <span data-lang="it-IT" data-say="stagioni">stagioni</span>
+            <span class="value-plural" data-lang="it-IT"></span>
           </div>
         </div>
 
@@ -98,6 +101,7 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
         </div>
       </div>
 
+      <!-- Examples -->
       <div class="tab-section hidden" data-section="examples">
         <div class="example-bar">
           <span class="example-label">Example:</span>
@@ -120,12 +124,14 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
         </div>
       </div>
 
+      <!-- Grammar -->
       <div class="tab-section hidden" data-section="grammar">
         <div class="tab-placeholder">
           Grammar breakdown for <strong>stagione</strong> coming soon.
         </div>
       </div>
 
+      <!-- Related -->
       <div class="tab-section hidden" data-section="related">
         <div class="related-row">
           <span class="related-label">Other seasons:</span>
@@ -138,6 +144,7 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
         </div>
       </div>
 
+      <!-- Quiz -->
       <div class="tab-section hidden" data-section="quiz">
         <div class="tab-placeholder">
           Quiz for <strong>stagione</strong> coming soon.
@@ -160,19 +167,30 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
   root.querySelector(".wg-word").textContent = cardData.word.it;
   root.querySelector(".word-label-icon").textContent = cardData.word.icon;
 
-  root.querySelector(".word-it").textContent = cardData.word.it;
-  root.querySelector(".word-it").setAttribute("data-say", cardData.word.it);
+  const itEl = root.querySelector(".word-it");
+  itEl.textContent = cardData.word.it;
+  itEl.setAttribute("data-say", cardData.word.it);
 
-  root.querySelector(".word-en").textContent = cardData.word.en;
-  root.querySelector(".word-en").setAttribute("data-say", cardData.word.en);
+  const enEl = root.querySelector(".word-en");
+  enEl.textContent = cardData.word.en;
+  enEl.setAttribute("data-say", cardData.word.en);
 
   root.querySelector(".gender").textContent = `(${cardData.word.gender})`;
-
   root.querySelector(".tag-level").textContent = cardData.tags.level;
   root.querySelector(".tag-id").textContent = cardData.tags.id;
   root.querySelector(".tag-cat").textContent = cardData.tags.category;
-
   root.querySelector(".icon-circle").textContent = cardData.word.icon;
+
+  // ============================
+  // Apply data → singular / plural
+  // ============================
+  const sEl = root.querySelector(".value-singular");
+  sEl.textContent = cardData.word.singular;
+  sEl.setAttribute("data-say", cardData.word.singular);
+
+  const pEl = root.querySelector(".value-plural");
+  pEl.textContent = cardData.word.plural;
+  pEl.setAttribute("data-say", cardData.word.plural);
 
   // ============================
   // Tabs (unchanged)
@@ -185,7 +203,6 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
       const key = tab.getAttribute("data-tab");
       tabs.forEach((t) => t.classList.remove("active"));
       tab.classList.add("active");
-
       sections.forEach((sec) => {
         sec.classList.toggle(
           "hidden",
@@ -201,13 +218,8 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
   const pickVoice = (lang) => {
     const voices = window.speechSynthesis.getVoices();
     const l = (lang || "").toLowerCase();
-
-    if (l.startsWith("it"))
-      return voices.find(v => v.lang.startsWith("it")) || null;
-
-    if (l.startsWith("en"))
-      return voices.find(v => v.lang.startsWith("en")) || null;
-
+    if (l.startsWith("it")) return voices.find(v => v.lang.startsWith("it")) || null;
+    if (l.startsWith("en")) return voices.find(v => v.lang.startsWith("en")) || null;
     return null;
   };
 
