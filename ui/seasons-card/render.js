@@ -1,9 +1,8 @@
 /**
  * Seasons Card – render helper (vanilla, not wired)
  *
- * Phase 2 (step 3):
- * - Pronunciation line is data-driven
- * - Header + singular/plural already data-driven
+ * Phase 2 (BATCH COMPLETE):
+ * - All remaining static content is now data-driven
  * - No layout or behaviour changes
  */
 
@@ -29,11 +28,28 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
         readable: "sta-JO-ne",
         ipa: "[staˈd͡ʒoːne]",
       },
+      etymology: {
+        html: 'From Latin <em>statio</em> — “a fixed position or period.”',
+      },
     },
     tags: {
       level: "A2",
       id: "#1482",
       category: "Seasons",
+    },
+    examples: {
+      it: "La mia stagione preferita è l'autunno.",
+      en: "My favourite season is autumn.",
+    },
+    related: [
+      { it: "primavera", emoji: "🌼" },
+      { it: "estate", emoji: "☀️" },
+      { it: "autunno", emoji: "🍂" },
+      { it: "inverno", emoji: "❄️" },
+    ],
+    placeholders: {
+      grammar: "Grammar breakdown for <strong>stagione</strong> coming soon.",
+      quiz: "Quiz for <strong>stagione</strong> coming soon.",
     },
   };
 
@@ -74,86 +90,36 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
     </div>
 
     <div class="card-body">
-      <!-- Overview -->
       <div class="tab-section" data-section="overview">
-        <div class="row">
-          <div class="row-label">Singular:</div>
-          <div>
-            <span class="value-singular" data-lang="it-IT"></span>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="row-label">Plural:</div>
-          <div>
-            <span class="value-plural" data-lang="it-IT"></span>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="row-label">Pronunciation:</div>
-          <div>
-            <span class="pron-readable"></span>
-            <span class="ipa"></span>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="row-label">Etymology:</div>
-          <div>
-            From Latin <em>statio</em> — “a fixed position or period.”
-          </div>
-        </div>
+        <div class="row"><div class="row-label">Singular:</div><div><span class="value-singular" data-lang="it-IT"></span></div></div>
+        <div class="row"><div class="row-label">Plural:</div><div><span class="value-plural" data-lang="it-IT"></span></div></div>
+        <div class="row"><div class="row-label">Pronunciation:</div><div><span class="pron-readable"></span> <span class="ipa"></span></div></div>
+        <div class="row"><div class="row-label">Etymology:</div><div class="etymology"></div></div>
       </div>
 
-      <!-- Examples -->
       <div class="tab-section hidden" data-section="examples">
         <div class="example-bar">
           <span class="example-label">Example:</span>
           <div class="example-text-block">
-            <div
-              class="example-it"
-              data-lang="it-IT"
-              data-say="La mia stagione preferita è l'autunno."
-            >
-              La mia stagione preferita è l'autunno.
-            </div>
-            <div
-              class="example-en"
-              data-lang="en-GB"
-              data-say="My favourite season is autumn."
-            >
-              My favourite season is autumn.
-            </div>
+            <div class="example-it" data-lang="it-IT"></div>
+            <div class="example-en" data-lang="en-GB"></div>
           </div>
         </div>
       </div>
 
-      <!-- Grammar -->
       <div class="tab-section hidden" data-section="grammar">
-        <div class="tab-placeholder">
-          Grammar breakdown for <strong>stagione</strong> coming soon.
-        </div>
+        <div class="tab-placeholder grammar"></div>
       </div>
 
-      <!-- Related -->
       <div class="tab-section hidden" data-section="related">
         <div class="related-row">
           <span class="related-label">Other seasons:</span>
-          <div class="related-row-list">
-            <span data-lang="it-IT" data-say="primavera">primavera 🌼</span>
-            <span data-lang="it-IT" data-say="estate">estate ☀️</span>
-            <span data-lang="it-IT" data-say="autunno">autunno 🍂</span>
-            <span data-lang="it-IT" data-say="inverno">inverno ❄️</span>
-          </div>
+          <div class="related-row-list"></div>
         </div>
       </div>
 
-      <!-- Quiz -->
       <div class="tab-section hidden" data-section="quiz">
-        <div class="tab-placeholder">
-          Quiz for <strong>stagione</strong> coming soon.
-        </div>
+        <div class="tab-placeholder quiz"></div>
       </div>
     </div>
   </article>
@@ -166,19 +132,15 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
   const root = container.lastElementChild;
   const card = root.querySelector(".card");
 
-  // ============================
-  // Apply data → header
-  // ============================
+  // Header
   root.querySelector(".wg-word").textContent = cardData.word.it;
   root.querySelector(".word-label-icon").textContent = cardData.word.icon;
 
-  const itEl = root.querySelector(".word-it");
-  itEl.textContent = cardData.word.it;
-  itEl.setAttribute("data-say", cardData.word.it);
+  root.querySelector(".word-it").textContent = cardData.word.it;
+  root.querySelector(".word-it").setAttribute("data-say", cardData.word.it);
 
-  const enEl = root.querySelector(".word-en");
-  enEl.textContent = cardData.word.en;
-  enEl.setAttribute("data-say", cardData.word.en);
+  root.querySelector(".word-en").textContent = cardData.word.en;
+  root.querySelector(".word-en").setAttribute("data-say", cardData.word.en);
 
   root.querySelector(".gender").textContent = `(${cardData.word.gender})`;
   root.querySelector(".tag-level").textContent = cardData.tags.level;
@@ -186,29 +148,42 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
   root.querySelector(".tag-cat").textContent = cardData.tags.category;
   root.querySelector(".icon-circle").textContent = cardData.word.icon;
 
-  // ============================
-  // Apply data → singular / plural
-  // ============================
-  const sEl = root.querySelector(".value-singular");
-  sEl.textContent = cardData.word.singular;
-  sEl.setAttribute("data-say", cardData.word.singular);
+  // Overview
+  root.querySelector(".value-singular").textContent = cardData.word.singular;
+  root.querySelector(".value-singular").setAttribute("data-say", cardData.word.singular);
 
-  const pEl = root.querySelector(".value-plural");
-  pEl.textContent = cardData.word.plural;
-  pEl.setAttribute("data-say", cardData.word.plural);
+  root.querySelector(".value-plural").textContent = cardData.word.plural;
+  root.querySelector(".value-plural").setAttribute("data-say", cardData.word.plural);
 
-  // ============================
-  // Apply data → pronunciation
-  // ============================
-  root.querySelector(".pron-readable").textContent =
-    cardData.word.pronunciation.readable;
+  root.querySelector(".pron-readable").textContent = cardData.word.pronunciation.readable;
+  root.querySelector(".ipa").textContent = cardData.word.pronunciation.ipa;
 
-  root.querySelector(".ipa").textContent =
-    cardData.word.pronunciation.ipa;
+  root.querySelector(".etymology").innerHTML = cardData.word.etymology.html;
 
-  // ============================
+  // Examples
+  const exIt = root.querySelector(".example-it");
+  exIt.textContent = cardData.examples.it;
+  exIt.setAttribute("data-say", cardData.examples.it);
+
+  const exEn = root.querySelector(".example-en");
+  exEn.textContent = cardData.examples.en;
+  exEn.setAttribute("data-say", cardData.examples.en);
+
+  // Grammar / Quiz
+  root.querySelector(".grammar").innerHTML = cardData.placeholders.grammar;
+  root.querySelector(".quiz").innerHTML = cardData.placeholders.quiz;
+
+  // Related
+  const relatedList = root.querySelector(".related-row-list");
+  cardData.related.forEach((r) => {
+    const span = document.createElement("span");
+    span.textContent = `${r.it} ${r.emoji}`;
+    span.setAttribute("data-lang", "it-IT");
+    span.setAttribute("data-say", r.it);
+    relatedList.appendChild(span);
+  });
+
   // Tabs (unchanged)
-  // ============================
   const tabs = card.querySelectorAll(".tab");
   const sections = card.querySelectorAll(".tab-section");
 
@@ -217,18 +192,13 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container) {
       const key = tab.getAttribute("data-tab");
       tabs.forEach((t) => t.classList.remove("active"));
       tab.classList.add("active");
-      sections.forEach((sec) => {
-        sec.classList.toggle(
-          "hidden",
-          sec.getAttribute("data-section") !== key
-        );
-      });
+      sections.forEach((sec) =>
+        sec.classList.toggle("hidden", sec.getAttribute("data-section") !== key)
+      );
     });
   });
 
-  // ============================
   // Speech (unchanged)
-  // ============================
   const pickVoice = (lang) => {
     const voices = window.speechSynthesis.getVoices();
     const l = (lang || "").toLowerCase();
