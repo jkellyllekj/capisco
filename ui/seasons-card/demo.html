@@ -18,7 +18,27 @@
 
     <script src="./render.js"></script>
     <script>
-      window.CapiscoSeasonsCard.render(document.getElementById("mount"));
+      async function main() {
+        const container = document.getElementById("mount");
+
+        // Load canonical JSON (works reliably in Replit preview)
+        const res = await fetch("./cards/stagione.card.json");
+        if (!res.ok) throw new Error("Failed to load card JSON: " + res.status);
+
+        const card = await res.json();
+
+        // Prove multi-card rendering
+        window.CapiscoSeasonsCard.renderMany(container, [card, card]);
+      }
+
+      main().catch((err) => {
+        console.error(err);
+        const container = document.getElementById("mount");
+        container.innerHTML =
+          '<pre style="color:#b00020; padding:16px; background:#fff; border-radius:12px;">' +
+          String(err) +
+          "</pre>";
+      });
     </script>
   </body>
 </html>

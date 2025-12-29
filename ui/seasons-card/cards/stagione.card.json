@@ -3,6 +3,8 @@
   "type": "vocab",
   "language": "it",
 
+  "legacyIcon": "🌀",
+
   "headword": {
     "it": "stagione",
     "en": "season",
@@ -55,6 +57,7 @@
   },
 
   "relations": {
+    "related": ["primavera", "estate", "autunno", "inverno"],
     "phonetic": ["stazione"],
     "semantic": ["periodo", "fase"],
     "synonyms": [],
@@ -65,12 +68,12 @@
     "themes": ["time", "weather"]
   },
 
-  "paths": {
-    "nextEasy": ["estate", "inverno"],
-    "nextHard": [],
-    "commonMistakes": ["stazione"],
-    "examRelevant": []
-  },
+  "legacyRelated": [
+    { "it": "primavera", "emoji": "🌼" },
+    { "it": "estate", "emoji": "☀️" },
+    { "it": "autunno", "emoji": "🍂" },
+    { "it": "inverno", "emoji": "❄️" }
+  ],
 
   "images": {
     "canonical": null,
@@ -80,10 +83,6 @@
     }
   },
 
-  "media": {
-    "clips": []
-  },
-
   "quizSeeds": {
     "recognition": true,
     "recall": true,
@@ -91,15 +90,14 @@
     "distractors": ["stazione", "stagnone"]
   },
 
-  "print": {
-    "front": ["headword.it", "images.canonical"],
-    "back": ["meaning.primary", "examples", "grammar.notes", "etymology", "quizSeeds"]
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>stagione</strong> coming soon.",
+    "quiz": "Quiz for <strong>stagione</strong> coming soon."
   },
 
   "metadata": {
     "difficulty": "A2",
     "tags": ["Seasons"],
-    "createdAt": null,
-    "updatedAt": null
+    "rankId": "#1482"
   }
 }
