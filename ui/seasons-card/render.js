@@ -1,36 +1,92 @@
 /**
  * Seasons Card – render helper (vanilla)
- *
- * Supports:
- * - Canonical Card Schema v1 JSON
- * - Legacy demo objects (word/tags/examples/related/placeholders)
- *
- * Goals:
- * - No crashes when optional fields are missing
- * - Preserve legacy display affordances (icon, emoji related, tag pills)
- * - Keep hover/click audio working
  */
 
-window.CapiscoSeasonsCard = window.CapiscoSeasonsCard || {};
+/* __START_IMAGE_MEDIA_HELPERS_R010__ */
 
 /**
- * Normalize raw input into a unified shape.
- * This is explicit, small, and predictable (no mystery).
+ * Phase 6B — Canonical media rendering (robust src resolution)
+ * Rules:
+ * - NO inline sizing styles (CSS owns layout)
+ * - Must handle older card shapes where media src is derived
  */
+function renderCardMediaHtml(media) {
+  if (!media) return "";
+
+  // 1) Direct src fields (newer shapes)
+  let src =
+    media.src ||
+    media.url ||
+    media.href ||
+    media.path ||
+    media.localPath ||
+    media.file ||
+    "";
+
+  // 2) If src still missing, derive from a stable id/name (older shapes)
+  //    We saw earlier: ./images/stagione.jpg?cb=PHASE6B_PHOTO_002
+  if (!src) {
+    const base =
+      media.id ||
+      media.imageId ||
+      media.key ||
+      media.slug ||
+      media.name ||
+      "";
+
+    if (base) {
+      const ext = media.ext || "jpg"; // default to jpg (your working example)
+      src = `./images/${base}.${ext}`;
+    }
+  }
+
+  // 3) Optional cache-buster support (keeps your prior cb behaviour if present)
+  if (src && media.cb) {
+    const join = src.includes("?") ? "&" : "?";
+    src = `${src}${join}cb=${encodeURIComponent(media.cb)}`;
+  }
+
+  // If we still can't resolve a src, render nothing (placeholder stays visible)
+  if (!src) return "";
+
+  return `
+    <div class="capisco-card-media" data-media-slot="canonical">
+      <img
+        class="capisco-card-image"
+        src="${src}"
+        alt="${media.alt || ""}"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  `;
+}
+
+/* __END_IMAGE_MEDIA_HELPERS_R010__ */
+
+
+
+
+
+
+
+
+// >>> START MODULE_EXPORT_R020
+window.CapiscoSeasonsCard = window.CapiscoSeasonsCard || {};
+// <<< END MODULE_EXPORT_R020
+
+// >>> START NORMALIZE_CARD_R030
+
 function normalizeCard(raw) {
   if (!raw) return {};
 
-  const isCanonical =
-    raw.headword &&
-    raw.forms &&
-    Array.isArray(raw.examples);
+  const isCanonical = raw.headword && raw.forms && Array.isArray(raw.examples);
 
   if (isCanonical) {
     return {
       id: raw.id || raw.headword.it,
       type: raw.type || "vocab",
       language: raw.language || "it",
-
       headword: raw.headword || {},
       forms: raw.forms || {},
       pronunciation: raw.pronunciation || {},
@@ -39,29 +95,21 @@ function normalizeCard(raw) {
       grammar: raw.grammar || {},
       etymology: raw.etymology || {},
       relations: raw.relations || {},
-
-      // canonical extras
       images: raw.images || null,
       quizSeeds: raw.quizSeeds || null,
       metadata: raw.metadata || {},
-
-      // legacy display helpers (allowed in canonical JSON)
       legacyIcon: raw.legacyIcon || "",
       legacyRelated: Array.isArray(raw.legacyRelated) ? raw.legacyRelated : [],
       placeholders: raw.placeholders || null,
-
-      // legacy "tags" object may not exist in canonical
       tags: raw.tags || null,
     };
   }
 
-  // Legacy demo shape
   const legacy = raw;
   return {
     id: legacy.id || legacy.word?.it || "",
     type: legacy.type || "vocab",
     language: legacy.language || "it",
-
     headword: {
       it: legacy.word?.it || "",
       en: legacy.word?.en || "",
@@ -69,51 +117,39 @@ function normalizeCard(raw) {
       partOfSpeech: "noun",
       register: "neutral",
     },
-
     forms: {
       canonical: legacy.word?.singular || legacy.word?.it || "",
       singular: legacy.word?.singular || legacy.word?.it || "",
       plural: legacy.word?.plural || "",
       variants: [],
     },
-
     pronunciation: legacy.word?.pronunciation || {},
     meaning: { primary: legacy.word?.en || "" },
-
-    examples: [
-      {
-        it: legacy.examples?.it || "",
-        en: legacy.examples?.en || "",
-      },
-    ],
-
+    examples: [{ it: legacy.examples?.it || "", en: legacy.examples?.en || "" }],
     grammar: {},
     etymology: { noteHtml: legacy.word?.etymology?.html || "" },
-
-    relations: {
-      related: Array.isArray(legacy.related) ? legacy.related.map((r) => r.it) : [],
-    },
-
+    relations: { related: Array.isArray(legacy.related) ? legacy.related.map((r) => r.it) : [] },
     legacyIcon: legacy.word?.icon || "",
     legacyRelated: Array.isArray(legacy.related) ? legacy.related : [],
     placeholders: legacy.placeholders || null,
     tags: legacy.tags || null,
-
     images: legacy.images || null,
     quizSeeds: legacy.quizSeeds || null,
     metadata: legacy.metadata || {},
   };
 }
 
-/**
- * Render ONE card
- */
+// <<< END NORMALIZE_CARD_R030
+
+// >>> START RENDER_ONE_CARD_R100
+
 window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCardData) {
   if (!container) throw new Error("renderSeasonsCard: container is required");
   if (!rawCardData) throw new Error("renderSeasonsCard: cardData is required");
 
   const cardData = normalizeCard(rawCardData);
 
+  // >>> START TEMPLATE_HTML_R111
   const template = document.createElement("template");
   template.innerHTML = `
 <section class="word-group">
@@ -142,7 +178,6 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
       <div class="icon-circle"></div>
     </header>
 
-    <!-- Optional image slot for future canonical/fallback images -->
     <div class="card-image hidden">
       <img />
     </div>
@@ -191,13 +226,14 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
   </article>
 </section>
 `;
+  // <<< END TEMPLATE_HTML_R111
 
   container.appendChild(template.content.cloneNode(true));
 
   const root = container.lastElementChild;
   const card = root.querySelector(".card");
 
-  // ---------- Header ----------
+  // >>> START HEADER_WORDS_R121
   root.querySelector(".wg-word").textContent = cardData.headword.it || "";
   root.querySelector(".word-label-icon").textContent = cardData.legacyIcon || "";
 
@@ -209,20 +245,14 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
   enEl.textContent = cardData.headword.en || "";
   enEl.setAttribute("data-say", cardData.headword.en || "");
 
-  root.querySelector(".gender").textContent =
-    cardData.headword.gender ? `(${cardData.headword.gender})` : "";
+  root.querySelector(".gender").textContent = cardData.headword.gender
+    ? `(${cardData.headword.gender})`
+    : "";
+  // <<< END HEADER_WORDS_R121
 
-  // Tag pills: legacy tags OR canonical metadata
-  const tagLevel =
-    cardData.tags?.level ||
-    cardData.metadata?.difficulty ||
-    "";
-
-  const tagId =
-    cardData.tags?.id ||
-    cardData.metadata?.rankId ||
-    "";
-
+  // >>> START TAG_PILLS_R123
+  const tagLevel = cardData.tags?.level || cardData.metadata?.difficulty || "";
+  const tagId = cardData.tags?.id || cardData.metadata?.rankId || "";
   const tagCat =
     cardData.tags?.category ||
     (Array.isArray(cardData.metadata?.tags) ? cardData.metadata.tags[0] : "") ||
@@ -231,25 +261,40 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
   root.querySelector(".tag-level").textContent = tagLevel;
   root.querySelector(".tag-id").textContent = tagId;
   root.querySelector(".tag-cat").textContent = tagCat;
+  // <<< END TAG_PILLS_R123
 
-  // Icon circle preserved
-  root.querySelector(".icon-circle").textContent = cardData.legacyIcon || "";
+/* MEDIA_SLOT_R124 */
 
-  // Optional image slot (canonical/fallback)
-  const imgSrc =
-    cardData.images?.canonical?.src ||
-    cardData.images?.fallback?.src ||
-    null;
+// Wire media into the existing DOM slot: <div class="card-image hidden"><img/></div>
+(function wireCardMediaSlot() {
+  const slot = root.querySelector(".card-image");
+  const iconCircle = root.querySelector(".icon-circle");
 
-  if (imgSrc) {
-    const wrap = root.querySelector(".card-image");
-    const img = wrap.querySelector("img");
-    img.src = imgSrc;
-    img.alt = cardData.images?.canonical?.alt || cardData.headword.it || "";
-    wrap.classList.remove("hidden");
-  }
+  // Render from the canonical picker (concept registry -> card.images.canonical -> fallback)
+  const html = renderCardMediaHtml(cardData);
 
-  // ---------- Overview ----------
+  // Put the HTML INSIDE the slot and show it
+  slot.innerHTML = html;
+  slot.classList.remove("hidden");
+
+  // ---- NEW: ensure the slot clips to rounded corners ----
+  // The demo CSS rounds/shadows .capisco-card-media, but your <img> isn't getting clipped.
+  // We enforce clipping at the slot level so it always works.
+  slot.style.overflow = "hidden";
+  slot.style.borderRadius = "20px";
+
+  // If we have a real image block, hide the old blue circle placeholder
+  const hasImg = !!slot.querySelector("img.capisco-card-image");
+  if (hasImg && iconCircle) iconCircle.classList.add("hidden");
+})();
+
+/* MEDIA_SLOT_R124 */
+
+
+
+
+
+  // >>> START OVERVIEW_FORMS_R131
   const singEl = root.querySelector(".value-singular");
   singEl.textContent = cardData.forms.singular || "";
   singEl.setAttribute("data-say", cardData.forms.singular || "");
@@ -260,21 +305,23 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
 
   root.querySelector(".pron-readable").textContent = cardData.pronunciation.readable || "";
   root.querySelector(".ipa").textContent = cardData.pronunciation.ipa || "";
+  // <<< END OVERVIEW_FORMS_R131
 
-  // Etymology: structured canonical OR legacy html
+  // >>> START ETYMOLOGY_RENDER_R133
   const etyEl = root.querySelector(".etymology");
   if (cardData.etymology?.origin || cardData.etymology?.evolution || cardData.etymology?.mnemonic) {
     const parts = [
       cardData.etymology.origin ? `<div><strong>Origin:</strong> ${cardData.etymology.origin}</div>` : "",
       cardData.etymology.evolution ? `<div>${cardData.etymology.evolution}</div>` : "",
-      cardData.etymology.mnemonic ? `<div><em>${cardData.etymology.mnemonic}</em></div>` : ""
+      cardData.etymology.mnemonic ? `<div><em>${cardData.etymology.mnemonic}</em></div>` : "",
     ].filter(Boolean);
     etyEl.innerHTML = parts.join("");
   } else {
     etyEl.innerHTML = cardData.etymology?.noteHtml || "";
   }
+  // <<< END ETYMOLOGY_RENDER_R133
 
-  // ---------- Examples ----------
+  // >>> START EXAMPLES_RENDER_R141
   const ex0 = cardData.examples[0] || {};
   const exIt = root.querySelector(".example-it");
   exIt.textContent = ex0.it || "";
@@ -283,8 +330,9 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
   const exEn = root.querySelector(".example-en");
   exEn.textContent = ex0.en || "";
   exEn.setAttribute("data-say", ex0.en || "");
+  // <<< END EXAMPLES_RENDER_R141
 
-  // ---------- Grammar / Quiz (canonical fallback if placeholders missing) ----------
+  // >>> START GRAMMAR_QUIZ_RENDER_R151
   const grammarHtml =
     cardData.placeholders?.grammar ||
     (cardData.grammar?.notes ? `Grammar: ${cardData.grammar.notes}` : "") ||
@@ -297,8 +345,9 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
 
   root.querySelector(".grammar").innerHTML = grammarHtml;
   root.querySelector(".quiz").innerHTML = quizHtml;
+  // <<< END GRAMMAR_QUIZ_RENDER_R151
 
-  // ---------- Related ----------
+  // >>> START RELATED_RENDER_R161
   const relatedList = root.querySelector(".related-row-list");
   relatedList.innerHTML = "";
 
@@ -320,8 +369,9 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
       relatedList.appendChild(span);
     });
   }
+  // <<< END RELATED_RENDER_R161
 
-  // ---------- Tabs ----------
+  // >>> START TABS_WIRING_R171
   const tabs = card.querySelectorAll(".tab");
   const sections = card.querySelectorAll(".tab-section");
 
@@ -335,8 +385,9 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
       );
     });
   });
+  // <<< END TABS_WIRING_R171
 
-  // ---------- Speech (hover/click) ----------
+  // >>> START SPEECH_PICKVOICE_R181
   const pickVoice = (lang) => {
     const voices = window.speechSynthesis.getVoices();
     const l = (lang || "").toLowerCase();
@@ -344,7 +395,9 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
     if (l.startsWith("en")) return voices.find((v) => v.lang.startsWith("en")) || null;
     return null;
   };
+  // <<< END SPEECH_PICKVOICE_R181
 
+  // >>> START SPEECH_SAY_R182
   const say = (text, lang) => {
     if (!text) return;
     window.speechSynthesis.cancel();
@@ -354,7 +407,9 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
     if (v) u.voice = v;
     window.speechSynthesis.speak(u);
   };
+  // <<< END SPEECH_SAY_R182
 
+  // >>> START SPEECH_BINDINGS_R183
   root.querySelectorAll("[data-say]").forEach((el) => {
     el.addEventListener("mouseenter", () =>
       say(el.getAttribute("data-say"), el.getAttribute("data-lang"))
@@ -363,13 +418,15 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
       say(el.getAttribute("data-say"), el.getAttribute("data-lang"))
     );
   });
+  // <<< END SPEECH_BINDINGS_R183
 };
 
-/**
- * Render MANY cards
- */
+// <<< END RENDER_ONE_CARD_R100
+
+// >>> START RENDER_MANY_CARDS_R190
 window.CapiscoSeasonsCard.renderMany = function renderMany(container, cards) {
   if (!container) throw new Error("renderMany: container is required");
   if (!Array.isArray(cards)) throw new Error("renderMany: cards[] is required");
   cards.forEach((c) => window.CapiscoSeasonsCard.render(container, c));
 };
+// <<< END RENDER_MANY_CARDS_R190

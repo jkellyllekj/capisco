@@ -1,10 +1,18 @@
 {
+  "__START_CARD_STAGIONE_S000__": true,
+
+  "__START_CORE_S005__": true,
   "id": "stagione",
   "type": "vocab",
   "language": "it",
+  "conceptId": "concept.season",
+  "__END_CORE_S005__": true,
 
+  "__START_LEGACY_DISPLAY_S010__": true,
   "legacyIcon": "🌀",
+  "__END_LEGACY_DISPLAY_S010__": true,
 
+  "__START_HEADWORD_S020__": true,
   "headword": {
     "it": "stagione",
     "en": "season",
@@ -12,14 +20,18 @@
     "gender": "f",
     "register": "neutral"
   },
+  "__END_HEADWORD_S020__": true,
 
+  "__START_FORMS_S030__": true,
   "forms": {
     "canonical": "stagione",
     "singular": "stagione",
     "plural": "stagioni",
     "variants": []
   },
+  "__END_FORMS_S030__": true,
 
+  "__START_PRONUNCIATION_S040__": true,
   "pronunciation": {
     "readable": "sta-JO-ne",
     "ipa": "[staˈd͡ʒoːne]",
@@ -28,13 +40,17 @@
       "en": null
     }
   },
+  "__END_PRONUNCIATION_S040__": true,
 
+  "__START_MEANING_S050__": true,
   "meaning": {
     "primary": "season",
     "extended": ["period", "phase"],
     "usageNotes": "Can also refer to sports/TV seasons."
   },
+  "__END_MEANING_S050__": true,
 
+  "__START_EXAMPLES_S060__": true,
   "examples": [
     {
       "it": "La mia stagione preferita è l'autunno.",
@@ -43,61 +59,87 @@
       "difficulty": "easy"
     }
   ],
+  "__END_EXAMPLES_S060__": true,
 
+  "__START_GRAMMAR_S070__": true,
   "grammar": {
     "notes": "Feminine noun ending in -e; plural changes to -i.",
     "patterns": ["-e → -i plural"],
     "exceptions": []
   },
+  "__END_GRAMMAR_S070__": true,
 
+  "__START_ETYMOLOGY_S080__": true,
   "etymology": {
     "origin": "Latin: statio",
     "evolution": "Sense shifted from ‘fixed position/period’ to ‘season/phase’.",
     "mnemonic": "Think of a ‘station’ (statio) as a fixed period in the year."
   },
+  "__END_ETYMOLOGY_S080__": true,
 
+  "__START_RELATIONS_S090__": true,
   "relations": {
-    "related": ["primavera", "estate", "autunno", "inverno"],
-    "phonetic": ["stazione"],
-    "semantic": ["periodo", "fase"],
+    "lemma": [],
+    "forms": [],
     "synonyms": [],
     "antonyms": [],
-    "contrasts": ["stazione"],
-    "collocations": ["stagione alta", "fuori stagione"],
+    "collocations": ["alta_stagione", "fuori_stagione"],
     "expressions": [],
-    "themes": ["time", "weather"]
+    "grammar": [],
+    "themes": ["time", "weather"],
+
+    "related": ["primavera", "estate", "autunno", "inverno"],
+    "phonetic": ["stazione"],
+    "contrasts": ["stazione"],
+    "semantic": ["periodo", "fase"]
   },
+  "__END_RELATIONS_S090__": true,
 
-  "legacyRelated": [
-    { "it": "primavera", "emoji": "🌼" },
-    { "it": "estate", "emoji": "☀️" },
-    { "it": "autunno", "emoji": "🍂" },
-    { "it": "inverno", "emoji": "❄️" }
-  ],
-
+  "__START_IMAGES_S100__": true,
   "images": {
-    "canonical": null,
     "fallback": {
-      "src": null,
-      "type": "icon"
-    }
+      "type": "auto",
+      "prompt": "four seasons of the year photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": [
+      {
+        "id": "stagione_primary",
+        "kind": "local",
+        "type": "photo",
+        "alt": "Leaves arranged in a circle showing the four seasons by color",
+        "license": "unsplash",
+        "src": "./images/stagione.jpg?cb=PHASE6B_PHOTO_002"
+      }
+    ]
   },
+  "__END_IMAGES_S100__": true,
 
+
+
+  "__START_QUIZ_SEEDS_S110__": true,
   "quizSeeds": {
     "recognition": true,
     "recall": true,
     "production": true,
     "distractors": ["stazione", "stagnone"]
   },
+  "__END_QUIZ_SEEDS_S110__": true,
 
+  "__START_PLACEHOLDERS_S120__": true,
   "placeholders": {
     "grammar": "Grammar breakdown for <strong>stagione</strong> coming soon.",
     "quiz": "Quiz for <strong>stagione</strong> coming soon."
   },
+  "__END_PLACEHOLDERS_S120__": true,
 
+  "__START_METADATA_S130__": true,
   "metadata": {
     "difficulty": "A2",
     "tags": ["Seasons"],
     "rankId": "#1482"
-  }
+  },
+  "__END_METADATA_S130__": true,
+
+  "__END_CARD_STAGIONE_S000__": true
 }

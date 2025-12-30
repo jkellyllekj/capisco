@@ -1,44 +1,248 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- __START_META_S010__ -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Seasons Card Demo (Not Wired)</title>
+    <!-- __END_META_S010__ -->
+
+    <!-- __START_TITLE_S020__ -->
+    <title>Seasons Card Demo (Phase 6C)</title>
+    <!-- __END_TITLE_S020__ -->
+
+    <!-- __START_CSS_LINKS_S030__ -->
     <link rel="stylesheet" href="../../style-seasons-card.css" />
-  </head>
-  <body style="margin:0; background:#e5edf5;">
-    <main class="page">
-      <h1 style="margin:24px 0 8px;">Seasons Card Demo</h1>
-      <p class="page-intro" style="margin-bottom:24px;">
-        Reference demo page. Not wired into Capisco.
-      </p>
+    <!-- __END_CSS_LINKS_S030__ -->
 
-      <div id="mount"></div>
-    </main>
-
-    <script src="./render.js"></script>
-    <script>
-      async function main() {
-        const container = document.getElementById("mount");
-
-        // Load canonical JSON (works reliably in Replit preview)
-        const res = await fetch("./cards/stagione.card.json");
-        if (!res.ok) throw new Error("Failed to load card JSON: " + res.status);
-
-        const card = await res.json();
-
-        // Prove multi-card rendering
-        window.CapiscoSeasonsCard.renderMany(container, [card, card]);
+    <!-- __START_DEMO_STYLES_S500__ -->
+    <style>
+      /* ===============================
+         PAGE_BASE_S510
+         =============================== */
+      /* __START_PAGE_BASE_S510__ */
+      body {
+        margin: 0;
+        background: #e5edf5;
+        padding: 24px;
+        box-sizing: border-box;
       }
 
-      main().catch((err) => {
+      .page {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      /* Demo grid:
+         - 1-up by default
+         - 2-up at wide screens
+      */
+      #mount {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 32px;
+        width: 100%;
+        max-width: 1600px;
+        box-sizing: border-box;
+      }
+
+      #mount > * {
+        min-width: 0;
+      }
+
+      /* Mid-size: keep 1-up but cap + center */
+      @media (max-width: 1299px) {
+        #mount {
+          grid-template-columns: 1fr;
+        }
+        #mount > * {
+          max-width: 980px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
+
+      /* Wide: 2-up */
+      @media (min-width: 1300px) {
+        #mount {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        #mount > * {
+          max-width: none;
+          margin: 0;
+        }
+      }
+
+      /* Small screens */
+      @media (max-width: 719px) {
+        body {
+          padding: 12px;
+        }
+        #mount {
+          gap: 18px;
+        }
+      }
+      /* __END_PAGE_BASE_S510__ */
+
+      /* ===============================
+         IMAGE_LAYOUT_S600
+         =============================== */
+      /* __START_IMAGE_LAYOUT_S600__ */
+      :root {
+        --capisco-card-image-size: clamp(220px, 26vw, 340px);
+      }
+
+      .icon-circle.hidden {
+        display: none !important;
+      }
+
+      .card {
+        position: relative;
+        overflow: visible !important;
+      }
+
+      /* Wide: image on right */
+      @media (min-width: 1100px) {
+        .card-image {
+          position: absolute;
+          top: 18px;
+          right: 18px;
+          width: var(--capisco-card-image-size);
+          height: var(--capisco-card-image-size);
+        }
+
+        .card-header > div,
+        .tabs,
+        .card-body {
+          padding-right: calc(var(--capisco-card-image-size) + 24px);
+        }
+      }
+
+      /* Narrow / medium: stacked image */
+      @media (max-width: 1099px) {
+        :root {
+          --capisco-card-image-size: clamp(220px, 78vw, 360px);
+        }
+
+        .card-image {
+          position: static;
+          width: var(--capisco-card-image-size);
+          height: var(--capisco-card-image-size);
+          margin: 12px 0 0 0;
+        }
+
+        .card-header > div,
+        .tabs,
+        .card-body {
+          padding-right: 0;
+        }
+      }
+      /* __END_IMAGE_LAYOUT_S600__ */
+
+      /* ===============================
+         IMAGE_SHADOW_S610
+         =============================== */
+      /* __START_IMAGE_SHADOW_S610__ */
+      .capisco-card-media,
+      .card-media,
+      .media,
+      [data-media-slot],
+      [data-media] {
+        border-radius: 14px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.22);
+      }
+
+      img.capisco-card-image,
+      .capisco-card-media img,
+      .card-media img,
+      .media img,
+      [data-media-slot] img,
+      [data-media] img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        background: #fff;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      @media (min-width: 900px) {
+        .capisco-card-media,
+        .card-media,
+        .media,
+        [data-media-slot],
+        [data-media] {
+          max-width: 340px;
+        }
+      }
+      /* __END_IMAGE_SHADOW_S610__ */
+    </style>
+    <!-- __END_DEMO_STYLES_S500__ -->
+  </head>
+
+  <!-- __START_BODY_S100__ -->
+  <body>
+    <!-- __START_MAIN_S110__ -->
+    <main class="page">
+      <!-- __START_HEADER_S120__ -->
+      <h1 style="margin: 24px 0 8px">Seasons Card Demo</h1>
+      <p class="page-intro" style="margin-bottom: 24px">
+        Reference demo page. Loads a canonical card JSON and renders it.
+        Phase 6C focuses on demo layout stability (1-up → 2-up).
+      </p>
+      <!-- __END_HEADER_S120__ -->
+
+      <!-- __START_MOUNT_S130__ -->
+      <div id="mount"></div>
+      <!-- __END_MOUNT_S130__ -->
+    </main>
+    <!-- __END_MAIN_S110__ -->
+
+    <!-- __START_RENDERER_SCRIPT_TAG_S200__ -->
+    <script src="./render.js"></script>
+    <!-- __END_RENDERER_SCRIPT_TAG_S200__ -->
+
+    <!-- __START_BOOTSTRAP_SCRIPT_S300__ -->
+    <script>
+      /* __START_HELPERS_S310__ */
+      function showError(container, err) {
         console.error(err);
-        const container = document.getElementById("mount");
         container.innerHTML =
           '<pre style="color:#b00020; padding:16px; background:#fff; border-radius:12px;">' +
           String(err) +
           "</pre>";
+      }
+
+      async function loadJson(url) {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error("Failed to load JSON: " + url);
+        }
+        return res.json();
+      }
+      /* __END_HELPERS_S310__ */
+
+      /* __START_MAIN_S320__ */
+      async function main() {
+        const container = document.getElementById("mount");
+        const card = await loadJson("./cards/stagione.card.json");
+
+        // Start with 2 cards (safe baseline)
+        window.CapiscoSeasonsCard.renderMany(container, [card, card]);
+      }
+      /* __END_MAIN_S320__ */
+
+      /* __START_RUN_S330__ */
+      main().catch((err) => {
+        showError(document.getElementById("mount"), err);
       });
+      /* __END_RUN_S330__ */
     </script>
+    <!-- __END_BOOTSTRAP_SCRIPT_S300__ -->
   </body>
+  <!-- __END_BODY_S100__ -->
 </html>
