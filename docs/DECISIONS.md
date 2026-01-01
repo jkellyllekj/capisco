@@ -47,4 +47,23 @@ Rule: short, dated, and only decisions that still matter.
 **Why:** Rendering invariants come before new features/polish.  
 **Implications:** Implement via a single winning CSS/JS marker-block change after locating the source-of-truth styles.
 
+---
+
+## 2026-01-01 — One step at a time (workflow constraint)
+**Decision:** We work in **single-step increments**: one change per step, one file/block at a time.  
+**Why:** Prevent overload, reduce errors, and avoid “losing the thread”.  
+**Implications:** No multi-step instructions. Each message delivers exactly one actionable change.
+
+---
+
+## 2026-01-01 — Block-tag convention (edit targeting)
+**Decision:** Use block tags in code/docs so edits are **full block replacements only** and referenced by **inner block name**.  
+**Why:** Makes edits fast, searchable, and safe; avoids fragile line edits.  
+**Implications:**
+- HTML/MD: `<!-- __START_NAME__ --> ... <!-- __END_NAME__ -->`
+- CSS: `/* __START_NAME__ */ ... /* __END_NAME__ */`
+- Python: `# __START_NAME__` ... `# __END_NAME__`
+- JSON: **no markers** (valid JSON only)
+
+
 <!-- __END__ -->

@@ -1,5 +1,10 @@
-#!/usr/bin/env python
+# __START_FILE_P000__
 
+# __START_HEADER_P010__
+#!/usr/bin/env python
+# __END_HEADER_P010__
+
+# __START_IMPORTS_P020__
 import http.server
 import socketserver
 import mimetypes
@@ -9,17 +14,24 @@ import os
 import sys
 from pathlib import Path
 from lesson_processor import CapiscoLessonProcessor
+# __END_IMPORTS_P020__
 
+# __START_MIMETYPES_P030__
 # Set proper MIME types
 mimetypes.add_type('application/javascript', '.js')
 mimetypes.add_type('text/css', '.css')
 mimetypes.add_type('text/html', '.html')
+# __END_MIMETYPES_P030__
 
+# __START_HANDLER_CLASS_P100__
 class CapiscoRequestHandler(http.server.SimpleHTTPRequestHandler):
+    # __START_HANDLER_INIT_P110__
     def __init__(self, *args, **kwargs):
         self.processor = CapiscoLessonProcessor(fast_mode=True)  # Enable fast mode for speed
         super().__init__(*args, **kwargs)
+    # __END_HANDLER_INIT_P110__
 
+    # __START_END_HEADERS_P120__
     def end_headers(self):
         # Add CORS headers
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -30,7 +42,9 @@ class CapiscoRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Pragma', 'no-cache')
         self.send_header('Expires', '0')
         super().end_headers()
+    # __END_END_HEADERS_P120__
 
+    # __START_GUESS_TYPE_P130__
     def guess_type(self, path):
         # Force correct MIME types
         path_str = str(path)
@@ -41,18 +55,24 @@ class CapiscoRequestHandler(http.server.SimpleHTTPRequestHandler):
         elif path_str.endswith('.html'):
             return 'text/html'
         return super().guess_type(path)
+    # __END_GUESS_TYPE_P130__
 
+    # __START_OPTIONS_P140__
     def do_OPTIONS(self):
         """Handle CORS preflight requests"""
         self.send_response(200)
         self.end_headers()
+    # __END_OPTIONS_P140__
 
+    # __START_GET_P150__
     def do_GET(self):
         # Serve capisco-app.html as the main page
         if self.path == '/' or self.path == '/index.html':
             self.path = '/capisco-app.html'
         return super().do_GET()
+    # __END_GET_P150__
 
+    # __START_POST_P200__
     def do_POST(self):
         """Handle POST requests for lesson generation"""
         if self.path == '/generate-lesson':
@@ -60,36 +80,36 @@ class CapiscoRequestHandler(http.server.SimpleHTTPRequestHandler):
                 # Get content length and read POST data
                 content_length = int(self.headers['Content-Length'])
                 post_data = self.rfile.read(content_length)
-                
+
                 # Parse JSON data
                 data = json.loads(post_data.decode('utf-8'))
                 video_url = data.get('videoUrl', '')
                 source_lang = data.get('sourceLang', 'it')
                 target_lang = data.get('targetLang', 'en')
-                
+
                 print(f"🎬 Processing lesson request:")
                 print(f"   Video: {video_url}")
                 print(f"   Languages: {source_lang} → {target_lang}")
-                
+
                 # Generate lesson using optimized fast processor
                 lesson_data = self.processor.generate_dynamic_lesson_fast(
                     video_url, source_lang, target_lang
                 )
-                
+
                 # Send JSON response
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                
+
                 response = json.dumps(lesson_data, ensure_ascii=False, indent=2)
                 self.wfile.write(response.encode('utf-8'))
-                
+
             except Exception as e:
                 print(f"❌ Error processing lesson: {e}")
                 self.send_response(500)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                
+
                 error_response = json.dumps({
                     "error": f"Failed to generate lesson: {str(e)}"
                 })
@@ -98,11 +118,14 @@ class CapiscoRequestHandler(http.server.SimpleHTTPRequestHandler):
             # Handle other POST requests normally
             self.send_response(404)
             self.end_headers()
+    # __END_POST_P200__
+# __END_HANDLER_CLASS_P100__
 
+# __START_MAIN_P900__
 if __name__ == "__main__":
     PORT = 5000
     Handler = CapiscoRequestHandler
-    
+
     try:
         with socketserver.TCPServer(("0.0.0.0", PORT), Handler) as httpd:
             print(f"✅ Capisco Server running at http://0.0.0.0:{PORT}/")
@@ -113,3 +136,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"❌ Error starting server: {e}")
         sys.exit(1)
+# __END_MAIN_P900__
+
+# __END_FILE_P000__
