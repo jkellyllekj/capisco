@@ -304,30 +304,37 @@
 
 
 /* __START_MEDIA_BASELINE_S700__ */
-/* Phase 6B — Canonical media baseline
-   - Wrapper: rounding + shadow + clipping
-   - Image: contain + natural height (no crop)
-   - Fix mobile gap by collapsing `.card-image` (the real container)
+/* Phase 7 — Media containment invariant
+   Goal: Media never overflows or escapes bounds in any tab state (incl. empty tabs).
+
+   Rules:
+   - The clipping boundary is the slot wrapper (.card-image) and the media wrapper (.capisco-card-media etc).
+   - Apply rounding + overflow hidden to the wrapper, never the raw media element.
+   - Clamp ALL common media types: img, video, svg, canvas, picture.
+   - Prevent flex children from forcing overflow horizontally.
 */
 
 .card-image {
-  /* This is the gap-owner: force it to shrink-wrap content */
+  /* gap owner + slot boundary */
   margin: 6px 0 6px 0 !important;
   padding: 0 !important;
+
+  display: block !important;
+  position: relative !important;
+  max-width: 100% !important;
 
   height: auto !important;
   min-height: 0 !important;
   max-height: none !important;
   aspect-ratio: auto !important;
 
-  display: block !important;
-
-  /* Match our media rounding (override inline 20px) */
+  /* slot = clip boundary */
   border-radius: 8px !important;
   overflow: hidden !important;
   background: transparent !important;
 }
 
+/* Media wrapper(s): also act as clip boundary (defensive) */
 .capisco-card-media,
 .card-media,
 .media,
@@ -336,8 +343,13 @@
   margin: 0 !important;
   padding: 0 !important;
 
+  display: block !important;
+  position: relative !important;
+  max-width: 100% !important;
+
   border-radius: 8px !important;
   overflow: hidden !important;
+
   background: #fff !important;
 
   box-shadow:
@@ -353,27 +365,67 @@
   justify-self: start !important;
 }
 
+/* Clamp *anything* placed inside the media wrapper */
+.capisco-card-media > *,
+.card-media > *,
+.media > *,
+[data-media-slot] > *,
+[data-media] > * {
+  display: block !important;
+  max-width: 100% !important;
+}
+
+/* Clamp common media types */
 img.capisco-card-image,
 .capisco-card-image,
 .capisco-card-media img,
+.capisco-card-media video,
+.capisco-card-media svg,
+.capisco-card-media canvas,
+.capisco-card-media picture,
 .card-media img,
+.card-media video,
+.card-media svg,
+.card-media canvas,
+.card-media picture,
 .media img,
+.media video,
+.media svg,
+.media canvas,
+.media picture,
 [data-media-slot] img,
-[data-media] img {
+[data-media-slot] video,
+[data-media-slot] svg,
+[data-media-slot] canvas,
+[data-media-slot] picture,
+[data-media] img,
+[data-media] video,
+[data-media] svg,
+[data-media] canvas,
+[data-media] picture {
   margin: 0 !important;
   padding: 0 !important;
 
   display: block !important;
+  max-width: 100% !important;
+
   width: 100% !important;
   height: auto !important;
 
-  object-fit: contain !important;
-
+  /* Never let raw media fight the wrapper's rounding */
   border-radius: 0 !important;
   box-shadow: none !important;
   background: #fff !important;
+
+  object-fit: contain !important;
+}
+
+/* Defensive: if any wrapper sits inside a flex row, allow it to shrink */
+.card-header > * {
+  min-width: 0 !important;
 }
 /* __END_MEDIA_BASELINE_S700__ */
+
 
 
 
