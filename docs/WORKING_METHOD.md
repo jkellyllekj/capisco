@@ -91,6 +91,23 @@ DECISION CAPTURE
 - Chat transcripts are not copied
 - Only decisions that still matter are recorded
 
+RE-ANCHORING WHEN CONTEXT DEGRADES
+
+Rule:
+When conversational context becomes unreliable or degraded, we do not attempt to recover by rereading long chat history.
+
+Instead, we deliberately re-anchor by returning to in-repo truth:
+- PROJECT_STATE.md
+- WORKING_METHOD.md
+- DECISIONS.md
+- relevant contracts (for example, card-contract.md)
+
+Implications:
+- Truth lives in the repo, not in chat memory.
+- Long chats may be abandoned in favour of a clean reset.
+- Re-anchoring is an explicit, intentional act — not an improvisation.
+
+
 
 NEW PHASE START CHECKLIST (MANDATORY)
 

@@ -7,6 +7,14 @@ Rule: short, dated, and only decisions that still matter.
 
 ---
 
+## 2026-01-01 — PROJECT_STATE is the sole state anchor
+**Decision:** `docs/PROJECT_STATE.md` is the only authoritative reference for the current frozen project state. `docs/STATUS.md` is non-authoritative and must not be treated as a state anchor.  
+**Why:** Prevent drift and confusion caused by multiple “current state” files.  
+**Implications:** All state updates go through PROJECT_STATE only; STATUS.md may be retired or removed later.
+
+
+---
+
 ## 2026-01-01 — Phase 7 “Line in the sand”
 **Decision:** Treat Phase 7 as the start of contract-first product development.  
 **Why:** Avoid relying on long chat history; keep truth in-repo; reduce drift.  

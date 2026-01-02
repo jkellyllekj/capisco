@@ -1,1 +1,0 @@
-Canonical repo: capisco Reference repos: capisco-seasons-test = best card UI (tabs + hover audio + images) Capisco-New = lesson section layout/cards experiment Current goal: Port the seasons-test card component into capisco and make capisco render lessons using that card UI. Rules: One change per commit. No “mystery code”: explain every new file/function.
