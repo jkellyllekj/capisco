@@ -5,6 +5,36 @@
 Purpose: capture decisions that constrain future work.
 Rule: short, dated, and only decisions that still matter.
 
+
+<!-- __START_DECISION_D013__ -->
+
+### D013 — Grid columns must not impose fixed minimums in multi-column contexts
+
+**Date:** 2026-01-04  
+**Context:** Seasons Card demo image clipping at ~1366px+ in 2-up layout.
+
+**Decision:**
+When a Card is rendered inside a multi-column parent (e.g. 2-up layouts), any internal CSS Grid using `minmax()` **must not** impose a fixed minimum width (e.g. `minmax(460px, 1fr)`).
+
+Instead, text/content columns must use:
+
+minmax(0, 1fr)
+
+pgsql
+Copy code
+
+and allow shrinking when the card itself is constrained.
+
+**Rationale:**
+- Fixed grid minimums can exceed the available card width in multi-column layouts.
+- This causes silent overflow and apparent “media clipping” even when no `overflow: hidden` is present.
+- This failure mode is non-obvious and expensive to debug without full layout context.
+
+**Implication:**
+- Any future card, tile, or composite component using CSS Grid must default to `minmax(0, 1fr)` unless a hard minimum is explicitly required and proven safe in multi-column layouts.
+
+<!-- __END_DECISION_D013__ -->
+
 ---
 
 ## 2026-01-01 — PROJECT_STATE is the sole state anchor

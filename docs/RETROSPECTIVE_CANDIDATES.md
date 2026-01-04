@@ -10,3 +10,6 @@ Rules:
 
 Status: Phase 8 active.
 
+- CSS Grid bugs can present as media clipping even when no overflow rules are active.
+- Full-file context (HTML + CSS + JS) may be required before diagnosis is possible.
+- Consider earlier escalation to “upload files” when layout math is involved.

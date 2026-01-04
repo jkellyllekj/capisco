@@ -65,12 +65,14 @@ class CapiscoRequestHandler(http.server.SimpleHTTPRequestHandler):
     # __END_OPTIONS_P140__
 
     # __START_GET_P150__
-    def do_GET(self):
-        # Serve capisco-app.html as the main page
-        if self.path == '/' or self.path == '/index.html':
-            self.path = '/capisco-app.html'
-        return super().do_GET()
-    # __END_GET_P150__
+def do_GET(self):
+    # Phase 9: serve the Seasons Card demo as the default homepage
+    # (capisco-app.html remains accessible directly).
+    if self.path == '/' or self.path == '/index.html':
+        self.path = '/ui/seasons-card/demo.html'
+    return super().do_GET()
+# __END_GET_P150__
+
 
     # __START_POST_P200__
     def do_POST(self):

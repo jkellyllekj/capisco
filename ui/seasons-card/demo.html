@@ -16,129 +16,179 @@
 
     <!-- __START_DEMO_STYLES_S500__ -->
     <style>
-      /* ===============================
-         PAGE_BASE_S510
-         =============================== */
-      /* __START_PAGE_BASE_S510__ */
-      body {
-        margin: 0;
-        background: #e5edf5;
-        padding: 24px;
-        box-sizing: border-box;
-      }
+/* __START_PAGE_BASE_S510__ */
 
-      .page {
-        width: 100%;
-        max-width: none;
-        margin: 0;
-        box-sizing: border-box;
-      }
+:root{
+  --demo-gap: 24px;
+  --demo-card-max: 980px;
+}
 
-      /* Demo grid:
-         - 1-up by default
-         - 2-up at wide screens
-      */
-      #mount {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 32px;
-        width: 100%;
-        max-width: 1600px;
-        box-sizing: border-box;
-      }
+/* outer page container */
+.page{
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
 
-      #mount > * {
-        min-width: 0;
-      }
+/* main demo mount: centered at all widths */
+#mount{
+  display: grid;
+  gap: var(--demo-gap);
 
-      /* Mid-size: keep 1-up but cap + center */
-      @media (max-width: 1299px) {
-        #mount {
-          grid-template-columns: 1fr;
-        }
-        #mount > * {
-          max-width: 980px;
-          margin-left: auto;
-          margin-right: auto;
-        }
-      }
+  width: 100%;
+  max-width: calc((var(--demo-card-max) * 2) + var(--demo-gap));
+  margin: 0 auto;
 
-      /* Wide: 2-up */
-      @media (min-width: 1300px) {
-        #mount {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-        #mount > * {
-          max-width: none;
-          margin: 0;
-        }
-      }
+  /* 1-up default */
+  grid-template-columns: minmax(0, var(--demo-card-max));
+  justify-content: center;
 
-      /* Small screens */
-      @media (max-width: 719px) {
-        body {
-          padding: 12px;
-        }
-        #mount {
-          gap: 18px;
-        }
-      }
-      /* __END_PAGE_BASE_S510__ */
+  box-sizing: border-box;
+}
 
-      /* ===============================
-         IMAGE_LAYOUT_S600
-         =============================== */
-      /* __START_IMAGE_LAYOUT_S600__ */
-      :root {
-        --capisco-card-image-size: clamp(220px, 26vw, 340px);
-      }
+#mount > *{
+  min-width: 0;
+  width: 100%;
+  max-width: var(--demo-card-max);
+  justify-self: center;
+}
 
-      .icon-circle.hidden {
-        display: none !important;
-      }
+/* 2-up */
+@media (min-width: 1300px){
+  #mount{
+    grid-template-columns: repeat(2, minmax(0, var(--demo-card-max)));
+  }
+}
 
-      .card {
-        position: relative;
-        overflow: visible !important;
-      }
+/* -----------------------------
+   MEDIA CLIP FIX (1366+ issue)
+   -----------------------------
+   Goal: when the card goes “image-on-right”, the media column MUST be able
+   to shrink, and the <img> must scale to the media box.
+*/
+.card-image{
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
 
-      /* Wide: image on right */
-      @media (min-width: 1100px) {
-        .card-image {
-          position: absolute;
-          top: 18px;
-          right: 18px;
-          width: var(--capisco-card-image-size);
-          height: var(--capisco-card-image-size);
-        }
+/* clamp the *column* so it never forces overflow in 2-up widths */
+@media (min-width: 1100px){
+  .card-image{
+    width: auto !important;
+    max-width: clamp(220px, 30vw, 360px) !important;
+    justify-self: end;
+  }
+}
 
-        .card-header > div,
-        .tabs,
-        .card-body {
-          padding-right: calc(var(--capisco-card-image-size) + 24px);
-        }
-      }
+.card-image .capisco-card-media{
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
 
-      /* Narrow / medium: stacked image */
-      @media (max-width: 1099px) {
-        :root {
-          --capisco-card-image-size: clamp(220px, 78vw, 360px);
-        }
+/* the actual image must never exceed its container */
+.card-image .capisco-card-media img{
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: cover;
+}
 
-        .card-image {
-          position: static;
-          width: var(--capisco-card-image-size);
-          height: var(--capisco-card-image-size);
-          margin: 12px 0 0 0;
-        }
+/* __END_PAGE_BASE_S510__ */
 
-        .card-header > div,
-        .tabs,
-        .card-body {
-          padding-right: 0;
-        }
-      }
-      /* __END_IMAGE_LAYOUT_S600__ */
+
+
+
+
+
+
+/* __START_IMAGE_LAYOUT_S600__ */
+/*
+  Demo media layout tuning (no absolute positioning):
+  States:
+  A) Mobile/skinny: stacked, image not crazy huge
+  B) Mid/desktop 1-up: side-by-side sooner, image reasonably big
+  C) 2-up: protect text column from being squashed (image shrinks a bit)
+*/
+
+/* keep hidden icon behavior */
+.icon-circle.hidden {
+  display: none !important;
+}
+
+/* Default image size variable (1-up desktop) */
+:root {
+  --capisco-card-image-size: clamp(240px, 22vw, 360px);
+}
+
+/* Card becomes a grid for predictable media placement */
+.card {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "header"
+    "media"
+    "tabs"
+    "body";
+}
+
+.card-header { grid-area: header; }
+.card-image  { grid-area: media; }
+.tabs        { grid-area: tabs; }
+.card-body   { grid-area: body; }
+
+/* A) Mobile/skinny: stacked, but cap the growth */
+.card-image {
+  width: min(100%, clamp(260px, 78vw, 560px));
+  height: auto;
+  margin: 12px 0 0 0;
+}
+
+/* B) Mid widths: switch to side-by-side earlier to avoid “super long” */
+@media (min-width: 900px) {
+  .card {
+    grid-template-columns: minmax(420px, 1fr) var(--capisco-card-image-size);
+    grid-template-areas:
+      "header media"
+      "tabs   media"
+      "body   media";
+    column-gap: 18px;
+    align-items: start;
+  }
+
+  .card-image {
+    width: var(--capisco-card-image-size);
+    margin: 18px 18px 0 0;
+  }
+}
+
+/* B2) Larger 1-up desktop: allow a bit more image */
+@media (min-width: 1200px) {
+  :root {
+    --capisco-card-image-size: clamp(260px, 24vw, 420px);
+  }
+}
+
+/* C) 2-up protection:
+   When the overall viewport is wide enough for 2-up, each card is narrower.
+   Reduce image size so text doesn’t get crushed.
+*/
+@media (min-width: 1300px) {
+  :root {
+    --capisco-card-image-size: clamp(220px, 18vw, 320px);
+  }
+
+  .card {
+    grid-template-columns: minmax(0, 1fr) var(--capisco-card-image-size);
+  }
+}
+/* __END_IMAGE_LAYOUT_S600__ */
+
+
+
 
       /* ===============================
          IMAGE_SHADOW_S610
@@ -148,7 +198,8 @@
       .card-media,
       .media,
       [data-media-slot],
-      [data-media] {
+      [data-media],
+      [data-media-slot] > .capisco-card-media {
         border-radius: 14px;
         overflow: hidden;
         background: #fff;

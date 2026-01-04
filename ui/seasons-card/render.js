@@ -277,10 +277,8 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
   slot.innerHTML = html;
   slot.classList.remove("hidden");
 
-  // ---- NEW: ensure the slot clips to rounded corners ----
-  // The demo CSS rounds/shadows .capisco-card-media, but your <img> isn't getting clipped.
-  // We enforce clipping at the slot level so it always works.
-  slot.style.overflow = "hidden";
+  // Keep rounding, but DO NOT clip (clipping caused breakpoint cut-off)
+  // CHANGED: removed overflow hidden
   slot.style.borderRadius = "20px";
 
   // If we have a real image block, hide the old blue circle placeholder
