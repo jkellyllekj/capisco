@@ -1,89 +1,210 @@
-# Capisco — Project State (Authoritative)
+# Card Content Multiplicity Spec (Authoritative)
+Phase: 15 — Card Content Expansion & Multiplicity  
+Status: Draft (data / contract only)  
 Last updated: 2026-01-04
 
-<!-- __START_PROJECT_STATE_REANCHOR_S100__ -->
+<!--
+============================================================================
+BLOCK INDEX
+S010 — SPEC_META
+S020 — PURPOSE
+S030 — CARDINALITY_TABLE
+S040 — GLOBAL_RULES
+S050 — SENSE_MODEL
+S060 — EXAMPLES_MODEL
+S070 — FORMS_MODEL
+S080 — RELATIONS_MODEL
+S090 — CANONICAL_VS_OPTIONAL
+S100 — STABILITY_FORWARD_COMPAT
+S110 — NON_GOALS
+============================================================================
+-->
 
-## If this is a new ChatGPT page, read this first (MANDATORY)
+__START_SPEC_META_S010__
+## Spec status
+This spec is authoritative for **card content multiplicity** (data/contract only).
+Implementation details are explicitly out of scope.
+__END_SPEC_META_S010__
 
-### Canonical re-anchor links (use these every new chat)
-- PROJECT_STATE (this file): https://github.com/jkellyllekj/capisco/blob/main/docs/PROJECT_STATE.md?plain=1
-- WORKING_METHOD (authoritative process): https://github.com/jkellyllekj/capisco/blob/main/docs/WORKING_METHOD.md?plain=1
-- DECISIONS (durable constraints): https://github.com/jkellyllekj/capisco/blob/main/docs/DECISIONS.md?plain=1
+---
 
-### Repo entrypoints (human navigation)
-- Demo: `ui/seasons-card/demo.html`
-- Viewport Lab: `ui/seasons-card/viewport-lab.html`
-- Styles: `style-seasons-card.css`
-- Card UI / renderer: (keep updated) `ui/seasons-card/render.js` (or replace with true path)
+__START_PURPOSE_S020__
+## Purpose
 
-### Current phase (single source of truth)
-**Current Phase:** Phase 15 — Card Content Expansion & Multiplicity (DATA / CONTRACT ONLY)
+This document defines the **authoritative content model** for Capisco cards,
+with explicit support for **multiplicity** (multiple senses, examples, forms,
+relations, media, etc.).
 
-<!-- __END_PROJECT_STATE_REANCHOR_S100__ -->
+It answers:
+- What fields exist
+- Which fields are singular vs repeatable
+- How repeated items are ordered and identified
+- What is required for a card to be considered valid
 
+This spec is **data-first** and **implementation-agnostic**.
+__END_PURPOSE_S020__
 
-<!-- __START_PROJECT_STATE_PHASE15_S200__ -->
+---
 
-## Phase 15 — Card Content Expansion & Multiplicity
+__START_CARDINALITY_TABLE_S030__
+## Cardinality Table (Single Source of Truth)
 
-### Purpose
-Expand the **Card content model** to support richer content and **multiplicity** (multiple examples, senses, registers, images, forms, etc.) while preserving the existing contract + scalable rendering approach.
+| Field | Cardinality | Notes |
+|------|------------|------|
+| `card_id` | 1 | Stable identifier |
+| `language` | 1 | ISO language code (e.g. `it`) |
+| `lemma` | 1 | Canonical surface form |
+| `part_of_speech` | 1 | Enum |
+| `gender` | 0..1 | Language-dependent |
+| `senses[]` | **1..N** | Ordered, stable |
+| `examples[]` | 0..N | Global examples |
+| `forms[]` | 0..N | Inflections / variants |
+| `relations[]` | 0..N | Synonyms, antonyms, etc |
+| `media[]` | 0..N | Governed by Media Model |
+| `etymology` | 0..1 | Structured text |
+| `registers[]` | 0..N | Formal / informal / slang |
+| `domains[]` | 0..N | Topic / semantic tags |
+| `quiz_seeds[]` | 0..N | Governed by Quiz contract |
+__END_CARDINALITY_TABLE_S030__
 
-### Allowed (Phase 15)
-- Data-first/spec-first work only:
-  - Define the **multiplicity rules** (what can repeat, ordering, IDs, precedence).
-  - Define the **expanded content fields** (required vs optional).
-  - Define **authoring / canonicalization** rules (how we store “one true” canonical content).
-  - Update **contracts/docs first** (PROJECT_STATE / DECISIONS / card-contract).
-- No implementation changes unless/until the spec is locked and Phase explicitly permits.
+---
 
-### Non-goals (Phase 15)
-- No renderer refactors.
-- No layout polish.
-- No new UI features.
-- No “quick hacks” to squeeze data into old shapes.
+__START_GLOBAL_RULES_S040__
+## Global Rules
 
-### Frozen / true right now (carry-forward)
-- Phases 12–14 are complete and committed (media pipeline contract-aligned and scalable). (If repo contradicts, repo wins.)
-- Phase 6C demo layout is “good enough” and frozen.
-- Demo-level layout tuning is paused.
-- The **Card is the canonical product object**, not a demo artifact.
-- JSON files are **data only** (no comments, no marker blocks).
-- Marker blocks are used only in HTML / CSS / JS / MD files.
-- One change per step.
-- Full block replacements only (no line edits).
-- Treat code as liability: minimize surface area.
+- A card **MUST** have at least one sense.
+- Order is meaningful wherever arrays are used unless explicitly stated.
+- All repeated items **MUST** support stable IDs.
+- Cards are treated as immutable semantic objects at the product level. How updates/versioning are represented is out of scope for Phase 15 and must not be assumed by this spec.
+__END_GLOBAL_RULES_S040__
 
-### Next single step (Phase 15.1)
-Define the **Card Content Multiplicity Spec** (data-only): a precise list of fields + which ones are singular vs arrays, including ID rules and ordering rules.
-(No code. No rendering changes.)
+---
 
-<!-- __END_PROJECT_STATE_PHASE15_S200__ -->
+__START_SENSE_MODEL_S050__
+## Sense Model (Core Unit)
 
+Each card contains **one or more senses**.
 
-<!-- __START_PROJECT_STATE_CANONICAL_DOCS_S300__ -->
+A sense represents a **distinct meaning**, not merely a usage variation.
 
-## Canonical docs (authoritative)
-- Working rules: `docs/WORKING_METHOD.md`
-- Decisions: `docs/DECISIONS.md`
-- Card contract: `docs/card-contract.md` (reference; must be updated if Phase 15 changes the model)
-- UI port plan: `docs/ui-port-plan.md` (reference)
-- Retrospective candidates: `docs/retrospective-candidates.md` (reference)
-- README / Replit notes: `README.md`, `replit.md`
+### Sense fields
 
-<!-- __END_PROJECT_STATE_CANONICAL_DOCS_S300__ -->
+Each sense MAY contain:
+- `sense_id` (required)
+- `definition` (required)
+- `gloss` (optional, short)
+- `usage_notes` (optional)
+- `examples[]` (0..N, sense-local)
+- `registers[]` (0..N, overrides global)
+- `domains[]` (0..N, overrides global)
+- `relations[]` (0..N, sense-local)
 
+### Sense rules
+- `sense_id` MUST be stable and never reused.
+- Senses are ordered by pedagogical priority.
+- Removing a sense invalidates dependent references.
+__END_SENSE_MODEL_S050__
 
-<!-- __START_PROJECT_STATE_ARCHIVE_S900__ -->
+---
 
-## Completed / Archived context (keep for history; not “current truth”)
+__START_EXAMPLES_MODEL_S060__
+## Examples Model
 
-### Previously observed drift (resolved by this rewrite)
-This file previously contained multiple conflicting “Current phase” declarations (Phase 6C/6D, Phase 7, Phase 9). This rewrite establishes **one** current phase.
+Examples may exist in two scopes:
+1. **Global examples** (`examples[]`)
+2. **Sense-local examples** (`sense.examples[]`)
 
-### Historical notes (do not treat as current)
-- Phase 6C / 6D: Seasons Card Demo + Viewport Lab (layout stability work; “good enough”)
-- Phase 7–9: Contract/invariant work (media containment, marker workflow, etc.)
-- Phases 12–14: Completed + committed (per current team truth; repo is canonical if conflict)
+### Rules
+- Examples MAY reference a `sense_id`.
+- Examples without a `sense_id` are considered global.
+- Each example MUST have a stable `example_id`.
+__END_EXAMPLES_MODEL_S060__
 
-<!-- __END_PROJECT_STATE_ARCHIVE_S900__ -->
+---
+
+__START_FORMS_MODEL_S070__
+## Forms Model
+
+Forms represent morphological or orthographic variants.
+
+Examples:
+- plural forms
+- conjugations
+- alternative spellings
+
+Rules:
+- Forms are optional.
+- Forms MUST NOT redefine meaning.
+- Forms MAY reference a `sense_id` if meaning differs by form.
+__END_FORMS_MODEL_S070__
+
+---
+
+__START_RELATIONS_MODEL_S080__
+## Relations Model
+
+Relations link this card to other cards or concepts.
+
+Examples:
+- synonym
+- antonym
+- hypernym
+- derived-from
+
+Rules:
+- Relations MAY be global or sense-specific.
+- Relations MUST declare their type.
+- Relations MUST reference stable external IDs.
+__END_RELATIONS_MODEL_S080__
+
+---
+
+__START_CANONICAL_VS_OPTIONAL_S090__
+## Canonical vs Optional Content
+
+### Required for a valid card
+- `card_id`
+- `language`
+- `lemma`
+- `part_of_speech`
+- at least one `sense` with a definition
+
+### Optional enrichment
+- examples
+- forms
+- relations
+- media
+- etymology
+- registers / domains
+
+Cards must render correctly from **minimal** to **fully populated** states.
+__END_CANONICAL_VS_OPTIONAL_S090__
+
+---
+
+__START_STABILITY_FORWARD_COMPAT_S100__
+## Stability & Forward Compatibility
+
+- New optional fields MAY be added in future phases.
+- Required fields MUST NOT change semantics.
+- Existing cards MUST remain valid under future extensions.
+__END_STABILITY_FORWARD_COMPAT_S100__
+
+---
+
+__START_NON_GOALS_S110__
+## Non-goals
+
+This spec does NOT:
+- Define rendering or UI behavior
+- Define storage or database schema
+- Define quiz generation logic
+- Permit breaking existing contracts
+- Replace the Media or Quiz specs
+
+Those concerns are governed elsewhere.
+__END_NON_GOALS_S110__
+
+---
+
+End of spec.
