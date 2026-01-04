@@ -4,65 +4,64 @@
 
 /* __START_IMAGE_MEDIA_HELPERS_R010__ */
 
+// Card media picker: concept registry -> card.images.canonical -> fallback
+function pickMedia(cardData) {
+  const canonical =
+    cardData?.images?.canonical ||
+    cardData?.images?.canonicalPhotos ||
+    cardData?.images?.canonicalIllustrations ||
+    [];
+  if (canonical.length) return canonical[0];
+  return cardData?.images?.fallback || null;
+}
+
 /**
- * Phase 6B — Canonical media rendering (robust src resolution)
- * Rules:
- * - NO inline sizing styles (CSS owns layout)
- * - Must handle older card shapes where media src is derived
+ * Phase 14B — render a media item deterministically.
+ * Supports:
+ * - local/remote src images (img)
+ * - fallback auto placeholders (stable, bounded div)
  */
 function renderCardMediaHtml(media) {
   if (!media) return "";
 
-  // 1) Direct src fields (newer shapes)
-  let src =
-    media.src ||
-    media.url ||
-    media.href ||
-    media.path ||
-    media.localPath ||
-    media.file ||
-    "";
-
-  // 2) If src still missing, derive from a stable id/name (older shapes)
-  //    We saw earlier: ./images/stagione.jpg?cb=PHASE6B_PHOTO_002
-  if (!src) {
-    const base =
-      media.id ||
-      media.imageId ||
-      media.key ||
-      media.slug ||
-      media.name ||
-      "";
-
-    if (base) {
-      const ext = media.ext || "jpg"; // default to jpg (your working example)
-      src = `./images/${base}.${ext}`;
-    }
+  // 1) Real image src paths
+  const src = media.src || media.url || media.href || media.path || "";
+  if (src) {
+    return `
+      <div class="capisco-card-media" data-media-slot="canonical">
+        <img
+          class="capisco-card-image"
+          src="${src}"
+          alt="${media.alt || ""}"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+    `;
   }
 
-  // 3) Optional cache-buster support (keeps your prior cb behaviour if present)
-  if (src && media.cb) {
-    const join = src.includes("?") ? "&" : "?";
-    src = `${src}${join}cb=${encodeURIComponent(media.cb)}`;
+  // 2) Fallback "auto" placeholder (deterministic, no network)
+  // We render a stable placeholder block so the UI is consistent.
+  if (media.type === "auto") {
+    const label = media.prompt || "image";
+    return `
+      <div class="capisco-card-media" data-media-slot="fallback">
+        <div
+          class="capisco-card-image"
+          style="width:100%; aspect-ratio: 4 / 3; display:flex; align-items:center; justify-content:center;"
+          aria-label="${label.replace(/"/g, "&quot;")}"
+        >
+          <span style="opacity:.55; font-size:14px;">${label}</span>
+        </div>
+      </div>
+    `;
   }
 
-  // If we still can't resolve a src, render nothing (placeholder stays visible)
-  if (!src) return "";
-
-  return `
-    <div class="capisco-card-media" data-media-slot="canonical">
-      <img
-        class="capisco-card-image"
-        src="${src}"
-        alt="${media.alt || ""}"
-        loading="lazy"
-        decoding="async"
-      />
-    </div>
-  `;
+  return "";
 }
 
 /* __END_IMAGE_MEDIA_HELPERS_R010__ */
+
 
 
 
@@ -95,7 +94,11 @@ function normalizeCard(raw) {
       grammar: raw.grammar || {},
       etymology: raw.etymology || {},
       relations: raw.relations || {},
+
+      // Phase 13: preserve contract media, and keep legacy images for now
+      media: raw.media || null,
       images: raw.images || null,
+
       quizSeeds: raw.quizSeeds || null,
       metadata: raw.metadata || {},
       legacyIcon: raw.legacyIcon || "",
@@ -106,6 +109,8 @@ function normalizeCard(raw) {
   }
 
   const legacy = raw;
+
+  // Legacy -> minimal canonical-ish mapping
   return {
     id: legacy.id || legacy.word?.it || "",
     type: legacy.type || "vocab",
@@ -133,13 +138,18 @@ function normalizeCard(raw) {
     legacyRelated: Array.isArray(legacy.related) ? legacy.related : [],
     placeholders: legacy.placeholders || null,
     tags: legacy.tags || null,
+
+    // Legacy images -> media bridge (Phase 13)
     images: legacy.images || null,
+    media: legacy.media || legacy.images || null,
+
     quizSeeds: legacy.quizSeeds || null,
     metadata: legacy.metadata || {},
   };
 }
 
 // <<< END NORMALIZE_CARD_R030
+
 
 // >>> START RENDER_ONE_CARD_R100
 
@@ -263,30 +273,44 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
   root.querySelector(".tag-cat").textContent = tagCat;
   // <<< END TAG_PILLS_R123
 
-/* MEDIA_SLOT_R124 */
+/* START_MEDIA_SLOT_R124 */
 
 // Wire media into the existing DOM slot: <div class="card-image hidden"><img/></div>
 (function wireCardMediaSlot() {
   const slot = root.querySelector(".card-image");
   const iconCircle = root.querySelector(".icon-circle");
 
-  // Render from the canonical picker (concept registry -> card.images.canonical -> fallback)
-  const html = renderCardMediaHtml(cardData);
+  // Phase 13/14B: Contract-first media selection
+  // Priority: media.canonical[0] -> media.fallback -> placeholder (empty)
+  let chosen = null;
 
-  // Put the HTML INSIDE the slot and show it
+  if (
+    cardData &&
+    cardData.media &&
+    Array.isArray(cardData.media.canonical) &&
+    cardData.media.canonical.length > 0
+  ) {
+    chosen = cardData.media.canonical[0];
+  } else if (cardData && cardData.media && cardData.media.fallback) {
+    chosen = cardData.media.fallback;
+  }
+
+  const html = chosen ? renderCardMediaHtml(chosen) : "";
+
+  // Put the HTML INSIDE the slot and show it (bounded slot still exists even if empty)
   slot.innerHTML = html;
   slot.classList.remove("hidden");
 
   // Keep rounding, but DO NOT clip (clipping caused breakpoint cut-off)
-  // CHANGED: removed overflow hidden
   slot.style.borderRadius = "20px";
 
-  // If we have a real image block, hide the old blue circle placeholder
-  const hasImg = !!slot.querySelector("img.capisco-card-image");
-  if (hasImg && iconCircle) iconCircle.classList.add("hidden");
+  // Hide the old circle placeholder if ANY media rendered (image or fallback tile)
+  const hasMedia = !!slot.querySelector(".capisco-card-media");
+  if (hasMedia && iconCircle) iconCircle.classList.add("hidden");
 })();
 
-/* MEDIA_SLOT_R124 */
+/* END_MEDIA_SLOT_R124 */
+
 
 
 

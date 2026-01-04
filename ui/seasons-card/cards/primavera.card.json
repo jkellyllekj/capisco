@@ -1,6 +1,5 @@
 {
   "id": "primavera",
-  "src": "./images/primavera.jpg",
 
   "kind": "vocab",
   "version": 1,
@@ -54,13 +53,7 @@
 
   "media": {
     "fallback": { "type": "auto", "prompt": "spring season illustration", "style": "clean educational" },
-    "canonical": [
-      {
-        "mediaId": "primavera_primary",
-        "kind": "local",
-        "src": "./images/primavera.jpg",
-        "alt": "Springtime blossoms and fresh green leaves"
-      }
-    ]
+ "canonical": []
+
   }
 }

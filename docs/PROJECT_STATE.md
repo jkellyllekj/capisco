@@ -79,38 +79,34 @@ __END_PROJECT_GOAL_S020__
 __START_CURRENT_PHASE_S030__
 ## CURRENT_PHASE_S030
 
-Phase 13 — Media Contract Wiring & Automation
+Phase 14B — Media Fallback Automation (Scale)
 
 Status:
-- Phase 12 proved end-to-end rendering from a pure JSON card payload.
-- Current renderer still contains legacy assumptions and temporary bridges (e.g. top-level `src`).
+- Renderer consumes media strictly via the locked contract (`card.media.*`).
+- Temporary bridges (root `src`) removed with no regressions.
 
 Purpose:
-- Make the renderer consume the **locked media contract** (`card.media.canonical[]` + `card.media.fallback`)
-  instead of legacy/bridge fields.
-- Ensure media always renders as a bounded slot (canonical → fallback → placeholder) with no layout overflow.
-- Establish the scalable path for 10k+ cards: “fallback-first, curate canonicals over time”.
+- Define deterministic, scalable behavior for `media.fallback` so cards render
+  without manual images.
+- Establish rules for automatic resolution at scale (10k+ cards) without
+  changing the card contract.
 
 Allowed in this phase:
-- Updating renderer media wiring to read from `card.media.*` (contract-compliant).
-- Removing temporary media bridges (e.g. root `src`) once contract wiring works.
-- Adding minimal helper logic to select a canonical media item deterministically.
-- Non-breaking refactors limited to media-only surfaces.
+- Defining fallback resolution rules (order, defaults, guarantees).
+- Adding minimal, media-only helper logic to render a fallback when no canonical exists.
+- Documenting provider strategy (AI / stock / placeholder) without building batch pipelines yet.
 - Full-block replacements only.
 
 Not allowed in this phase:
-- UI redesign / layout changes.
-- Changing the card contract fields (no schema drift).
-- Building the full batch pipeline yet (only define + stub decisions if needed).
-- Expanding quiz/game logic.
+- Contract changes (no schema drift).
+- UI/layout changes.
+- Manual per-card image curation as a requirement.
+- Building full automation/batch systems.
 
 Exit condition:
-- A card renders media using only `card.media.canonical[]` (when present),
-  otherwise uses `card.media.fallback`, otherwise shows a stable placeholder,
-  with no reliance on root `src` and no overflow regressions.
-
+- Cards with **no canonical images** still render a stable, bounded media slot
+  using `media.fallback` with deterministic behavior across sessions.
 __END_CURRENT_PHASE_S030__
-
 ---
 
 __START_DONE_LOCKED_S040__
