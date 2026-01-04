@@ -1,0 +1,66 @@
+{
+  "id": "primavera",
+  "src": "./images/primavera.jpg",
+
+  "kind": "vocab",
+  "version": 1,
+
+  "lang": { "target": "it-IT", "native": "en-GB" },
+
+  "headword": {
+    "target": "primavera",
+    "native": "spring",
+
+    "it": "primavera",
+    "en": "spring",
+    "partOfSpeech": "noun",
+    "gender": "f",
+    "register": "neutral"
+  },
+
+  "level": "A1",
+  "tags": ["seasons", "weather", "time"],
+
+  "lemmaId": "primavera",
+  "sense": { "id": "1", "gloss": "the season after winter" },
+
+  "type": "vocab",
+  "language": "it",
+
+  "forms": {
+    "canonical": "primavera",
+    "singular": "primavera",
+    "plural": "primavere",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "pree-ma-VEH-ra",
+    "ipa": "primaˈvɛːra"
+  },
+
+  "etymology": {
+    "origin": "Latin: prīma vēra",
+    "evolution": "Literally ‘first of spring’ / ‘early spring’.",
+    "mnemonic": "PRIMA = first → the first warm season."
+  },
+
+  "examples": [
+    {
+      "it": "In primavera i fiori sbocciano.",
+      "en": "In spring, flowers bloom."
+    }
+  ],
+
+  "media": {
+    "fallback": { "type": "auto", "prompt": "spring season illustration", "style": "clean educational" },
+    "canonical": [
+      {
+        "mediaId": "primavera_primary",
+        "kind": "local",
+        "src": "./images/primavera.jpg",
+        "alt": "Springtime blossoms and fresh green leaves"
+      }
+    ]
+  }
+}

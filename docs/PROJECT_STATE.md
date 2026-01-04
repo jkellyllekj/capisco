@@ -34,8 +34,30 @@ This file defines the **current truth of the project**:
 - What is frozen
 - What is allowed
 - What contracts are in force
+- Which files are “in play” for the current phase (Active Files)
 
 If anything here conflicts with chat, **this file wins**.
+
+### Active Files (Phase 12 — Card Data & Rendering Kickoff)
+
+Rendering flow (authoritative seam):
+1) ui/seasons-card/demo.html
+   - loads ./render.js
+   - fetches ./cards/*.card.json
+   - calls CapiscoSeasonsCard.renderMany(...)
+
+2) ui/seasons-card/render.js
+   - renderer entry point (CapiscoSeasonsCard.render / renderMany)
+
+3) ui/seasons-card/cards/stagione.card.json
+   - current demo card payload (baseline)
+
+4) ui/seasons-card/cards/primavera.card.json
+   - new Phase 12 card payload (to be created)
+
+5) style-seasons-card.css
+   - stylesheet used by the demo page
+s
 __END_PROJECT_STATE_META_S010__
 
 ---
@@ -57,31 +79,35 @@ __END_PROJECT_GOAL_S020__
 __START_CURRENT_PHASE_S030__
 ## CURRENT_PHASE_S030
 
-Phase 12 — Card Data & Rendering Kickoff
+Phase 13 — Media Contract Wiring & Automation
 
 Status:
-- Phase 11 is complete and locked.
-- All core contracts are frozen (card schema, media contract, quiz/game contracts).
-- No card data or renderer implementation has begun yet.
+- Phase 12 proved end-to-end rendering from a pure JSON card payload.
+- Current renderer still contains legacy assumptions and temporary bridges (e.g. top-level `src`).
 
 Purpose:
-- Establish the first concrete, repo-backed card data example.
-- Define the minimum rendering pipeline that can take a card object and render it using the locked UI contracts.
+- Make the renderer consume the **locked media contract** (`card.media.canonical[]` + `card.media.fallback`)
+  instead of legacy/bridge fields.
+- Ensure media always renders as a bounded slot (canonical → fallback → placeholder) with no layout overflow.
+- Establish the scalable path for 10k+ cards: “fallback-first, curate canonicals over time”.
 
 Allowed in this phase:
-- Creating canonical example card data files (single-card scope).
-- Wiring card data → renderer entry point.
-- Non-visual scaffolding needed to render a card deterministically.
+- Updating renderer media wiring to read from `card.media.*` (contract-compliant).
+- Removing temporary media bridges (e.g. root `src`) once contract wiring works.
+- Adding minimal helper logic to select a canonical media item deterministically.
+- Non-breaking refactors limited to media-only surfaces.
 - Full-block replacements only.
 
 Not allowed in this phase:
-- UI redesign or layout changes.
-- New card fields or contract drift.
-- Multiple card types at once.
-- Game/quiz logic expansion.
+- UI redesign / layout changes.
+- Changing the card contract fields (no schema drift).
+- Building the full batch pipeline yet (only define + stub decisions if needed).
+- Expanding quiz/game logic.
 
 Exit condition:
-- One real card renders end-to-end from data → renderer with no contract violations.
+- A card renders media using only `card.media.canonical[]` (when present),
+  otherwise uses `card.media.fallback`, otherwise shows a stable placeholder,
+  with no reliance on root `src` and no overflow regressions.
 
 __END_CURRENT_PHASE_S030__
 

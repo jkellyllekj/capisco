@@ -280,12 +280,13 @@
       /* __START_MAIN_S320__ */
       async function main() {
         const container = document.getElementById("mount");
-        const card = await loadJson("./cards/stagione.card.json");
+        const card = await loadJson("./cards/primavera.card.json");
 
         // Start with 2 cards (safe baseline)
         window.CapiscoSeasonsCard.renderMany(container, [card, card]);
       }
       /* __END_MAIN_S320__ */
+
 
       /* __START_RUN_S330__ */
       main().catch((err) => {

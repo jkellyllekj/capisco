@@ -22,6 +22,7 @@ WM080 — CONTRACTS_BEFORE_FEATURES
 WM090 — DECISION_CAPTURE
 WM100 — REANCHORING
 WM110 — PHASE_START_CHECKLIST
+WM115 — ACTIVE_FILES_DISCIPLINE
 WM120 — PAUSE_IN_ACTION
 WM130 — LONG_TERM_GOAL
 ============================================================================
@@ -178,11 +179,6 @@ This document follows its own rules.
 
 All block tags must include a **stable numeric identifier**.
 
-Example:
-<!-- __START_WM_PURPOSE_WM010__ -->
-php-template
-Copy code
-
 Rules:
 - Numbers are monotonic (WM010, WM020, WM030…)
 - Numbers never change once assigned
@@ -257,6 +253,35 @@ At the start of any new phase or chat:
 If skipped: **stop and reset**.
 
 <!-- __END_WM_PHASE_START_CHECKLIST_WM110__ -->
+
+---
+
+<!-- __START_WM_ACTIVE_FILES_DISCIPLINE_WM115__ -->
+
+## ACTIVE FILES DISCIPLINE (MANDATORY)
+
+Every active phase must maintain a **small “Active Files” list** inside `PROJECT_STATE.md`.
+
+Purpose:
+- eliminate “which file is doing what?” searches
+- prevent drift between chat understanding and repo reality
+- make handoffs and new chats deterministic
+
+Rules:
+- The “Active Files” list must name:
+  - the entry point(s) (HTML/CLI)
+  - the renderer/module(s)
+  - the primary data inputs (JSON, fixtures)
+  - the source-of-truth styles (CSS)
+  - any other file that must be understood to make progress
+- If a file is not referenced by the active flow, it must **not** be added “just in case”.
+- Unknowns are recorded explicitly as “TBD (not yet traced)”.
+
+When confusion occurs:
+- do not guess
+- add the missing file to “Active Files” only after it is proven to be used (import/script tag/CLI reference).
+
+<!-- __END_WM_ACTIVE_FILES_DISCIPLINE_WM115__ -->
 
 ---
 
