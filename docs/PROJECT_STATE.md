@@ -79,33 +79,43 @@ __END_PROJECT_GOAL_S020__
 __START_CURRENT_PHASE_S030__
 ## CURRENT_PHASE_S030
 
-Phase 14B — Media Fallback Automation (Scale)
+## CURRENT_PHASE_S030
+
+## CURRENT_PHASE_S030
+
+Phase 15 — Card Content Expansion & Multiplicity
 
 Status:
-- Renderer consumes media strictly via the locked contract (`card.media.*`).
-- Temporary bridges (root `src`) removed with no regressions.
+- Phase 14B (Media Fallback Automation) is complete and committed.
+- Media pipeline is contract-aligned, scalable, and stable.
+- Phase 15 is now active.
 
 Purpose:
-- Define deterministic, scalable behavior for `media.fallback` so cards render
-  without manual images.
-- Establish rules for automatic resolution at scale (10k+ cards) without
-  changing the card contract.
+- Expand card data to include multiple examples, multiple senses, and richer relations.
+- Stress-test card rendering and tab behavior under realistic content density.
+- Validate that the existing card contract scales without UI redesign or logic changes.
 
 Allowed in this phase:
-- Defining fallback resolution rules (order, defaults, guarantees).
-- Adding minimal, media-only helper logic to render a fallback when no canonical exists.
-- Documenting provider strategy (AI / stock / placeholder) without building batch pipelines yet.
+- Adding richer card data (multiple examples, multiple senses, richer relations).
+- Renderer adjustments strictly to support **existing contract fields only**.
+- Non-visual refinements required to support denser content.
 - Full-block replacements only.
 
 Not allowed in this phase:
-- Contract changes (no schema drift).
-- UI/layout changes.
-- Manual per-card image curation as a requirement.
-- Building full automation/batch systems.
+- Quiz or SRS logic expansion.
+- Media pipeline changes.
+- Contract/schema changes.
+- UI or layout redesign.
 
 Exit condition:
-- Cards with **no canonical images** still render a stable, bounded media slot
-  using `media.fallback` with deterministic behavior across sessions.
+- At least one card renders correctly with:
+  - multiple senses
+  - multiple examples
+  - populated relations
+across all tabs with no regressions or layout instability.
+
+
+
 __END_CURRENT_PHASE_S030__
 ---
 
