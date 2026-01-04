@@ -206,5 +206,46 @@ Those concerns are governed elsewhere.
 __END_NON_GOALS_S110__
 
 ---
+__START_PROJECT_STATE_PHASE15_S200__
+## Phase 15 — Card Content Expansion & Multiplicity
+
+### Purpose
+Expand card **content richness and multiplicity** (multiple senses, examples, relations, variants)
+**without changing the renderer, schema, or media pipeline**.
+
+This phase is explicitly **data-first**.
+
+### Allowed (Phase 15)
+- Add dense card data using **existing contract fields only**
+- Represent multiplicity via:
+  - `meaning.extended[]`
+  - expanded `examples[]`
+  - richer `relations` and `forms.variants[]`
+- Create documentation/specs describing intended multiplicity
+- Validate dense data in the demo **without UI or renderer changes**
+
+### Not allowed (Phase 15)
+- Renderer or layout changes
+- Media pipeline changes
+- Schema evolution (no `senses[]` introduction yet)
+- Quiz or SRS logic changes
+
+### Phase 15 outcomes (locked)
+- Dense card data added and validated:
+  - `ui/seasons-card/cards/stagione.card.json`  
+    (multi-sense + multiple examples using existing fields)
+  - `ui/seasons-card/cards/primavera.card.json`  
+    (dense data rendered in demo)
+- Demo renders dense data with **no layout regressions or crashes**
+- Known UI limitation observed and accepted:
+  - Examples tab currently surfaces a single example at a time (first item)
+- No renderer, schema, or media changes were required
+
+### Exit condition
+- Proven that dense, multi-sense card data can exist and render safely
+  under the current contract.
+
+**Status:** Complete
+__END_PROJECT_STATE_PHASE15_S200__
 
 End of spec.
