@@ -27,7 +27,10 @@
     "canonical": "stagione",
     "singular": "stagione",
     "plural": "stagioni",
-    "variants": []
+    "variants": [
+      "stagionale",
+      "stagionalità"
+    ]
   },
   "__END_FORMS_S030__": true,
 
@@ -45,18 +48,52 @@
   "__START_MEANING_S050__": true,
   "meaning": {
     "primary": "season",
-    "extended": ["period", "phase"],
-    "usageNotes": "Can also refer to sports/TV seasons."
+    "extended": [
+      "S1 — a season of the year (spring/summer/autumn/winter)",
+      "S2 — a sports/competition season (e.g., the football season)",
+      "S3 — a TV/theatre series season (e.g., season 2 of a show)"
+    ],
+    "usageNotes": "Common in everyday speech for the four seasons (stagioni). Also used for sports seasons and TV/theatre seasons."
   },
   "__END_MEANING_S050__": true,
 
   "__START_EXAMPLES_S060__": true,
   "examples": [
     {
-      "it": "La mia stagione preferita è l'autunno.",
+      "it": "S1 — La mia stagione preferita è l'autunno.",
       "en": "My favourite season is autumn.",
       "source": "demo",
       "difficulty": "easy"
+    },
+    {
+      "it": "S1 — In questa stagione piove spesso.",
+      "en": "In this season it often rains.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "S2 — La stagione di calcio inizia a settembre.",
+      "en": "The football season starts in September.",
+      "source": "demo",
+      "difficulty": "medium"
+    },
+    {
+      "it": "S2 — Ha fatto una grande stagione quest'anno.",
+      "en": "He had a great season this year.",
+      "source": "demo",
+      "difficulty": "medium"
+    },
+    {
+      "it": "S3 — Ho guardato la seconda stagione della serie.",
+      "en": "I watched the second season of the series.",
+      "source": "demo",
+      "difficulty": "medium"
+    },
+    {
+      "it": "S3 — Questa stagione ha solo otto episodi.",
+      "en": "This season has only eight episodes.",
+      "source": "demo",
+      "difficulty": "medium"
     }
   ],
   "__END_EXAMPLES_S060__": true,
@@ -80,18 +117,18 @@
   "__START_RELATIONS_S090__": true,
   "relations": {
     "lemma": [],
-    "forms": [],
-    "synonyms": [],
+    "forms": ["stagionale", "stagionalità"],
+    "synonyms": ["periodo", "fase"],
     "antonyms": [],
-    "collocations": ["alta_stagione", "fuori_stagione"],
-    "expressions": [],
+    "collocations": ["alta_stagione", "fuori_stagione", "stagione_secca", "stagione_piovosa"],
+    "expressions": ["essere_di_stagione"],
     "grammar": [],
-    "themes": ["time", "weather"],
+    "themes": ["time", "weather", "sports", "tv"],
 
     "related": ["primavera", "estate", "autunno", "inverno"],
     "phonetic": ["stazione"],
     "contrasts": ["stazione"],
-    "semantic": ["periodo", "fase"]
+    "semantic": ["periodo", "fase", "anno"]
   },
   "__END_RELATIONS_S090__": true,
 
@@ -114,8 +151,6 @@
     ]
   },
   "__END_IMAGES_S100__": true,
-
-
 
   "__START_QUIZ_SEEDS_S110__": true,
   "quizSeeds": {
