@@ -1,239 +1,89 @@
-# PROJECT_STATE.md
 # Capisco — Project State (Authoritative)
+Last updated: 2026-01-04
 
-Last updated: 2026-01-04  
-Current phase: Phase 11 — Media Invariants Lock & Demo Cleanup
-
----
-
-<!--
-============================================================================
-BLOCK INDEX
-S010 — PROJECT_STATE_META
-S020 — PROJECT_GOAL
-S030 — CURRENT_PHASE
-S040 — DONE_LOCKED
-S050 — INVARIANTS
-S060 — FROZEN
-S070 — ALLOWED
-S080 — NOT_ALLOWED
-S090 — WORKING_DISCIPLINE
-S100 — EXIT_CONDITION
-S110 — MEDIA_MODEL_V1
-S120 — CARD_CONTENT_MODEL_V1
-S130 — GAMES_AND_SRS_MODEL_V1
-S150 — QUIZ_ENGINE_CONTRACT_V1
-============================================================================
--->
-
-__START_PROJECT_STATE_META_S010__
-## Purpose of this file
+<!-- __START_PROJECT_STATE_REANCHOR_S100__ -->
 
-This file defines the **current truth of the project**:
-- What phase we are in
-- What is frozen
-- What is allowed
-- What contracts are in force
-- Which files are “in play” for the current phase (Active Files)
+## If this is a new ChatGPT page, read this first (MANDATORY)
 
-If anything here conflicts with chat, **this file wins**.
-
-### Active Files (Phase 12 — Card Data & Rendering Kickoff)
+### Canonical re-anchor links (use these every new chat)
+- PROJECT_STATE (this file): https://github.com/jkellyllekj/capisco/blob/main/docs/PROJECT_STATE.md?plain=1
+- WORKING_METHOD (authoritative process): https://github.com/jkellyllekj/capisco/blob/main/docs/WORKING_METHOD.md?plain=1
+- DECISIONS (durable constraints): https://github.com/jkellyllekj/capisco/blob/main/docs/DECISIONS.md?plain=1
 
-Rendering flow (authoritative seam):
-1) ui/seasons-card/demo.html
-   - loads ./render.js
-   - fetches ./cards/*.card.json
-   - calls CapiscoSeasonsCard.renderMany(...)
+### Repo entrypoints (human navigation)
+- Demo: `ui/seasons-card/demo.html`
+- Viewport Lab: `ui/seasons-card/viewport-lab.html`
+- Styles: `style-seasons-card.css`
+- Card UI / renderer: (keep updated) `ui/seasons-card/render.js` (or replace with true path)
 
-2) ui/seasons-card/render.js
-   - renderer entry point (CapiscoSeasonsCard.render / renderMany)
+### Current phase (single source of truth)
+**Current Phase:** Phase 15 — Card Content Expansion & Multiplicity (DATA / CONTRACT ONLY)
 
-3) ui/seasons-card/cards/stagione.card.json
-   - current demo card payload (baseline)
+<!-- __END_PROJECT_STATE_REANCHOR_S100__ -->
 
-4) ui/seasons-card/cards/primavera.card.json
-   - new Phase 12 card payload (to be created)
 
-5) style-seasons-card.css
-   - stylesheet used by the demo page
-s
-__END_PROJECT_STATE_META_S010__
+<!-- __START_PROJECT_STATE_PHASE15_S200__ -->
 
----
+## Phase 15 — Card Content Expansion & Multiplicity
 
-__START_PROJECT_GOAL_S020__
-## High-level project goal (unchanged)
+### Purpose
+Expand the **Card content model** to support richer content and **multiplicity** (multiple examples, senses, registers, images, forms, etc.) while preserving the existing contract + scalable rendering approach.
 
-Capisco builds **ultimate vocabulary and expression cards** as immutable knowledge objects.
-These cards power:
-- instant lessons from transcripts
-- adaptive games and spaced repetition
-- future printable and exportable formats
+### Allowed (Phase 15)
+- Data-first/spec-first work only:
+  - Define the **multiplicity rules** (what can repeat, ordering, IDs, precedence).
+  - Define the **expanded content fields** (required vs optional).
+  - Define **authoring / canonicalization** rules (how we store “one true” canonical content).
+  - Update **contracts/docs first** (PROJECT_STATE / DECISIONS / card-contract).
+- No implementation changes unless/until the spec is locked and Phase explicitly permits.
 
-Cards must scale to **10k+ vocab + 10k+ expressions** without redesign.
-__END_PROJECT_GOAL_S020__
+### Non-goals (Phase 15)
+- No renderer refactors.
+- No layout polish.
+- No new UI features.
+- No “quick hacks” to squeeze data into old shapes.
 
----
+### Frozen / true right now (carry-forward)
+- Phases 12–14 are complete and committed (media pipeline contract-aligned and scalable). (If repo contradicts, repo wins.)
+- Phase 6C demo layout is “good enough” and frozen.
+- Demo-level layout tuning is paused.
+- The **Card is the canonical product object**, not a demo artifact.
+- JSON files are **data only** (no comments, no marker blocks).
+- Marker blocks are used only in HTML / CSS / JS / MD files.
+- One change per step.
+- Full block replacements only (no line edits).
+- Treat code as liability: minimize surface area.
 
-__START_CURRENT_PHASE_S030__
-## CURRENT_PHASE_S030
+### Next single step (Phase 15.1)
+Define the **Card Content Multiplicity Spec** (data-only): a precise list of fields + which ones are singular vs arrays, including ID rules and ordering rules.
+(No code. No rendering changes.)
 
-## CURRENT_PHASE_S030
+<!-- __END_PROJECT_STATE_PHASE15_S200__ -->
 
-## CURRENT_PHASE_S030
 
-Phase 15 — Card Content Expansion & Multiplicity
+<!-- __START_PROJECT_STATE_CANONICAL_DOCS_S300__ -->
 
-Status:
-- Phase 14B (Media Fallback Automation) is complete and committed.
-- Media pipeline is contract-aligned, scalable, and stable.
-- Phase 15 is now active.
+## Canonical docs (authoritative)
+- Working rules: `docs/WORKING_METHOD.md`
+- Decisions: `docs/DECISIONS.md`
+- Card contract: `docs/card-contract.md` (reference; must be updated if Phase 15 changes the model)
+- UI port plan: `docs/ui-port-plan.md` (reference)
+- Retrospective candidates: `docs/retrospective-candidates.md` (reference)
+- README / Replit notes: `README.md`, `replit.md`
 
-Purpose:
-- Expand card data to include multiple examples, multiple senses, and richer relations.
-- Stress-test card rendering and tab behavior under realistic content density.
-- Validate that the existing card contract scales without UI redesign or logic changes.
+<!-- __END_PROJECT_STATE_CANONICAL_DOCS_S300__ -->
 
-Allowed in this phase:
-- Adding richer card data (multiple examples, multiple senses, richer relations).
-- Renderer adjustments strictly to support **existing contract fields only**.
-- Non-visual refinements required to support denser content.
-- Full-block replacements only.
 
-Not allowed in this phase:
-- Quiz or SRS logic expansion.
-- Media pipeline changes.
-- Contract/schema changes.
-- UI or layout redesign.
+<!-- __START_PROJECT_STATE_ARCHIVE_S900__ -->
 
-Exit condition:
-- At least one card renders correctly with:
-  - multiple senses
-  - multiple examples
-  - populated relations
-across all tabs with no regressions or layout instability.
+## Completed / Archived context (keep for history; not “current truth”)
 
+### Previously observed drift (resolved by this rewrite)
+This file previously contained multiple conflicting “Current phase” declarations (Phase 6C/6D, Phase 7, Phase 9). This rewrite establishes **one** current phase.
 
+### Historical notes (do not treat as current)
+- Phase 6C / 6D: Seasons Card Demo + Viewport Lab (layout stability work; “good enough”)
+- Phase 7–9: Contract/invariant work (media containment, marker workflow, etc.)
+- Phases 12–14: Completed + committed (per current team truth; repo is canonical if conflict)
 
-__END_CURRENT_PHASE_S030__
----
-
-__START_DONE_LOCKED_S040__
-## What is DONE (locked)
-
-- Image clipping and grid overflow resolved
-- Root cause identified (CSS grid min-width overflow)
-- Fix validated (`minmax(0, 1fr)`)
-- Demo layout considered stable and frozen
-__END_DONE_LOCKED_S040__
-
----
-
-__START_INVARIANTS_S050__
-## Invariants
-
-- Media must never expand layout
-- Cards must tolerate partial data
-- UI degrades gracefully
-- Contracts > aesthetics
-__END_INVARIANTS_S050__
-
----
-
-__START_FROZEN_S060__
-## What is frozen
-
-- Card layout structure
-- Demo layout
-- Grid fix pattern
-__END_FROZEN_S060__
-
----
-
-__START_ALLOWED_S070__
-## What is allowed
-
-- Contract definition
-- Structural cleanup
-- Non-breaking refactors
-__END_ALLOWED_S070__
-
----
-
-__START_NOT_ALLOWED_S080__
-## What is not allowed
-
-- New UI features
-- Demo redesign
-- Partial edits
-__END_NOT_ALLOWED_S080__
-
----
-
-__START_WORKING_DISCIPLINE_S090__
-## Working discipline
-
-- One step at a time
-- Full block replacement only
-- No guessing
-__END_WORKING_DISCIPLINE_S090__
-
----
-
-__START_EXIT_CONDITION_S100__
-## Exit condition
-
-Phase 11 ends when media, content, and quiz contracts are locked.
-__END_EXIT_CONDITION_S100__
-
----
-
-__START_MEDIA_MODEL_V1_S110__
-## Media Model v1 (contract)
-
-Cards support **0..N media items** with canonical + responsive derivatives.
-Media includes source, license, and attribution.
-Media must never cause layout overflow.
-__END_MEDIA_MODEL_V1_S110__
-
----
-
-__START_CARD_CONTENT_MODEL_V1_S120__
-## Card Content Model v1 (contract)
-
-Cards are immutable semantic objects supporting:
-- multiple senses
-- examples
-- etymology
-- related terms
-- quiz seeds
-
-Cards must render from minimal to fully populated states.
-__END_CARD_CONTENT_MODEL_V1_S120__
-
----
-
-__START_GAMES_AND_SRS_MODEL_V1_S130__
-## Games + SRS Model v1 (contract)
-
-Learning uses **games**, not static quizzes.
-Each user has per-card mastery state with SRS scheduling.
-Difficulty adapts to mastery and vocabulary breadth.
-__END_GAMES_AND_SRS_MODEL_V1_S130__
-
----
-
-__START_QUIZ_ENGINE_CONTRACT_V1_S150__
-## Quiz Engine + Endless Quiz Contract v1
-
-Questions are generated from **templates** with declared requirements.
-Only legal templates may be used.
-Each answer yields feedback and explanation.
-Sessions run as an “endless quiz” loop.
-User preferences bias question selection.
-__END_QUIZ_ENGINE_CONTRACT_V1_S150__
-
----
-
-End of file.
+<!-- __END_PROJECT_STATE_ARCHIVE_S900__ -->
