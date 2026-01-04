@@ -55,11 +55,34 @@ __END_PROJECT_GOAL_S020__
 ---
 
 __START_CURRENT_PHASE_S030__
-## Current phase
+## CURRENT_PHASE_S030
 
-### Phase 11 — Media Invariants Lock & Demo Cleanup
+Phase 12 — Card Data & Rendering Kickoff
 
-This phase locks **conceptual and structural invariants**, not features.
+Status:
+- Phase 11 is complete and locked.
+- All core contracts are frozen (card schema, media contract, quiz/game contracts).
+- No card data or renderer implementation has begun yet.
+
+Purpose:
+- Establish the first concrete, repo-backed card data example.
+- Define the minimum rendering pipeline that can take a card object and render it using the locked UI contracts.
+
+Allowed in this phase:
+- Creating canonical example card data files (single-card scope).
+- Wiring card data → renderer entry point.
+- Non-visual scaffolding needed to render a card deterministically.
+- Full-block replacements only.
+
+Not allowed in this phase:
+- UI redesign or layout changes.
+- New card fields or contract drift.
+- Multiple card types at once.
+- Game/quiz logic expansion.
+
+Exit condition:
+- One real card renders end-to-end from data → renderer with no contract violations.
+
 __END_CURRENT_PHASE_S030__
 
 ---
