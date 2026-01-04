@@ -1,103 +1,184 @@
-<!-- __START__ -->
+# PROJECT_STATE.md
+# Capisco — Project State (Authoritative)
 
-# Capisco — Project State
-
-Last updated: 2026-01-01
-
-# Project State (Handoff Packet)
-
-
-**Current focus:** Locking layout invariants and preventing regression before moving to next phase.
-
-
-
-## If this is a new ChatGPT page, read this first
-**Current phase:** Phase 6C / 6D (Seasons Card Demo + Viewport Lab)
-**Current focus:** Fix image/media clipping on right edge at ~1366px+ (Seasons card wide layout)
-
-### What’s working
-- Viewport Lab page is now functional and useful for multi-width inspection (keep it).
-- Seasons card layout is broadly stable at most widths.
-
-### What was broken (now resolved)
-- **RESOLVED:** At ~1366px+ the image/media appeared clipped on the right within the card.
-  - Root cause: CSS Grid minimum width (`minmax(460px, 1fr)`) on `.card` exceeded available card width in 2-up layouts.
-  - Effect: grid overflow masqueraded as media clipping.
-  - Fix: replaced fixed minimum with `minmax(0, 1fr)` in `__START_IMAGE_LAYOUT_S600__`.
-
-
-
-### Next action (single step)
-- Use DevTools at **1366**: identify which element has `overflow: hidden` and which child exceeds width.
-- Record the exact selector + rule source (file + line) in the debug log / this file.
-
-## Canonical docs
-- Working rules: `working-method.md`
-- Decisions: `decisions.md`
-- Card contract: `card-contract.md` (reference)
-- UI port plan: `ui-port-plan.md` (reference)
-- Retrospective candidates: `retrospective-candidates.md` (reference)
-- README / Replit notes: `README.md`, `replit.md`
-
-## Repo entrypoints
-- Demo: `ui/seasons-card/demo.html`
-- Viewport Lab: `ui/seasons-card/viewport-lab.html`
-- Card renderer: [put the key file path here]
-- Styles: `style-seasons-card.css` (and any other key css)
-
+Last updated: 2026-01-04  
+Current phase: Phase 11 — Media Invariants Lock & Demo Cleanup
 
 ---
 
-## Current Phase
-**Phase 9 — Media Containment Invariant (Implementation Pass)**
+<!--
+============================================================================
+BLOCK INDEX
+S010 — PROJECT_STATE_META
+S020 — PROJECT_GOAL
+S030 — CURRENT_PHASE
+S040 — DONE_LOCKED
+S050 — INVARIANTS
+S060 — FROZEN
+S070 — ALLOWED
+S080 — NOT_ALLOWED
+S090 — WORKING_DISCIPLINE
+S100 — EXIT_CONDITION
+S110 — MEDIA_MODEL_V1
+S120 — CARD_CONTENT_MODEL_V1
+S130 — GAMES_AND_SRS_MODEL_V1
+S150 — QUIZ_ENGINE_CONTRACT_V1
+============================================================================
+-->
 
+__START_PROJECT_STATE_META_S010__
+## Purpose of this file
 
----
+This file defines the **current truth of the project**:
+- What phase we are in
+- What is frozen
+- What is allowed
+- What contracts are in force
 
-## Locked / True Right Now
-
-- Phase 6C demo layout is “good enough” and frozen.
-- Demo-level layout tuning is paused.
-- The **Card is the canonical product object**, not a demo artifact.
-- Card internals may be modified deliberately under contract rules.
-- JSON files are **data only** (no comments, no marker blocks).
-- Marker blocks are used only in HTML / CSS / JS / MD files.
-- One change per step.
-- Full block replacements only (no line edits).
-- Treat code as liability: minimize surface area.
-
----
-
-## Authoritative Documents
-
-- `docs/card-contract.md`  
-  → Defines required fields, supported states, rendering invariants, and extensibility.
-
-- `docs/PROJECT_STATE.md`  
-  → This file. Snapshot of what is true right now.
-
-- `docs/DECISIONS.md`  
-  → Decision log (to be backfilled gradually).
-
----
-
-## Phase 7 Goals
-
-- Lock the Card Contract (DONE).
-- Guarantee media never overflows or escapes its bounds (NEXT).
-- Preserve stability across:
-  - empty / partial states
-  - quiz / chat / read-only / print modes
-  - future apps beyond Capisco
+If anything here conflicts with chat, **this file wins**.
+__END_PROJECT_STATE_META_S010__
 
 ---
 
-## Next Single Step
+__START_PROJECT_GOAL_S020__
+## High-level project goal (unchanged)
 
-**Phase 7 — Step 3:**  
-Implement media containment invariant:
-> Media must never overflow or escape its bounds in any tab state, including empty tabs.
+Capisco builds **ultimate vocabulary and expression cards** as immutable knowledge objects.
+These cards power:
+- instant lessons from transcripts
+- adaptive games and spaced repetition
+- future printable and exportable formats
 
-This will be done via **one CSS/JS marker block replacement** after identifying the winning media slot styles.
+Cards must scale to **10k+ vocab + 10k+ expressions** without redesign.
+__END_PROJECT_GOAL_S020__
 
-<!-- __END__ -->
+---
+
+__START_CURRENT_PHASE_S030__
+## Current phase
+
+### Phase 11 — Media Invariants Lock & Demo Cleanup
+
+This phase locks **conceptual and structural invariants**, not features.
+__END_CURRENT_PHASE_S030__
+
+---
+
+__START_DONE_LOCKED_S040__
+## What is DONE (locked)
+
+- Image clipping and grid overflow resolved
+- Root cause identified (CSS grid min-width overflow)
+- Fix validated (`minmax(0, 1fr)`)
+- Demo layout considered stable and frozen
+__END_DONE_LOCKED_S040__
+
+---
+
+__START_INVARIANTS_S050__
+## Invariants
+
+- Media must never expand layout
+- Cards must tolerate partial data
+- UI degrades gracefully
+- Contracts > aesthetics
+__END_INVARIANTS_S050__
+
+---
+
+__START_FROZEN_S060__
+## What is frozen
+
+- Card layout structure
+- Demo layout
+- Grid fix pattern
+__END_FROZEN_S060__
+
+---
+
+__START_ALLOWED_S070__
+## What is allowed
+
+- Contract definition
+- Structural cleanup
+- Non-breaking refactors
+__END_ALLOWED_S070__
+
+---
+
+__START_NOT_ALLOWED_S080__
+## What is not allowed
+
+- New UI features
+- Demo redesign
+- Partial edits
+__END_NOT_ALLOWED_S080__
+
+---
+
+__START_WORKING_DISCIPLINE_S090__
+## Working discipline
+
+- One step at a time
+- Full block replacement only
+- No guessing
+__END_WORKING_DISCIPLINE_S090__
+
+---
+
+__START_EXIT_CONDITION_S100__
+## Exit condition
+
+Phase 11 ends when media, content, and quiz contracts are locked.
+__END_EXIT_CONDITION_S100__
+
+---
+
+__START_MEDIA_MODEL_V1_S110__
+## Media Model v1 (contract)
+
+Cards support **0..N media items** with canonical + responsive derivatives.
+Media includes source, license, and attribution.
+Media must never cause layout overflow.
+__END_MEDIA_MODEL_V1_S110__
+
+---
+
+__START_CARD_CONTENT_MODEL_V1_S120__
+## Card Content Model v1 (contract)
+
+Cards are immutable semantic objects supporting:
+- multiple senses
+- examples
+- etymology
+- related terms
+- quiz seeds
+
+Cards must render from minimal to fully populated states.
+__END_CARD_CONTENT_MODEL_V1_S120__
+
+---
+
+__START_GAMES_AND_SRS_MODEL_V1_S130__
+## Games + SRS Model v1 (contract)
+
+Learning uses **games**, not static quizzes.
+Each user has per-card mastery state with SRS scheduling.
+Difficulty adapts to mastery and vocabulary breadth.
+__END_GAMES_AND_SRS_MODEL_V1_S130__
+
+---
+
+__START_QUIZ_ENGINE_CONTRACT_V1_S150__
+## Quiz Engine + Endless Quiz Contract v1
+
+Questions are generated from **templates** with declared requirements.
+Only legal templates may be used.
+Each answer yields feedback and explanation.
+Sessions run as an “endless quiz” loop.
+User preferences bias question selection.
+__END_QUIZ_ENGINE_CONTRACT_V1_S150__
+
+---
+
+End of file.

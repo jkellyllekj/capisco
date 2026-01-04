@@ -103,5 +103,46 @@ and allow shrinking when the card itself is constrained.
 - Python: `# __START_NAME__` ... `# __END_NAME__`
 - JSON: **no markers** (valid JSON only)
 
+__START_DECISION_D014__
+## D014 — Documentation Parity & Structural Discipline
+
+**Status:** Accepted  
+**Date:** 2026-01-04
+
+### Decision
+
+All documentation in this repository is treated as **code**, not prose.
+
+This includes (but is not limited to):
+- PROJECT_STATE.md
+- WORKING_METHOD.md
+- DECISIONS.md
+- Any protocol, spine, or process file
+
+Therefore:
+
+- All documentation files must use explicit block tags
+- All block tags must include stable numeric identifiers
+- Documentation may only be edited via full block replacement
+- Partial, line-level, or informal edits are forbidden
+
+Any output or change that violates this rule is considered a **process failure**, not a formatting issue.
+
+### Rationale
+
+Implicit rules caused repeated correction cycles and protocol drift.
+Making documentation structurally equivalent to code ensures:
+- Diff safety
+- Long-term maintainability
+- Clear authority in long-running projects
+- Elimination of “interpretive” process errors
+
+### Consequences
+
+- Agents must refuse to produce documentation that violates this rule
+- Ambiguity triggers a mandatory Pause in Action
+- This decision applies across all phases unless explicitly superseded
+
+__END_DECISION_D014__
 
 <!-- __END__ -->

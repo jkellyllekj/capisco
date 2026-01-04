@@ -8,7 +8,26 @@ Status: **Authoritative**
 
 ---
 
-<!-- __START_WM_PURPOSE__ -->
+<!--
+============================================================================
+BLOCK INDEX
+WM010 — PURPOSE
+WM020 — CORE_ENTITIES
+WM030 — PHASE_DISCIPLINE
+WM040 — ONE_STEP_RULE
+WM050 — DOCUMENTATION_PARITY_RULE
+WM060 — BLOCK_TAG_SYSTEM
+WM070 — NUMERIC_BLOCK_ID_RULE
+WM080 — CONTRACTS_BEFORE_FEATURES
+WM090 — DECISION_CAPTURE
+WM100 — REANCHORING
+WM110 — PHASE_START_CHECKLIST
+WM120 — PAUSE_IN_ACTION
+WM130 — LONG_TERM_GOAL
+============================================================================
+-->
+
+<!-- __START_WM_PURPOSE_WM010__ -->
 
 ## PURPOSE
 
@@ -22,17 +41,16 @@ It exists to:
 
 This is **vibe coding done correctly** — with structure, memory, and guardrails.
 
-If there is any conflict between chat instructions and this file, **this file wins**.
+If there is any conflict between chat instructions and this file,  
+**this file wins**.
 
-<!-- __END_WM_PURPOSE__ -->
+<!-- __END_WM_PURPOSE_WM010__ -->
 
 ---
 
-<!-- __START_WM_CORE_ENTITIES__ -->
+<!-- __START_WM_CORE_ENTITIES_WM020__ -->
 
 ## CORE ENTITIES (IMPORTANT DEFINITIONS)
-
-To avoid confusion, the following terms are used precisely:
 
 ### Project
 A **long-lived codebase and repository** (e.g. *Capisco*).
@@ -44,10 +62,10 @@ A **long-lived codebase and repository** (e.g. *Capisco*).
   - `WORKING_METHOD.md`
 
 ### Phase
-A **bounded unit of intent** (e.g. “Card Contract Lock”, “Media Invariants”).
+A **bounded unit of intent**.
 
 - Has a name and purpose
-- May span **multiple chat pages**
+- May span multiple chat pages
 - Explicitly entered and exited
 - Progress is recorded in `PROJECT_STATE.md`
 - Durable constraints may be logged in `DECISIONS.md`
@@ -56,43 +74,36 @@ A **bounded unit of intent** (e.g. “Card Contract Lock”, “Media Invariants
 A **single ChatGPT conversation**.
 
 - Has limited working memory
-- May degrade as it grows long or complex
+- Degrades over time
 - Is **disposable by design**
 - Never treated as a source of truth
 
-**Rule:**  
-When a chat page becomes slow, overloaded, or confused, it must be ended deliberately — not pushed through.
+Rule:  
+When a chat page becomes overloaded or confused, it must be ended deliberately.
 
-<!-- __END_WM_CORE_ENTITIES__ -->
+<!-- __END_WM_CORE_ENTITIES_WM020__ -->
 
 ---
 
-<!-- __START_WM_PHASE_DISCIPLINE__ -->
+<!-- __START_WM_PHASE_DISCIPLINE_WM030__ -->
 
 ## PHASE DISCIPLINE
 
 Work is divided into explicit phases.
 
-Each phase has:
-- a name
-- a purpose
-- allowed actions
-- non-goals
-
 Rules:
 - Phase changes must be **explicitly declared**
-- Work outside the declared phase is invalid
+- Work outside the active phase is invalid
 - A phase may span multiple chat pages
 
-<!-- __END_WM_PHASE_DISCIPLINE__ -->
+<!-- __END_WM_PHASE_DISCIPLINE_WM030__ -->
 
 ---
 
-<!-- __START_WM_ONE_STEP_RULE__ -->
+<!-- __START_WM_ONE_STEP_RULE_WM040__ -->
 
 ## ONE-STEP RULE (CRITICAL)
 
-Rule:  
 **We do one step at a time.**
 
 - One file **OR**
@@ -102,201 +113,181 @@ Rule:
 Never more than one.
 
 Disallowed:
-- multi-step instructions
+- multi-step responses
 - “while you’re at it”
 - bundled future work
 
-If a response contains multiple steps, it is **invalid**.
+If a response contains more than one step, it is **invalid**.
 
-This rule preserves flow and prevents loss of control.
-
-<!-- __END_WM_ONE_STEP_RULE__ -->
+<!-- __END_WM_ONE_STEP_RULE_WM040__ -->
 
 ---
 
-<!-- __START_WM_BLOCK_TAG_SYSTEM__ -->
+<!-- __START_WM_DOCUMENTATION_PARITY_WM050__ -->
+
+## DOCUMENTATION PARITY RULE (CRITICAL)
+
+**Documentation is treated as code.**
+
+This includes:
+- `PROJECT_STATE.md`
+- `DECISIONS.md`
+- `WORKING_METHOD.md`
+- Any protocol, contract, or process file
+
+Rules:
+- All documentation must use block tags
+- All edits are **full block replacements only**
+- Partial, line-level edits are forbidden
+
+Violating this rule is a **process failure**, not a formatting issue.
+
+<!-- __END_WM_DOCUMENTATION_PARITY_WM050__ -->
+
+---
+
+<!-- __START_WM_BLOCK_TAG_SYSTEM_WM060__ -->
 
 ## BLOCK-TAG EDITING SYSTEM
 
-All editable files must use **block tags** so changes are:
-- searchable
-- replaceable
-- safe
-- reviewable
+All editable files must be divided into explicit blocks.
 
-### Rules
-- Edits are **full block replacements only**
-- Reference **inner block names only**
-- No line edits
+Rules:
+- Each block has `__START__` and `__END__`
+- Blocks represent a single conceptual unit
+- Only entire blocks may be replaced
+- Reference block names directly in discussion
 
-### Tag formats
-- HTML / Markdown: `<!-- __START__ -->`
-- CSS: `/* __START__ */`
-- JavaScript: `/* __START__ */`
+Tag formats:
+- Markdown / HTML: `<!-- __START__ -->`
+- CSS / JS: `/* __START__ */`
 - JSON:
   - no block tags
   - no comments
   - must remain valid JSON
 
-This document intentionally follows its own rules.
+This document follows its own rules.
 
-<!-- __END_WM_BLOCK_TAG_SYSTEM__ -->
+<!-- __END_WM_BLOCK_TAG_SYSTEM_WM060__ -->
 
 ---
 
-<!-- __START_WM_CONTRACTS__ -->
+<!-- __START_WM_NUMERIC_BLOCK_ID_WM070__ -->
+
+## NUMERIC BLOCK ID RULE (STABILITY GUARANTEE)
+
+All block tags must include a **stable numeric identifier**.
+
+Example:
+<!-- __START_WM_PURPOSE_WM010__ -->
+php-template
+Copy code
+
+Rules:
+- Numbers are monotonic (WM010, WM020, WM030…)
+- Numbers never change once assigned
+- Names may evolve; numbers must not
+
+Numeric IDs exist to:
+- eliminate ambiguity
+- support long-running evolution
+- allow precise references across chats
+
+<!-- __END_WM_NUMERIC_BLOCK_ID_WM070__ -->
+
+---
+
+<!-- __START_WM_CONTRACTS_WM080__ -->
 
 ## CONTRACTS BEFORE FEATURES
 
-- Core objects (e.g. the Card) require a **written contract**
-- Rendering invariants come before layout polish
-- Feature ideas are parked unless they update a contract first
+- Core objects require written contracts
+- Invariants come before polish
+- Feature ideas are parked until a contract changes
 
-This keeps creative exploration grounded in durable structure.
-
-<!-- __END_WM_CONTRACTS__ -->
+<!-- __END_WM_CONTRACTS_WM080__ -->
 
 ---
 
-<!-- __START_WM_DECISION_CAPTURE__ -->
+<!-- __START_WM_DECISION_CAPTURE_WM090__ -->
 
 ## DECISION CAPTURE
 
-- Durable decisions are logged in `DECISIONS.md`
-- Decisions are:
-  - dated
-  - concise
-  - constraint-oriented
-- Chat transcripts are **never** copied
-- Only decisions that still matter are recorded
+- Durable constraints go in `DECISIONS.md`
+- Decisions are concise and dated
+- Chat transcripts are never copied
 
-<!-- __END_WM_DECISION_CAPTURE__ -->
+<!-- __END_WM_DECISION_CAPTURE_WM090__ -->
 
 ---
 
-<!-- __START_WM_REANCHORING__ -->
+<!-- __START_WM_REANCHORING_WM100__ -->
 
 ## RE-ANCHORING WHEN CONTEXT DEGRADES
 
-Rule:  
-When conversational context becomes unreliable, **do not attempt recovery by rereading chat history**.
+When context becomes unreliable:
+- Do not reread chat
+- Re-anchor from:
+  - `PROJECT_STATE.md`
+  - `WORKING_METHOD.md`
+  - `DECISIONS.md`
 
-Instead, deliberately re-anchor using repo truth:
-- `PROJECT_STATE.md`
-- `WORKING_METHOD.md`
-- `DECISIONS.md`
-- relevant contracts (e.g. `card-contract.md`)
+Truth lives in the repo, not chat.
 
-Implications:
-- Truth lives in the repo, not in chat
-- Long chats may be abandoned
-- Re-anchoring is intentional, not a failure
-
-<!-- __END_WM_REANCHORING__ -->
+<!-- __END_WM_REANCHORING_WM100__ -->
 
 ---
 
-<!-- __START_WM_PHASE_START_CHECKLIST__ -->
+<!-- __START_WM_PHASE_START_CHECKLIST_WM110__ -->
 
-## NEW PHASE / NEW CHAT START CHECKLIST (MANDATORY)
+## NEW PHASE / NEW CHAT CHECKLIST (MANDATORY)
 
-At the start of any **new phase or new chat page**:
+At the start of any new phase or chat:
 
 1. Identify the current phase
 2. Re-read:
    - `PROJECT_STATE.md`
    - `WORKING_METHOD.md`
    - `DECISIONS.md`
-3. State explicitly:
+3. State:
    - what is frozen
    - what is allowed
-   - what the next single step is
+   - the next single step
 
-If this checklist is skipped, **stop and reset**.
+If skipped: **stop and reset**.
 
-<!-- __END_WM_PHASE_START_CHECKLIST__ -->
+<!-- __END_WM_PHASE_START_CHECKLIST_WM110__ -->
 
 ---
 
-<!-- __START_WM_PAUSE_IN_ACTION__ -->
+<!-- __START_WM_PAUSE_IN_ACTION_WM120__ -->
 
-## PAUSE IN ACTION PROTOCOL (CHAT / PHASE HANDOFF)
+## PAUSE IN ACTION PROTOCOL
 
-**Pause In Action** is a deliberate checkpoint used to:
-- prevent context degradation
-- preserve correct project memory
-- prepare for a clean new chat page
-- ensure GitHub is the canonical backup
-
-It is invoked by saying:
+Invoked by saying:
 
 > **“Pause In Action”**
 
-When invoked, the assistant must stop problem-solving and switch to handoff mode.
+When invoked:
+- Stop problem-solving
+- Lock repo truth
+- Prepare clean handoff to next chat
+- Confirm GitHub is canonical
 
-### Triggered actions (mandatory)
-
-1. **MD File Review**
-   - Identify which files may need updates:
-     - `PROJECT_STATE.md`
-     - `DECISIONS.md`
-     - `WORKING_METHOD.md`
-     - `RETROSPECTIVE-CANDIDATES.md`
-   - Ask which files need to be re-uploaded
-   - Remove or correct anything no longer true
-
-2. **State Lock-In**
-   - Confirm:
-     - current phase
-     - what is resolved
-     - what is frozen
-     - what remains open
-   - Ensure `PROJECT_STATE.md` reflects reality
-
-3. **Decision Capture**
-   - Promote durable constraints to `DECISIONS.md`
-   - No chat transcripts
-
-4. **GitHub Backup Check**
-   - Explicitly ask whether all changes are committed and pushed
-   - GitHub is canonical; chat is disposable
-
-5. **Next-Chat Preparation**
-   - Propose:
-     - next chat title
-     - whether it continues the phase or starts a new one
-   - Generate a **handoff prompt** for the next chat
-
-6. **Re-Upload Guidance**
-   - State clearly which MD files must be uploaded in the next chat
-   - Default: all three (`PROJECT_STATE`, `WORKING_METHOD`, `DECISIONS`)
-
-### Intentional reset rule
-After Pause In Action:
-- The current chat page may be abandoned
-- No attempt is made to preserve chat memory
-- Truth is recovered only from repo files
-
-This is controlled continuity, not failure.
-
-<!-- __END_WM_PAUSE_IN_ACTION__ -->
+<!-- __END_WM_PAUSE_IN_ACTION_WM120__ -->
 
 ---
 
-<!-- __START_WM_LONG_TERM_GOAL__ -->
+<!-- __START_WM_LONG_TERM_GOAL_WM130__ -->
 
 ## LONG-TERM GOAL
 
 Capisco is the proving ground.
 
-The real objective is to build a:
-- reusable development method
-- transferable across projects
-- compatible with creative exploration
-- without losing coherence, memory, or control
+The true objective is a **reusable development method** that supports creativity without loss of control.
 
 This document is as important as any code.
 
-<!-- __END_WM_LONG_TERM_GOAL__ -->
+<!-- __END_WM_LONG_TERM_GOAL_WM130__ -->
 
 <!-- __END_FILE_WM000__ -->
