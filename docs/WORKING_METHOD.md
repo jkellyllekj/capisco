@@ -389,4 +389,13 @@ If confusion arises between the two:
 
 <!-- __END_WM_SPEC_VS_STATE_RULE_WM160__ -->
 
+
+<!-- __START_CHAT_HANDOVER_ARTIFACT_WM170__ -->
+
+CHAT HANDOVER ARTIFACT (MANDATORY)
+Every Pause In Action must produce a canonical “Next Chat Handover Message”.
+The pause is invalid without it.
+
+<!-- __END_CHAT_HANDOVER_ARTIFACT_WM170__ -->
+
 <!-- __END_FILE_WM000__ -->
