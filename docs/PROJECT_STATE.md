@@ -1,5 +1,6 @@
 # Card Content Multiplicity Spec (Authoritative)
-Phase: 15 — Card Content Expansion & Multiplicity  
+Scope: Data / contract only (implementation-agnostic)  
+Primary phase authored in: Phase 15 — Card Content Expansion & Multiplicity  
 Status: Draft (data / contract only)  
 Last updated: 2026-01-04
 
@@ -17,13 +18,16 @@ S080 — RELATIONS_MODEL
 S090 — CANONICAL_VS_OPTIONAL
 S100 — STABILITY_FORWARD_COMPAT
 S110 — NON_GOALS
+S120 — REPO_ANCHORS_AND_REFERENCES
+S200 — PHASE15_APPENDIX (historical; not operational project state)
 ============================================================================
 -->
 
 __START_SPEC_META_S010__
 ## Spec status
-This spec is authoritative for **card content multiplicity** (data/contract only).
-Implementation details are explicitly out of scope.
+
+This spec is authoritative for **card content multiplicity** (**data/contract only**).
+Implementation details (renderer, UI, pipeline) are explicitly out of scope.
 __END_SPEC_META_S010__
 
 ---
@@ -75,7 +79,7 @@ __START_GLOBAL_RULES_S040__
 - A card **MUST** have at least one sense.
 - Order is meaningful wherever arrays are used unless explicitly stated.
 - All repeated items **MUST** support stable IDs.
-- Cards are treated as immutable semantic objects at the product level. How updates/versioning are represented is out of scope for Phase 15 and must not be assumed by this spec.
+- Cards are treated as immutable semantic objects at the product level. How updates/versioning are represented is out of scope for this spec and must not be assumed here.
 __END_GLOBAL_RULES_S040__
 
 ---
@@ -206,7 +210,29 @@ Those concerns are governed elsewhere.
 __END_NON_GOALS_S110__
 
 ---
+
+__START_REPO_ANCHORS_AND_REFERENCES_S120__
+## Repo anchors & references (authoritative navigation)
+
+- Operational project phase tracking and file map: **`docs/PROJECT_STATE.md`**
+- Work discipline and one-step protocol: **`docs/WORKING_METHOD.md`**
+- Durable constraints and decisions: **`docs/DECISIONS.md`**
+
+This spec is **referenced by** PROJECT_STATE; it is not a replacement for PROJECT_STATE.
+
+Phase 16A note:
+- Phase 16A is explicitly **renderer-only capability expansion** (no schema changes, no media pipeline changes).
+- Any renderer behavior changes that support multiplicity must remain compatible with this spec, but are governed in PROJECT_STATE.
+__END_REPO_ANCHORS_AND_REFERENCES_S120__
+
+---
+
 __START_PROJECT_STATE_PHASE15_S200__
+## Appendix — Phase 15 (historical record; not operational project state)
+
+This appendix documents the Phase 15 scope/outcomes as context for why this spec exists.
+Operational “what’s active now” lives in `docs/PROJECT_STATE.md`.
+
 ## Phase 15 — Card Content Expansion & Multiplicity
 
 ### Purpose
@@ -238,7 +264,7 @@ This phase is explicitly **data-first**.
     (dense data rendered in demo)
 - Demo renders dense data with **no layout regressions or crashes**
 - Known UI limitation observed and accepted:
-  - Examples tab currently surfaces a single example at a time (first item)
+  - Examples tab currently surfaced a single example at a time (first item)
 - No renderer, schema, or media changes were required
 
 ### Exit condition

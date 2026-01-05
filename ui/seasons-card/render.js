@@ -344,15 +344,64 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
   // <<< END ETYMOLOGY_RENDER_R133
 
   // >>> START EXAMPLES_RENDER_R141
-  const ex0 = cardData.examples[0] || {};
-  const exIt = root.querySelector(".example-it");
-  exIt.textContent = ex0.it || "";
-  exIt.setAttribute("data-say", ex0.it || "");
 
-  const exEn = root.querySelector(".example-en");
-  exEn.textContent = ex0.en || "";
-  exEn.setAttribute("data-say", ex0.en || "");
+  const examplesSection = root.querySelector('.tab-section[data-section="examples"]');
+  if (examplesSection) {
+    // Clear the single-example static markup and render a list instead.
+    examplesSection.innerHTML = "";
+
+    const examples = Array.isArray(cardData.examples) ? cardData.examples : [];
+
+    // Render only non-empty examples (both it+en empty = skip)
+    const usable = examples.filter((ex) => {
+      const it = (ex?.it || "").trim();
+      const en = (ex?.en || "").trim();
+      return it || en;
+    });
+
+    if (!usable.length) {
+      const empty = document.createElement("div");
+      empty.className = "tab-placeholder examples";
+      empty.textContent = "No examples available yet.";
+      examplesSection.appendChild(empty);
+    } else {
+      usable.forEach((ex, idx) => {
+        const bar = document.createElement("div");
+        bar.className = "example-bar";
+
+        const label = document.createElement("span");
+        label.className = "example-label";
+        label.textContent = usable.length > 1 ? `Example ${idx + 1}:` : "Example:";
+
+        const block = document.createElement("div");
+        block.className = "example-text-block";
+
+        const it = document.createElement("div");
+        it.className = "example-it";
+        it.setAttribute("data-lang", "it-IT");
+        it.textContent = ex.it || "";
+        it.setAttribute("data-say", ex.it || "");
+
+        const en = document.createElement("div");
+        en.className = "example-en";
+        en.setAttribute("data-lang", "en-GB");
+        en.textContent = ex.en || "";
+        en.setAttribute("data-say", ex.en || "");
+
+        block.appendChild(it);
+        block.appendChild(en);
+
+        bar.appendChild(label);
+        bar.appendChild(block);
+
+        examplesSection.appendChild(bar);
+      });
+    }
+  }
+
   // <<< END EXAMPLES_RENDER_R141
+
+
 
   // >>> START GRAMMAR_QUIZ_RENDER_R151
   const grammarHtml =

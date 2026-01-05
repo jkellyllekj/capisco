@@ -9,6 +9,7 @@ channel = "stable-24_05"
 modules = ["python-3.11", "web"]
 
 entrypoint = "server.py"
+packages = ["fltk14"]
 
 [unitTest]
 language = "python3"

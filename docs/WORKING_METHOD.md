@@ -25,6 +25,9 @@ WM110 — PHASE_START_CHECKLIST
 WM115 — ACTIVE_FILES_DISCIPLINE
 WM120 — PAUSE_IN_ACTION
 WM130 — LONG_TERM_GOAL
+WM140 — ENVIRONMENT_REALITY_CHECK
+WM150 — DISCOVERY_AND_SEARCH_RULES
+WM160 — SPEC_VS_STATE_RULE
 ============================================================================
 -->
 
@@ -314,5 +317,76 @@ The true objective is a **reusable development method** that supports creativity
 This document is as important as any code.
 
 <!-- __END_WM_LONG_TERM_GOAL_WM130__ -->
+
+---
+
+<!-- __START_WM_ENVIRONMENT_REALITY_CHECK_WM140__ -->
+
+## ENVIRONMENT REALITY CHECK (MANDATORY)
+
+Tool availability **must never be assumed**.
+
+Rules:
+- Do **not** assume:
+  - `git`
+  - `git grep`
+  - `tree`
+  - POSIX parity
+- Replit, Codespaces, local shells, and CI environments may differ.
+
+If a discovery step depends on tooling:
+- verify availability first
+- if unavailable, switch to editor search or filesystem listing
+- update `PROJECT_STATE.md` so future work does not depend on rediscovery
+
+Failure to account for environment constraints is a **method failure**.
+
+<!-- __END_WM_ENVIRONMENT_REALITY_CHECK_WM140__ -->
+
+---
+
+<!-- __START_WM_DISCOVERY_AND_SEARCH_RULES_WM150__ -->
+
+## DISCOVERY & SEARCH RULES
+
+When file locations are unknown:
+
+1. **Do not guess**
+2. Use editor-native search (e.g. Replit search)
+3. If discovery is non-trivial:
+   - stop
+   - update `PROJECT_STATE.md` with confirmed paths
+
+Shell-based discovery is **optional**, never required.
+
+Repeated discovery of the same files indicates missing project state.
+
+<!-- __END_WM_DISCOVERY_AND_SEARCH_RULES_WM150__ -->
+
+---
+
+<!-- __START_WM_SPEC_VS_STATE_RULE_WM160__ -->
+
+## SPEC VS PROJECT STATE RULE (CRITICAL)
+
+Clear separation is mandatory:
+
+- **Specs**
+  - Define contracts, models, invariants
+  - May contain historical phase appendices
+  - Do **not** describe current active work
+- **PROJECT_STATE.md**
+  - Declares the active phase
+  - Lists active files and entry points
+  - Explains *why* certain demos or behaviors exist
+
+Specs are **referenced by** PROJECT_STATE.  
+Specs must never replace PROJECT_STATE.
+
+If confusion arises between the two:
+- PROJECT_STATE wins for navigation
+- Specs win for semantics
+
+<!-- __END_WM_SPEC_VS_STATE_RULE_WM160__ -->
 
 <!-- __END_FILE_WM000__ -->
