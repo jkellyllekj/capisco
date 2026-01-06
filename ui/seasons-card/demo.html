@@ -254,8 +254,10 @@
     <!-- __END_MAIN_S110__ -->
 
     <!-- __START_RENDERER_SCRIPT_TAG_S200__ -->
-    <script src="./render.js"></script>
+    <script src="./render.js?cb=PHASE16A_GRAMMAR_002"></script>
     <!-- __END_RENDERER_SCRIPT_TAG_S200__ -->
+
+
 
     <!-- __START_BOOTSTRAP_SCRIPT_S300__ -->
     <script>
@@ -277,15 +279,18 @@
       }
       /* __END_HELPERS_S310__ */
 
-      /* __START_MAIN_S320__ */
+       /* __START_MAIN_S320__ */
       async function main() {
         const container = document.getElementById("mount");
-        const card = await loadJson("./cards/primavera.card.json");
 
-        // Start with 2 cards (safe baseline)
-        window.CapiscoSeasonsCard.renderMany(container, [card, card]);
+        const stagione = await loadJson("./cards/stagione.card.json");
+        const primavera = await loadJson("./cards/primavera.card.json");
+
+        window.CapiscoSeasonsCard.renderMany(container, [stagione, primavera]);
       }
       /* __END_MAIN_S320__ */
+
+
 
 
       /* __START_RUN_S330__ */

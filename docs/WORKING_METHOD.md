@@ -1,9 +1,9 @@
 <!-- __START_FILE_WM000__ -->
 
-# Capisco — Working Method  
+# Capisco — Working Method
 ## Structured Vibe Coding System
 
-Last updated: 2026-01-04  
+Last updated: 2026-01-06  
 Status: **Authoritative**
 
 ---
@@ -269,7 +269,7 @@ At the start of any new phase or chat:
 3. State:
    - what is frozen
    - what is allowed
-   - the next actionable work
+   - the next actionable work (bounded batch rules apply)
 
 If skipped: **stop and reset**.
 
@@ -289,9 +289,14 @@ Purpose:
 - make handoffs and new chats deterministic
 
 Rules:
-- Only files proven to be in the active flow are listed
-- Unknowns are recorded explicitly as **TBD**
-- Guessing is forbidden
+- The “Active Files” list must name:
+  - the entry point(s) (HTML/CLI)
+  - the renderer/module(s)
+  - the primary data inputs (JSON, fixtures)
+  - the source-of-truth styles (CSS)
+  - any other file that must be understood to make progress
+- If a file is not referenced by the active flow, it must **not** be added “just in case”.
+- Unknowns are recorded explicitly as “TBD (not yet traced)”.
 
 <!-- __END_WM_ACTIVE_FILES_DISCIPLINE_WM115__ -->
 
@@ -348,15 +353,25 @@ Failure to account for environment constraints is a **method failure**.
 
 <!-- __START_WM_DISCOVERY_AND_SEARCH_RULES_WM150__ -->
 
-## DISCOVERY & SEARCH RULES
+## DISCOVERY & SEARCH RULES (CRITICAL)
 
-When file locations are unknown:
+When file locations or edit targets are unknown:
 
 1. **Do not guess**
 2. Use editor-native search
 3. If discovery is non-trivial:
    - stop
    - update `PROJECT_STATE.md`
+
+### Block-name certainty requirement (MANDATORY)
+
+- The assistant may only instruct a **block replacement** if it can name the exact block tag (e.g. `EXAMPLES_RENDER_R141`) with confidence.
+- If the assistant **cannot** name the correct block tag:
+  - it must request the **entire file** (or entire relevant file section) first
+  - then identify the correct block tag
+  - then provide a full-block replacement
+
+This prevents wasted cycles where the user pastes the wrong fragment or the assistant targets a block that isn’t actually present.
 
 Repeated discovery = missing project state.
 

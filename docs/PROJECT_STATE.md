@@ -2,7 +2,7 @@
 
 # Capisco — Project State  
 Status: **Authoritative (Operational Truth)**  
-Last updated: 2026-01-04
+Last updated: 2026-01-06
 
 ---
 
@@ -48,13 +48,21 @@ If there is any conflict:
 ### Phase 16A — Renderer Capability Expansion
 
 Scope:
-- Renderer-only improvements
-- Surface multiplicity already present in data
+- Renderer-only improvements to support multiplicity already present in card data
+- Demo behavior may be adjusted strictly as a renderer test harness
 
 Explicit constraints:
 - ❌ No schema changes
 - ❌ No media pipeline changes
 - ❌ No data contract evolution
+
+What “renderer-only” includes:
+- `ui/seasons-card/render.js` (rendering logic, DOM wiring, visibility rules)
+- `ui/seasons-card/demo.html` (which cards load, layout, cache-busting)
+
+What it explicitly excludes:
+- Any changes to `.card.json` structure or semantics
+- Image/media generation strategy or asset pipeline changes
 
 <!-- __END_PS_CURRENT_PHASE_PS020__ -->
 
@@ -70,8 +78,8 @@ Status: **Complete**
 
 Summary:
 - Dense card data added using existing contract fields only
-- Multiple examples, senses (represented), relations, and variants validated
-- No renderer, schema, or media changes performed
+- Multiple examples, relations, variants, senses, and quiz seeds validated
+- No renderer, schema, or media pipeline changes performed
 
 Authoritative reference:
 - `docs/card-content-multiplicity-spec.md`
@@ -89,16 +97,31 @@ Phase 15 is closed and must not be modified.
 **Phase 16A — Renderer Capability Expansion**
 
 Purpose:
-- Improve renderer behavior to support multiplicity already present in card data
+- Upgrade renderer behavior to correctly surface multiplicity already present in card data
+- Improve demo clarity without altering data contracts
 
 Completed in this phase:
-- Examples tab updated to render **multiple examples** instead of first-only
+- Examples tab renders **all examples** (not first-only)
+- Related tab renders **relations grouped by category**
+- Renderer prefers `images.canonical[0]` with graceful fallback
+- Legacy icon rendering (blue circle / 🌀) disabled
+- Grammar tab:
+  - Prefers structured `grammar` data over placeholders
+  - Renders notes, patterns, exceptions with hierarchy
+  - Hides tab when truly empty
+- Quiz tab:
+  - Renders quiz seed summary from `quizSeeds`
+  - Hides tab when truly empty
+- Demo updated to render **two different cards side-by-side**
+  (`stagione` + `primavera`) for comparison
 
 Still allowed:
-- Additional renderer-only capability improvements (explicitly declared, one step at a time)
+- Additional renderer-only capability improvements
+- Visual/layout polish inside the renderer
+- Demo adjustments that do not introduce new concepts
 
 Still forbidden:
-- Any schema or media pipeline changes
+- Any schema, card JSON, or media pipeline changes
 
 <!-- __END_PS_PHASE16A_ACTIVE_PS040__ -->
 
@@ -114,18 +137,17 @@ These files are required knowledge for the active flow.
 - `ui/seasons-card/render.js`  
   Canonical Seasons Card renderer (vanilla JS)
 
-### Card Data
+### Card Data (read-only in Phase 16A)
 - `ui/seasons-card/cards/primavera.card.json`
 - `ui/seasons-card/cards/stagione.card.json`
 
 ### Demo / Entry Points
 - `ui/seasons-card/demo.html`
-  - Loads **one canonical card JSON**
-  - Duplicates the same card **intentionally** to test 2-up layout
-  - Not a multi-vocab demo
+  - Loads **two canonical cards** for renderer comparison
+  - Acts as a renderer test harness, not a product surface
 
 ### Specs & Governance
-- `docs/card-content-multiplicity-spec.md` (data/contract only)
+- `docs/card-content-multiplicity-spec.md`
 - `docs/WORKING_METHOD.md`
 - `docs/DECISIONS.md`
 
@@ -139,11 +161,12 @@ Files not listed here are **not** part of the active reasoning surface.
 
 ## KNOWN INTENTIONAL LIMITATIONS
 
-- The Seasons Card demo shows **one vocabulary item** by design
-- Repetition in the demo is for **layout testing**, not content plurality
-- Multi-card demos do not yet exist and must be explicitly created if needed
+- Demo is a **renderer test harness**, not a learning flow
+- Cards are rendered independently; no cross-card navigation exists yet
+- Empty tabs are hidden per-card, not globally
+- Demo does not represent final UX decisions
 
-These are **intentional**, not bugs.
+These behaviors are **intentional**, not bugs.
 
 <!-- __END_PS_KNOWN_LIMITATIONS_PS060__ -->
 
@@ -153,16 +176,17 @@ These are **intentional**, not bugs.
 
 ## PAUSE IN ACTION LOG
 
-### 2026-01-04 — Phase 16A Stabilisation
+### 2026-01-06 — Phase 16A Renderer Polish
 
-- Renderer updated to support multiple examples
-- Working Method updated to reflect Replit environment constraints
-- Project State created to:
-  - separate specs from operational truth
-  - declare active files
-  - prevent rediscovery loops
+- Renderer now correctly surfaces data multiplicity:
+  examples, relations, grammar, quiz seeds
+- Placeholder text no longer overrides real data
+- Empty Grammar / Quiz tabs are hidden per-card
+- Canonical images render correctly
+- Demo updated to show two different cards simultaneously
+- Phase 16A now stable and non-fragile
 
-Repo is now in a stable handoff state.
+Repo is in a clean handoff state.
 
 <!-- __END_PS_PAUSE_IN_ACTION_LOG_PS070__ -->
 
