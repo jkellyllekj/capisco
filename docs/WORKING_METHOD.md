@@ -14,7 +14,7 @@ BLOCK INDEX
 WM010 — PURPOSE
 WM020 — CORE_ENTITIES
 WM030 — PHASE_DISCIPLINE
-WM040 — ONE_STEP_RULE
+WM040 — PROGRESSIVE_STEP_RULE
 WM050 — DOCUMENTATION_PARITY_RULE
 WM060 — BLOCK_TAG_SYSTEM
 WM070 — NUMERIC_BLOCK_ID_RULE
@@ -28,6 +28,7 @@ WM130 — LONG_TERM_GOAL
 WM140 — ENVIRONMENT_REALITY_CHECK
 WM150 — DISCOVERY_AND_SEARCH_RULES
 WM160 — SPEC_VS_STATE_RULE
+WM170 — CHAT_HANDOVER_ARTIFACT
 ============================================================================
 -->
 
@@ -41,7 +42,7 @@ It exists to:
 - preserve creative, intuitive (“vibe”) exploration
 - eliminate the failure modes of *undisciplined* vibe coding
 - ensure continuity across long-running projects
-- make progress repeatable, calm, and deliberate
+- ensure that work actually **moves forward**
 
 This is **vibe coding done correctly** — with structure, memory, and guardrails.
 
@@ -83,7 +84,7 @@ A **single ChatGPT conversation**.
 - Never treated as a source of truth
 
 Rule:  
-When a chat page becomes overloaded or confused, it must be ended deliberately.
+When a chat page becomes overloaded, slow, or confused, it must be ended deliberately.
 
 <!-- __END_WM_CORE_ENTITIES_WM020__ -->
 
@@ -106,22 +107,39 @@ Rules:
 
 <!-- __START_WM_ONE_STEP_RULE_WM040__ -->
 
-## ONE-STEP RULE (CRITICAL)
+## PROGRESSIVE STEP RULE (CRITICAL)
 
-**We do one step at a time.**
+We optimise for **forward progress without overload**.
 
-- One file **OR**
-- One block **OR**
-- One decision
+### Default mode: **Bounded Batch Execution**
 
-Never more than one.
+A single response **may include multiple steps** provided **all** of the following are true:
 
-Disallowed:
-- multi-step responses
-- “while you’re at it”
-- bundled future work
+- Steps are **small, concrete, and sequential**
+- Steps operate within the **same phase and context**
+- Steps are **non-branching** (no forks or alternatives)
+- Total steps are **explicitly enumerated**
+- **Hard cap:** max **3–4 steps** per response
 
-If a response contains more than one step, it is **invalid**.
+This replaces the earlier **“exactly one step”** constraint.
+
+### Disallowed (still forbidden):
+
+- Long, unstructured task lists
+- Nested sub-steps
+- “Choose-your-own-adventure” instructions
+- Mixing unrelated files, phases, or concerns
+- Anything that causes the user to stall on step 1 and abandon the rest
+
+### Reset rule:
+
+If confusion, friction, or loss of confidence appears:
+
+- Immediately revert to **single-step mode**
+- Or invoke **Pause In Action**
+
+The goal is not procedural purity —  
+the goal is **steady, visible progress**.
 
 <!-- __END_WM_ONE_STEP_RULE_WM040__ -->
 
@@ -251,7 +269,7 @@ At the start of any new phase or chat:
 3. State:
    - what is frozen
    - what is allowed
-   - the next single step
+   - the next actionable work
 
 If skipped: **stop and reset**.
 
@@ -271,18 +289,9 @@ Purpose:
 - make handoffs and new chats deterministic
 
 Rules:
-- The “Active Files” list must name:
-  - the entry point(s) (HTML/CLI)
-  - the renderer/module(s)
-  - the primary data inputs (JSON, fixtures)
-  - the source-of-truth styles (CSS)
-  - any other file that must be understood to make progress
-- If a file is not referenced by the active flow, it must **not** be added “just in case”.
-- Unknowns are recorded explicitly as “TBD (not yet traced)”.
-
-When confusion occurs:
-- do not guess
-- add the missing file to “Active Files” only after it is proven to be used (import/script tag/CLI reference).
+- Only files proven to be in the active flow are listed
+- Unknowns are recorded explicitly as **TBD**
+- Guessing is forbidden
 
 <!-- __END_WM_ACTIVE_FILES_DISCIPLINE_WM115__ -->
 
@@ -312,9 +321,9 @@ When invoked:
 
 Capisco is the proving ground.
 
-The true objective is a **reusable development method** that supports creativity without loss of control.
+The real product is a **repeatable creative development method** that does not collapse under scale.
 
-This document is as important as any code.
+This document matters as much as any code.
 
 <!-- __END_WM_LONG_TERM_GOAL_WM130__ -->
 
@@ -326,18 +335,10 @@ This document is as important as any code.
 
 Tool availability **must never be assumed**.
 
-Rules:
-- Do **not** assume:
-  - `git`
-  - `git grep`
-  - `tree`
-  - POSIX parity
-- Replit, Codespaces, local shells, and CI environments may differ.
-
-If a discovery step depends on tooling:
-- verify availability first
-- if unavailable, switch to editor search or filesystem listing
-- update `PROJECT_STATE.md` so future work does not depend on rediscovery
+If tooling is missing:
+- switch methods
+- document the constraint
+- update `PROJECT_STATE.md`
 
 Failure to account for environment constraints is a **method failure**.
 
@@ -352,14 +353,12 @@ Failure to account for environment constraints is a **method failure**.
 When file locations are unknown:
 
 1. **Do not guess**
-2. Use editor-native search (e.g. Replit search)
+2. Use editor-native search
 3. If discovery is non-trivial:
    - stop
-   - update `PROJECT_STATE.md` with confirmed paths
+   - update `PROJECT_STATE.md`
 
-Shell-based discovery is **optional**, never required.
-
-Repeated discovery of the same files indicates missing project state.
+Repeated discovery = missing project state.
 
 <!-- __END_WM_DISCOVERY_AND_SEARCH_RULES_WM150__ -->
 
@@ -369,32 +368,24 @@ Repeated discovery of the same files indicates missing project state.
 
 ## SPEC VS PROJECT STATE RULE (CRITICAL)
 
-Clear separation is mandatory:
+- **Specs** define semantics and contracts
+- **PROJECT_STATE.md** defines *what is active now*
 
-- **Specs**
-  - Define contracts, models, invariants
-  - May contain historical phase appendices
-  - Do **not** describe current active work
-- **PROJECT_STATE.md**
-  - Declares the active phase
-  - Lists active files and entry points
-  - Explains *why* certain demos or behaviors exist
-
-Specs are **referenced by** PROJECT_STATE.  
-Specs must never replace PROJECT_STATE.
-
-If confusion arises between the two:
+If conflict arises:
 - PROJECT_STATE wins for navigation
 - Specs win for semantics
 
 <!-- __END_WM_SPEC_VS_STATE_RULE_WM160__ -->
 
+---
 
 <!-- __START_CHAT_HANDOVER_ARTIFACT_WM170__ -->
 
-CHAT HANDOVER ARTIFACT (MANDATORY)
-Every Pause In Action must produce a canonical “Next Chat Handover Message”.
-The pause is invalid without it.
+## CHAT HANDOVER ARTIFACT (MANDATORY)
+
+Every **Pause In Action** must produce a canonical **Next Chat Handover Message**.
+
+Without it, the pause is invalid.
 
 <!-- __END_CHAT_HANDOVER_ARTIFACT_WM170__ -->
 
