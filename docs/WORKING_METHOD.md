@@ -189,9 +189,23 @@ Tag formats:
   - no comments
   - must remain valid JSON
 
+### Block size split rule (MANDATORY)
+
+If a block grows large enough that it is awkward to paste, review, or reason about safely, it must be split into sub-blocks **before any further changes are made**.
+
+Rules:
+- Prefer multiple small sub-blocks over one large block
+- UI templates, long strings, and render logic must be split early
+- Do not add features to an oversized block
+- New sub-blocks must follow the numeric ID rule
+- Existing block numbers must never be renumbered
+
+This rule exists to prevent partial pastes, stale mixed versions, and silent regressions.
+
 This document follows its own rules.
 
 <!-- __END_WM_BLOCK_TAG_SYSTEM_WM060__ -->
+
 
 ---
 
