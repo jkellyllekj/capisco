@@ -157,16 +157,21 @@ These files are required knowledge for the active flow.
 - `ui/seasons-card/cards/inverno.card.json`
 - `ui/seasons-card/cards/come-stai.json`
 
-### Assets
-- `ui/seasons-card/images/**` (locally owned images only)
+### Assets (local only)
+- `ui/seasons-card/images/**`
+
+### Styles (source of truth for card)
+- `style-seasons-card.css`
 
 ### Governance
+- `docs/PROJECT_STATE.md`
 - `docs/WORKING_METHOD.md`
 - `docs/DECISIONS.md`
 
 Any file not listed here is **out of scope for reasoning**.
 
 <!-- __END_PS_ACTIVE_FILES_PS050__ -->
+
 
 ---
 
@@ -179,10 +184,14 @@ Any file not listed here is **out of scope for reasoning**.
 - Empty tabs are hidden per-card
 - Image loading is not yet optimised for performance
 - Image cropping issues are known and acceptable in Phase 16A
+- Demo currently includes extra inline CSS for layout experiments
+  - This is acceptable in Phase 16A
+  - In later phases we may consolidate into `style-seasons-card.css`
 
 These behaviors are **intentional**, not bugs.
 
 <!-- __END_PS_KNOWN_LIMITATIONS_PS060__ -->
+
 
 ---
 
