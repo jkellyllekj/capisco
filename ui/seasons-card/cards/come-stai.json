@@ -1,0 +1,111 @@
+{
+  "id": "come-stai",
+
+  "kind": "sentence",
+  "version": 1,
+
+  "lang": { "target": "it-IT", "native": "en-GB" },
+
+  "headword": {
+    "target": "Come stai?",
+    "native": "How are you?"
+  },
+
+  "level": "A1",
+  "tags": ["greetings", "conversation", "everyday"],
+
+  "lemmaId": "come-stare",
+  "sense": {
+    "id": "1",
+    "gloss": "S1 — asking how someone is (informal, singular ‘you’)"
+  },
+
+  "type": "sentence",
+  "language": "it",
+
+  "forms": {
+    "canonical": "Come stai?",
+    "variants": ["Come va?", "Come te la passi?"]
+  },
+
+  "pronunciation": {
+    "readable": "KOH-meh stai",
+    "ipa": "ˈkome stai"
+  },
+
+  "meaning": {
+    "primary": "How are you?",
+    "extended": [
+      "S1 — friendly informal check-in",
+      "S2 — can also imply ‘How’s it going?’"
+    ],
+    "usageNotes": "Informal. Use with friends or people your age. For formal singular, use “Come sta?”."
+  },
+
+  "examples": [
+    {
+      "it": "Come stai? Tutto bene?",
+      "en": "How are you? Everything alright?"
+    },
+    {
+      "it": "Ciao! Come stai oggi?",
+      "en": "Hi! How are you today?"
+    },
+    {
+      "it": "Come stai? È da tanto che non ci vediamo.",
+      "en": "How are you? We haven’t seen each other in a long time."
+    },
+    {
+      "it": "Come stai? Sono un po' stanco.",
+      "en": "How are you? I’m a bit tired."
+    }
+  ],
+
+  "grammar": {
+    "notes": "‘Come’ = how. ‘stai’ is 2nd person singular present of ‘stare’ (to be, in the sense of ‘to feel / to be doing’).",
+    "patterns": ["come + stare (tu)"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Italian ‘come’ (how) + ‘stare’ (to stay, to be).",
+    "evolution": "‘Stare’ is used for states/conditions, like feeling well or unwell.",
+    "mnemonic": "Think: ‘How do you stand/stay (feel) right now?’"
+  },
+
+  "relations": {
+    "related": ["ciao", "buongiorno", "come-va", "tutto-bene"],
+    "forms": ["come-sta", "come-state", "come-va"],
+    "synonyms": ["come-va"],
+    "antonyms": [],
+    "collocations": ["tutto_bene", "come_stai_oggi"],
+    "expressions": ["tutto_bene", "non_c_e_male"],
+    "themes": ["greetings", "conversation", "small-talk"],
+    "semantic": ["salute", "benessere", "umore"]
+  },
+
+  "media": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "a friendly person greeting someone, photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": [
+      {
+        "id": "come-stai-01",
+        "kind": "local",
+        "type": "photo",
+        "alt": "A friendly person smiling while greeting someone",
+        "license": "owned-ai",
+        "src": "./images/IT/come-stai/come-stai-01.jpg"
+      }
+    ]
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["Come sei?", "Dove stai?"]
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "id": "inverno",
+
+  "kind": "vocab",
+  "version": 1,
+
+  "lang": { "target": "it-IT", "native": "en-GB" },
+
+  "headword": {
+    "target": "inverno",
+    "native": "winter",
+
+    "it": "inverno",
+    "en": "winter",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "neutral"
+  },
+
+  "level": "A1",
+  "tags": ["seasons", "weather", "time"],
+
+  "lemmaId": "inverno",
+  "sense": {
+    "id": "1",
+    "gloss": "S1: winter (coldest season of the year)\nS2: wintertime / the winter season (as a period)\nS3: figurative: decline / later stage (literary)"
+  },
+
+  "type": "vocab",
+  "language": "it",
+
+  "forms": {
+    "canonical": "inverno",
+    "singular": "inverno",
+    "plural": "inverni",
+    "variants": ["invernale", "d'inverno"]
+  },
+
+  "pronunciation": {
+    "readable": "een-VEHR-no",
+    "ipa": "inˈvɛrno"
+  },
+
+  "etymology": {
+    "origin": "Latin: hībernum",
+    "evolution": "From hibernus, meaning wintry or of winter.",
+    "mnemonic": "Think of hibernate, winter, cold, dormancy."
+  },
+
+  "examples": [
+    {
+      "it": "S1: In inverno fa freddo.",
+      "en": "In winter it is cold."
+    },
+    {
+      "it": "S1: L'inverno in montagna è lungo.",
+      "en": "Winter in the mountains is long."
+    },
+    {
+      "it": "S2: D'inverno le giornate sono più corte.",
+      "en": "In winter, the days are shorter."
+    },
+    {
+      "it": "S2: Passiamo spesso l'inverno in città.",
+      "en": "We often spend the winter in the city."
+    },
+    {
+      "it": "S3: È l'inverno della sua carriera.",
+      "en": "It is the winter of his career, decline."
+    },
+    {
+      "it": "S3: Dopo il successo è arrivato l'inverno.",
+      "en": "After success, winter arrived, figurative decline."
+    }
+  ],
+
+  "relations": {
+    "related": ["primavera", "estate", "autunno", "stagione"],
+    "themes": ["seasons", "weather", "time", "cold"],
+    "semantic": ["freddo", "neve", "ghiaccio", "gennaio", "febbraio", "dicembre"],
+    "collocations": ["d'inverno", "pieno_inverno"],
+    "forms": ["invernale"],
+    "expressions": [],
+    "synonyms": [],
+    "antonyms": []
+  },
+
+  "media": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "winter season illustration",
+      "style": "clean educational"
+    },
+    "canonical": []
+  }
+}

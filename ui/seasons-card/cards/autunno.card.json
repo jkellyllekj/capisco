@@ -1,0 +1,96 @@
+{
+  "id": "autunno",
+
+  "kind": "vocab",
+  "version": 1,
+
+  "lang": { "target": "it-IT", "native": "en-GB" },
+
+  "headword": {
+    "target": "autunno",
+    "native": "autumn / fall",
+
+    "it": "autunno",
+    "en": "autumn / fall",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "neutral"
+  },
+
+  "level": "A1",
+  "tags": ["seasons", "weather", "time"],
+
+  "lemmaId": "autunno",
+  "sense": {
+    "id": "1",
+    "gloss": "S1 - autumn / fall (season after summer)\nS2 - autumnal period (as a time)\nS3 - figurative: maturity / transition (literary)"
+  },
+
+  "type": "vocab",
+  "language": "it",
+
+  "forms": {
+    "canonical": "autunno",
+    "singular": "autunno",
+    "plural": "autunni",
+    "variants": ["autunnale", "in autunno"]
+  },
+
+  "pronunciation": {
+    "readable": "ow-TOON-no",
+    "ipa": "auˈtunno"
+  },
+
+  "etymology": {
+    "origin": "Latin: autumnus",
+    "evolution": "Associated with harvest and the end of the growing season.",
+    "mnemonic": "Think auto-turn as the year turning toward winter."
+  },
+
+  "examples": [
+    {
+      "it": "S1 - In autunno cadono le foglie.",
+      "en": "In autumn the leaves fall."
+    },
+    {
+      "it": "S1 - L'autunno è una stagione piovosa.",
+      "en": "Autumn is a rainy season."
+    },
+    {
+      "it": "S2 - In autunno ricomincia la scuola.",
+      "en": "In autumn school starts again."
+    },
+    {
+      "it": "S2 - L'autunno dura da settembre a novembre.",
+      "en": "Autumn lasts from September to November."
+    },
+    {
+      "it": "S3 - È l'autunno della vita.",
+      "en": "It is the autumn of life (maturity)."
+    },
+    {
+      "it": "S3 - L'autunno simboleggia cambiamento e riflessione.",
+      "en": "Autumn symbolises change and reflection."
+    }
+  ],
+
+  "relations": {
+    "related": ["primavera", "estate", "inverno", "stagione"],
+    "themes": ["seasons", "weather", "time", "harvest"],
+    "semantic": ["foglia", "pioggia", "raccolto", "settembre", "ottobre", "novembre"],
+    "collocations": ["in_autunno", "autunno_inoltrato"],
+    "forms": ["autunnale"],
+    "expressions": [],
+    "synonyms": [],
+    "antonyms": []
+  },
+
+  "media": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "autumn season illustration",
+      "style": "clean educational"
+    },
+    "canonical": []
+  }
+}

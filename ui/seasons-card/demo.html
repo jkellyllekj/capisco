@@ -279,16 +279,121 @@
       }
       /* __END_HELPERS_S310__ */
 
-       /* __START_MAIN_S320__ */
-      async function main() {
-        const container = document.getElementById("mount");
+ /* __START_MAIN_S320__ */
+async function main() {
+  const container = document.getElementById("mount");
 
-        const stagione = await loadJson("./cards/stagione.card.json");
-        const primavera = await loadJson("./cards/primavera.card.json");
+  const controls = document.createElement("div");
+  controls.style.display = "flex";
+  controls.style.flexWrap = "wrap";
+  controls.style.gap = "12px";
+  controls.style.alignItems = "center";
+  controls.style.margin = "0 0 16px 0";
 
-        window.CapiscoSeasonsCard.renderMany(container, [stagione, primavera]);
-      }
-      /* __END_MAIN_S320__ */
+  const labelStyle = "display:flex; gap:8px; align-items:center;";
+
+  const leftWrap = document.createElement("label");
+  leftWrap.setAttribute("style", labelStyle);
+  leftWrap.innerHTML = "<strong>Left</strong>";
+
+  const rightWrap = document.createElement("label");
+  rightWrap.setAttribute("style", labelStyle);
+  rightWrap.innerHTML = "<strong>Right</strong>";
+
+  const twoUpWrap = document.createElement("label");
+  twoUpWrap.setAttribute("style", labelStyle);
+
+  const twoUp = document.createElement("input");
+  twoUp.type = "checkbox";
+  twoUp.checked = true;
+
+  const twoUpText = document.createElement("span");
+  twoUpText.textContent = "2-up";
+
+  twoUpWrap.appendChild(twoUp);
+  twoUpWrap.appendChild(twoUpText);
+
+  const leftSelect = document.createElement("select");
+  leftSelect.style.padding = "6px 8px";
+
+  const rightSelect = document.createElement("select");
+  rightSelect.style.padding = "6px 8px";
+
+  const cardOptions = [
+    { label: "stagione",  url: "./cards/stagione.card.json" },
+    { label: "primavera", url: "./cards/primavera.card.json" },
+    { label: "estate",    url: "./cards/estate.card.json" },
+    { label: "autunno",   url: "./cards/autunno.card.json" },
+    { label: "inverno",   url: "./cards/inverno.card.json" },
+
+    // Sentence card (note: file is come-stai.json, not .card.json)
+    { label: "come-stai", url: "./cards/come-stai.json" }
+  ];
+
+  function fillSelect(selectEl) {
+    selectEl.innerHTML = "";
+    for (const opt of cardOptions) {
+      const o = document.createElement("option");
+      o.value = opt.url;
+      o.textContent = opt.label;
+      selectEl.appendChild(o);
+    }
+  }
+
+  fillSelect(leftSelect);
+  fillSelect(rightSelect);
+
+  // Default comparison
+  leftSelect.value = "./cards/come-stai.json";
+  rightSelect.value = "./cards/stagione.card.json";
+
+  leftWrap.appendChild(leftSelect);
+  rightWrap.appendChild(rightSelect);
+
+  controls.appendChild(leftWrap);
+  controls.appendChild(rightWrap);
+  controls.appendChild(twoUpWrap);
+
+  container.parentElement.insertBefore(controls, container);
+
+  const cache = new Map();
+
+  async function getCard(url) {
+    if (!cache.has(url)) {
+      cache.set(url, await loadJson(url));
+    }
+    return cache.get(url);
+  }
+
+  async function renderNow() {
+    const leftUrl = leftSelect.value;
+    const rightUrl = rightSelect.value;
+
+    const leftCard = await getCard(leftUrl);
+    const cards = [leftCard];
+
+    if (twoUp.checked) {
+      const rightCard = await getCard(rightUrl);
+      cards.push(rightCard);
+    }
+
+    container.innerHTML = "";
+    window.CapiscoSeasonsCard.renderMany(container, cards);
+  }
+
+  function safeRenderNow() {
+    renderNow().catch((err) => showError(container, err));
+  }
+
+  leftSelect.addEventListener("change", safeRenderNow);
+  rightSelect.addEventListener("change", safeRenderNow);
+  twoUp.addEventListener("change", safeRenderNow);
+
+  await renderNow();
+}
+/* __END_MAIN_S320__ */
+
+
 
 
 

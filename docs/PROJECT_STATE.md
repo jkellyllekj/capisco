@@ -2,7 +2,7 @@
 
 # Capisco — Project State  
 Status: **Authoritative (Operational Truth)**  
-Last updated: 2026-01-06
+Last updated: 2026-01-07
 
 ---
 
@@ -48,21 +48,29 @@ If there is any conflict:
 ### Phase 16A — Renderer Capability Expansion
 
 Scope:
-- Renderer-only improvements to support multiplicity already present in card data
+- Renderer-only improvements to support **existing card multiplicity**
+- Support for **both vocab cards and sentence cards** using the same renderer
 - Demo behavior may be adjusted strictly as a renderer test harness
 
 Explicit constraints:
 - ❌ No schema changes
-- ❌ No media pipeline changes
-- ❌ No data contract evolution
+- ❌ No card contract changes
+- ❌ No new data fields introduced
+- ❌ No media pipeline automation
 
 What “renderer-only” includes:
-- `ui/seasons-card/render.js` (rendering logic, DOM wiring, visibility rules)
-- `ui/seasons-card/demo.html` (which cards load, layout, cache-busting)
+- `ui/seasons-card/render.js`
+- `ui/seasons-card/demo.html`
 
 What it explicitly excludes:
 - Any changes to `.card.json` structure or semantics
-- Image/media generation strategy or asset pipeline changes
+- Any evolution of the card contract
+- Any automated image generation or ingestion system
+
+Clarifications:
+- Sentence cards (e.g. `come-stai`) are **first-class cards**
+- Images are **supporting assets**, not drivers of schema or phase scope
+- This phase validates rendering behavior only
 
 <!-- __END_PS_CURRENT_PHASE_PS020__ -->
 
@@ -97,31 +105,33 @@ Phase 15 is closed and must not be modified.
 **Phase 16A — Renderer Capability Expansion**
 
 Purpose:
-- Upgrade renderer behavior to correctly surface multiplicity already present in card data
-- Improve demo clarity without altering data contracts
+- Validate that the renderer can correctly surface **rich card data**
+- Confirm that **vocab cards and sentence cards** share a single rendering path
+- Validate image rendering using **locally owned, canonical images**
 
 Completed in this phase:
-- Examples tab renders **all examples** (not first-only)
+- Examples tab renders **all examples**
 - Related tab renders **relations grouped by category**
+- Grammar tab prefers structured grammar data over placeholders
+- Quiz tab renders quiz seed summaries
+- Empty Grammar / Quiz tabs are hidden per-card
 - Renderer prefers `images.canonical[0]` with graceful fallback
-- Legacy icon rendering (blue circle / 🌀) disabled
-- Grammar tab:
-  - Prefers structured `grammar` data over placeholders
-  - Renders notes, patterns, exceptions with hierarchy
-  - Hides tab when truly empty
-- Quiz tab:
-  - Renders quiz seed summary from `quizSeeds`
-  - Hides tab when truly empty
-- Demo updated to render **two different cards side-by-side**
-  (`stagione` + `primavera`) for comparison
+- Legacy icon rendering disabled
+- Demo supports **mixed card types** (vocab + sentence)
+- Local, owned images render correctly for sentence cards
 
-Still allowed:
-- Additional renderer-only capability improvements
-- Visual/layout polish inside the renderer
-- Demo adjustments that do not introduce new concepts
+Explicit non-goals:
+- No image generation automation
+- No image sourcing workflow
+- No Unsplash or external dependency integration
+- No schema or contract evolution
 
-Still forbidden:
-- Any schema, card JSON, or media pipeline changes
+Image policy (Phase 16A):
+- One owned image per card is sufficient
+- Cards may support multiple images in future phases
+- Image cropping, sizing, and performance tuning are renderer concerns only
+
+Phase 16A is **stable but not final**.
 
 <!-- __END_PS_PHASE16A_ACTIVE_PS040__ -->
 
@@ -134,24 +144,27 @@ Still forbidden:
 These files are required knowledge for the active flow.
 
 ### Renderer
-- `ui/seasons-card/render.js`  
-  Canonical Seasons Card renderer (vanilla JS)
+- `ui/seasons-card/render.js`
+
+### Demo / Entry Point
+- `ui/seasons-card/demo.html`
 
 ### Card Data (read-only in Phase 16A)
-- `ui/seasons-card/cards/primavera.card.json`
 - `ui/seasons-card/cards/stagione.card.json`
+- `ui/seasons-card/cards/primavera.card.json`
+- `ui/seasons-card/cards/estate.card.json`
+- `ui/seasons-card/cards/autunno.card.json`
+- `ui/seasons-card/cards/inverno.card.json`
+- `ui/seasons-card/cards/come-stai.json`
 
-### Demo / Entry Points
-- `ui/seasons-card/demo.html`
-  - Loads **two canonical cards** for renderer comparison
-  - Acts as a renderer test harness, not a product surface
+### Assets
+- `ui/seasons-card/images/**` (locally owned images only)
 
-### Specs & Governance
-- `docs/card-content-multiplicity-spec.md`
+### Governance
 - `docs/WORKING_METHOD.md`
 - `docs/DECISIONS.md`
 
-Files not listed here are **not** part of the active reasoning surface.
+Any file not listed here is **out of scope for reasoning**.
 
 <!-- __END_PS_ACTIVE_FILES_PS050__ -->
 
@@ -162,9 +175,10 @@ Files not listed here are **not** part of the active reasoning surface.
 ## KNOWN INTENTIONAL LIMITATIONS
 
 - Demo is a **renderer test harness**, not a learning flow
-- Cards are rendered independently; no cross-card navigation exists yet
-- Empty tabs are hidden per-card, not globally
-- Demo does not represent final UX decisions
+- Cards render independently; no navigation between cards
+- Empty tabs are hidden per-card
+- Image loading is not yet optimised for performance
+- Image cropping issues are known and acceptable in Phase 16A
 
 These behaviors are **intentional**, not bugs.
 
@@ -176,17 +190,16 @@ These behaviors are **intentional**, not bugs.
 
 ## PAUSE IN ACTION LOG
 
-### 2026-01-06 — Phase 16A Renderer Polish
+### 2026-01-07 — Phase 16A Stabilisation & Image Validation
 
-- Renderer now correctly surfaces data multiplicity:
-  examples, relations, grammar, quiz seeds
-- Placeholder text no longer overrides real data
-- Empty Grammar / Quiz tabs are hidden per-card
-- Canonical images render correctly
-- Demo updated to show two different cards simultaneously
-- Phase 16A now stable and non-fragile
+- Sentence cards validated as first-class renderer inputs
+- Local, owned images validated as canonical assets
+- Image prompts tested and proven effective
+- Renderer remains schema-agnostic
+- Context saturation detected and handled via Pause In Action
+- Repo prepared for clean handoff and new chat
 
-Repo is in a clean handoff state.
+Repo state is **safe to commit and push**.
 
 <!-- __END_PS_PAUSE_IN_ACTION_LOG_PS070__ -->
 

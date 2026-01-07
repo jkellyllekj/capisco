@@ -1,18 +1,11 @@
 {
-  "__START_CARD_STAGIONE_S000__": true,
-
-  "__START_CORE_S005__": true,
   "id": "stagione",
   "type": "vocab",
   "language": "it",
   "conceptId": "concept.season",
-  "__END_CORE_S005__": true,
 
-  "__START_LEGACY_DISPLAY_S010__": true,
   "legacyIcon": "🌀",
-  "__END_LEGACY_DISPLAY_S010__": true,
 
-  "__START_HEADWORD_S020__": true,
   "headword": {
     "it": "stagione",
     "en": "season",
@@ -20,101 +13,81 @@
     "gender": "f",
     "register": "neutral"
   },
-  "__END_HEADWORD_S020__": true,
 
-  "__START_FORMS_S030__": true,
   "forms": {
     "canonical": "stagione",
     "singular": "stagione",
     "plural": "stagioni",
-    "variants": [
-      "stagionale",
-      "stagionalità"
-    ]
+    "variants": ["stagionale", "stagionalità"]
   },
-  "__END_FORMS_S030__": true,
 
-  "__START_PRONUNCIATION_S040__": true,
   "pronunciation": {
     "readable": "sta-JO-ne",
     "ipa": "[staˈd͡ʒoːne]",
-    "audio": {
-      "it": null,
-      "en": null
-    }
+    "audio": { "it": null, "en": null }
   },
-  "__END_PRONUNCIATION_S040__": true,
 
-  "__START_MEANING_S050__": true,
   "meaning": {
     "primary": "season",
     "extended": [
-      "S1 — a season of the year (spring/summer/autumn/winter)",
-      "S2 — a sports/competition season (e.g., the football season)",
-      "S3 — a TV/theatre series season (e.g., season 2 of a show)"
+      "S1: a season of the year (spring, summer, autumn, winter)",
+      "S2: a sports or competition season (for example the football season)",
+      "S3: a TV or theatre series season (for example season 2 of a show)"
     ],
-    "usageNotes": "Common in everyday speech for the four seasons (stagioni). Also used for sports seasons and TV/theatre seasons."
+    "usageNotes": "Common for the four seasons (stagioni). Also used for sports and TV or theatre seasons."
   },
-  "__END_MEANING_S050__": true,
 
-  "__START_EXAMPLES_S060__": true,
   "examples": [
     {
-      "it": "S1 — La mia stagione preferita è l'autunno.",
+      "it": "S1: La mia stagione preferita è l'autunno.",
       "en": "My favourite season is autumn.",
       "source": "demo",
       "difficulty": "easy"
     },
     {
-      "it": "S1 — In questa stagione piove spesso.",
+      "it": "S1: In questa stagione piove spesso.",
       "en": "In this season it often rains.",
       "source": "demo",
       "difficulty": "easy"
     },
     {
-      "it": "S2 — La stagione di calcio inizia a settembre.",
+      "it": "S2: La stagione di calcio inizia a settembre.",
       "en": "The football season starts in September.",
       "source": "demo",
       "difficulty": "medium"
     },
     {
-      "it": "S2 — Ha fatto una grande stagione quest'anno.",
+      "it": "S2: Ha fatto una grande stagione quest'anno.",
       "en": "He had a great season this year.",
       "source": "demo",
       "difficulty": "medium"
     },
     {
-      "it": "S3 — Ho guardato la seconda stagione della serie.",
+      "it": "S3: Ho guardato la seconda stagione della serie.",
       "en": "I watched the second season of the series.",
       "source": "demo",
       "difficulty": "medium"
     },
     {
-      "it": "S3 — Questa stagione ha solo otto episodi.",
+      "it": "S3: Questa stagione ha solo otto episodi.",
       "en": "This season has only eight episodes.",
       "source": "demo",
       "difficulty": "medium"
     }
   ],
-  "__END_EXAMPLES_S060__": true,
 
-  "__START_GRAMMAR_S070__": true,
   "grammar": {
-    "notes": "Feminine noun ending in -e; plural changes to -i.",
-    "patterns": ["-e → -i plural"],
+    "notes": "Feminine noun ending in -e. Plural changes to -i.",
+    "patterns": ["-e to -i plural"],
     "exceptions": []
   },
-  "__END_GRAMMAR_S070__": true,
 
-  "__START_ETYMOLOGY_S080__": true,
   "etymology": {
     "origin": "Latin: statio",
-    "evolution": "Sense shifted from ‘fixed position/period’ to ‘season/phase’.",
-    "mnemonic": "Think of a ‘station’ (statio) as a fixed period in the year."
+    "evolution": "Sense shifted from fixed position or period to season or phase.",
+    "mnemonic": "Think of a station as a fixed period in the year."
   },
-  "__END_ETYMOLOGY_S080__": true,
 
-  "__START_RELATIONS_S090__": true,
   "relations": {
     "lemma": [],
     "forms": ["stagionale", "stagionalità"],
@@ -130,9 +103,7 @@
     "contrasts": ["stazione"],
     "semantic": ["periodo", "fase", "anno"]
   },
-  "__END_RELATIONS_S090__": true,
 
-  "__START_IMAGES_S100__": true,
   "images": {
     "fallback": {
       "type": "auto",
@@ -150,31 +121,22 @@
       }
     ]
   },
-  "__END_IMAGES_S100__": true,
 
-  "__START_QUIZ_SEEDS_S110__": true,
   "quizSeeds": {
     "recognition": true,
     "recall": true,
     "production": true,
     "distractors": ["stazione", "stagnone"]
   },
-  "__END_QUIZ_SEEDS_S110__": true,
 
-  "__START_PLACEHOLDERS_S120__": true,
   "placeholders": {
     "grammar": "Grammar breakdown for <strong>stagione</strong> coming soon.",
     "quiz": "Quiz for <strong>stagione</strong> coming soon."
   },
-  "__END_PLACEHOLDERS_S120__": true,
 
-  "__START_METADATA_S130__": true,
   "metadata": {
     "difficulty": "A2",
     "tags": ["Seasons"],
     "rankId": "#1482"
-  },
-  "__END_METADATA_S130__": true,
-
-  "__END_CARD_STAGIONE_S000__": true
+  }
 }

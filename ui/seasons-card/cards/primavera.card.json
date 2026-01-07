@@ -23,7 +23,7 @@
   "lemmaId": "primavera",
   "sense": {
     "id": "1",
-    "gloss": "S1 — spring (season after winter)\nS2 — springtime / the spring season (as a period)\nS3 — figurative: youth / the ‘spring’ of life (poetic)"
+    "gloss": "S1: spring (season after winter)\nS2: springtime / the spring season (as a period)\nS3: figurative: youth / the spring of life (poetic)"
   },
 
   "type": "vocab",
@@ -43,36 +43,47 @@
 
   "etymology": {
     "origin": "Latin: prīma vēra",
-    "evolution": "Literally ‘first of spring’ / ‘early spring’.",
-    "mnemonic": "PRIMA = first → the first warm season."
+    "evolution": "Literally first of spring or early spring.",
+    "mnemonic": "PRIMA means first, the first warm season."
   },
 
   "examples": [
-    {
-      "it": "S1 — In primavera i fiori sbocciano.",
-      "en": "In spring, flowers bloom."
-    },
-    {
-      "it": "S1 — In Italia la primavera è spesso mite.",
-      "en": "In Italy, spring is often mild."
-    },
-    {
-      "it": "S2 — Aspettiamo la primavera per partire.",
-      "en": "We’re waiting for springtime to leave."
-    },
-    {
-      "it": "S2 — La primavera dura circa tre mesi.",
-      "en": "Spring lasts about three months."
-    },
-    {
-      "it": "S3 — È nella primavera della vita.",
-      "en": "He/She is in the spring of life (in their youth)."
-    },
-    {
-      "it": "S3 — La primavera è il simbolo della rinascita.",
-      "en": "Spring is a symbol of rebirth."
-    }
+    { "it": "S1: In primavera i fiori sbocciano.", "en": "In spring, flowers bloom." },
+    { "it": "S1: In Italia la primavera è spesso mite.", "en": "In Italy, spring is often mild." },
+    { "it": "S2: Aspettiamo la primavera per partire.", "en": "We are waiting for springtime to leave." },
+    { "it": "S2: La primavera dura circa tre mesi.", "en": "Spring lasts about three months." },
+    { "it": "S3: È nella primavera della vita.", "en": "He or she is in the spring of life, in their youth." },
+    { "it": "S3: La primavera è il simbolo della rinascita.", "en": "Spring is a symbol of rebirth." }
   ],
+
+  "relations": {
+    "related": ["estate", "autunno", "inverno", "stagione"],
+    "themes": ["seasons", "weather", "time", "rebirth"],
+    "semantic": ["fiore", "mite", "rinascita", "marzo", "aprile", "maggio"],
+    "collocations": ["a_primavera", "primavera_inoltrata"],
+    "forms": ["primaverile"],
+    "expressions": [],
+    "synonyms": [],
+    "antonyms": []
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "spring season illustration",
+      "style": "clean educational"
+    },
+    "canonical": [
+      {
+        "id": "primavera_demo_svg",
+        "kind": "inline",
+        "type": "svg",
+        "alt": "Spring, demo placeholder image",
+        "license": "internal",
+        "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='900' height='560'><rect width='100%25' height='100%25' rx='28' fill='%23E8F5E9'/><circle cx='160' cy='180' r='70' fill='%238BC34A' opacity='0.55'/><circle cx='240' cy='240' r='90' fill='%23AED581' opacity='0.55'/><circle cx='310' cy='170' r='60' fill='%23C5E1A5' opacity='0.55'/><text x='50%25' y='54%25' font-size='56' text-anchor='middle' fill='%232E7D32' font-family='Arial'>primavera</text><text x='50%25' y='68%25' font-size='26' text-anchor='middle' fill='%232E7D32' opacity='0.8' font-family='Arial'>spring</text></svg>"
+      }
+    ]
+  },
 
   "media": {
     "fallback": {

@@ -1,0 +1,96 @@
+{
+  "id": "estate",
+
+  "kind": "vocab",
+  "version": 1,
+
+  "lang": { "target": "it-IT", "native": "en-GB" },
+
+  "headword": {
+    "target": "estate",
+    "native": "summer",
+
+    "it": "estate",
+    "en": "summer",
+    "partOfSpeech": "noun",
+    "gender": "f",
+    "register": "neutral"
+  },
+
+  "level": "A1",
+  "tags": ["seasons", "weather", "time"],
+
+  "lemmaId": "estate",
+  "sense": {
+    "id": "1",
+    "gloss": "S1 - summer (warmest season of the year)\nS2 - summertime / the summer season (as a period)\nS3 - figurative: peak / fullness (literary)"
+  },
+
+  "type": "vocab",
+  "language": "it",
+
+  "forms": {
+    "canonical": "estate",
+    "singular": "estate",
+    "plural": "estati",
+    "variants": ["estivo", "d'estate"]
+  },
+
+  "pronunciation": {
+    "readable": "eh-STA-te",
+    "ipa": "eˈstate"
+  },
+
+  "etymology": {
+    "origin": "Latin: aestās",
+    "evolution": "From aestas, meaning summer or heat.",
+    "mnemonic": "Think aestas as heat and bright sun."
+  },
+
+  "examples": [
+    {
+      "it": "S1 - In estate fa molto caldo.",
+      "en": "In summer it is very hot."
+    },
+    {
+      "it": "S1 - L'estate è la stagione delle vacanze.",
+      "en": "Summer is the holiday season."
+    },
+    {
+      "it": "S2 - D'estate mangiamo spesso fuori.",
+      "en": "In summer we often eat outside."
+    },
+    {
+      "it": "S2 - Passeremo l'estate al mare.",
+      "en": "We will spend the summer by the sea."
+    },
+    {
+      "it": "S3 - Era l'estate della sua vita.",
+      "en": "It was the summer of his life (peak)."
+    },
+    {
+      "it": "S3 - L'estate rappresenta pienezza ed energia.",
+      "en": "Summer represents fullness and energy."
+    }
+  ],
+
+  "relations": {
+    "related": ["primavera", "autunno", "inverno", "stagione"],
+    "themes": ["seasons", "weather", "time", "holiday"],
+    "semantic": ["caldo", "mare", "vacanze", "spiaggia", "sole", "luglio", "agosto"],
+    "collocations": ["d'estate", "estate_piena"],
+    "forms": ["estivo"],
+    "expressions": [],
+    "synonyms": [],
+    "antonyms": []
+  },
+
+  "media": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "summer season illustration",
+      "style": "clean educational"
+    },
+    "canonical": []
+  }
+}
