@@ -292,7 +292,6 @@ root.querySelector(".gender").textContent = cardData.headword.gender
 
   let chosen = null;
 
-  // 1) True image system (stagione uses this)
   const fromImages = pickMedia(cardData);
   if (fromImages) {
     chosen = fromImages;
@@ -302,28 +301,51 @@ root.querySelector(".gender").textContent = cardData.headword.gender
     Array.isArray(cardData.media.canonical) &&
     cardData.media.canonical.length > 0
   ) {
-    // 2) media.canonical
     chosen = cardData.media.canonical[0];
   } else if (cardData && cardData.media && cardData.media.fallback) {
-    // 3) media.fallback (primavera uses this)
     chosen = cardData.media.fallback;
   }
 
   const html = chosen ? renderCardMediaHtml(chosen) : "";
-
-  // Put the HTML INSIDE the slot and show it (bounded slot still exists even if empty)
   slot.innerHTML = html;
+
+  const mediaRoot = slot.querySelector(".capisco-card-media");
+  if (!mediaRoot) {
+    slot.classList.add("hidden");
+    if (iconCircle) iconCircle.classList.remove("hidden");
+    return;
+  }
+
   slot.classList.remove("hidden");
+  if (iconCircle) iconCircle.classList.add("hidden");
 
-  // Keep rounding, but DO NOT clip (clipping caused breakpoint cut-off)
+  // Do not override responsive sizing here.
+  // Let CSS control dimensions across breakpoints.
+  //
+  // Only enforce:
+  // - clean rounded mask (no halo)
+  // - no-crop policy for images
+
   slot.style.borderRadius = "20px";
+  slot.style.overflow = "hidden";
 
-  // Hide the old circle placeholder if ANY media rendered (image or fallback tile)
-  const hasMedia = !!slot.querySelector(".capisco-card-media");
-  if (hasMedia && iconCircle) iconCircle.classList.add("hidden");
+  const img = mediaRoot.querySelector("img.capisco-card-image");
+  if (img) {
+    // Never crop. Preserve full image inside whatever box CSS gives us.
+    img.style.setProperty("object-fit", "contain", "important");
+    img.style.setProperty("object-position", "center", "important");
+
+    // Avoid halo: parent clips, image does not need its own rounding.
+    img.style.setProperty("border-radius", "0", "important");
+  }
 })();
 
 /* END_MEDIA_SLOT_R124 */
+
+
+
+
+
 
 
 

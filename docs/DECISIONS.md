@@ -1,18 +1,18 @@
 <!-- __START_FILE_D000__ -->
 
-# Capisco — Decisions  
-Status: **Authoritative (Durable Constraints & Precedence Rules)**  
-Last updated: 2026-01-06
+# Capisco, Decisions  
+Status: **Authoritative (Durable Constraints and Precedence Rules)**  
+Last updated: 2026-01-08
 
 ---
 
 <!--
 ============================================================================
 BLOCK INDEX
-D010 — PURPOSE
-D020 — RENDERER_PRECEDENCE_RULES
-D030 — DEMO_ROLE
-D040 — ENVIRONMENT_CONSTRAINTS
+D010, PURPOSE
+D020, RENDERER_PRECEDENCE_RULES
+D030, DEMO_ROLE
+D040, ENVIRONMENT_CONSTRAINTS
 ============================================================================
 -->
 
@@ -20,16 +20,16 @@ D040 — ENVIRONMENT_CONSTRAINTS
 
 ## PURPOSE
 
-This document records **durable decisions** that must persist across phases.
+This document records durable decisions that must persist across phases.
 
 It answers:
-- What rules are *intentional* and must not be re-debated
+- What rules are intentional and must not be re debated
 - What precedence logic the renderer must follow
 - What constraints are environmental, not design mistakes
 
 If there is any conflict:
-- `PROJECT_STATE.md` defines **what is active**
-- `DECISIONS.md` defines **what must remain true**
+- `PROJECT_STATE.md` defines what is active
+- `DECISIONS.md` defines what must remain true
 - Chat output is never authoritative
 
 <!-- __END_D_PURPOSE_D010__ -->
@@ -43,7 +43,7 @@ If there is any conflict:
 The renderer must apply the following precedence rules consistently.
 
 ### Data vs Placeholder
-- **Structured data always wins** over placeholder text
+- Structured data always wins over placeholder text
   - `grammar` overrides `placeholders.grammar`
   - `quizSeeds` overrides `placeholders.quiz`
 - Placeholders are fallback only when no structured data exists
@@ -55,11 +55,19 @@ The renderer must apply the following precedence rules consistently.
   3. `media.fallback`
 - Legacy icon rendering is disabled and must not reappear
 
+### Media Presentation
+- Canonical images must be shown as full images, not cut offs
+- Default renderer behavior must avoid cropping canonical images
+- Image creation guidance for later phases:
+  - Generate a landscape primary image and a portrait secondary image
+  - Both images must match subject, clothing, person, theme, and setting
+  - They should be two beautiful, unique versions of the same scene
+
 ### Visibility Rules
-- Tabs with no meaningful content **must be hidden per card**
+- Tabs with no meaningful content must be hidden per card
   - Grammar tab hidden if no grammar data and no placeholder
   - Quiz tab hidden if no quiz seeds and no placeholder
-- Empty-state text must never mask real data
+- Empty state text must never mask real data
 
 These rules are intentional and not subject to aesthetic preference.
 
@@ -71,12 +79,12 @@ These rules are intentional and not subject to aesthetic preference.
 
 ## DEMO ROLE (LOCKED)
 
-- `ui/seasons-card/demo.html` is a **renderer test harness**
+- `ui/seasons-card/demo.html` is a renderer test harness
 - It may:
   - Load multiple cards
   - Duplicate cards
   - Change layout to expose renderer behavior
-- It does **not** represent final UX or learning flow
+- It does not represent final UX or learning flow
 
 Demo behavior must prioritise:
 - Observability
