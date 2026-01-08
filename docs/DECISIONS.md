@@ -1,41 +1,3 @@
-<!-- __START_FILE_D000__ -->
-
-# Capisco, Decisions  
-Status: **Authoritative (Durable Constraints and Precedence Rules)**  
-Last updated: 2026-01-08
-
----
-
-<!--
-============================================================================
-BLOCK INDEX
-D010, PURPOSE
-D020, RENDERER_PRECEDENCE_RULES
-D030, DEMO_ROLE
-D040, ENVIRONMENT_CONSTRAINTS
-============================================================================
--->
-
-<!-- __START_D_PURPOSE_D010__ -->
-
-## PURPOSE
-
-This document records durable decisions that must persist across phases.
-
-It answers:
-- What rules are intentional and must not be re debated
-- What precedence logic the renderer must follow
-- What constraints are environmental, not design mistakes
-
-If there is any conflict:
-- `PROJECT_STATE.md` defines what is active
-- `DECISIONS.md` defines what must remain true
-- Chat output is never authoritative
-
-<!-- __END_D_PURPOSE_D010__ -->
-
----
-
 <!-- __START_D_RENDERER_PRECEDENCE_D020__ -->
 
 ## RENDERER PRECEDENCE RULES (LOCKED)
@@ -58,10 +20,28 @@ The renderer must apply the following precedence rules consistently.
 ### Media Presentation
 - Canonical images must be shown as full images, not cut offs
 - Default renderer behavior must avoid cropping canonical images
-- Image creation guidance for later phases:
-  - Generate a landscape primary image and a portrait secondary image
-  - Both images must match subject, clothing, person, theme, and setting
-  - They should be two beautiful, unique versions of the same scene
+
+Image creation guidance for later phases:
+- Generate a landscape primary image and a portrait secondary image
+- Both images must match subject, clothing, person, theme, and setting
+- They should be two beautiful, unique versions of the same scene
+
+### Sentence Card Presentation Rules
+- Sentence cards are first class and must not look empty compared to vocab cards
+- For sentence cards, Overview must be adapted:
+  - Phrase row shown
+  - Plural row hidden
+  - Examples are surfaced on Overview
+  - Notes are surfaced on Overview when available
+- Tabs remain available, Overview is a summary not a replacement
+
+### Tag Pill Mapping Rules
+- Vocab cards may use object style `tags`
+- Sentence cards often use:
+  - `level` as the Level pill
+  - `lemmaId` as the Id pill
+  - first item of `tags[]` as the Category pill
+- The renderer must not crash if `tags` is null, missing, or an array
 
 ### Visibility Rules
 - Tabs with no meaningful content must be hidden per card
@@ -72,43 +52,3 @@ The renderer must apply the following precedence rules consistently.
 These rules are intentional and not subject to aesthetic preference.
 
 <!-- __END_D_RENDERER_PRECEDENCE_D020__ -->
-
----
-
-<!-- __START_D_DEMO_ROLE_D030__ -->
-
-## DEMO ROLE (LOCKED)
-
-- `ui/seasons-card/demo.html` is a renderer test harness
-- It may:
-  - Load multiple cards
-  - Duplicate cards
-  - Change layout to expose renderer behavior
-- It does not represent final UX or learning flow
-
-Demo behavior must prioritise:
-- Observability
-- Debuggability
-- Renderer validation
-
-<!-- __END_D_DEMO_ROLE_D030__ -->
-
----
-
-<!-- __START_D_ENVIRONMENT_CONSTRAINTS_D040__ -->
-
-## ENVIRONMENT CONSTRAINTS (LOCKED)
-
-- Replit shell is not a reliable source of truth for:
-  - `git`
-  - `git grep`
-  - `tree`
-- File discovery must rely on:
-  - Editor search
-  - Explicit file lists in `PROJECT_STATE.md`
-
-This is an environmental limitation, not a tooling mistake.
-
-<!-- __END_D_ENVIRONMENT_CONSTRAINTS_D040__ -->
-
-<!-- __END_FILE_D000__ -->
