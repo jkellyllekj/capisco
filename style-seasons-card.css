@@ -76,8 +76,9 @@
     }
 
     .card-title-line span.translation {
-      color: #334155;
-      font-weight: 500;
+      color: #64748b;
+      font-weight: 400;
+      font-style: italic;
     }
 
     .card-title-line span.dot {
@@ -94,30 +95,37 @@
     .tag-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 6px;
+      gap: 8px;
+      margin-top: 8px;
       font-size: 11px;
     }
 
     .tag-pill {
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: 999px;
-      font-weight: 500;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      font-size: 10px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
     }
 
     .tag-level {
-      background: #dbeafe;
-      color: #1d4ed8;
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      color: #1e40af;
+      border: 1px solid rgba(59, 130, 246, 0.2);
     }
 
     .tag-id {
-      background: #fee2e2;
-      color: #b91c1c;
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      color: #991b1b;
+      border: 1px solid rgba(239, 68, 68, 0.2);
     }
 
     .tag-cat {
-      background: #dcfce7;
-      color: #15803d;
+      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+      color: #166534;
+      border: 1px solid rgba(34, 197, 94, 0.2);
     }
 
     .icon-circle {
@@ -252,13 +260,16 @@
     }
 
     .example-it {
-      font-size: 13px;
-      color: #111827;
+      font-size: 14px;
+      font-weight: 500;
+      color: #0f172a;
     }
 
     .example-en {
-      font-size: 11px;
-      color: #4b5563;
+      font-size: 12px;
+      font-weight: 400;
+      font-style: italic;
+      color: #6b7280;
     }
     /* __END_EXAMPLE_BAR_S500__ */
 

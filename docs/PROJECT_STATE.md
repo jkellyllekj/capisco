@@ -286,5 +286,16 @@ Plural row hidden for sentence cards
 Tag pills for sentence cards mapped from sentence fields, level, lemmaId, and first tag when available
 Demo validated in two up mode with mixed card types
 
+2026-01-09, Phase 16A Pill Styling and Text Differentiation
+CSS only changes applied to style-seasons-card.css
+Pill styling refined with uppercase text, subtle gradients, borders, and box shadows
+Tag pills now have improved visual depth and polish
+English translation text styled italic with lighter color to distinguish from Italian
+Example text differentiation improved, Italian bolder and darker, English italic and lighter
+Demo verified in Replit with come-stai sentence card and stagione vocab card
+Both cards render correctly, pills look improved, English vs Italian clearly distinct
+No console errors observed
+No JS, HTML, or JSON changes made
+
 Next queued work
-CSS only, refine pill styling and clearly differentiate English vs Italian text styling
+To be determined by user

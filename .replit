@@ -55,7 +55,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python3 server.py"
+args = "python -m http.server 5000 --directory ."
 waitForPort = 5000
 
 [agent]
@@ -65,7 +65,3 @@ integrations = ["python_openai:1.0.0", "github:1.0.0"]
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 8000
-externalPort = 8000
