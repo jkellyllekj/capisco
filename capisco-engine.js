@@ -2019,6 +2019,7 @@ class CapiscoEngine {
                     </button>
                     ${audioButtons}
                   </div>
+                  ${sectionIndex === 0 && vocabIndex === 0 ? '<div class="capisco-seasons-mount" data-seasons-mount="first"></div>' : ''}
                 </li>
           `;
         });
@@ -2191,6 +2192,23 @@ class CapiscoEngine {
       
       // Initialize hover effects on vocabulary cards
       this.initializeHoverEffects();
+      
+      // Proof of wiring: render one Seasons card into the first mount
+      try {
+        const mount = document.querySelector('[data-seasons-mount="first"]');
+        if (!mount) return;
+        if (!window.CapiscoSeasonsCard || typeof window.CapiscoSeasonsCard.render !== 'function') {
+          console.warn('Seasons renderer not available on this page');
+          return;
+        }
+        if (!this.currentLesson || !Array.isArray(this.currentLesson.vocabulary) || !this.currentLesson.vocabulary.length) {
+          console.warn('No lesson vocabulary available for Seasons render');
+          return;
+        }
+        window.CapiscoSeasonsCard.render(mount, this.currentLesson.vocabulary[0]);
+      } catch (e) {
+        console.warn('Seasons render failed', e);
+      }
       
       // Update quiz system with current lesson data (only once)
       if (this.currentLesson) {
