@@ -1,0 +1,122 @@
+{
+  "id": "colazione",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.breakfast",
+
+  "legacyIcon": "🥐",
+
+  "headword": {
+    "it": "colazione",
+    "en": "breakfast",
+    "partOfSpeech": "noun",
+    "gender": "f",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "colazione",
+    "singular": "colazione",
+    "plural": "colazioni",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "ko-la-TSYO-ne",
+    "ipa": "[kolaˈtsjoːne]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "breakfast",
+    "extended": [
+      "S1: the first meal of the day, typically eaten in the morning"
+    ],
+    "usageNotes": "In Italy, colazione is usually light: coffee with a cornetto or biscotti."
+  },
+
+  "examples": [
+    {
+      "it": "Che cosa mangi a colazione?",
+      "en": "What do you eat for breakfast?",
+      "source": "transcript",
+      "difficulty": "easy"
+    },
+    {
+      "it": "A colazione bevo sempre un caffè.",
+      "en": "I always drink coffee for breakfast.",
+      "source": "transcript",
+      "difficulty": "easy"
+    },
+    {
+      "it": "La colazione italiana è dolce.",
+      "en": "Italian breakfast is sweet.",
+      "source": "transcript",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Feminine noun ending in -e. Plural changes to -i.",
+    "patterns": ["-e to -i plural"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Latin: collatio",
+    "evolution": "Originally meant a light meal or snack, evolved to mean the morning meal.",
+    "mnemonic": "Think of 'collecting' energy at the start of the day."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": ["prima colazione"],
+    "antonyms": [],
+    "collocations": ["fare_colazione", "a_colazione", "prima_colazione"],
+    "expressions": ["fare_colazione"],
+    "grammar": [],
+    "themes": ["food", "meals", "morning"],
+
+    "related": ["caffè", "cornetto", "latte", "biscotti"],
+    "phonetic": [],
+    "contrasts": ["pranzo", "cena"],
+    "semantic": ["pasto", "mattina"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "Italian breakfast with coffee and cornetto photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": [
+      {
+        "id": "colazione_primary",
+        "kind": "local",
+        "type": "photo",
+        "alt": "Italian breakfast with coffee and cornetto on a table",
+        "license": "owned-ai",
+        "src": "./images/IT/colazione/colazione-01.jpg"
+      }
+    ]
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["collezione", "stazione"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>colazione</strong> coming soon.",
+    "quiz": "Quiz for <strong>colazione</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A1",
+    "tags": ["Breakfast", "Food", "Meals"],
+    "rankId": "#0832"
+  }
+}
