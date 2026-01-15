@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seasons Lesson Slice</title>
+  <link rel="stylesheet" href="../../style-seasons-card.css">
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: #f5f5f5;
+    }
+    .layout {
+      display: flex;
+      gap: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .manifest-list {
+      width: 200px;
+      flex-shrink: 0;
+    }
+    .manifest-list button {
+      display: block;
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid #ccc;
+      background: white;
+      cursor: pointer;
+      text-align: left;
+      border-radius: 4px;
+    }
+    .manifest-list button:hover {
+      background: #e0e0e0;
+    }
+    .manifest-list button.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+    .card-mount {
+      flex: 1;
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      min-height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Seasons Lesson Slice</h1>
+  <div class="layout">
+    <div class="manifest-list" id="manifest-list"></div>
+    <div class="card-mount" id="card-mount"></div>
+  </div>
+
+  <script src="render.js"></script>
+  <script>
+    const manifest = [
+      'cards/stagione.card.json',
+      'cards/primavera.card.json',
+      'cards/estate.card.json',
+      'cards/autunno.card.json',
+      'cards/inverno.card.json',
+      'cards/come-stai.json'
+    ];
+
+    const listEl = document.getElementById('manifest-list');
+    const mountEl = document.getElementById('card-mount');
+
+    function loadCard(path) {
+      const fullPath = '../../' + path;
+      fetch(fullPath)
+        .then(response => {
+          if (!response.ok) throw new Error('Failed to fetch ' + path);
+          return response.json();
+        })
+        .then(cardData => {
+          mountEl.innerHTML = '';
+          window.CapiscoSeasonsCard.render(mountEl, cardData);
+          updateActiveButton(path);
+        })
+        .catch(err => {
+          console.error('Error loading card:', err);
+          mountEl.innerHTML = '<p style="color:red;">Failed to load card: ' + path + '</p>';
+        });
+    }
+
+    function updateActiveButton(activePath) {
+      document.querySelectorAll('.manifest-list button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.path === activePath);
+      });
+    }
+
+    function init() {
+      manifest.forEach(path => {
+        const btn = document.createElement('button');
+        btn.textContent = path.split('/').pop().replace('.card.json', '').replace('.json', '');
+        btn.dataset.path = path;
+        btn.onclick = () => loadCard(path);
+        listEl.appendChild(btn);
+      });
+
+      loadCard(manifest[0]);
+    }
+
+    init();
+  </script>
+</body>
+</html>
