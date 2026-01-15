@@ -171,3 +171,45 @@ Visually verify the Seasons card appears inside the lesson output.
 Context reset for Seasons renderer integration.
 Project state updated to reflect Phase 16B and the new designated filename convention.
 Next work is renderer integration only, starting with one card proof of wiring.
+## PAUSE IN ACTION — 2026-01-XX
+
+Context pause invoked due to rising complexity and risk of context decay.
+
+### Current truth
+
+- Seasons card renderer is stable and considered canonical.
+- Vocab and sentence cards are first class knowledge objects.
+- Cards include tabs, media, grammar, related links, and quizzes.
+- A new lesson composition page exists at:
+  ui/seasons-card/lesson-slice.html
+
+This page:
+- Renders real Seasons cards
+- Uses existing card JSON files
+- Acts as a lesson-style composer
+- Proves lessons can be built from cards rather than inventing new UI
+
+### Architectural clarification
+
+Capisco now has three clear layers:
+1) Content extraction (video, transcript)
+2) Canonical cards (vocab and sentence)
+3) Lessons as orchestration of cards
+
+Lessons must not invent parallel card formats.
+
+### Intent going forward
+
+Next phase will be a vertical slice using a single short Italian video.
+The slice will:
+- Create a limited set of new canonical vocab cards
+- Create a limited set of new canonical sentence cards
+- Add them incrementally to the lesson slice page
+- Use real cards to shape the future lesson UX
+
+No schema or contract changes are allowed in this phase.
+
+### Work frozen
+
+- No new card creation until slice scope is explicitly defined
+- No further lesson wiring until card templates are validated
