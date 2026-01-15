@@ -1,0 +1,63 @@
+START
+
+Execution only. Do not think.
+
+Task: Add the first two breakfast video cards using the existing Seasons card conventions.
+
+Change rules:
+- Create exactly two new files only.
+- Do not edit any existing files.
+- Do not update docs.
+- Do not run anything.
+
+Create file 1:
+ui/seasons-card/cards/colazione.card.json
+
+Use the same schema style as ui/seasons-card/cards/stagione.card.json.
+
+Requirements:
+- id: "colazione"
+- type: "vocab"
+- language: "it"
+- headword.it: "colazione"
+- headword.en: "breakfast"
+- headword.partOfSpeech: "noun"
+- headword.gender: "f"
+- forms.singular: "colazione"
+- forms.plural: "colazioni"
+- meaning.primary: "breakfast"
+- examples: include at least 3 examples taken from the transcript context, with it and en fields
+- relations: include at least one related vocab concept, for now link to "caffè" as a planned related item even if it does not exist yet
+- images.canonical: include one local image entry with src "./images/IT/colazione/colazione-01.jpg" and a clear alt
+- quizSeeds: include a minimal set in the same shape as stagione.card.json, but keep content short and correct
+
+Create file 2:
+ui/seasons-card/cards/che-cosa-mangi-a-colazione.json
+
+Use the same schema style as ui/seasons-card/cards/come-stai.json.
+
+Requirements:
+- id: "che-cosa-mangi-a-colazione"
+- kind: "card"
+- version: 1
+- type: "sentence"
+- language: "it"
+- headword.target: "Che cosa mangi a colazione?"
+- headword.native: "What do you eat for breakfast?"
+- level: "A1"
+- tags: include "BREAKFAST" and "QUESTIONS"
+- lemmaId: a stable string like "mangiare_colazione_question"
+- pronunciation: include a simple phonetic or ipa field if come-stai has it, otherwise omit
+- meaning.primary: "What do you eat for breakfast?"
+- examples: include at least 3 examples grounded in the transcript theme
+- relations: include links to planned related cards "colazione" and "mangiare"
+- media: include a canonical local image entry with src "./images/IT/che-cosa-mangi-a-colazione/che-cosa-mangi-a-colazione-01.jpg" and a clear alt
+- quizSeeds: include a minimal set like come-stai, short and correct
+
+After creation:
+- Output the full contents of both new files.
+- Do not output anything else.
+
+Stop.
+
+FINISH
