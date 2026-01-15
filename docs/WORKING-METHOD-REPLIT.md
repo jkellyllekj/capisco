@@ -73,9 +73,12 @@ If a task is already well defined, the Agent must skip planning and execute dire
 
 ## Change size rule
 
-Agent must work in small, bounded changes.
+Agent must work in small, bounded micro changes.
 
-One goal per change.
+One goal per micro change.
+
+An Agent run may include up to 3 micro changes if they are fully independent and low risk.
+Each micro change must be committed separately.
 
 Touch as few files as possible.
 
