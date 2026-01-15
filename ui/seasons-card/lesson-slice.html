@@ -72,8 +72,7 @@
     const mountEl = document.getElementById('card-mount');
 
     function loadCard(path) {
-      const fullPath = '../../' + path;
-      fetch(fullPath)
+      fetch(path)
         .then(response => {
           if (!response.ok) throw new Error('Failed to fetch ' + path);
           return response.json();
