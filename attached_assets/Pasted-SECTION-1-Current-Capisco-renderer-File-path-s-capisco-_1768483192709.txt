@@ -1,0 +1,137 @@
+SECTION 1: Current Capisco renderer
+File path(s):
+
+capisco-engine.js
+Function name(s):
+
+displayLesson() - selects container and invokes renderer
+generateStructuredLessonHTML() - produces lesson/card HTML
+Verbatim code snippets with context:
+
+displayLesson (lines 1833-1874):
+
+  displayLesson(lesson) {
+    const lessonContainer = document.getElementById('generated-lesson');
+    if (!lessonContainer) {
+      throw new Error('Lesson container not found. Please refresh the page.');
+    }
+    
+    if (!lesson) {
+      throw new Error('No lesson data to display.');
+    }
+    
+    try {
+      const html = this.generateStructuredLessonHTML(lesson);
+      lessonContainer.innerHTML = html;
+      lessonContainer.classList.add('active');
+      
+      // Smooth scroll to lesson with a small delay for better UX
+      setTimeout(() => {
+        if (lessonContainer.scrollIntoView) {
+          lessonContainer.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 500);
+      
+      // Store current lesson for future reference/saving
+      this.currentLesson = lesson;
+      
+      // Initialize interactive elements like Al Mercato
+      try {
+        this.initializeStructuredLessonInteractivity();
+        this.enhanceVocabularyInteractions();
+      } catch (interactivityError) {
+        console.warn('Error initializing interactivity:', interactivityError);
+      }
+      
+      console.log('✅ Lesson successfully displayed with', lesson.vocabulary.length, 'vocabulary items');
+    } catch (error) {
+      console.error('Error in displayLesson:', error);
+      throw error;
+    }
+  }
+generateStructuredLessonHTML start (lines 1876-1912):
+
+  generateStructuredLessonHTML(lesson) {
+    // Create lesson page structure similar to Al Mercato
+    let html = `
+      <div class="lesson-container" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+        <!-- Compact Lesson Header -->
+        <header class="lesson-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;">
+          <h1 style="font-size: 1.1rem; margin-bottom: 0.25rem;"><i class="fas fa-book-open"></i> ${lesson.title}</h1>
+          <div class="lesson-meta" style="display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 0.25rem; flex-wrap: wrap; font-size: 0.7rem;">
+            <span><i class="fas fa-signal"></i> ${lesson.difficulty.charAt(0).toUpperCase() + lesson.difficulty.slice(1)}</span>
+            <span><i class="fas fa-language"></i> ${lesson.sourceLanguage.toUpperCase()}</span>
+            <span><i class="fas fa-clock"></i> ${lesson.studyGuide.overview.match(/\d+ minutes/)?.[0] || '5-10 minutes'}</span>
+            <span><i class="fas fa-list"></i> ${lesson.vocabulary.length} vocabulary items</span>
+          </div>
+          ...
+SECTION 2: Seasons card renderer
+File path(s):
+
+ui/seasons-card/render.js
+Entry function name(s):
+
+window.CapiscoSeasonsCard.render (public render function, line 333)
+normalizeCard() (internal helper, line 189)
+renderCardMediaHtml() (media rendering helper, line 28)
+Verbatim code snippets with context:
+
+Module export and public render entry (lines 79-81, 331-338):
+
+/* __START_MODULE_EXPORT_R020__ */
+window.CapiscoSeasonsCard = window.CapiscoSeasonsCard || {};
+/* __END_MODULE_EXPORT_R020__ */
+/* __START_RENDER_ONE_CARD_R100__ */
+window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCardData) {
+  if (!container) throw new Error("renderSeasonsCard: container is required");
+  if (!rawCardData) throw new Error("renderSeasonsCard: cardData is required");
+  const cardData = normalizeCard(rawCardData);
+  const isSentenceCard = isSentenceType(cardData?.type);
+Template HTML generation (lines 340-409):
+
+  /* __START_TEMPLATE_HTML_R111__ */
+  const template = document.createElement("template");
+  template.innerHTML = `
+<section class="word-group">
+  <h2 class="word-group-title">
+    <span class="wg-word"></span>
+    <span class="word-label-icon"></span>
+  </h2>
+  <article class="card">
+    <header class="card-header">
+      <div>
+        <div class="card-title-line">
+          <span class="word-it" data-lang="it-IT"></span>
+          <span class="dot">·</span>
+          <span class="translation word-en" data-lang="en-GB"></span>
+          <span class="gender"></span>
+        </div>
+        <div class="tag-row">
+          <span class="tag-pill tag-level"></span>
+          <span class="tag-pill tag-id"></span>
+          <span class="tag-pill tag-cat"></span>
+        </div>
+      </div>
+      <div class="icon-circle"></div>
+    </header>
+    <div class="card-image hidden">
+      <img />
+    </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="overview">Overview</div>
+      <div class="tab" data-tab="examples">Examples</div>
+      <div class="tab" data-tab="grammar">Grammar</div>
+      <div class="tab" data-tab="related">Related</div>
+      <div class="tab" data-tab="quiz">Quiz</div>
+    </div>
+    ...
+Container injection (line 413):
+
+  container.appendChild(template.content.cloneNode(true));
+Related CSS file paths:
+
+style-seasons-card.css
+Update project state and working method documentation
