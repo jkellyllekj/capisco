@@ -30,28 +30,34 @@
   "meaning": {
     "primary": "breakfast",
     "extended": [
-      "S1: the first meal of the day, typically eaten in the morning"
+      "S1: the first meal of the day, eaten in the morning"
     ],
-    "usageNotes": "In Italy, colazione is usually light: coffee with a cornetto or biscotti."
+    "usageNotes": "Italian breakfast is typically light: coffee with a cornetto or biscotti."
   },
 
   "examples": [
     {
-      "it": "Che cosa mangi a colazione?",
-      "en": "What do you eat for breakfast?",
-      "source": "transcript",
+      "it": "Faccio colazione alle otto.",
+      "en": "I have breakfast at eight.",
+      "source": "demo",
       "difficulty": "easy"
     },
     {
-      "it": "A colazione bevo sempre un caffè.",
-      "en": "I always drink coffee for breakfast.",
-      "source": "transcript",
+      "it": "A colazione bevo un caffè.",
+      "en": "I drink coffee for breakfast.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Che cosa mangi a colazione?",
+      "en": "What do you eat for breakfast?",
+      "source": "demo",
       "difficulty": "easy"
     },
     {
       "it": "La colazione italiana è dolce.",
       "en": "Italian breakfast is sweet.",
-      "source": "transcript",
+      "source": "demo",
       "difficulty": "easy"
     }
   ],
@@ -65,7 +71,7 @@
   "etymology": {
     "origin": "Latin: collatio",
     "evolution": "Originally meant a light meal or snack, evolved to mean the morning meal.",
-    "mnemonic": "Think of 'collecting' energy at the start of the day."
+    "mnemonic": "Think of collecting energy at the start of the day."
   },
 
   "relations": {
@@ -78,8 +84,8 @@
     "grammar": [],
     "themes": ["food", "meals", "morning"],
 
-    "related": ["caffè", "cornetto", "latte", "biscotti"],
-    "phonetic": [],
+    "related": ["caffè", "cornetto", "latte", "cappuccino"],
+    "phonetic": ["collezione"],
     "contrasts": ["pranzo", "cena"],
     "semantic": ["pasto", "mattina"]
   },
@@ -95,9 +101,9 @@
         "id": "colazione_primary",
         "kind": "local",
         "type": "photo",
-        "alt": "Italian breakfast with coffee and cornetto on a table",
-        "license": "owned-ai",
-        "src": "./images/IT/colazione/colazione-01.jpg"
+        "alt": "Italian breakfast with coffee and cornetto on a cafe table",
+        "license": "unsplash",
+        "src": "./images/colazione.jpg"
       }
     ]
   },
@@ -116,7 +122,7 @@
 
   "metadata": {
     "difficulty": "A1",
-    "tags": ["Breakfast", "Food", "Meals"],
-    "rankId": "#0832"
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
   }
 }
