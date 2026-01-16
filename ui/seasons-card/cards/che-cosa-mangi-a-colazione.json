@@ -1,7 +1,7 @@
 {
   "id": "che-cosa-mangi-a-colazione",
 
-  "kind": "card",
+  "kind": "sentence",
   "version": 1,
 
   "lang": { "target": "it-IT", "native": "en-GB" },
@@ -12,9 +12,9 @@
   },
 
   "level": "A1",
-  "tags": ["BREAKFAST", "QUESTIONS"],
+  "tags": ["breakfast", "questions", "daily-routine"],
 
-  "lemmaId": "mangiare_colazione_question",
+  "lemmaId": "che-cosa-mangiare-colazione",
   "sense": {
     "id": "1",
     "gloss": "S1 — asking about breakfast habits (informal, singular 'you')"
@@ -25,21 +25,20 @@
 
   "forms": {
     "canonical": "Che cosa mangi a colazione?",
-    "variants": ["Cosa mangi a colazione?", "Che mangi a colazione?"]
+    "variants": ["Cosa mangi a colazione?"]
   },
 
   "pronunciation": {
-    "readable": "keh KO-za MAN-jee ah ko-la-TSYO-ne",
+    "readable": "keh KO-za MAN-jee ah ko-la-TSYO-neh",
     "ipa": "ke ˈkɔza ˈmand͡ʒi a kolaˈtsjoːne"
   },
 
   "meaning": {
     "primary": "What do you eat for breakfast?",
     "extended": [
-      "S1 — asking someone about their breakfast food choices",
-      "S2 — can be used to start a conversation about daily routines"
+      "S1 — asking someone about their breakfast food choices"
     ],
-    "usageNotes": "Informal. Use with friends or people your age. 'Che cosa' and 'cosa' are interchangeable."
+    "usageNotes": "Informal. 'Che cosa' and 'cosa' are interchangeable in everyday speech."
   },
 
   "examples": [
@@ -52,25 +51,29 @@
       "en": "What do you usually eat for breakfast?"
     },
     {
-      "it": "Che cosa mangi a colazione quando sei in Italia?",
-      "en": "What do you eat for breakfast when you're in Italy?"
+      "it": "Che cosa mangi a colazione oggi?",
+      "en": "What are you eating for breakfast today?"
+    },
+    {
+      "it": "Che cosa mangi a colazione in Italia?",
+      "en": "What do you eat for breakfast in Italy?"
     }
   ],
 
   "grammar": {
     "notes": "'Che cosa' = what. 'mangi' is 2nd person singular present of 'mangiare' (to eat). 'a colazione' = for breakfast.",
-    "patterns": ["che cosa + verb (tu)", "a + meal"],
+    "patterns": ["che cosa + mangiare (tu) + a colazione"],
     "exceptions": []
   },
 
   "etymology": {
     "origin": "Italian 'che cosa' (what thing) + 'mangiare' (to eat) + 'colazione' (breakfast).",
-    "evolution": "Standard question formation for asking about food choices.",
+    "evolution": "Standard question formation for asking about food choices at a meal.",
     "mnemonic": "Think: 'What thing do you munch at breakfast?'"
   },
 
   "relations": {
-    "related": ["colazione", "mangiare", "cosa-mangi", "pranzo"],
+    "related": ["colazione", "mangiare", "pranzo", "cena"],
     "forms": ["che-cosa-mangia-a-colazione", "che-cosa-mangiate-a-colazione"],
     "synonyms": ["cosa-mangi-a-colazione"],
     "antonyms": [],
@@ -83,7 +86,7 @@
   "media": {
     "fallback": {
       "type": "auto",
-      "prompt": "person eating Italian breakfast, photorealistic",
+      "prompt": "a person eating Italian breakfast, photorealistic",
       "style": "photorealistic"
     },
     "canonical": [
@@ -91,7 +94,7 @@
         "id": "che-cosa-mangi-a-colazione-01",
         "kind": "local",
         "type": "photo",
-        "alt": "Person enjoying an Italian breakfast with coffee and pastry",
+        "alt": "A person enjoying an Italian breakfast with coffee and pastry",
         "license": "owned-ai",
         "src": "./images/IT/che-cosa-mangi-a-colazione/che-cosa-mangi-a-colazione-01.jpg"
       }
