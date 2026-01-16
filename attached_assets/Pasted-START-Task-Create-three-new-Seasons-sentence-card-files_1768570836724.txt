@@ -1,0 +1,86 @@
+START
+
+Task: Create three new Seasons sentence card files, then add all new breakfast cards to the lesson manifest.
+
+PART A — Create sentence cards (files only)
+
+Create exactly these three files by cloning the existing sentence schema:
+
+1) ui/seasons-card/cards/cosa-bevi-a-colazione.json
+2) ui/seasons-card/cards/fai-colazione-a-casa.json
+3) ui/seasons-card/cards/ti-piace-fare-colazione.json
+
+Method (strict):
+- Duplicate `ui/seasons-card/cards/come-stai.json` for each file.
+- Edit VALUES ONLY inside existing keys.
+- Do NOT add, remove, or rename any keys.
+- Do NOT change key order or structure.
+- Do NOT edit any other files during this part.
+
+Value changes to apply:
+
+A) cosa-bevi-a-colazione.json
+- id: "cosa-bevi-a-colazione"
+- headword.target: "Cosa bevi a colazione?"
+- headword.native: "What do you drink for breakfast?"
+- level: "A1"
+- tags: ["breakfast", "questions", "daily-routine"]
+- forms.canonical: "Cosa bevi a colazione?"
+- forms.variants: ["Che cosa bevi a colazione?"]
+- meaning.primary: "What do you drink for breakfast?"
+- meaning.extended: ["S1 — asking about breakfast drinks"]
+- examples: 3–4 simple A1 examples about coffee or milk
+- grammar.notes: explain cosa + bere (tu) + a colazione
+- relations.related: include ["caffè", "latte", "colazione"]
+
+B) fai-colazione-a-casa.json
+- id: "fai-colazione-a-casa"
+- headword.target: "Fai colazione a casa?"
+- headword.native: "Do you have breakfast at home?"
+- level: "A1"
+- tags: ["breakfast", "questions", "daily-routine"]
+- forms.canonical: "Fai colazione a casa?"
+- forms.variants: []
+- meaning.primary: "Do you have breakfast at home?"
+- meaning.extended: ["S1 — asking where someone eats breakfast"]
+- examples: 3–4 simple A1 examples
+- grammar.notes: explain fare colazione + a casa
+- relations.related: include ["colazione"]
+
+C) ti-piace-fare-colazione.json
+- id: "ti-piace-fare-colazione"
+- headword.target: "Ti piace fare colazione?"
+- headword.native: "Do you like having breakfast?"
+- level: "A1"
+- tags: ["breakfast", "questions", "opinions"]
+- forms.canonical: "Ti piace fare colazione?"
+- forms.variants: []
+- meaning.primary: "Do you like having breakfast?"
+- meaning.extended: ["S1 — asking about breakfast preferences"]
+- examples: 3–4 simple A1 examples
+- grammar.notes: explain piacere + infinitive (fare colazione)
+- relations.related: include ["colazione"]
+
+PART B — Update lesson manifest
+
+File to edit: ui/seasons-card/lesson-slice.html
+
+In the `const manifest = [ ... ];` array, add exactly these entries
+(in this order, grouped together):
+
+'cards/colazione.card.json',
+'cards/caffe.card.json',
+'cards/cornetto.card.json',
+'cards/biscotti.card.json',
+'cards/che-cosa-mangi-a-colazione.json',
+'cards/cosa-bevi-a-colazione.json',
+'cards/fai-colazione-a-casa.json',
+'cards/ti-piace-fare-colazione.json',
+
+Rules for this edit:
+- Edit this file only.
+- Do not change anything else.
+- Do not reformat.
+- Stop after saving.
+
+STOP

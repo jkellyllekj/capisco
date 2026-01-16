@@ -1,0 +1,110 @@
+{
+  "id": "fai-colazione-a-casa",
+
+  "kind": "sentence",
+  "version": 1,
+
+  "lang": { "target": "it-IT", "native": "en-GB" },
+
+  "headword": {
+    "target": "Fai colazione a casa?",
+    "native": "Do you have breakfast at home?"
+  },
+
+  "level": "A1",
+  "tags": ["breakfast", "questions", "daily-routine"],
+
+  "lemmaId": "fare-colazione-casa",
+  "sense": {
+    "id": "1",
+    "gloss": "S1 — asking where someone eats breakfast (informal, singular 'you')"
+  },
+
+  "type": "sentence",
+  "language": "it",
+
+  "forms": {
+    "canonical": "Fai colazione a casa?",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "FAI ko-la-TSYO-neh ah KA-za",
+    "ipa": "fai kolaˈtsjoːne a ˈkaza"
+  },
+
+  "meaning": {
+    "primary": "Do you have breakfast at home?",
+    "extended": [
+      "S1 — asking where someone eats breakfast"
+    ],
+    "usageNotes": "Informal. 'Fare colazione' means 'to have breakfast'."
+  },
+
+  "examples": [
+    {
+      "it": "Fai colazione a casa? Sì, ogni mattina.",
+      "en": "Do you have breakfast at home? Yes, every morning."
+    },
+    {
+      "it": "Fai colazione a casa o al bar?",
+      "en": "Do you have breakfast at home or at the bar?"
+    },
+    {
+      "it": "Fai colazione a casa oggi?",
+      "en": "Are you having breakfast at home today?"
+    },
+    {
+      "it": "Non faccio colazione a casa, vado al bar.",
+      "en": "I don't have breakfast at home, I go to the bar."
+    }
+  ],
+
+  "grammar": {
+    "notes": "'Fai' is 2nd person singular present of 'fare' (to do/make). 'fare colazione' = to have breakfast. 'a casa' = at home.",
+    "patterns": ["fare colazione + a casa"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Italian 'fare' (to do) + 'colazione' (breakfast) + 'a casa' (at home).",
+    "evolution": "Idiomatic expression for having breakfast.",
+    "mnemonic": "Think: 'Do you make breakfast at home?'"
+  },
+
+  "relations": {
+    "related": ["colazione"],
+    "forms": ["fa-colazione-a-casa", "fate-colazione-a-casa"],
+    "synonyms": [],
+    "antonyms": [],
+    "collocations": ["a_casa", "al_bar", "ogni_mattina"],
+    "expressions": ["fare_colazione"],
+    "themes": ["food", "questions", "daily-routine"],
+    "semantic": ["casa", "mattina", "abitudini"]
+  },
+
+  "media": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "a person having breakfast at home, photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": [
+      {
+        "id": "fai-colazione-a-casa-01",
+        "kind": "local",
+        "type": "photo",
+        "alt": "A person having breakfast at home in the kitchen",
+        "license": "owned-ai",
+        "src": "./images/IT/fai-colazione-a-casa/fai-colazione-a-casa-01.jpg"
+      }
+    ]
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["Fai colazione al bar?", "Cosa fai a casa?"]
+  }
+}

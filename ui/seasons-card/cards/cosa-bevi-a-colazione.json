@@ -1,0 +1,110 @@
+{
+  "id": "cosa-bevi-a-colazione",
+
+  "kind": "sentence",
+  "version": 1,
+
+  "lang": { "target": "it-IT", "native": "en-GB" },
+
+  "headword": {
+    "target": "Cosa bevi a colazione?",
+    "native": "What do you drink for breakfast?"
+  },
+
+  "level": "A1",
+  "tags": ["breakfast", "questions", "daily-routine"],
+
+  "lemmaId": "cosa-bere-colazione",
+  "sense": {
+    "id": "1",
+    "gloss": "S1 — asking about breakfast drinks (informal, singular 'you')"
+  },
+
+  "type": "sentence",
+  "language": "it",
+
+  "forms": {
+    "canonical": "Cosa bevi a colazione?",
+    "variants": ["Che cosa bevi a colazione?"]
+  },
+
+  "pronunciation": {
+    "readable": "KO-za BEH-vee ah ko-la-TSYO-neh",
+    "ipa": "ˈkɔza ˈbevi a kolaˈtsjoːne"
+  },
+
+  "meaning": {
+    "primary": "What do you drink for breakfast?",
+    "extended": [
+      "S1 — asking about breakfast drinks"
+    ],
+    "usageNotes": "Informal. Common answers include caffè, latte, or cappuccino."
+  },
+
+  "examples": [
+    {
+      "it": "Cosa bevi a colazione? Io bevo un caffè.",
+      "en": "What do you drink for breakfast? I drink coffee."
+    },
+    {
+      "it": "Cosa bevi a colazione di solito?",
+      "en": "What do you usually drink for breakfast?"
+    },
+    {
+      "it": "Cosa bevi a colazione, tè o caffè?",
+      "en": "What do you drink for breakfast, tea or coffee?"
+    },
+    {
+      "it": "Cosa bevi a colazione? Bevo il latte.",
+      "en": "What do you drink for breakfast? I drink milk."
+    }
+  ],
+
+  "grammar": {
+    "notes": "'Cosa' = what. 'bevi' is 2nd person singular present of 'bere' (to drink). 'a colazione' = for breakfast.",
+    "patterns": ["cosa + bere (tu) + a colazione"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Italian 'cosa' (what) + 'bere' (to drink) + 'colazione' (breakfast).",
+    "evolution": "Standard question formation for asking about drink choices.",
+    "mnemonic": "Think: 'What beverage do you have at breakfast?'"
+  },
+
+  "relations": {
+    "related": ["caffè", "latte", "colazione"],
+    "forms": ["cosa-beve-a-colazione", "cosa-bevete-a-colazione"],
+    "synonyms": ["che-cosa-bevi-a-colazione"],
+    "antonyms": [],
+    "collocations": ["a_colazione", "di_solito", "ogni_mattina"],
+    "expressions": ["fare_colazione", "bere_un_caffè"],
+    "themes": ["food", "questions", "daily-routine"],
+    "semantic": ["bevanda", "mattina", "abitudini"]
+  },
+
+  "media": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "a person drinking coffee at breakfast, photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": [
+      {
+        "id": "cosa-bevi-a-colazione-01",
+        "kind": "local",
+        "type": "photo",
+        "alt": "A person drinking coffee at an Italian breakfast",
+        "license": "owned-ai",
+        "src": "./images/IT/cosa-bevi-a-colazione/cosa-bevi-a-colazione-01.jpg"
+      }
+    ]
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["Cosa mangi a colazione?", "Dove bevi il caffè?"]
+  }
+}

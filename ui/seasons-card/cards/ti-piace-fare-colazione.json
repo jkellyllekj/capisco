@@ -1,0 +1,110 @@
+{
+  "id": "ti-piace-fare-colazione",
+
+  "kind": "sentence",
+  "version": 1,
+
+  "lang": { "target": "it-IT", "native": "en-GB" },
+
+  "headword": {
+    "target": "Ti piace fare colazione?",
+    "native": "Do you like having breakfast?"
+  },
+
+  "level": "A1",
+  "tags": ["breakfast", "questions", "opinions"],
+
+  "lemmaId": "piacere-fare-colazione",
+  "sense": {
+    "id": "1",
+    "gloss": "S1 — asking about breakfast preferences (informal, singular 'you')"
+  },
+
+  "type": "sentence",
+  "language": "it",
+
+  "forms": {
+    "canonical": "Ti piace fare colazione?",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "tee PYA-cheh FA-reh ko-la-TSYO-neh",
+    "ipa": "ti ˈpjatʃe ˈfare kolaˈtsjoːne"
+  },
+
+  "meaning": {
+    "primary": "Do you like having breakfast?",
+    "extended": [
+      "S1 — asking about breakfast preferences"
+    ],
+    "usageNotes": "Informal. Uses 'piacere' + infinitive structure."
+  },
+
+  "examples": [
+    {
+      "it": "Ti piace fare colazione? Sì, molto!",
+      "en": "Do you like having breakfast? Yes, a lot!"
+    },
+    {
+      "it": "Ti piace fare colazione la mattina presto?",
+      "en": "Do you like having breakfast early in the morning?"
+    },
+    {
+      "it": "Ti piace fare colazione al bar?",
+      "en": "Do you like having breakfast at the bar?"
+    },
+    {
+      "it": "Non mi piace fare colazione, preferisco dormire.",
+      "en": "I don't like having breakfast, I prefer to sleep."
+    }
+  ],
+
+  "grammar": {
+    "notes": "'Ti piace' = you like (lit. 'it pleases you'). 'fare colazione' = to have breakfast (infinitive).",
+    "patterns": ["piacere + infinitive (fare colazione)"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Italian 'piacere' (to please) + 'fare colazione' (to have breakfast).",
+    "evolution": "Standard way to ask about preferences in Italian.",
+    "mnemonic": "Think: 'Does having breakfast please you?'"
+  },
+
+  "relations": {
+    "related": ["colazione"],
+    "forms": ["le-piace-fare-colazione", "vi-piace-fare-colazione"],
+    "synonyms": [],
+    "antonyms": [],
+    "collocations": ["mi_piace", "ti_piace", "fare_colazione"],
+    "expressions": ["fare_colazione", "mi_piace"],
+    "themes": ["food", "questions", "opinions"],
+    "semantic": ["preferenze", "mattina", "abitudini"]
+  },
+
+  "media": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "a person enjoying breakfast happily, photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": [
+      {
+        "id": "ti-piace-fare-colazione-01",
+        "kind": "local",
+        "type": "photo",
+        "alt": "A person enjoying a happy breakfast moment",
+        "license": "owned-ai",
+        "src": "./images/IT/ti-piace-fare-colazione/ti-piace-fare-colazione-01.jpg"
+      }
+    ]
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["Ti piace il caffè?", "Fai colazione?"]
+  }
+}
