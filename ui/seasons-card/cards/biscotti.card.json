@@ -1,0 +1,128 @@
+{
+  "id": "biscotti",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.biscuits",
+
+  "legacyIcon": "🍪",
+
+  "headword": {
+    "it": "biscotti",
+    "en": "biscuits",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "biscotto",
+    "singular": "biscotto",
+    "plural": "biscotti",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "bee-SKOT-tee",
+    "ipa": "[bisˈkɔtti]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "biscuits",
+    "extended": [
+      "S1: biscuits or cookies, often eaten with coffee"
+    ],
+    "usageNotes": "Common at breakfast, sometimes dipped in coffee or milk."
+  },
+
+  "examples": [
+    {
+      "it": "Mangio i biscotti con il latte.",
+      "en": "I eat biscuits with milk.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "I biscotti sono dolci.",
+      "en": "The biscuits are sweet.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Vuoi un biscotto?",
+      "en": "Do you want a biscuit?",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "A colazione mangio biscotti e caffè.",
+      "en": "For breakfast I eat biscuits and coffee.",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Masculine noun ending in -o. Regular plural changes to -i.",
+    "patterns": ["-o to -i plural"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Latin: bis (twice) + coctus (cooked)",
+    "evolution": "Originally meant 'twice-baked' for preservation.",
+    "mnemonic": "Think of bis-cotti as 'twice-cooked' treats."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": ["biscottini"],
+    "antonyms": [],
+    "collocations": ["biscotti_al_cioccolato", "biscotti_secchi", "inzuppare_i_biscotti"],
+    "expressions": ["inzuppare_i_biscotti"],
+    "grammar": [],
+    "themes": ["food", "sweets", "breakfast"],
+
+    "related": ["colazione", "caffè", "latte"],
+    "phonetic": ["biglietti"],
+    "contrasts": [],
+    "semantic": ["dolce", "snack"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "Italian biscuits with coffee photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": [
+      {
+        "id": "biscotti_primary",
+        "kind": "local",
+        "type": "photo",
+        "alt": "A plate of Italian biscuits next to coffee",
+        "license": "unsplash",
+        "src": "./images/biscotti.jpg"
+      }
+    ]
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["biscotti", "biglietti"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>biscotti</strong> coming soon.",
+    "quiz": "Quiz for <strong>biscotti</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A1",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}

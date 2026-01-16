@@ -1,0 +1,128 @@
+{
+  "id": "caffe",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.coffee",
+
+  "legacyIcon": "☕",
+
+  "headword": {
+    "it": "caffè",
+    "en": "coffee",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "caffè",
+    "singular": "caffè",
+    "plural": "caffè",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "kaf-FEH",
+    "ipa": "[kafˈfɛ]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "coffee",
+    "extended": [
+      "S1: coffee (espresso or coffee drink)"
+    ],
+    "usageNotes": "In Italy, 'un caffè' usually means an espresso."
+  },
+
+  "examples": [
+    {
+      "it": "Prendo un caffè al bar.",
+      "en": "I have a coffee at the bar.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Il caffè italiano è molto forte.",
+      "en": "Italian coffee is very strong.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Vuoi un caffè?",
+      "en": "Do you want a coffee?",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Bevo il caffè ogni mattina.",
+      "en": "I drink coffee every morning.",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Masculine noun ending in accented -è. Invariable plural (caffè → caffè).",
+    "patterns": ["invariable plural"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Arabic: qahwa",
+    "evolution": "From Arabic via Turkish and Italian, referring to the coffee drink.",
+    "mnemonic": "Think of a café where you drink coffee."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": ["espresso"],
+    "antonyms": [],
+    "collocations": ["un_caffè", "caffè_espresso", "caffè_macchiato"],
+    "expressions": ["prendere_un_caffè"],
+    "grammar": [],
+    "themes": ["food", "drinks", "breakfast"],
+
+    "related": ["colazione", "cappuccino", "latte"],
+    "phonetic": [],
+    "contrasts": ["tè"],
+    "semantic": ["bevanda", "mattina"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "Italian espresso coffee photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": [
+      {
+        "id": "caffe_primary",
+        "kind": "local",
+        "type": "photo",
+        "alt": "A small cup of Italian espresso on a cafe counter",
+        "license": "unsplash",
+        "src": "./images/caffe.jpg"
+      }
+    ]
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["caffè", "cane"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>caffè</strong> coming soon.",
+    "quiz": "Quiz for <strong>caffè</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A1",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}

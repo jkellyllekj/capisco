@@ -1,0 +1,102 @@
+START
+
+Task: Create exactly three new Seasons vocab card files by cloning the existing vocab schema.
+
+Create these files (only these files):
+1) ui/seasons-card/cards/caffe.card.json
+2) ui/seasons-card/cards/cornetto.card.json
+3) ui/seasons-card/cards/biscotti.card.json
+
+Method:
+- For each file: duplicate `ui/seasons-card/cards/stagione.card.json` and rename.
+- Edit VALUES ONLY inside existing keys.
+- Do NOT add, remove, or rename any keys.
+- Do NOT change key order or structure.
+- Do NOT edit any other files.
+- Do NOT update lesson-slice.html yet.
+- Stop immediately after the three files are created and saved.
+
+Values to set for each card:
+
+A) caffe.card.json
+- id: "caffe"
+- conceptId: "concept.coffee"
+- legacyIcon: "☕"
+- headword.it: "caffè"
+- headword.en: "coffee"
+- headword.partOfSpeech: "noun"
+- headword.gender: "m"
+- forms.canonical: "caffè"
+- forms.singular: "caffè"
+- forms.plural: "caffè"
+- forms.variants: []
+- pronunciation.readable: "kaf-FEH"
+- pronunciation.ipa: "[kafˈfɛ]"
+- meaning.primary: "coffee"
+- meaning.extended: ["S1: coffee (espresso or coffee drink)"]
+- meaning.usageNotes: "In Italy, ‘un caffè’ usually means an espresso."
+- examples: 3–4 simple A1 examples (source: "demo", difficulty: "easy")
+- relations.related: include ["colazione", "cappuccino", "latte"]
+- images.canonical[0].id: "caffe_primary"
+- images.canonical[0].alt: "A small cup of Italian espresso on a cafe counter"
+- images.canonical[0].src: "./images/caffe.jpg"
+- quizSeeds.distractors: ["caffè", "cane"]  (keep 2 items)
+- metadata.difficulty: "A1"
+- metadata.tags: ["Breakfast"]
+- metadata.rankId: "#0000"
+
+B) cornetto.card.json
+- id: "cornetto"
+- conceptId: "concept.croissant"
+- legacyIcon: "🥐"
+- headword.it: "cornetto"
+- headword.en: "croissant"
+- headword.partOfSpeech: "noun"
+- headword.gender: "m"
+- forms.canonical: "cornetto"
+- forms.singular: "cornetto"
+- forms.plural: "cornetti"
+- forms.variants: []
+- pronunciation.readable: "kor-NET-to"
+- pronunciation.ipa: "[korˈnetto]"
+- meaning.primary: "croissant"
+- meaning.extended: ["S1: a sweet pastry often eaten for breakfast in Italy"]
+- meaning.usageNotes: "In Italy, a cornetto is often sweeter than a French croissant."
+- examples: 3–4 simple A1 examples (source: "demo", difficulty: "easy")
+- relations.related: include ["colazione", "caffè", "biscotti"]
+- images.canonical[0].id: "cornetto_primary"
+- images.canonical[0].alt: "An Italian cornetto pastry on a plate"
+- images.canonical[0].src: "./images/cornetto.jpg"
+- quizSeeds.distractors: ["cornetto", "cornice"] (2 items)
+- metadata.difficulty: "A1"
+- metadata.tags: ["Breakfast"]
+- metadata.rankId: "#0000"
+
+C) biscotti.card.json
+- id: "biscotti"
+- conceptId: "concept.biscuits"
+- legacyIcon: "🍪"
+- headword.it: "biscotti"
+- headword.en: "biscuits"
+- headword.partOfSpeech: "noun"
+- headword.gender: "m"
+- forms.canonical: "biscotto"
+- forms.singular: "biscotto"
+- forms.plural: "biscotti"
+- forms.variants: []
+- pronunciation.readable: "bee-SKOT-tee"
+- pronunciation.ipa: "[bisˈkɔtti]"
+- meaning.primary: "biscuits"
+- meaning.extended: ["S1: biscuits or cookies, often eaten with coffee"]
+- meaning.usageNotes: "Common at breakfast, sometimes dipped in coffee or milk."
+- examples: 3–4 simple A1 examples (source: "demo", difficulty: "easy")
+- relations.related: include ["colazione", "caffè", "latte"]
+- images.canonical[0].id: "biscotti_primary"
+- images.canonical[0].alt: "A plate of Italian biscuits next to coffee"
+- images.canonical[0].src: "./images/biscotti.jpg"
+- quizSeeds.distractors: ["biscotti", "biglietti"] (2 items)
+- metadata.difficulty: "A1"
+- metadata.tags: ["Breakfast"]
+- metadata.rankId: "#0000"
+
+STOP

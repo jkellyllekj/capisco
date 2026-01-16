@@ -1,0 +1,128 @@
+{
+  "id": "cornetto",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.croissant",
+
+  "legacyIcon": "🥐",
+
+  "headword": {
+    "it": "cornetto",
+    "en": "croissant",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "cornetto",
+    "singular": "cornetto",
+    "plural": "cornetti",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "kor-NET-to",
+    "ipa": "[korˈnetto]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "croissant",
+    "extended": [
+      "S1: a sweet pastry often eaten for breakfast in Italy"
+    ],
+    "usageNotes": "In Italy, a cornetto is often sweeter than a French croissant."
+  },
+
+  "examples": [
+    {
+      "it": "Mangio un cornetto a colazione.",
+      "en": "I eat a croissant for breakfast.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Il cornetto è caldo e buono.",
+      "en": "The croissant is warm and good.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Prendo un cornetto con la crema.",
+      "en": "I have a croissant with cream.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Vuoi un cornetto o un biscotto?",
+      "en": "Do you want a croissant or a biscuit?",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Masculine noun ending in -o. Regular plural changes to -i.",
+    "patterns": ["-o to -i plural"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Italian: corno (horn)",
+    "evolution": "Named for its crescent or horn shape.",
+    "mnemonic": "Think of a little horn shape — cornetto."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": ["brioche"],
+    "antonyms": [],
+    "collocations": ["cornetto_vuoto", "cornetto_alla_crema", "cornetto_al_cioccolato"],
+    "expressions": ["prendere_un_cornetto"],
+    "grammar": [],
+    "themes": ["food", "pastry", "breakfast"],
+
+    "related": ["colazione", "caffè", "biscotti"],
+    "phonetic": ["cornice"],
+    "contrasts": [],
+    "semantic": ["dolce", "pasticceria"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "Italian cornetto pastry photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": [
+      {
+        "id": "cornetto_primary",
+        "kind": "local",
+        "type": "photo",
+        "alt": "An Italian cornetto pastry on a plate",
+        "license": "unsplash",
+        "src": "./images/cornetto.jpg"
+      }
+    ]
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["cornetto", "cornice"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>cornetto</strong> coming soon.",
+    "quiz": "Quiz for <strong>cornetto</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A1",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}
