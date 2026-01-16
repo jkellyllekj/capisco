@@ -213,3 +213,11 @@ No schema or contract changes are allowed in this phase.
 
 - No new card creation until slice scope is explicitly defined
 - No further lesson wiring until card templates are validated
+
+### Breakfast Vertical Slice — 2026-01-16
+
+- Breakfast vertical slice completed with real canonical cards.
+- Added vocab cards: colazione, caffe, cornetto, biscotti.
+- Added sentence cards: che-cosa-mangi-a-colazione, cosa-bevi-a-colazione, fai-colazione-a-casa, ti-piace-fare-colazione.
+- lesson-slice manifest updated to include these cards and all render successfully.
+- No schema changes. No contract changes. No new pipeline work for images yet.
