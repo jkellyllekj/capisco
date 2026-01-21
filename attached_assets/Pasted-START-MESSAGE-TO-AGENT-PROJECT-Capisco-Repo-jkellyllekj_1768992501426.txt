@@ -1,0 +1,68 @@
+START MESSAGE TO AGENT
+
+PROJECT: Capisco
+Repo: jkellyllekj/capisco
+
+TASK TYPE: Safety audit for making the repo public.
+IMPORTANT: This task is READ ONLY. Do not change any files. Do not commit anything.
+
+GOAL
+Check whether anything sensitive exists in the working tree OR git history that would make it unsafe to make the repo public.
+
+WHAT TO CHECK (working tree)
+1) Search for likely secrets in tracked files:
+   - API keys, tokens, passwords, private keys, service account JSON
+   - .env files, config files, credentials files
+   - Any hardcoded URLs containing tokens or signed params
+
+2) Search for secret-like patterns:
+   - OPENAI, API_KEY, SECRET, TOKEN, PASSWORD, PRIVATE_KEY
+   - AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+   - SUPABASE, FIREBASE, STRIPE, SENTRY, VERCEL, NETLIFY, GITHUB_TOKEN
+
+3) Find files that should never be public if present:
+   - .env, .env.* (except .env.example)
+   - *.pem, *.key, id_rsa, id_ed25519
+   - service-account*.json
+   - credentials*.json
+   - Any “secrets” folder
+
+WHAT TO CHECK (git history)
+4) Check whether any of the above secrets were committed in the past (even if removed now).
+   - The history check must include strings found in step 1 to 3.
+
+COMMANDS TO RUN (use these or equivalents)
+A) List suspicious files in repo:
+- find . -maxdepth 4 -type f \( -iname ".env" -o -iname ".env.*" -o -iname "*.pem" -o -iname "*.key" -o -iname "id_rsa" -o -iname "id_ed25519" -o -iname "*service*account*.json" -o -iname "*credential*.json" \)
+
+B) Grep for common secret markers (tracked files only):
+- git ls-files -z | xargs -0 grep -n -I -E "OPENAI|API[_-]?KEY|SECRET|TOKEN|PASSWORD|PRIVATE[_-]?KEY|AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|SUPABASE|FIREBASE|STRIPE|SENTRY|VERCEL|NETLIFY|GITHUB_TOKEN" || true
+
+C) Grep for high risk formats (tracked files only):
+- git ls-files -z | xargs -0 grep -n -I -E "sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z\\-_]{20,}|xox[baprs]-[0-9A-Za-z\\-]{10,}" || true
+
+D) Check git history for the same markers:
+- git grep -n -I -E "OPENAI|API[_-]?KEY|SECRET|TOKEN|PASSWORD|PRIVATE[_-]?KEY|AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|SUPABASE|FIREBASE|STRIPE|SENTRY|VERCEL|NETLIFY|GITHUB_TOKEN" $(git rev-list --all) || true
+
+- git grep -n -I -E "sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z\\-_]{20,}|xox[baprs]-[0-9A-Za-z\\-]{10,}" $(git rev-list --all) || true
+
+E) Confirm .gitignore covers env files:
+- cat .gitignore || true
+
+OUTPUT REQUIRED (report back)
+1) “SAFE TO GO PUBLIC: YES/NO”
+2) If NO:
+   - List exact file paths and line numbers for anything found in working tree.
+   - For history findings, list the commit hash(es) and file path(s) where the secret appears.
+   - Recommend whether we need:
+     a) simple removal + rotate keys, or
+     b) history rewrite (git filter-repo) + rotate keys.
+3) List any large/binary assets that might be awkward in a public repo (images, videos), with paths and approximate sizes.
+4) Confirm whether there are any personal identifiers in:
+   - README, repo description files, package.json author fields, etc.
+   Provide file paths and lines if found.
+
+DO NOT FIX ANYTHING YET.
+Just report back.
+
+FINISH MESSAGE TO AGENT
