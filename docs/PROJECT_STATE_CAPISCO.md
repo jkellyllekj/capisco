@@ -119,6 +119,17 @@ This phase does not implement the long run system.
 
 This phase validates renderer behaviour safely, without any schema or contract change.
 
+## PROJECT ANCHOR: WHAT CAPISCO IS BUILDING
+
+Capisco is built bottom-up from real language usage, not from abstract curricula.
+
+The core product is the **Card**: a canonical, reusable knowledge object representing a single vocabulary item, expression, or grammar unit. Cards are designed to scale to **10,000+ vocabulary cards and 10,000+ expression/sentence cards**, and to survive reuse across lessons, quizzes, chat, print, and future applications.
+
+Lessons are not authored content.  
+Lessons are compositions of cards derived from real transcripts. The lesson layer exists to organise, sequence, and present cards, not to redefine them.
+
+Development proceeds using small, real transcript slices as reference test cases. These slices are used to validate card richness, renderer stability, layout constraints, and long-term scalability before any automation or large-scale ingestion is attempted.
+
 ## CURRENT PHASE
 
 Active phase:
@@ -327,6 +338,35 @@ No schema or contract changes are allowed in this phase.
 - Added sentence cards: che-cosa-mangi-a-colazione, cosa-bevi-a-colazione, fai-colazione-a-casa, ti-piace-fare-colazione.
 - lesson-slice manifest updated to include these cards and all render successfully.
 - No schema changes. No contract changes. No new pipeline work for images yet.
+
+### CANONICAL SAMPLE SLICE (REFERENCE CASE)
+
+The current reference slice for Capisco development is based on a short real-world Italian video transcript.
+
+**Source video**
+- Title: What Italians usually have for breakfast | Super Easy Italian 1
+- Source: Super Easy Italian (YouTube)
+- URL: https://www.youtube.com/watch?v=8Pmz1TZ6OLc
+- Length: approximately 2 minutes
+
+**Purpose of this slice**
+This slice exists as a concrete, end-to-end reference for how Capisco works.
+
+From this single transcript:
+- Individual vocabulary cards are created for each meaningful word.
+- Expression / sentence cards are created for common multi-word units.
+- Cards are treated as canonical objects, independent of the lesson.
+- A minimal lesson slice may compose these cards only to validate rendering and composition.
+
+This slice is intentionally small and manual. It is not an automation test.
+
+Its role is to validate:
+- card completeness and richness
+- Seasons card renderer stability
+- layout behaviour under partial and full data
+- assumptions required to scale toward 10,000+ cards
+
+This breakfast transcript remains the canonical reference case until explicitly superseded.
 
 ## COPY SAFETY INVARIANT
 
