@@ -19,7 +19,7 @@
       margin: 0 auto;
     }
     .manifest-list {
-      width: 200px;
+      width: 260px;
       flex-shrink: 0;
     }
     .manifest-list button {
@@ -32,6 +32,8 @@
       cursor: pointer;
       text-align: left;
       border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.2;
     }
     .manifest-list button:hover {
       background: #e0e0e0;
@@ -48,10 +50,20 @@
       padding: 1rem;
       min-height: 400px;
     }
+    .hint {
+      max-width: 1200px;
+      margin: 0 auto 12px;
+      color: #475569;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
   <h1>Seasons Lesson Slice</h1>
+  <div class="hint">
+    This slice renders an in-page manifest of cards for the breakfast transcript starter set.
+  </div>
+
   <div class="layout">
     <div class="manifest-list" id="manifest-list"></div>
     <div class="card-mount" id="card-mount"></div>
@@ -60,58 +72,293 @@
   <script src="render.js"></script>
   <script>
     const manifest = [
-      'cards/stagione.card.json',
-      'cards/colazione.card.json',
-      'cards/caffe.card.json',
-      'cards/cornetto.card.json',
-      'cards/biscotti.card.json',
-      'cards/che-cosa-mangi-a-colazione.json',
-      'cards/cosa-bevi-a-colazione.json',
-      'cards/fai-colazione-a-casa.json',
-      'cards/ti-piace-fare-colazione.json',
-      'cards/primavera.card.json',
-      'cards/estate.card.json',
-      'cards/autunno.card.json',
-      'cards/inverno.card.json',
-      'cards/come-stai.json'
+      {
+        key: "colazione",
+        label: "colazione (breakfast)",
+        data: {
+          id: "it-vocab-colazione-001",
+          type: "vocab",
+          lang: { target: "it-IT", native: "en-GB" },
+          language: "it-IT",
+          headword: { it: "colazione", en: "breakfast", gender: "f", partOfSpeech: "noun", register: "neutral" },
+          forms: { canonical: "colazione", singular: "colazione", plural: "colazioni", variants: [] },
+          meaning: { primary: "breakfast" },
+          pronunciation: { readable: "", ipa: "" },
+          examples: [{ it: "Che cosa mangiano gli italiani a colazione?", en: "What do Italians eat for breakfast?" }],
+          etymology: { noteHtml: "" },
+          grammar: { notes: "" },
+          relations: { synonyms: [], antonyms: [], related: [] },
+          tags: { level: "A1", id: "breakfast-001", category: "food" },
+          images: { canonical: [], fallback: { type: "auto", prompt: "Italian breakfast table, simple and realistic" } },
+          media: null,
+          quizSeeds: null,
+          placeholders: { grammar: "Grammar details will be added later.", quiz: "Quiz coming soon." },
+          metadata: { difficulty: "A1", tags: ["food", "daily life"] }
+        }
+      },
+      {
+        key: "mattina",
+        label: "mattina (morning)",
+        data: {
+          id: "it-vocab-mattina-001",
+          type: "vocab",
+          lang: { target: "it-IT", native: "en-GB" },
+          language: "it-IT",
+          headword: { it: "mattina", en: "morning", gender: "f", partOfSpeech: "noun", register: "neutral" },
+          forms: { canonical: "mattina", singular: "mattina", plural: "mattine", variants: [] },
+          meaning: { primary: "morning" },
+          pronunciation: { readable: "", ipa: "" },
+          examples: [{ it: "Che cosa mangiano la mattina?", en: "What do they eat in the morning?" }],
+          etymology: { noteHtml: "" },
+          grammar: { notes: "" },
+          relations: { synonyms: [], antonyms: [], related: [] },
+          tags: { level: "A1", id: "time-001", category: "daily life" },
+          images: { canonical: [], fallback: { type: "auto", prompt: "Morning light in a kitchen, calm and realistic" } },
+          media: null,
+          quizSeeds: null,
+          placeholders: { grammar: "Grammar details will be added later.", quiz: "Quiz coming soon." },
+          metadata: { difficulty: "A1", tags: ["time", "daily life"] }
+        }
+      },
+      {
+        key: "caffe",
+        label: "caffè (coffee)",
+        data: {
+          id: "it-vocab-caffe-001",
+          type: "vocab",
+          lang: { target: "it-IT", native: "en-GB" },
+          language: "it-IT",
+          headword: { it: "caffè", en: "coffee", gender: "m", partOfSpeech: "noun", register: "neutral" },
+          forms: { canonical: "caffè", singular: "caffè", plural: "caffè", variants: [] },
+          meaning: { primary: "coffee" },
+          pronunciation: { readable: "", ipa: "" },
+          examples: [{ it: "A colazione bevo il caffè.", en: "For breakfast I drink coffee." }],
+          etymology: { noteHtml: "" },
+          grammar: { notes: "" },
+          relations: { synonyms: [], antonyms: [], related: [] },
+          tags: { level: "A1", id: "drink-001", category: "food" },
+          images: { canonical: [], fallback: { type: "auto", prompt: "Small Italian espresso cup on a saucer, realistic photo style" } },
+          media: null,
+          quizSeeds: null,
+          placeholders: { grammar: "Grammar details will be added later.", quiz: "Quiz coming soon." },
+          metadata: { difficulty: "A1", tags: ["food", "drink"] }
+        }
+      },
+      {
+        key: "merendina",
+        label: "merendina (snack cake)",
+        data: {
+          id: "it-vocab-merendina-001",
+          type: "vocab",
+          lang: { target: "it-IT", native: "en-GB" },
+          language: "it-IT",
+          headword: { it: "merendina", en: "snack cake", gender: "f", partOfSpeech: "noun", register: "neutral" },
+          forms: { canonical: "merendina", singular: "merendina", plural: "merendine", variants: [] },
+          meaning: { primary: "snack cake" },
+          pronunciation: { readable: "", ipa: "" },
+          examples: [{ it: "Mangio una merendina tipo plum cake.", en: "I eat a snack cake, like a plum cake." }],
+          etymology: { noteHtml: "" },
+          grammar: { notes: "" },
+          relations: { synonyms: [], antonyms: [], related: [] },
+          tags: { level: "A2", id: "food-002", category: "food" },
+          images: { canonical: [], fallback: { type: "auto", prompt: "Packaged Italian snack cake on a plate, realistic photo style" } },
+          media: null,
+          quizSeeds: null,
+          placeholders: { grammar: "Grammar details will be added later.", quiz: "Quiz coming soon." },
+          metadata: { difficulty: "A2", tags: ["food"] }
+        }
+      },
+      {
+        key: "brioche",
+        label: "brioche (pastry)",
+        data: {
+          id: "it-vocab-brioche-001",
+          type: "vocab",
+          lang: { target: "it-IT", native: "en-GB" },
+          language: "it-IT",
+          headword: { it: "brioche", en: "pastry", gender: "f", partOfSpeech: "noun", register: "neutral" },
+          forms: { canonical: "brioche", singular: "brioche", plural: "brioche", variants: [] },
+          meaning: { primary: "pastry" },
+          pronunciation: { readable: "", ipa: "" },
+          examples: [{ it: "Al bar prendo brioche e caffè.", en: "At the cafe I get a pastry and coffee." }],
+          etymology: { noteHtml: "" },
+          grammar: { notes: "" },
+          relations: { synonyms: [], antonyms: [], related: [] },
+          tags: { level: "A2", id: "bakery-001", category: "food" },
+          images: { canonical: [], fallback: { type: "auto", prompt: "Italian breakfast pastry on a small plate, cafe setting, realistic photo" } },
+          media: null,
+          quizSeeds: null,
+          placeholders: { grammar: "Grammar details will be added later.", quiz: "Quiz coming soon." },
+          metadata: { difficulty: "A2", tags: ["food", "cafe"] }
+        }
+      },
+      {
+        key: "biscotti",
+        label: "biscotti (biscuits)",
+        data: {
+          id: "it-vocab-biscotti-001",
+          type: "vocab",
+          lang: { target: "it-IT", native: "en-GB" },
+          language: "it-IT",
+          headword: { it: "biscotti", en: "biscuits", gender: "m", partOfSpeech: "noun", register: "neutral" },
+          forms: { canonical: "biscotto", singular: "biscotto", plural: "biscotti", variants: [] },
+          meaning: { primary: "biscuits" },
+          pronunciation: { readable: "", ipa: "" },
+          examples: [{ it: "Mangio caffè latte e biscotti.", en: "I have coffee with milk and biscuits." }],
+          etymology: { noteHtml: "" },
+          grammar: { notes: "" },
+          relations: { synonyms: [], antonyms: [], related: [] },
+          tags: { level: "A1", id: "food-003", category: "food" },
+          images: { canonical: [], fallback: { type: "auto", prompt: "Simple biscuits on a plate, breakfast table, realistic photo style" } },
+          media: null,
+          quizSeeds: null,
+          placeholders: { grammar: "Grammar details will be added later.", quiz: "Quiz coming soon." },
+          metadata: { difficulty: "A1", tags: ["food"] }
+        }
+      },
+      {
+        key: "cappuccino",
+        label: "cappuccino (cappuccino)",
+        data: {
+          id: "it-vocab-cappuccino-001",
+          type: "vocab",
+          lang: { target: "it-IT", native: "en-GB" },
+          language: "it-IT",
+          headword: { it: "cappuccino", en: "cappuccino", gender: "m", partOfSpeech: "noun", register: "neutral" },
+          forms: { canonical: "cappuccino", singular: "cappuccino", plural: "cappuccini", variants: [] },
+          meaning: { primary: "cappuccino" },
+          pronunciation: { readable: "", ipa: "" },
+          examples: [{ it: "Per me cappuccino e brioche.", en: "For me, a cappuccino and a pastry." }],
+          etymology: { noteHtml: "" },
+          grammar: { notes: "" },
+          relations: { synonyms: [], antonyms: [], related: [] },
+          tags: { level: "A1", id: "drink-002", category: "food" },
+          images: { canonical: [], fallback: { type: "auto", prompt: "Cappuccino cup with foam, cafe table, realistic photo style" } },
+          media: null,
+          quizSeeds: null,
+          placeholders: { grammar: "Grammar details will be added later.", quiz: "Quiz coming soon." },
+          metadata: { difficulty: "A1", tags: ["food", "drink"] }
+        }
+      },
+      {
+        key: "dolce",
+        label: "dolce (sweet)",
+        data: {
+          id: "it-vocab-dolce-001",
+          type: "vocab",
+          lang: { target: "it-IT", native: "en-GB" },
+          language: "it-IT",
+          headword: { it: "dolce", en: "sweet", gender: "m", partOfSpeech: "adjective", register: "neutral" },
+          forms: { canonical: "dolce", singular: "dolce", plural: "dolci", variants: [] },
+          meaning: { primary: "sweet" },
+          pronunciation: { readable: "", ipa: "" },
+          examples: [{ it: "A colazione gli italiani mangiano relativamente poco e sempre dolce.", en: "For breakfast Italians eat relatively little and always sweet things." }],
+          etymology: { noteHtml: "" },
+          grammar: { notes: "" },
+          relations: { synonyms: [], antonyms: [], related: [] },
+          tags: { level: "A2", id: "adjective-001", category: "food" },
+          images: { canonical: [], fallback: { type: "auto", prompt: "Assorted sweet breakfast items on a table, realistic photo style" } },
+          media: null,
+          quizSeeds: null,
+          placeholders: { grammar: "Grammar details will be added later.", quiz: "Quiz coming soon." },
+          metadata: { difficulty: "A2", tags: ["food"] }
+        }
+      },
+      {
+        key: "expr-che-cosa-mangia-a-colazione",
+        label: "che cosa mangia a colazione (question)",
+        data: {
+          id: "it-expr-che-cosa-mangia-a-colazione-001",
+          type: "expression",
+          lemmaId: "it-expr-che-cosa-mangia-a-colazione",
+          lang: { target: "it-IT", native: "en-GB" },
+          language: "it-IT",
+          headword: {
+            target: "che cosa mangia a colazione",
+            native: "what do you eat for breakfast",
+            partOfSpeech: "phrase",
+            register: "neutral"
+          },
+          forms: {
+            canonical: "che cosa mangia a colazione",
+            singular: "che cosa mangia a colazione",
+            plural: "",
+            variants: ["che cosa mangi a colazione", "cosa mangi a colazione", "cosa mangia a colazione"]
+          },
+          meaning: { primary: "what do you eat for breakfast" },
+          pronunciation: { readable: "", ipa: "" },
+          examples: [{ it: "Che cosa mangia a colazione?", en: "What do you eat for breakfast?" }],
+          etymology: { noteHtml: "" },
+          grammar: { notes: "Question form. Verb changes with person: mangio, mangi, mangia." },
+          relations: { synonyms: [], antonyms: [], related: [] },
+          tags: ["food", "questions"],
+          images: { canonical: [], fallback: { type: "auto", prompt: "Person ordering breakfast at an Italian cafe, realistic photo style" } },
+          media: null,
+          quizSeeds: null,
+          placeholders: { grammar: "Grammar details will be added later.", quiz: "Quiz coming soon." },
+          metadata: { difficulty: "A2", tags: ["food", "questions"] }
+        }
+      },
+      {
+        key: "expr-di-solito",
+        label: "di solito (usually)",
+        data: {
+          id: "it-expr-di-solito-001",
+          type: "expression",
+          lemmaId: "it-expr-di-solito",
+          lang: { target: "it-IT", native: "en-GB" },
+          language: "it-IT",
+          headword: {
+            target: "di solito",
+            native: "usually",
+            partOfSpeech: "phrase",
+            register: "neutral"
+          },
+          forms: { canonical: "di solito", singular: "di solito", plural: "", variants: [] },
+          meaning: { primary: "usually" },
+          pronunciation: { readable: "", ipa: "" },
+          examples: [{ it: "Di solito non prendiamo bacon e uova.", en: "Usually we do not have bacon and eggs." }],
+          etymology: { noteHtml: "" },
+          grammar: { notes: "Adverbial phrase meaning 'usually'." },
+          relations: { synonyms: [], antonyms: [], related: [] },
+          tags: ["frequency", "everyday"],
+          images: { canonical: [], fallback: { type: "auto", prompt: "Simple repeating daily routine pattern, clean minimal icon style" } },
+          media: null,
+          quizSeeds: null,
+          placeholders: { grammar: "Grammar details will be added later.", quiz: "Quiz coming soon." },
+          metadata: { difficulty: "A2", tags: ["frequency", "everyday"] }
+        }
+      }
     ];
 
-    const listEl = document.getElementById('manifest-list');
-    const mountEl = document.getElementById('card-mount');
+    const listEl = document.getElementById("manifest-list");
+    const mountEl = document.getElementById("card-mount");
 
-    function loadCard(path) {
-      fetch(path)
-        .then(response => {
-          if (!response.ok) throw new Error('Failed to fetch ' + path);
-          return response.json();
-        })
-        .then(cardData => {
-          mountEl.innerHTML = '';
-          window.CapiscoSeasonsCard.render(mountEl, cardData);
-          updateActiveButton(path);
-        })
-        .catch(err => {
-          console.error('Error loading card:', err);
-          mountEl.innerHTML = '<p style="color:red;">Failed to load card: ' + path + '</p>';
-        });
+    function loadCardByIndex(idx) {
+      const item = manifest[idx];
+      if (!item) return;
+
+      mountEl.innerHTML = "";
+      window.CapiscoSeasonsCard.render(mountEl, item.data);
+      updateActiveButton(item.key);
     }
 
-    function updateActiveButton(activePath) {
-      document.querySelectorAll('.manifest-list button').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.path === activePath);
+    function updateActiveButton(activeKey) {
+      document.querySelectorAll(".manifest-list button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.key === activeKey);
       });
     }
 
     function init() {
-      manifest.forEach(path => {
-        const btn = document.createElement('button');
-        btn.textContent = path.split('/').pop().replace('.card.json', '').replace('.json', '');
-        btn.dataset.path = path;
-        btn.onclick = () => loadCard(path);
+      manifest.forEach((item, idx) => {
+        const btn = document.createElement("button");
+        btn.textContent = item.label;
+        btn.dataset.key = item.key;
+        btn.onclick = () => loadCardByIndex(idx);
         listEl.appendChild(btn);
       });
 
-      loadCard(manifest[0]);
+      loadCardByIndex(0);
     }
 
     init();
