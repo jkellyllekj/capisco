@@ -417,7 +417,8 @@ window.CapiscoSeasonsCard.render = function renderSeasonsCard(container, rawCard
 
   /* __START_HEADER_WORDS_R121__ */
 
-  const itText = String(cardData?.headword?.it || "").trim();
+  const itTextRaw = String(cardData?.headword?.it || "").trim();
+  const itText = itTextRaw || "Untitled card";
   const enText = String(cardData?.headword?.en || cardData?.meaning?.primary || "").trim();
 
   root.querySelector(".wg-word").textContent = itText || "";
