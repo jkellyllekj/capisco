@@ -339,6 +339,27 @@ No schema or contract changes are allowed in this phase.
 - lesson-slice manifest updated to include these cards and all render successfully.
 - No schema changes. No contract changes. No new pipeline work for images yet.
 
+### Phase 16B - Renderer Solidity and First Slice Test - 2026-01-21
+
+- Completed partial-data layout stability pass on Seasons card renderer.
+- Empty tag pills now hidden using CSS :empty.
+- Card title never renders blank. Fallback label is used when headword is missing.
+- Empty examples state standardised to "No examples yet."
+- Pronunciation row visibility no longer depends on string length.
+- Grammar and Quiz tabs remain visible with placeholders instead of being removed.
+- Global .hidden { display: none; } utility is treated as layout invariant.
+- Started first concrete lesson slice using a real transcript.
+- Test lesson based on "What Italians usually have for breakfast".
+- Implemented in ui/seasons-card/lesson-slice.html.
+- Uses an in-page manifest with 10 starter cards.
+- Cards include vocab and expression types.
+- Each card includes images.fallback with type: "auto" and a prompt.
+- Purpose is to validate card completeness and renderer behaviour before scaling.
+- Pause In Action recorded.
+- Next step is manual visual testing of lesson slice in preview.
+- Confirm media fallback, tabs, audio hover, and mixed card types.
+- No further wiring or schema work until testing is confirmed.
+
 ### CANONICAL SAMPLE SLICE (REFERENCE CASE)
 
 The current reference slice for Capisco development is based on a short real-world Italian video transcript.
