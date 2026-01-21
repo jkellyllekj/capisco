@@ -1,0 +1,29 @@
+# Environment files
+.env
+.env.*
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.cache/
+.venv/
+venv/
+
+# Replit / tooling
+.replit
+.replit.backup
+.nix/
+.cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Local artifacts
+attached_assets/
+
+# Logs
+*.log
