@@ -21,6 +21,17 @@ This file is the designated project state file for Capisco.
 
 Filename: PROJECT_STATE_CAPISCO.md
 
+## QUICK ORIENTATION (READ THIS FIRST)
+
+- Capisco is in Phase 16B: Seasons Renderer Integration
+- The Seasons card renderer is canonical and stable
+- Cards (vocab and sentence) are first-class knowledge objects
+- Lessons compose cards and must not invent parallel formats
+- No schema or contract changes are allowed in this phase
+- Governance is strict: working method and project state override chat memory
+- Changes must be small, explicit, and one-commit-at-a-time
+- If context risk rises, a Pause in Action must be invoked
+
 ## AUTHORITATIVE DOCS AND WORKFLOW
 
 Document hierarchy:
