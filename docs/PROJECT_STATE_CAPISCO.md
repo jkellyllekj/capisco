@@ -221,3 +221,34 @@ No schema or contract changes are allowed in this phase.
 - Added sentence cards: che-cosa-mangi-a-colazione, cosa-bevi-a-colazione, fai-colazione-a-casa, ti-piace-fare-colazione.
 - lesson-slice manifest updated to include these cards and all render successfully.
 - No schema changes. No contract changes. No new pipeline work for images yet.
+
+## AGENT INSTRUCTION CONTRACT
+
+Capisco uses a strict START / code block / FINISH protocol for all agent instructions.
+
+Rules:
+1. Only the contents of the code block are authoritative
+2. Instructions begin with `START MESSAGE TO AGENT` and end with `FINISH MESSAGE TO AGENT`
+3. Any text outside the code block is non-authoritative and must be ignored
+
+See: WORKING-METHOD-REPLIT.md for the full protocol definition.
+
+## COPY SAFETY INVARIANT
+
+Instruction formatting integrity is critical.
+
+If formatting is broken, the instruction is invalid and must not be executed.
+
+The human is responsible for copying the code block verbatim.
+The agent is responsible for executing only what is inside the code block.
+
+## NOISE ARTIFACT POLICY
+
+No pasted instruction files or scratch artifacts may exist in the repository.
+
+Forbidden files include:
+- `Pasted-START-MESSAGE-TO-AGENT*.txt`
+- Scratch notes containing prompts
+- Temporary instruction artifacts
+
+Any such file must be removed immediately before committing.
