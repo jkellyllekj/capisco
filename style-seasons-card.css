@@ -310,6 +310,10 @@
       display: none;
     }
 
+    .hidden {
+      display: none;
+    }
+
     .tab-placeholder {
       font-size: 12px;
       color: #9ca3af;

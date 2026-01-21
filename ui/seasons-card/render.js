@@ -587,13 +587,14 @@ if (plEl) {
   plEl.setAttribute("data-say", pluralText);
 }
 
-// Pronunciation row visibility
+// Pronunciation row visibility, consistent rule:
+// If there is no pronunciation data, hide the row.
+// No length threshold, no magic numbers.
 if (rowPron) {
-  const pronReadable = String(cardData.pronunciation?.readable || "");
-  const pronIpa = String(cardData.pronunciation?.ipa || "");
-  const tooLong = isSentenceCard && itText.length > 28;
+  const pronReadable = String(cardData.pronunciation?.readable || "").trim();
+  const pronIpa = String(cardData.pronunciation?.ipa || "").trim();
 
-  if (tooLong && !pronReadable && !pronIpa) rowPron.style.display = "none";
+  if (!pronReadable && !pronIpa) rowPron.style.display = "none";
   else rowPron.style.display = "";
 }
 
@@ -816,9 +817,8 @@ if (overview) {
     }
   }
 
-  if (!grammarRendered && grammarTab) {
-    grammarTab.style.display = "none";
-  }
+  // Do not hide the grammar tab when empty.
+  // Keep it visible with the placeholder text above.
 
   let quizRendered = false;
 
@@ -857,9 +857,8 @@ if (overview) {
     }
   }
 
-  if (!quizRendered && quizTab) {
-    quizTab.style.display = "none";
-  }
+  // Do not hide the quiz tab when empty.
+  // Keep it visible with the placeholder text above.
 
   /* __END_GRAMMAR_QUIZ_RENDER_R151__ */
 
