@@ -704,7 +704,7 @@ if (overview) {
     if (!usable.length) {
       const empty = document.createElement("div");
       empty.className = "tab-placeholder examples";
-      empty.textContent = isSentenceCard ? "No similar sentences yet." : "No examples available yet.";
+      empty.textContent = "No examples yet.";
       examplesSection.appendChild(empty);
     } else {
       usable.forEach((ex, idx) => {
