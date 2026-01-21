@@ -220,6 +220,29 @@ Each micro change is committed separately
 No mystery code. Any new function must be explained in plain English
 No app runs or runtime changes unless explicitly instructed
 
+## CARD LAYOUT LOCK (PHASE 16B)
+
+Purpose  
+Lock the Seasons card visual and structural layout so lessons can safely compose cards without creating parallel UI formats.
+
+Rules  
+- The Seasons renderer is the single canonical way to render cards in Phase 16B.  
+- Lessons compose cards. Lessons must not invent new card formats, layouts, or semantics.  
+- Cards remain first class knowledge objects. Lessons are containers only.  
+- Adapter code may exist only to map existing card data into the renderer. It must not invent meaning.
+
+Layout expectations  
+- Card layout must be stable enough that lessons can place cards in sequence without special casing per card.  
+- Vocabulary cards and sentence or expression cards must render with a consistent visual hierarchy.  
+- Sections and tabs may hide when empty, but the overall card structure must remain consistent.  
+- Media placement is fixed by the Seasons renderer. Image pipeline automation is explicitly out of scope for this phase.
+
+Definition of done for layout lock  
+- Breakfast vertical slice cards render consistently using the Seasons renderer.  
+- At least one vocabulary card and one sentence or expression card render correctly inside the lesson slice.  
+- No schema changes.  
+- No card contract changes.
+
 ## KNOWN INTENTIONAL LIMITATIONS
 
 Integration is incremental. At first, only a subset of lesson items may render via Seasons UI.
