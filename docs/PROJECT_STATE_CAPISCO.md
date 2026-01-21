@@ -1,6 +1,6 @@
 # Capisco Project State
 Status: Authoritative operational truth
-Last updated: 2026-01-15
+Last updated: 2026-01-21
 
 ## PURPOSE
 
@@ -13,13 +13,84 @@ Which files are authoritative right now
 Why certain behaviours exist, to prevent rediscovery
 
 If there is any conflict:
-The project’s designated project state file wins for navigation and intent
+The project's designated project state file wins for navigation and intent
 Specs win for semantics
 Chat memory is never authoritative
 
 This file is the designated project state file for Capisco.
 
 Filename: PROJECT_STATE_CAPISCO.md
+
+## AUTHORITATIVE DOCS AND WORKFLOW
+
+Document hierarchy:
+- WORKING-METHOD-REPLIT.md defines generic workflow and agent rules
+- PROJECT_STATE_CAPISCO.md defines Capisco-specific current state
+- Project state must always comply with the working method
+
+Reference links:
+- Working method: `WORKING-METHOD-REPLIT.md` (repo root)
+- Project state: `docs/PROJECT_STATE_CAPISCO.md`
+
+## AGENT USAGE RULES
+
+Execution protocol:
+- Agent executes only START / FINISH instruction blocks
+- One commit per instruction unless explicitly directed otherwise
+- Agent must not infer, continue, or extrapolate beyond instruction scope
+
+Required reporting after each task:
+- Commit hash
+- Files changed
+- Confirmation of tests run or errors encountered
+
+State update triggers:
+- Project state must be updated when scope, invariants, or known issues change
+- Updates must be explicit in the instruction block
+
+## FILE EDITING PROTOCOL
+
+Block-marker replacement rules:
+- When a file uses block markers (e.g., `// --- START BLOCK ---` and `// --- END BLOCK ---`), all edits must target content between markers only
+- Markers themselves must be preserved unless explicitly told to remove them
+- No line edits inside marked blocks; replace the entire block content
+
+When markers must be introduced:
+- When a section is expected to be replaced frequently
+- When precision is critical and context decay is a risk
+
+## NAMING AND PRIVACY NOTE
+
+Repository naming:
+- Repo name may be neutral or cryptic for privacy
+- Product name is Capisco
+
+Privacy rules:
+- Avoid personal identifiers in repo metadata and commits
+- Use GitHub noreply emails when possible
+- Do not embed personal names in code comments or documentation
+
+## IDEA PARKING LOT PROCESS
+
+Purpose:
+- Future ideas are parked, not implemented
+- Parking an idea does not change current phase or scope
+
+Process:
+1. Ideas are recorded in project state under a dedicated "Parked Ideas" section
+2. Parked ideas have no implementation timeline
+3. Parked ideas may be promoted to active work only by explicit phase change
+
+## OPERATIONAL NOTES (PUBLIC REPO)
+
+When repo visibility or name changes:
+- Update all canonical links in project state and working method
+- Verify no private URLs remain in documentation
+
+Preferred link formats:
+- GitHub blob links with `?plain=1` for ChatGPT reading
+- raw.githubusercontent.com links for direct file access
+- Commit-pinned permalinks for debugging stability
 
 ## LONG TERM DIRECTION
 
@@ -123,7 +194,7 @@ ui/seasons-card/images
 
 Governance:
 docs/PROJECT_STATE_CAPISCO.md
-docs/WORKING-METHOD-REPLIT.md
+WORKING-METHOD-REPLIT.md
 
 Specs and references:
 docs/card-contract.md
@@ -171,6 +242,7 @@ Visually verify the Seasons card appears inside the lesson output.
 Context reset for Seasons renderer integration.
 Project state updated to reflect Phase 16B and the new designated filename convention.
 Next work is renderer integration only, starting with one card proof of wiring.
+
 ## PAUSE IN ACTION — 2026-01-XX
 
 Context pause invoked due to rising complexity and risk of context decay.
@@ -221,17 +293,6 @@ No schema or contract changes are allowed in this phase.
 - Added sentence cards: che-cosa-mangi-a-colazione, cosa-bevi-a-colazione, fai-colazione-a-casa, ti-piace-fare-colazione.
 - lesson-slice manifest updated to include these cards and all render successfully.
 - No schema changes. No contract changes. No new pipeline work for images yet.
-
-## AGENT INSTRUCTION CONTRACT
-
-Capisco uses a strict START / code block / FINISH protocol for all agent instructions.
-
-Rules:
-1. Only the contents of the code block are authoritative
-2. Instructions begin with `START MESSAGE TO AGENT` and end with `FINISH MESSAGE TO AGENT`
-3. Any text outside the code block is non-authoritative and must be ignored
-
-See: WORKING-METHOD-REPLIT.md for the full protocol definition.
 
 ## COPY SAFETY INVARIANT
 
