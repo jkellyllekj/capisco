@@ -1,188 +1,103 @@
-# Working Method, Replit Agent Edition
-
-Last updated: 2026-01-15
-Status: Authoritative
-
-## Purpose
-
-This document defines how we work inside Replit using the Agent so we move fast, avoid context decay, and do not waste time or money.
-
-This is a reusable working method intended to apply to any project.
-
-## Core truth
-
-GitHub is the source of truth for code history and rollback.
-
-Replit is the workspace where the Agent edits and runs code.
-
-## Context decay control
-
-- After the main files are loaded into the chat (the project’s designated project state file, WORKING-METHOD-REPLIT.md, and the current runtime file such as index.js), the assistant must NOT rewrite or re output the entire runtime file for small changes.
-- Instead, the assistant must provide precise, targeted edit instructions for the Replit Agent: file path, the exact function or location to change, and the exact replacement snippet.
-- Only output full file replacements when explicitly requested, or when a change is so large that a partial edit would be riskier.
-- This avoids context decay and reduces wasted Replit Agent usage costs.
-
-Chat is for planning, reasoning, review, and decisions.
-
-The Agent is an execution tool, not the primary thinker.
-
-## Documents
-
-We keep three documents only.
-
-Project state file
-This is the authoritative, living record of the project. It contains vision, constraints, decisions, known limitations, and next steps.
-
-The filename is project specific and must begin with `PROJECT_STATE_`
-Example: `PROJECT_STATE_CAPISCO.md`
-
-WORKING-METHOD-REPLIT.md
-This file. It defines how we collaborate with the Agent.
-
-COACH_DESIGN_NOTES.md or other design notes
-Optional, project specific, deep intent documents. These are not required reading for the Agent unless explicitly instructed.
-
-The Agent must keep the project’s designated project state file current when instructed.
-
-## Agent operating mode
-
-Default mode is EXECUTION ONLY.
-
-The Agent does not own planning, architecture, or product decisions unless explicitly asked.
-
-The human plus ChatGPT do the thinking.
-The Agent does the edits, runs the app, and reports results.
-
-## Agent scope, execution only
-
-By default, the Agent must not read project state or working method files. These documents are for the human and ChatGPT.
-
-The Agent must only do what it is explicitly instructed to do in the current message.
-
-The Agent must not update docs, propose next steps, or infer intent unless explicitly instructed.
-
-If the Agent is asked to run tests, it must run exactly the specified test and report only the requested output.
-
-## Session start rule
-
-At the start of every Agent session, the Agent must do this in order.
-
-1. Wait for explicit instructions.
-2. Execute only what is requested.
-3. Do not add commentary, next steps, or doc updates unless asked.
-
-If the Agent skips this, stop and restart the session.
-
-## Planning rule
-
-Planning is done in chat, not by the Agent.
-
-The Agent must not generate its own plans unless explicitly asked to do so.
-
-If a task is already well defined, the Agent must skip planning and execute directly.
-
-## Change size rule
-
-Agent must work in small, bounded micro changes.
-
-One goal per micro change.
-
-An Agent run may include up to 3 micro changes if they are fully independent and low risk.
-Each micro change must be committed separately.
-
-Touch as few files as possible.
-
-No refactors unless the project’s designated project state file explicitly allows it.
-
-## Testing rule, non negotiable
-
-The Agent must not claim something works unless it was tested.
-
-For every change, the Agent must perform the relevant checks and report results.
-
-This includes one of the following, depending on the task.
-
-- Restart the workflow and run the app.
-- Generate a sample output and visually verify it.
-- Run the relevant command or test if applicable.
-
-If something cannot be tested in Replit, the Agent must say why and describe the required manual step.
-
-## Definition of done
-
-A change is done only when all of the following are true.
-
-- Code change is made.
-- App or tests have been run.
-- Errors are fixed or clearly listed.
-- The project’s designated project state file is updated if instructed.
-
-## Context decay control
-
-When the session feels confused, repetitive, or risky.
-
-Stop.
-
-Re read the project’s designated project state file.
-
-Summarise what is currently true.
-
-Continue with one small change only.
-
-## New project intake, first session only
-
-When starting a new project, the Agent must ask and record answers in the project’s designated project state file.
-
-- Target platforms now.
-- Platforms possibly needed later.
-- Prototype or long term product.
-- Login, payments, ads, notifications, offline, sync.
-- Data and storage needs.
-- Deployment target.
-- Team size.
-
-Only then may the Agent recommend a stack and record the decision.
-
-## Safety rails
-
-The Agent must never do the following without explicit permission.
-
-- Delete databases.
-- Delete large folders.
-- Replace the whole app structure.
-- Migrate frameworks.
-
-If something big is needed, the Agent proposes and waits.
-
-## Pause In Action protocol
-
-Invoked by saying “Pause In Action” or “pause in action”.
-
-When invoked, the Agent must immediately do the following.
-
-1. Stop problem solving and halt work.
-2. Ensure code is saved and in a stable state.
-3. Update the project’s designated project state file with current reality, including:
-   - Next steps
-   - Decisions made
-   - Vision updates
-   - Observed failures
-4. Produce a Handover Message that includes:
-   - What was done this session
-   - Current state
-   - Outstanding initiatives
-   - Next steps
-   - Blockers
-   - Files touched
-5. Produce a Next Agent Prompt that can be used to resume work exactly where it left off.
-
-The project’s designated project state file is the memory.
-The handover and prompt preserve continuity between sessions.
-
-## Stability note
-
-This document should change rarely.
-
-The project’s designated project state file changes often.
-
-If this document needs to change, it should be discussed and agreed deliberately.
+# Working Method: Gemini & Replit Agent Edition
+Last updated: 2026-02-12
+Status: **Authoritative - Code Integrity & Structured Vibe Edition**
+
+============================================================================
+PERMANENT CODE INTEGRITY PROTOCOL
+This protocol is the primary guardrail for all project development:
+
+1. Holistic Awareness: Gemini (The Architect) must maintain constant awareness of all project code and logic across all master files.
+2. Unabridged Updates: When updating Master Documents (e.g., project-state.md, WORKING-METHOD-REPLIT.md, index.js, styles.css), Gemini must provide the entire, unabridged file. Pruning, truncating, or using placeholders (e.g., "// ... rest of code") is strictly prohibited.
+3. Preservation of Progress: Neither Gemini nor the Agent may erase, truncate, or lose any existing progress, long-term roadmap items, or established logic.
+4. Logical Authority: Gemini provides the logic; the Agent is the execution arm. Do not delegate logical thinking or architectural decisions to the Agent.
+============================================================================
+
+## PURPOSE (WM010)
+This document defines **how we work**, not what we build. It exists to preserve creative ("vibe") exploration while eliminating the failure modes of undisciplined coding. If there is any conflict between chat instructions and this file, **this file wins**.
+
+## CORE ENTITIES (WM020)
+### Project
+A long-lived codebase (Capisco). Canonical truth lives in GitHub.
+### Phase
+A bounded unit of intent. Progress recorded in PROJECT_STATE_CAPISCO.md.
+### Chat Page
+A single conversation. Disposable by design. Never treated as a source of truth.
+
+## PHASE DISCIPLINE (WM030)
+Work is divided into explicit phases. Phase changes must be explicitly declared. Work outside the active phase is invalid.
+
+## PROGRESSIVE STEP RULE (WM040)
+Default mode: **Bounded Batch Execution**. Max 3–4 concrete, sequential steps per response. If confusion arises, revert to single-step mode or invoke Pause In Action.
+
+## DOCUMENTATION PARITY RULE (WM050)
+**Documentation is treated as code.** All edits are **full block replacements only**. Partial, line-level edits are forbidden.
+
+## BLOCK-TAG EDITING SYSTEM (WM060)
+All editable files must be divided into explicit blocks using `` and ``. Only entire blocks may be replaced. 
+### Block size split rule:
+If a block grows too large to reason about safely, it must be split into sub-blocks before any further changes are made.
+
+## NUMERIC BLOCK ID RULE (WM070)
+All block tags must include a stable numeric identifier (e.g., WM010). Numbers never change once assigned.
+
+## CONTRACTS BEFORE FEATURES (WM080)
+Core objects require written contracts. Invariants come before polish. Feature ideas are parked until a contract changes.
+
+## DECISION CAPTURE (WM090)
+Durable constraints go in `DECISIONS.md`. Decisions are concise and dated.
+
+## RE-ANCHORING (WM100)
+When context becomes unreliable, do not reread chat. Re-anchor from PROJECT_STATE.md and WORKING_METHOD.md.
+
+## NEW PHASE / NEW CHAT CHECKLIST (WM110)
+At the start of any new phase or chat:
+1. Identify current phase.
+2. Re-read State, Method, and Decisions.
+3. State what is frozen, what is allowed, and the next actionable work.
+
+## ACTIVE FILES DISCIPLINE (WM115)
+Every active phase must maintain a small "Active Files" list inside PROJECT_STATE.md to eliminate "which file is doing what?" searches.
+
+## PAUSE IN ACTION PROTOCOL (WM120)
+Invoked by saying “Pause In Action”. 
+1. Stop problem solving.
+2. Lock repo truth.
+3. Prepare clean Handover Message and Next Agent Prompt.
+
+## LONG-TERM GOAL (WM130)
+Capisco is the proving ground. The real product is a repeatable creative development method that does not collapse under scale.
+
+## ENVIRONMENT REALITY CHECK (WM140)
+Tool availability must never be assumed. Switch methods and document constraints if tooling is missing.
+
+## DISCOVERY AND SEARCH RULES (WM150)
+Do not guess file locations. Use editor-native search. **Block-name certainty requirement:** Assistant may only instruct a block replacement if it can name the exact block tag with confidence.
+
+## SPEC VS STATE RULE (WM160)
+Specs win for semantics; PROJECT_STATE wins for navigation and active intent.
+
+## CHAT HANDOVER ARTIFACT (WM170)
+Every Pause In Action must produce a canonical Next Chat Handover Message.
+
+## CONTEXT SATURATION AWARENESS (WM180)
+Assistant must explicitly warn when saturation (UI lag, loss of precision) is likely. Proactive resets are normalized.
+
+## ASSISTANT SELF-ENFORCEMENT (WM190)
+The assistant is **obligated** to actively enforce this Working Method on itself. Momentum or convenience are not valid reasons to bypass any rule.
+
+============================================================================
+AGENT COST CONTROL AND SCOPE LOCK
+============================================================================
+- **Execution Only:** The Agent does not own planning or refactoring.
+- **Hard Scope:** Agent may only edit files and blocks explicitly listed.
+- **Budget:** Default budget is 2 minutes. If exceeded, stop and report.
+- **Testing:** Agent must not claim success without running the app or tests.
+- **Instruction Format:** Must use START/FINISH MESSAGE TO AGENT blocks.
+- **Session Start:** Agent must wait for instructions, execute only what is requested, and add no commentary.
+- **Change Size:** Agent works in bounded micro-changes. One commit per instruction unless directed otherwise.
+- **Safety Rails:** Agent never deletes large folders or framework structures without explicit permission.
+
+## Lexicon Specific Rules (Capisco Phase 16C)
+- **Concept ID Priority:** Map assets to Universal Concept IDs, not words.
+- **The 4-Image Standard:** All cards require Portrait, Landscape, Square, and Drawn prompt DNA.
+- **Universal Human Invariant:** All image prompts must specify non-descript, representative people to ensure demographic neutrality and global applicability.

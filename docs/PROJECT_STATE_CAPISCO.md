@@ -1,6 +1,6 @@
 # Capisco Project State
 Status: Authoritative operational truth
-Last updated: 2026-01-21
+Last updated: 2026-02-12
 
 ## PURPOSE
 
@@ -23,14 +23,18 @@ Filename: PROJECT_STATE_CAPISCO.md
 
 ## QUICK ORIENTATION (READ THIS FIRST)
 
-- Capisco is in Phase 16B: Seasons Renderer Integration
-- The Seasons card renderer is canonical and stable
-- Cards (vocab and sentence) are first-class knowledge objects
-- Lessons compose cards and must not invent parallel formats
-- No schema or contract changes are allowed in this phase
-- Governance is strict: working method and project state override chat memory
-- Changes must be small, explicit, and one-commit-at-a-time
-- If context risk rises, a Pause in Action must be invoked
+- **Capisco is in Phase 16C: Universal Lexicon & Breakfast Slice**
+- The project has pivoted to a **Knowledge Architecture** strategy.
+- **The "Ultimate Card"** is the atomic unit, designed to scale to 20,000+ entries.
+- **100k Image Strategy:** Every card requires 4 aspect/style variants (Portrait, Landscape, Square, Drawn).
+- **Universal Human Rule:** Human imagery in cards must be non-descript and representative of society at large.
+- The Seasons card renderer is canonical and stable.
+- Cards (vocab and sentence) are first-class knowledge objects.
+- Lessons compose cards and must not invent parallel formats.
+- No schema or contract changes are allowed in this phase.
+- Governance is strict: working method and project state override chat memory.
+- Changes must be small, explicit, and one-commit-at-a-time.
+- If context risk rises, a Pause in Action must be invoked.
 
 ## AUTHORITATIVE DOCS AND WORKFLOW
 
@@ -49,6 +53,7 @@ Execution protocol:
 - Agent executes only START / FINISH instruction blocks
 - One commit per instruction unless explicitly directed otherwise
 - Agent must not infer, continue, or extrapolate beyond instruction scope
+- **Zero-Pruning Rule:** Assistant must never truncate or abridge file contents during major edits.
 
 Required reporting after each task:
 - Commit hash
@@ -109,14 +114,16 @@ Capisco is building a reusable, data driven card system that can scale to tens o
 
 Long run intent:
 
-Cards are rich, canonical knowledge objects that are reusable across lessons and videos
-A single renderer can render multiple card kinds using one shared approach
-Images are first class, locally owned assets, not external dependencies
-Quizzes are generated from stored seeds and ingredients, not hand authored per card
-Governance is strict. Project state, working method, and recorded decisions are the source of truth
+- Cards are rich, canonical knowledge objects that are reusable across lessons and videos.
+- A single renderer can render multiple card kinds using one shared approach.
+- **Lexicon as Moat:** 80,000+ high-fidelity images linked to Universal Concept IDs.
+- **80% Reuse:** Cards are language-agnostic at the core; only metadata changes per language.
+- **Generative DNA:** Each card stores "Prompt Recipes" allowing for on-the-fly generation for premium users.
+- Images are first class, locally owned assets, not external dependencies.
+- Quizzes are generated from stored seeds and ingredients, not hand authored per card.
+- Governance is strict. Project state, working method, and recorded decisions are the source of truth.
 
 This phase does not implement the long run system.
-
 This phase validates renderer behaviour safely, without any schema or contract change.
 
 ## PROJECT ANCHOR: WHAT CAPISCO IS BUILDING
@@ -133,25 +140,23 @@ Development proceeds using small, real transcript slices as reference test cases
 ## CURRENT PHASE
 
 Active phase:
-Phase 16B, Seasons Renderer Integration
+Phase 16C, Universal Lexicon & Breakfast Slice
 
 Primary goal:
-Port the Seasons card renderer from the seasons test harness into the main Capisco lesson rendering path.
-Capisco must render lesson vocabulary and sentence cards using the Seasons card UI.
+Card-up the full "Breakfast in Italy" transcript to validate the Universal Concept ID system and the 4-image Prompt DNA.
 
 Core constraints:
-No schema changes
-No card contract changes
-No new data fields introduced
-No media pipeline automation
-No rewrite of lesson generation logic
-Renderer integration must adapt to existing lesson data as it is
+- No schema changes to the existing SQLite structure.
+- No contract changes that break the Seasons renderer.
+- **Universal Human Invariant:** All image prompts must specify non-descript, representative people to ensure demographic neutrality.
+- No rewrite of lesson generation logic.
+- Renderer integration must adapt to existing lesson data as it is.
 
 What this phase includes:
-Wiring the Seasons renderer into the main lesson display path
-Minimal adapter code that maps existing lesson items to renderer inputs
-Loading the Seasons renderer and CSS in the main app flow
-Visual verification that at least one vocab card and one sentence card render correctly inside a lesson
+- Drafting the `breakfast-slice.json` manifest with ~35 canonical cards.
+- Defining 4 image prompt variants (Portrait, Landscape, Square, Drawn) for every card.
+- Wiring the Seasons renderer into the main lesson display path.
+- Visual verification that at least one vocab card and one sentence card render correctly inside a lesson.
 
 What this phase excludes:
 Any change to card JSON structure or semantics
@@ -187,6 +192,7 @@ Small renderer only integration edits
 Small adapter functions to map existing lesson items into Seasons card data
 Small CSS or HTML wiring edits needed to load the renderer
 Small demo harness adjustments only if required for integration testing
+Drafting the Semantic Lexicon manifest for the test slice
 
 ## ACTIVE FILES, MANDATORY MAP
 
@@ -230,14 +236,15 @@ One goal per micro change
 Each micro change is committed separately
 No mystery code. Any new function must be explained in plain English
 No app runs or runtime changes unless explicitly instructed
+**The 4-Image Standard:** All cards must eventually support 4 aspect/style variants.
 
-## CARD LAYOUT LOCK (PHASE 16B)
+## CARD LAYOUT LOCK (PHASE 16B/C)
 
 Purpose  
 Lock the Seasons card visual and structural layout so lessons can safely compose cards without creating parallel UI formats.
 
 Rules  
-- The Seasons renderer is the single canonical way to render cards in Phase 16B.  
+- The Seasons renderer is the single canonical way to render cards.  
 - Lessons compose cards. Lessons must not invent new card formats, layouts, or semantics.  
 - Cards remain first class knowledge objects. Lessons are containers only.  
 - Adapter code may exist only to map existing card data into the renderer. It must not invent meaning.
@@ -274,12 +281,12 @@ Do not introduce any new image sourcing process in this phase
 Scope enforcement:
 Any work that changes schemas, contracts, or card field meanings is out of scope and must be deferred
 
+Universal Human Rule:
+Human imagery in prompts must be non-descript and representative of a global population to ensure semantic reuse across cultures.
+
 ## NEXT SINGLE STEP
 
-Find the smallest integration seam in capisco-engine.js where lesson vocabulary items are rendered.
-Add a minimal placeholder container per item.
-Call window.CapiscoSeasonsCard.render for exactly one item to prove wiring.
-Visually verify the Seasons card appears inside the lesson output.
+Extract the first 10 cards from the Breakfast transcript and draft the JSON manifest including the 4-variant Prompt DNA for each.
 
 ## PAUSE IN ACTION LOG
 
@@ -287,6 +294,9 @@ Visually verify the Seasons card appears inside the lesson output.
 Context reset for Seasons renderer integration.
 Project state updated to reflect Phase 16B and the new designated filename convention.
 Next work is renderer integration only, starting with one card proof of wiring.
+
+2026-02-12
+**Phase 16C Activated.** Transition to "Logical Architect" protocol. Pivot to Universal Lexicon and Semantic Concept mapping. Locked 4-image prompt logic and Universal Human standard.
 
 ## PAUSE IN ACTION — 2026-01-XX
 
@@ -406,5 +416,3 @@ Forbidden files include:
 - `Pasted-START-MESSAGE-TO-AGENT*.txt`
 - Scratch notes containing prompts
 - Temporary instruction artifacts
-
-Any such file must be removed immediately before committing.
