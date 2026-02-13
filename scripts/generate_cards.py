@@ -6,10 +6,11 @@ Reads a transcript file, uses OpenAI to identify vocabulary and expressions,
 then generates card JSON files following the Phase 16B schema.
 
 Usage:
-    python scripts/generate_cards.py                          # Generate cards
-    python scripts/generate_cards.py --review                 # Review existing cards
-    python scripts/generate_cards.py --transcript PATH        # Use a different transcript
-    python scripts/generate_cards.py --output-dir DIR         # Use a different output dir
+    python3 scripts/generate_cards.py                          # Generate all cards
+    python3 scripts/generate_cards.py --limit 3                # Generate only 3 cards
+    python3 scripts/generate_cards.py --review                 # Review existing cards
+    python3 scripts/generate_cards.py --transcript PATH        # Use a different transcript
+    python3 scripts/generate_cards.py --output-dir DIR         # Use a different output dir
 
 # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
 # do not change this unless explicitly requested by the user
@@ -246,7 +247,8 @@ TRANSCRIPT:
         max_completion_tokens=8192
     )
 
-    result = json.loads(response.choices[0].message.content)
+    content = response.choices[0].message.content or "{}"
+    result = json.loads(content)
     return result
 
 
@@ -286,7 +288,7 @@ def build_vocab_card(item):
     card["etymology"]["origin"] = item.get("etymology_origin", "")
     card["etymology"]["mnemonic"] = item.get("etymology_mnemonic", "")
 
-    card["images"]["fallback"]["prompt"] = f"{item['en']}, Italian context, photorealistic"
+    card["images"]["fallback"]["prompt"] = f"{item['en']}, realistic, cinematic Italian lighting, warm tones, authentic textures, no text"
 
     card["quizSeeds"]["distractors"] = item.get("distractors", [])
 
@@ -327,14 +329,14 @@ def build_expression_card(item):
 
     card["grammar"]["notes"] = item.get("grammarNote", "")
 
-    card["media"]["fallback"]["prompt"] = f"{item['en']}, Italian context, photorealistic"
+    card["media"]["fallback"]["prompt"] = f"{item['en']}, realistic, cinematic Italian lighting, warm tones, authentic textures, no text"
 
     card["quizSeeds"]["distractors"] = item.get("distractors", [])
 
     return card_id, card
 
 
-def generate_cards(transcript_path, output_dir):
+def generate_cards(transcript_path, output_dir, limit=None):
     print(f"Reading transcript: {transcript_path}")
     transcript = read_transcript(transcript_path)
 
@@ -343,26 +345,26 @@ def generate_cards(transcript_path, output_dir):
 
     vocab_items = result.get("vocab", [])
     expression_items = result.get("expressions", [])
+    all_items = [("vocab", v) for v in vocab_items] + [("expr", e) for e in expression_items]
     print(f"Found {len(vocab_items)} vocab items and {len(expression_items)} expressions.")
+
+    if limit is not None:
+        all_items = all_items[:limit]
+        print(f"Limiting output to {limit} card(s).")
 
     os.makedirs(output_dir, exist_ok=True)
 
     created = []
-    for item in vocab_items:
-        card_id, card = build_vocab_card(item)
+    for kind, item in all_items:
+        if kind == "vocab":
+            card_id, card = build_vocab_card(item)
+        else:
+            card_id, card = build_expression_card(item)
         filepath = os.path.join(output_dir, f"{card_id}.json")
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(card, f, indent=2, ensure_ascii=False)
         created.append(filepath)
-        print(f"  [vocab] {filepath}")
-
-    for item in expression_items:
-        card_id, card = build_expression_card(item)
-        filepath = os.path.join(output_dir, f"{card_id}.json")
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(card, f, indent=2, ensure_ascii=False)
-        created.append(filepath)
-        print(f"  [expr]  {filepath}")
+        print(f"  [{kind:5s}] {filepath}")
 
     print(f"\nDone. Created {len(created)} card files in {output_dir}/")
     return created
@@ -453,6 +455,8 @@ def main():
                         help=f"Path to transcript file (default: {DEFAULT_TRANSCRIPT})")
     parser.add_argument("--output-dir", default=DEFAULT_OUTPUT_DIR,
                         help=f"Output directory for cards (default: {DEFAULT_OUTPUT_DIR})")
+    parser.add_argument("--limit", type=int, default=None,
+                        help="Limit the number of cards generated (e.g., --limit 3)")
     parser.add_argument("--review", action="store_true",
                         help="Review existing cards for common errors")
     args = parser.parse_args()
@@ -460,7 +464,7 @@ def main():
     if args.review:
         review_cards(args.output_dir)
     else:
-        generate_cards(args.transcript, args.output_dir)
+        generate_cards(args.transcript, args.output_dir, limit=args.limit)
         print("\nRunning review on generated cards...\n")
         review_cards(args.output_dir)
 
