@@ -1,0 +1,96 @@
+{
+  "id": "italiani",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.nationality",
+  "legacyIcon": "🇮🇹",
+  "headword": {
+    "it": "italiani",
+    "en": "Italians",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "neutral"
+  },
+  "forms": {
+    "canonical": "italiani",
+    "singular": "italiani",
+    "plural": "italiani",
+    "variants": []
+  },
+  "pronunciation": {
+    "readable": "i-ta-LI-a-ni",
+    "ipa": "[itaˈljaːni]",
+    "audio": {
+      "it": null,
+      "en": null
+    }
+  },
+  "meaning": {
+    "primary": "Italians",
+    "extended": [
+      "S1: Italians"
+    ],
+    "usageNotes": "Forma plurale del sostantivo/adjectival noun 'italiano'."
+  },
+  "examples": [
+    {
+      "it": "che cosa mangiano gli italiani a colazione",
+      "en": "(from transcript)",
+      "source": "transcript",
+      "difficulty": "easy"
+    }
+  ],
+  "grammar": {
+    "notes": "",
+    "patterns": [],
+    "exceptions": []
+  },
+  "etymology": {
+    "origin": "Latin",
+    "evolution": "",
+    "mnemonic": "Italia -> italiano: facile da collegare."
+  },
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": [],
+    "antonyms": [],
+    "collocations": [],
+    "expressions": [],
+    "grammar": [],
+    "themes": [],
+    "related": [],
+    "phonetic": [],
+    "contrasts": [],
+    "semantic": []
+  },
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "Italians, realistic, cinematic Italian lighting, warm tones, authentic textures, no text",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": [
+      "italiano (singular)",
+      "italico",
+      "israeliani"
+    ]
+  },
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>italiani</strong> coming soon.",
+    "quiz": "Quiz for <strong>italiani</strong> coming soon."
+  },
+  "metadata": {
+    "difficulty": "A1",
+    "tags": [
+      "Breakfast"
+    ],
+    "rankId": "#0000"
+  }
+}

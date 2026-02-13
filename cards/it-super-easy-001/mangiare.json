@@ -1,0 +1,96 @@
+{
+  "id": "mangiare",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.eating",
+  "legacyIcon": "🍽️",
+  "headword": {
+    "it": "mangiare",
+    "en": "to eat",
+    "partOfSpeech": "verb",
+    "gender": "",
+    "register": "neutral"
+  },
+  "forms": {
+    "canonical": "mangiare",
+    "singular": "mangiare",
+    "plural": "",
+    "variants": []
+  },
+  "pronunciation": {
+    "readable": "man-GIA-re",
+    "ipa": "[manˈdʒaːre]",
+    "audio": {
+      "it": null,
+      "en": null
+    }
+  },
+  "meaning": {
+    "primary": "to eat",
+    "extended": [
+      "S1: to eat"
+    ],
+    "usageNotes": "Verbo di uso quotidiano per parlare di cibo o pasti."
+  },
+  "examples": [
+    {
+      "it": "che cosa mangiano gli italiani a colazione",
+      "en": "(from transcript)",
+      "source": "transcript",
+      "difficulty": "easy"
+    }
+  ],
+  "grammar": {
+    "notes": "",
+    "patterns": [],
+    "exceptions": []
+  },
+  "etymology": {
+    "origin": "Latin",
+    "evolution": "",
+    "mnemonic": "Pensa a \"mangia!\" come comando familiare per iniziare a mangiare."
+  },
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": [],
+    "antonyms": [],
+    "collocations": [],
+    "expressions": [],
+    "grammar": [],
+    "themes": [],
+    "related": [],
+    "phonetic": [],
+    "contrasts": [],
+    "semantic": []
+  },
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "to eat, realistic, cinematic Italian lighting, warm tones, authentic textures, no text",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": [
+      "mandare",
+      "mangiare -> mangiato",
+      "marinare"
+    ]
+  },
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>mangiare</strong> coming soon.",
+    "quiz": "Quiz for <strong>mangiare</strong> coming soon."
+  },
+  "metadata": {
+    "difficulty": "A1",
+    "tags": [
+      "Breakfast"
+    ],
+    "rankId": "#0000"
+  }
+}

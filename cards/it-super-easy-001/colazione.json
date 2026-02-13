@@ -1,0 +1,96 @@
+{
+  "id": "colazione",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.breakfast",
+  "legacyIcon": "🥐",
+  "headword": {
+    "it": "colazione",
+    "en": "breakfast",
+    "partOfSpeech": "noun",
+    "gender": "f",
+    "register": "neutral"
+  },
+  "forms": {
+    "canonical": "colazione",
+    "singular": "colazione",
+    "plural": "colazioni",
+    "variants": []
+  },
+  "pronunciation": {
+    "readable": "co-la-ZIO-ne",
+    "ipa": "[kolaˈtsjoːne]",
+    "audio": {
+      "it": null,
+      "en": null
+    }
+  },
+  "meaning": {
+    "primary": "breakfast",
+    "extended": [
+      "S1: breakfast"
+    ],
+    "usageNotes": "Parola standard per la prima colazione; si usa anche \"fare colazione\"."
+  },
+  "examples": [
+    {
+      "it": "che cosa mangiano gli italiani a colazione",
+      "en": "(from transcript)",
+      "source": "transcript",
+      "difficulty": "easy"
+    }
+  ],
+  "grammar": {
+    "notes": "",
+    "patterns": [],
+    "exceptions": []
+  },
+  "etymology": {
+    "origin": "Latin",
+    "evolution": "",
+    "mnemonic": "Colazione = 'colloquio' del mattino con il cibo (inventa un'associazione mentale)."
+  },
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": [],
+    "antonyms": [],
+    "collocations": [],
+    "expressions": [],
+    "grammar": [],
+    "themes": [],
+    "related": [],
+    "phonetic": [],
+    "contrasts": [],
+    "semantic": []
+  },
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "breakfast, realistic, cinematic Italian lighting, warm tones, authentic textures, no text",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": [
+      "relazione",
+      "situazione",
+      "coltazione"
+    ]
+  },
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>colazione</strong> coming soon.",
+    "quiz": "Quiz for <strong>colazione</strong> coming soon."
+  },
+  "metadata": {
+    "difficulty": "A1",
+    "tags": [
+      "Breakfast"
+    ],
+    "rankId": "#0000"
+  }
+}

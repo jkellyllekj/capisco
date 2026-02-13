@@ -235,20 +235,30 @@ Respond with a JSON object:
 TRANSCRIPT:
 {transcript_text}"""
 
-    # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
-    # do not change this unless explicitly requested by the user
+    # gpt-5-mini is cost effective and fast for structured extraction tasks
     response = client.chat.completions.create(
-        model="gpt-5",
+        model="gpt-5-mini",
         messages=[
             {"role": "system", "content": "You are an expert Italian linguist. Respond only with valid JSON."},
             {"role": "user", "content": prompt}
         ],
         response_format={"type": "json_object"},
-        max_completion_tokens=8192
+        max_completion_tokens=16384
     )
 
+    finish_reason = response.choices[0].finish_reason
     content = response.choices[0].message.content or "{}"
-    result = json.loads(content)
+
+    if finish_reason != "stop":
+        print(f"WARNING: LLM finish_reason was '{finish_reason}' (expected 'stop'). Response may be truncated.")
+
+    try:
+        result = json.loads(content)
+    except json.JSONDecodeError as e:
+        print(f"ERROR: Failed to parse LLM response as JSON: {e}")
+        print(f"Raw response (first 500 chars): {content[:500]}")
+        result = {"vocab": [], "expressions": []}
+
     return result
 
 
