@@ -1,0 +1,119 @@
+{
+  "id": "uova",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.egg",
+
+  "legacyIcon": "🥚",
+
+  "headword": {
+    "it": "uova",
+    "en": "eggs",
+    "partOfSpeech": "noun",
+    "gender": "f",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "uovo",
+    "singular": "uovo",
+    "plural": "uova",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "WO-vah",
+    "ipa": "[ˈwɔːva]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "eggs",
+    "extended": [
+      "S1: the oval reproductive body laid by hens, used widely in cooking",
+      "S2: (singular uovo) a single egg"
+    ],
+    "usageNotes": "Irregular noun: singular 'uovo' is masculine, but plural 'uova' is feminine. This is one of Italian's most notable irregular plurals."
+  },
+
+  "examples": [
+    {
+      "it": "Non prendiamo bacon e uova.",
+      "en": "We don't have bacon and eggs.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Compra un uovo e due uova.",
+      "en": "Buy one egg and two eggs.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Le uova sono fresche.",
+      "en": "The eggs are fresh.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Vuoi le uova strapazzate?",
+      "en": "Do you want scrambled eggs?",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Highly irregular: singular 'uovo' (masculine, l'uovo) becomes plural 'uova' (feminine, le uova). One of the few Italian nouns that changes gender in the plural.",
+    "patterns": ["uovo (m.sg.) → uova (f.pl.)"],
+    "exceptions": ["Changes gender from masculine singular to feminine plural"]
+  },
+
+  "etymology": {
+    "origin": "Latin: ovum",
+    "evolution": "From Latin 'ovum' (egg). The irregular plural 'uova' preserves the Latin neuter plural 'ova', which Italian reclassified as feminine.",
+    "mnemonic": "Think of 'ovum' (egg in biology) — the Latin root is 'ov-', and 'uovo' is its Italian descendant."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": ["uovo"],
+    "synonyms": [],
+    "antonyms": [],
+    "collocations": ["uova_strapazzate", "uova_sode", "bacon_e_uova"],
+    "expressions": ["uovo_alla_coque"],
+    "grammar": [],
+    "themes": ["food", "breakfast", "cooking"],
+    "related": ["bacon", "frittata", "omelette"],
+    "phonetic": ["nuova"],
+    "contrasts": [],
+    "semantic": ["cibo", "colazione", "ingrediente"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "fresh eggs on a kitchen table photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["nuova", "uva", "cuoca"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>uova</strong> coming soon.",
+    "quiz": "Quiz for <strong>uova</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A2",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}

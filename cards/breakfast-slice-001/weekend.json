@@ -1,0 +1,112 @@
+{
+  "id": "weekend",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.weekend",
+
+  "legacyIcon": "📅",
+
+  "headword": {
+    "it": "weekend",
+    "en": "weekend",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "informal"
+  },
+
+  "forms": {
+    "canonical": "weekend",
+    "singular": "weekend",
+    "plural": "weekend",
+    "variants": ["fine settimana"]
+  },
+
+  "pronunciation": {
+    "readable": "wee-KEND",
+    "ipa": "[wiˈkɛnd]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "weekend",
+    "extended": [
+      "S1: Saturday and Sunday; the end of the week when most people do not work"
+    ],
+    "usageNotes": "An English loanword widely used in spoken Italian, especially in northern Italy. The Italian equivalent 'fine settimana' is more formal."
+  },
+
+  "examples": [
+    {
+      "it": "Durante il weekend mangi qualcosa di diverso?",
+      "en": "Do you eat something different during the weekend?",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Cosa fai questo weekend?",
+      "en": "What are you doing this weekend?",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Il weekend andiamo al mare.",
+      "en": "On the weekend we go to the seaside.",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Invariable masculine noun (English loanword). Same form in singular and plural. Takes the article 'il'.",
+    "patterns": ["invariable noun (loanword)"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "English: weekend (week + end)",
+    "evolution": "Borrowed directly from English in the 20th century. Competes with the native Italian 'fine settimana'.",
+    "mnemonic": "It's the same word as English — just pronounce it Italian-style: wee-KEND."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": ["fine settimana"],
+    "antonyms": [],
+    "collocations": ["durante_il_weekend", "questo_weekend", "il_weekend_scorso"],
+    "expressions": [],
+    "grammar": [],
+    "themes": ["time", "daily-routine", "loanwords"],
+    "related": ["settimana", "sabato", "domenica"],
+    "phonetic": [],
+    "contrasts": ["fine settimana"],
+    "semantic": ["tempo", "riposo", "giorni"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "a relaxing weekend morning with breakfast photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["fine settimana", "settimana", "lunedì"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>weekend</strong> coming soon.",
+    "quiz": "Quiz for <strong>weekend</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A1",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}

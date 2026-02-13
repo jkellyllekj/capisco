@@ -1,0 +1,113 @@
+{
+  "id": "torta",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.cake",
+
+  "legacyIcon": "🎂",
+
+  "headword": {
+    "it": "torta",
+    "en": "cake",
+    "partOfSpeech": "noun",
+    "gender": "f",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "torta",
+    "singular": "torta",
+    "plural": "torte",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "TOR-tah",
+    "ipa": "[ˈtorta]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "cake",
+    "extended": [
+      "S1: a sweet baked dessert, often round and layered",
+      "S2: can also refer to a savory pie or tart (e.g. torta salata)"
+    ],
+    "usageNotes": "In a breakfast context, 'torta' often means a homemade cake like 'torta della nonna' or a simple sponge cake."
+  },
+
+  "examples": [
+    {
+      "it": "Torta, delle cose...",
+      "en": "Cake, things like that...",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Mia nonna fa una torta buonissima.",
+      "en": "My grandmother makes a delicious cake.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Vuoi una fetta di torta?",
+      "en": "Do you want a slice of cake?",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Feminine noun ending in -a. Regular plural: torte.",
+    "patterns": ["-a to -e plural"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Late Latin: torta (a round bread)",
+    "evolution": "From Late Latin 'torta', probably from 'tortus' (twisted), referring to the twisted shape of early breads.",
+    "mnemonic": "Think of a 'torte' in English — a rich cake, from the same root."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": ["dolce"],
+    "antonyms": [],
+    "collocations": ["fetta_di_torta", "torta_di_mele", "torta_della_nonna"],
+    "expressions": ["torta_salata"],
+    "grammar": [],
+    "themes": ["food", "breakfast", "dessert"],
+    "related": ["dolce", "panettone", "biscotti", "crostata"],
+    "phonetic": ["porta", "corta"],
+    "contrasts": [],
+    "semantic": ["dolce", "dessert", "colazione"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "an Italian homemade cake on a kitchen table photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["porta", "corta", "torto"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>torta</strong> coming soon.",
+    "quiz": "Quiz for <strong>torta</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A1",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}

@@ -23,7 +23,7 @@ Filename: PROJECT_STATE_CAPISCO.md
 
 ## QUICK ORIENTATION (READ THIS FIRST)
 
-- **Capisco is in Phase 16C: Universal Lexicon & Breakfast Slice**
+- **Capisco is in Phase 17: Bulk Extraction**
 - The project has pivoted to a **Knowledge Architecture** strategy.
 - **The "Ultimate Card"** is the atomic unit, designed to scale to 20,000+ entries.
 - **100k Image Strategy:** Every card requires 4 aspect/style variants (Portrait, Landscape, Square, Drawn).
@@ -140,10 +140,10 @@ Development proceeds using small, real transcript slices as reference test cases
 ## CURRENT PHASE
 
 Active phase:
-Phase 16C, Universal Lexicon & Breakfast Slice
+Phase 17, Bulk Extraction
 
 Primary goal:
-Card-up the full "Breakfast in Italy" transcript to validate the Universal Concept ID system and the 4-image Prompt DNA.
+Batch extraction of card data from real transcripts. Batch 1 (14 cards) generated from breakfast transcript.
 
 Core constraints:
 - No schema changes to the existing SQLite structure.

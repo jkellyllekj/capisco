@@ -1,0 +1,97 @@
+{
+  "id": "al-nord-si-chiamano",
+
+  "kind": "sentence",
+  "version": 1,
+
+  "lang": { "target": "it-IT", "native": "en-GB" },
+
+  "headword": {
+    "target": "Al nord si chiamano brioche.",
+    "native": "In the north they are called brioche."
+  },
+
+  "level": "A2",
+  "tags": ["breakfast", "regional-italian", "si-passivante"],
+
+  "lemmaId": "chiamarsi-regionale",
+  "sense": {
+    "id": "2",
+    "gloss": "S2 — expressing regional naming conventions using impersonal 'si' construction (northern variant)"
+  },
+
+  "type": "sentence",
+  "language": "it",
+
+  "forms": {
+    "canonical": "Al nord si chiamano brioche.",
+    "variants": ["Al nord le chiamano brioche.", "Nel nord si chiamano brioche."]
+  },
+
+  "pronunciation": {
+    "readable": "al NORD see KYAH-mah-no bree-OSH",
+    "ipa": "al nɔrd si ˈkjaːmano briˈɔʃ"
+  },
+
+  "meaning": {
+    "primary": "In the north they are called brioche.",
+    "extended": [
+      "S1 — describing how the same pastry has a different name in northern Italy compared to the south"
+    ],
+    "usageNotes": "The same pastry is called 'cornetto' in central/southern Italy and 'brioche' in northern Italy. This regional difference is a common topic in Italian food culture."
+  },
+
+  "examples": [
+    {
+      "it": "Al nord si chiamano brioche, al sud cornetti.",
+      "en": "In the north they're called brioche, in the south cornetti."
+    },
+    {
+      "it": "Al nord si beve più caffè lungo.",
+      "en": "In the north people drink more long coffee."
+    },
+    {
+      "it": "Come si chiamano questi al nord?",
+      "en": "What are these called in the north?"
+    }
+  ],
+
+  "grammar": {
+    "notes": "'Si chiamano' is a 'si passivante' (passive si) construction: 'si' + 3rd person plural verb. 'Al nord' = 'a' + 'il' = at/in the north. The verb agrees in number with the subject ('brioche', invariable but treated as plural here).",
+    "patterns": ["al + direction + si + 3rd person verb", "si passivante + plural noun"],
+    "exceptions": ["'Brioche' is an invariable French loanword — same form singular and plural"]
+  },
+
+  "etymology": {
+    "origin": "Italian: chiamare (from Latin clamare, to shout/call) + si passivante",
+    "evolution": "Same construction as 'al sud si chiamano'. 'Brioche' is borrowed from French, reflecting northern Italy's closer ties to French culinary tradition.",
+    "mnemonic": "Think: 'In the north, they self-call them brioche' — French influence on northern Italian vocabulary."
+  },
+
+  "relations": {
+    "related": ["chiamarsi", "brioche", "nord", "sud"],
+    "forms": ["al-sud-si-chiamano", "si-chiama", "si-chiamano"],
+    "synonyms": ["nel-nord-si-chiamano"],
+    "antonyms": [],
+    "collocations": ["al_nord", "si_chiamano", "si_chiama"],
+    "expressions": ["come_si_chiama"],
+    "themes": ["regional-language", "food", "geography"],
+    "semantic": ["nome", "regione", "tradizione"]
+  },
+
+  "media": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "Italian brioche pastries in a northern Italian cafe photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["Al nord si mangiano brioche.", "Al nord si vendono brioche.", "Al nord si fanno brioche."]
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "id": "nord",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.north",
+
+  "legacyIcon": "🧭",
+
+  "headword": {
+    "it": "nord",
+    "en": "north",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "nord",
+    "singular": "nord",
+    "plural": "nord",
+    "variants": ["settentrione"]
+  },
+
+  "pronunciation": {
+    "readable": "NORD",
+    "ipa": "[nɔrd]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "north",
+    "extended": [
+      "S1: the cardinal direction opposite to south",
+      "S2: the northern part of a country, especially northern Italy (il Nord)"
+    ],
+    "usageNotes": "When referring to northern Italy, 'il Nord' is often capitalized. Northern Italy is associated with industrialization, Milan, and different food traditions."
+  },
+
+  "examples": [
+    {
+      "it": "Al nord si chiamano brioche.",
+      "en": "In the north they're called brioche.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Milano è al nord d'Italia.",
+      "en": "Milan is in the north of Italy.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Al nord nevica di più.",
+      "en": "In the north it snows more.",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Invariable masculine noun. No plural form. Often used with 'al' (al nord = in the north).",
+    "patterns": ["al nord = in the north", "del nord = of the north"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "French: nord (from Old English norþ)",
+    "evolution": "Borrowed from French 'nord', which comes from Old English/Germanic roots. Standard term for the cardinal direction.",
+    "mnemonic": "Nord sounds like English 'north' minus the 'th'."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": ["settentrione"],
+    "antonyms": ["sud"],
+    "collocations": ["al_nord", "del_nord", "nord_Italia"],
+    "expressions": [],
+    "grammar": [],
+    "themes": ["geography", "directions", "Italy"],
+    "related": ["sud", "est", "ovest", "settentrione"],
+    "phonetic": [],
+    "contrasts": ["sud"],
+    "semantic": ["direzione", "geografia", "Italia"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "a view of northern Italy mountains photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["sud", "est", "ovest"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>nord</strong> coming soon.",
+    "quiz": "Quiz for <strong>nord</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A1",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}

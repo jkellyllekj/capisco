@@ -1,0 +1,112 @@
+{
+  "id": "panettone",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.panettone",
+
+  "legacyIcon": "🍞",
+
+  "headword": {
+    "it": "panettone",
+    "en": "panettone",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "panettone",
+    "singular": "panettone",
+    "plural": "panettoni",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "pa-net-TOH-neh",
+    "ipa": "[panetˈtoːne]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "panettone",
+    "extended": [
+      "S1: a tall, dome-shaped Italian sweet bread with dried fruit, traditionally eaten at Christmas"
+    ],
+    "usageNotes": "A Milanese specialty, panettone is the classic Italian Christmas cake. Some families also eat leftover panettone for breakfast."
+  },
+
+  "examples": [
+    {
+      "it": "Panettone, torta, delle cose...",
+      "en": "Panettone, cake, things like that...",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "A Natale mangiamo il panettone.",
+      "en": "At Christmas we eat panettone.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Preferisci il panettone o il pandoro?",
+      "en": "Do you prefer panettone or pandoro?",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Masculine noun ending in -e. Regular plural: panettoni.",
+    "patterns": ["-e to -i plural"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Italian: pane (bread) + -ettone (augmentative suffix)",
+    "evolution": "Literally 'big bread' or 'big loaf'. Originated in Milan, possibly from a legend about a baker named Toni ('pan de Toni').",
+    "mnemonic": "Pan (bread) + ettone (big) = a big festive bread."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": [],
+    "antonyms": [],
+    "collocations": ["panettone_di_Natale", "fetta_di_panettone"],
+    "expressions": [],
+    "grammar": [],
+    "themes": ["food", "breakfast", "holidays", "Christmas"],
+    "related": ["pandoro", "torta", "dolce", "pane"],
+    "phonetic": [],
+    "contrasts": ["pandoro"],
+    "semantic": ["dolce", "Natale", "tradizione"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "an Italian panettone Christmas bread on a table photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["pandoro", "panino", "pane"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>panettone</strong> coming soon.",
+    "quiz": "Quiz for <strong>panettone</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A2",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "id": "sud",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.south",
+
+  "legacyIcon": "🧭",
+
+  "headword": {
+    "it": "sud",
+    "en": "south",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "sud",
+    "singular": "sud",
+    "plural": "sud",
+    "variants": ["mezzogiorno", "meridione"]
+  },
+
+  "pronunciation": {
+    "readable": "SOOD",
+    "ipa": "[sud]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "south",
+    "extended": [
+      "S1: the cardinal direction opposite to north",
+      "S2: the southern part of a country, especially southern Italy (il Sud)"
+    ],
+    "usageNotes": "When referring to southern Italy, 'il Sud' is often capitalized and carries cultural connotations about regional identity, cuisine, and traditions."
+  },
+
+  "examples": [
+    {
+      "it": "Al sud si chiamano cornetti.",
+      "en": "In the south they're called cornetti.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Vengo dal sud d'Italia.",
+      "en": "I come from the south of Italy.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Al sud fa più caldo.",
+      "en": "In the south it's warmer.",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Invariable masculine noun. No plural form. Often used with 'al' (al sud = in the south).",
+    "patterns": ["al sud = in the south", "del sud = of the south"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "French: sud (from Old English sūþ)",
+    "evolution": "Borrowed from French 'sud', which itself comes from Old English. Replaced older Italian terms in common usage.",
+    "mnemonic": "Sud sounds like English 'south' minus the 'th'."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": ["mezzogiorno", "meridione"],
+    "antonyms": ["nord"],
+    "collocations": ["al_sud", "del_sud", "sud_Italia"],
+    "expressions": [],
+    "grammar": [],
+    "themes": ["geography", "directions", "Italy"],
+    "related": ["nord", "est", "ovest", "meridione"],
+    "phonetic": [],
+    "contrasts": ["nord"],
+    "semantic": ["direzione", "geografia", "Italia"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "a view of southern Italy coastline photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["nord", "est", "ovest"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>sud</strong> coming soon.",
+    "quiz": "Quiz for <strong>sud</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A1",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}

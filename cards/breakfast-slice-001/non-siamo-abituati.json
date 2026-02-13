@@ -1,0 +1,97 @@
+{
+  "id": "non-siamo-abituati",
+
+  "kind": "sentence",
+  "version": 1,
+
+  "lang": { "target": "it-IT", "native": "en-GB" },
+
+  "headword": {
+    "target": "Non siamo abituati.",
+    "native": "We are not used to it."
+  },
+
+  "level": "A2",
+  "tags": ["breakfast", "habits", "negation"],
+
+  "lemmaId": "essere-abituati",
+  "sense": {
+    "id": "1",
+    "gloss": "S1 — expressing lack of habit or familiarity (1st person plural)"
+  },
+
+  "type": "sentence",
+  "language": "it",
+
+  "forms": {
+    "canonical": "Non siamo abituati.",
+    "variants": ["Non siamo abituati a...", "Non sono abituato/a."]
+  },
+
+  "pronunciation": {
+    "readable": "non see-AH-mo a-bee-too-AH-tee",
+    "ipa": "non siˈaːmo abituˈaːti"
+  },
+
+  "meaning": {
+    "primary": "We are not used to it.",
+    "extended": [
+      "S1 — expressing that a habit or custom is unfamiliar to the speaker's group"
+    ],
+    "usageNotes": "'Essere abituati a' is a passive/adjectival construction meaning 'to be accustomed to'. The past participle 'abituati' agrees in gender and number with the subject."
+  },
+
+  "examples": [
+    {
+      "it": "Non siamo abituati a mangiare tantissimo a colazione.",
+      "en": "We are not used to eating a lot for breakfast."
+    },
+    {
+      "it": "Non siamo abituati al freddo.",
+      "en": "We are not used to the cold."
+    },
+    {
+      "it": "Non sono abituata a svegliarmi presto.",
+      "en": "I'm not used to waking up early. (f.)"
+    }
+  ],
+
+  "grammar": {
+    "notes": "'Non siamo abituati' uses 'essere' + past participle 'abituato' as an adjective. Agrees with subject: abituato (m.sg.), abituata (f.sg.), abituati (m.pl.), abituate (f.pl.). Followed by 'a' + infinitive or 'a' + noun.",
+    "patterns": ["non + essere + abituato/a/i/e + a + infinitive", "non + essere + abituato/a/i/e + a + noun"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Latin: habituare (to bring into a condition)",
+    "evolution": "From Latin 'habitus' (condition, habit). The construction 'essere abituato' is a stative passive expressing a habitual state.",
+    "mnemonic": "Think of English 'habituated' — 'abituati' shares the same Latin root."
+  },
+
+  "relations": {
+    "related": ["abitudine", "abituarsi", "solito"],
+    "forms": ["non-sono-abituato", "non-siamo-abituate"],
+    "synonyms": ["non-siamo-soliti"],
+    "antonyms": ["siamo-abituati"],
+    "collocations": ["abituati_a", "non_essere_abituati"],
+    "expressions": ["essere_abituati_a", "abituarsi_a"],
+    "themes": ["habits", "daily-routine", "negation"],
+    "semantic": ["abitudine", "costume", "familiarità"]
+  },
+
+  "media": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "a person shrugging about unfamiliar food customs photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["Non siamo stanchi.", "Non siamo pronti.", "Non siamo sicuri."]
+  }
+}

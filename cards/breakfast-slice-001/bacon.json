@@ -1,0 +1,112 @@
+{
+  "id": "bacon",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.bacon",
+
+  "legacyIcon": "🥓",
+
+  "headword": {
+    "it": "bacon",
+    "en": "bacon",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "informal"
+  },
+
+  "forms": {
+    "canonical": "bacon",
+    "singular": "bacon",
+    "plural": "bacon",
+    "variants": ["bèicon"]
+  },
+
+  "pronunciation": {
+    "readable": "BEH-kon",
+    "ipa": "[ˈbɛːkon]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "bacon",
+    "extended": [
+      "S1: cured pork belly sliced thin, typically fried; associated with English/American breakfast"
+    ],
+    "usageNotes": "An English loanword. Bacon is not part of traditional Italian breakfast but is known through Anglo-American cultural influence."
+  },
+
+  "examples": [
+    {
+      "it": "Di solito non prendiamo bacon.",
+      "en": "We don't usually have bacon.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Non prendiamo bacon e uova a colazione.",
+      "en": "We don't have bacon and eggs for breakfast.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Il bacon è tipico della colazione inglese.",
+      "en": "Bacon is typical of an English breakfast.",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Invariable masculine noun (English loanword). Same form in singular and plural.",
+    "patterns": ["invariable noun (loanword)"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "English: bacon (from Old French bacon, from Frankish *bakko, back meat)",
+    "evolution": "English loanword adopted into Italian. In Italy, the native equivalent is 'pancetta', but 'bacon' specifically refers to the Anglo-American product.",
+    "mnemonic": "Bacon sounds the same in Italian — just say it with an Italian accent: BEH-kon."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": ["pancetta"],
+    "antonyms": [],
+    "collocations": ["bacon_e_uova", "fetta_di_bacon"],
+    "expressions": [],
+    "grammar": [],
+    "themes": ["food", "breakfast", "loanwords"],
+    "related": ["uova", "pancetta", "colazione"],
+    "phonetic": [],
+    "contrasts": ["pancetta"],
+    "semantic": ["carne", "colazione", "cibo"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "crispy bacon strips on a plate photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["pancetta", "prosciutto", "salame"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>bacon</strong> coming soon.",
+    "quiz": "Quiz for <strong>bacon</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A1",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}

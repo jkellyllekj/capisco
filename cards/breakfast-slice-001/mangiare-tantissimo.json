@@ -1,0 +1,97 @@
+{
+  "id": "mangiare-tantissimo",
+
+  "kind": "sentence",
+  "version": 1,
+
+  "lang": { "target": "it-IT", "native": "en-GB" },
+
+  "headword": {
+    "target": "Mangiare tantissimo.",
+    "native": "To eat a lot."
+  },
+
+  "level": "A2",
+  "tags": ["breakfast", "food", "quantity"],
+
+  "lemmaId": "mangiare-tantissimo",
+  "sense": {
+    "id": "1",
+    "gloss": "S1 — expressing eating a large quantity, often with superlative emphasis"
+  },
+
+  "type": "sentence",
+  "language": "it",
+
+  "forms": {
+    "canonical": "Mangiare tantissimo.",
+    "variants": ["Mangiare tanto.", "Mangiare molto."]
+  },
+
+  "pronunciation": {
+    "readable": "man-JAH-reh tan-TEES-see-mo",
+    "ipa": "manˈd͡ʒaːre tanˈtissimo"
+  },
+
+  "meaning": {
+    "primary": "To eat a lot.",
+    "extended": [
+      "S1 — eating in very large quantities; used with superlative emphasis"
+    ],
+    "usageNotes": "'Tantissimo' is the absolute superlative of 'tanto' (a lot), meaning 'very much' or 'an awful lot'. Common in informal speech to emphasize quantity."
+  },
+
+  "examples": [
+    {
+      "it": "Non siamo abituati a mangiare tantissimo.",
+      "en": "We are not used to eating a lot."
+    },
+    {
+      "it": "A Natale si mangia tantissimo.",
+      "en": "At Christmas you eat a huge amount."
+    },
+    {
+      "it": "Mi piace mangiare tantissimo la pizza.",
+      "en": "I really love eating pizza."
+    }
+  ],
+
+  "grammar": {
+    "notes": "'Mangiare' is the infinitive of 'to eat'. 'Tantissimo' is the absolute superlative of 'tanto', formed by adding -issimo. As an adverb modifying the verb, it does not change for gender or number.",
+    "patterns": ["verb + tantissimo (adverb, invariable)"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Latin: manducare (to chew) + tantus (so much) + -issimus (superlative)",
+    "evolution": "'Mangiare' from Vulgar Latin 'manducare'. 'Tantissimo' adds the absolute superlative suffix '-issimo' to 'tanto'.",
+    "mnemonic": "Think of 'manger' (French, to eat) + 'tantissimo' = the most eating possible!"
+  },
+
+  "relations": {
+    "related": ["mangiare", "tanto", "cibo", "colazione"],
+    "forms": ["mangio-tantissimo", "mangiamo-tantissimo"],
+    "synonyms": ["mangiare-molto", "mangiare-tanto"],
+    "antonyms": ["mangiare-poco", "mangiare-pochissimo"],
+    "collocations": ["mangiare_tantissimo", "mangiare_tanto", "a_colazione"],
+    "expressions": ["mangiare_come_un_lupo"],
+    "themes": ["food", "quantity", "habits"],
+    "semantic": ["cibo", "quantità", "abitudine"]
+  },
+
+  "media": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "a large Italian feast with lots of food on a table photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["Mangiare pochissimo.", "Bere tantissimo.", "Dormire tantissimo."]
+  }
+}

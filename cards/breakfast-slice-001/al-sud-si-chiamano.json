@@ -1,0 +1,97 @@
+{
+  "id": "al-sud-si-chiamano",
+
+  "kind": "sentence",
+  "version": 1,
+
+  "lang": { "target": "it-IT", "native": "en-GB" },
+
+  "headword": {
+    "target": "Al sud si chiamano cornetti.",
+    "native": "In the south they are called cornetti."
+  },
+
+  "level": "A2",
+  "tags": ["breakfast", "regional-italian", "si-passivante"],
+
+  "lemmaId": "chiamarsi-regionale",
+  "sense": {
+    "id": "1",
+    "gloss": "S1 — expressing regional naming conventions using impersonal 'si' construction"
+  },
+
+  "type": "sentence",
+  "language": "it",
+
+  "forms": {
+    "canonical": "Al sud si chiamano cornetti.",
+    "variants": ["Al sud li chiamano cornetti.", "Nel sud si chiamano cornetti."]
+  },
+
+  "pronunciation": {
+    "readable": "al SOOD see KYAH-mah-no kor-NET-tee",
+    "ipa": "al sud si ˈkjaːmano korˈnetːi"
+  },
+
+  "meaning": {
+    "primary": "In the south they are called cornetti.",
+    "extended": [
+      "S1 — describing how the same pastry (brioche/cornetto) has different names in different regions of Italy"
+    ],
+    "usageNotes": "Uses 'si passivante' (passive si) — 'si chiamano' means 'they are called'. This construction is common in Italian to express what things are called or how things are done generally."
+  },
+
+  "examples": [
+    {
+      "it": "Al sud si chiamano cornetti, al nord brioche.",
+      "en": "In the south they're called cornetti, in the north brioche."
+    },
+    {
+      "it": "Al sud si mangia più tardi.",
+      "en": "In the south people eat later."
+    },
+    {
+      "it": "Come si chiamano questi dolci al sud?",
+      "en": "What are these pastries called in the south?"
+    }
+  ],
+
+  "grammar": {
+    "notes": "'Si chiamano' is a 'si passivante' (passive si) construction: 'si' + 3rd person plural verb. 'Al sud' = 'a' + 'il' = at/in the south. The verb agrees in number with the subject ('cornetti', plural).",
+    "patterns": ["al + direction + si + 3rd person verb", "si passivante + plural noun"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Italian: chiamare (from Latin clamare, to shout/call) + si passivante",
+    "evolution": "The 'si passivante' is a distinctively Italian grammatical construction that emerged from Latin reflexive forms to express passive meaning.",
+    "mnemonic": "Think: 'In the south, they self-call them cornetti' — the 'si' makes it passive."
+  },
+
+  "relations": {
+    "related": ["chiamarsi", "cornetto", "sud", "nord"],
+    "forms": ["al-nord-si-chiamano", "si-chiama", "si-chiamano"],
+    "synonyms": ["nel-sud-si-chiamano"],
+    "antonyms": [],
+    "collocations": ["al_sud", "si_chiamano", "si_chiama"],
+    "expressions": ["come_si_chiama"],
+    "themes": ["regional-language", "food", "geography"],
+    "semantic": ["nome", "regione", "tradizione"]
+  },
+
+  "media": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "Italian cornetti pastries in a southern Italian bakery photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["Al sud si mangiano cornetti.", "Al sud si vendono cornetti.", "Al sud si fanno cornetti."]
+  }
+}

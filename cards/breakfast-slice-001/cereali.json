@@ -1,0 +1,113 @@
+{
+  "id": "cereali",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.cereal",
+
+  "legacyIcon": "🥣",
+
+  "headword": {
+    "it": "cereali",
+    "en": "cereals",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "cereali",
+    "singular": "cereale",
+    "plural": "cereali",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "che-reh-AH-lee",
+    "ipa": "[t͡ʃereˈaːli]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "cereals",
+    "extended": [
+      "S1: breakfast cereal, typically eaten with milk",
+      "S2: cereal grains (wheat, rice, corn, etc.)"
+    ],
+    "usageNotes": "In a breakfast context, 'cereali' refers to boxed breakfast cereal. More broadly, it refers to cereal grains."
+  },
+
+  "examples": [
+    {
+      "it": "Latte e cereali.",
+      "en": "Milk and cereal.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Mangio i cereali a colazione.",
+      "en": "I eat cereal for breakfast.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "I cereali sono nella credenza.",
+      "en": "The cereal is in the cupboard.",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Masculine noun. Singular 'cereale' is uncommon in breakfast context; usually used in plural 'cereali'.",
+    "patterns": ["-e to -i plural"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Latin: cerealis (relating to Ceres, goddess of agriculture)",
+    "evolution": "From Latin 'cerealis' meaning 'of grain', named after the Roman goddess Ceres.",
+    "mnemonic": "Ceres the goddess of harvest gave us 'cereali' — cereal grains."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": [],
+    "antonyms": [],
+    "collocations": ["latte_e_cereali", "ciotola_di_cereali"],
+    "expressions": [],
+    "grammar": [],
+    "themes": ["food", "breakfast"],
+    "related": ["latte", "colazione", "ciotola"],
+    "phonetic": [],
+    "contrasts": [],
+    "semantic": ["cibo", "colazione", "grano"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "a bowl of breakfast cereal with milk photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["cervello", "cerchio", "centrale"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>cereali</strong> coming soon.",
+    "quiz": "Quiz for <strong>cereali</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A1",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}

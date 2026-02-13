@@ -1,0 +1,118 @@
+{
+  "id": "latte",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.milk",
+
+  "legacyIcon": "🥛",
+
+  "headword": {
+    "it": "latte",
+    "en": "milk",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "latte",
+    "singular": "latte",
+    "plural": "latti",
+    "variants": []
+  },
+
+  "pronunciation": {
+    "readable": "LAT-teh",
+    "ipa": "[ˈlatːe]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "milk",
+    "extended": [
+      "S1: the white liquid produced by mammals, used as a drink and in cooking"
+    ],
+    "usageNotes": "In Italy, 'latte' on its own always means milk. In English-speaking countries, 'latte' often refers to a coffee drink (caffè latte)."
+  },
+
+  "examples": [
+    {
+      "it": "Stamattina latte e cereali.",
+      "en": "This morning, milk and cereal.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Bevo un bicchiere di latte ogni mattina.",
+      "en": "I drink a glass of milk every morning.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Il latte è nella bottiglia.",
+      "en": "The milk is in the bottle.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Vuoi il latte nel caffè?",
+      "en": "Do you want milk in your coffee?",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Masculine noun ending in -e. Plural 'latti' is rare; usually uncountable.",
+    "patterns": ["-e to -i plural (rare for liquids)"],
+    "exceptions": []
+  },
+
+  "etymology": {
+    "origin": "Latin: lac, lactis",
+    "evolution": "From Latin 'lac' (milk), through Vulgar Latin 'lacte' to Italian 'latte'.",
+    "mnemonic": "Think of 'lactose' — the sugar in latte (milk)."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": [],
+    "antonyms": [],
+    "collocations": ["latte_e_cereali", "bicchiere_di_latte", "caffè_e_latte"],
+    "expressions": ["caffè_latte", "latte_macchiato"],
+    "grammar": [],
+    "themes": ["food", "breakfast", "drinks"],
+    "related": ["caffè", "cappuccino", "cereali", "colazione"],
+    "phonetic": ["latte (identical)"],
+    "contrasts": ["caffè"],
+    "semantic": ["bevanda", "colazione", "latticini"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "a glass of fresh milk on a breakfast table photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["letto", "lattuga", "lento"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>latte</strong> coming soon.",
+    "quiz": "Quiz for <strong>latte</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A1",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}

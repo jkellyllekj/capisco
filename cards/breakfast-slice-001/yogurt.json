@@ -1,0 +1,112 @@
+{
+  "id": "yogurt",
+  "type": "vocab",
+  "language": "it",
+  "conceptId": "concept.yogurt",
+
+  "legacyIcon": "🥄",
+
+  "headword": {
+    "it": "yogurt",
+    "en": "yogurt",
+    "partOfSpeech": "noun",
+    "gender": "m",
+    "register": "neutral"
+  },
+
+  "forms": {
+    "canonical": "yogurt",
+    "singular": "yogurt",
+    "plural": "yogurt",
+    "variants": ["iogurt"]
+  },
+
+  "pronunciation": {
+    "readable": "YO-gurt",
+    "ipa": "[ˈjɔɡurt]",
+    "audio": { "it": null, "en": null }
+  },
+
+  "meaning": {
+    "primary": "yogurt",
+    "extended": [
+      "S1: a thick, creamy dairy product made from fermented milk"
+    ],
+    "usageNotes": "Invariable noun — the plural is also 'yogurt'. Common breakfast item in Italy, often eaten with fruit."
+  },
+
+  "examples": [
+    {
+      "it": "Caffè, yogurt e brioche.",
+      "en": "Coffee, yogurt, and brioche.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Mangio uno yogurt alla frutta.",
+      "en": "I eat a fruit yogurt.",
+      "source": "demo",
+      "difficulty": "easy"
+    },
+    {
+      "it": "Lo yogurt è nel frigorifero.",
+      "en": "The yogurt is in the fridge.",
+      "source": "demo",
+      "difficulty": "easy"
+    }
+  ],
+
+  "grammar": {
+    "notes": "Invariable masculine noun — same form in singular and plural. Takes the article 'lo' (lo yogurt).",
+    "patterns": ["invariable noun"],
+    "exceptions": ["Uses article 'lo' instead of 'il' due to initial semivowel"]
+  },
+
+  "etymology": {
+    "origin": "Turkish: yoğurt",
+    "evolution": "From Turkish 'yoğurt' (to thicken), borrowed into Italian through French and other European languages.",
+    "mnemonic": "Yogurt sounds almost the same in many languages — a global word from Turkish."
+  },
+
+  "relations": {
+    "lemma": [],
+    "forms": [],
+    "synonyms": [],
+    "antonyms": [],
+    "collocations": ["yogurt_alla_frutta", "vasetto_di_yogurt"],
+    "expressions": [],
+    "grammar": [],
+    "themes": ["food", "breakfast", "dairy"],
+    "related": ["latte", "frutta", "colazione"],
+    "phonetic": [],
+    "contrasts": [],
+    "semantic": ["latticini", "colazione", "cibo"]
+  },
+
+  "images": {
+    "fallback": {
+      "type": "auto",
+      "prompt": "a cup of yogurt with fruit on a breakfast table photorealistic",
+      "style": "photorealistic"
+    },
+    "canonical": []
+  },
+
+  "quizSeeds": {
+    "recognition": true,
+    "recall": true,
+    "production": true,
+    "distractors": ["formaggio", "gelato", "burro"]
+  },
+
+  "placeholders": {
+    "grammar": "Grammar breakdown for <strong>yogurt</strong> coming soon.",
+    "quiz": "Quiz for <strong>yogurt</strong> coming soon."
+  },
+
+  "metadata": {
+    "difficulty": "A1",
+    "tags": ["Breakfast"],
+    "rankId": "#0000"
+  }
+}
